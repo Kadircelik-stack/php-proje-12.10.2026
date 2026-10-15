@@ -2,6 +2,8 @@
 
 Açık Arttırma Sitesi
 
+Not: Son düzenlenmiş belgeler; Martollo SRS Documanı.pdf, Martello SRS Sunumu-5.pdf, Martello Takım üyelerinin görevleri.docx, README.md.  Bu belgeler düzenlenmiştir. Değerlendirmeler bu belgeler üzerinden yapılması gerekir. 
+
 PROJEYİ YAPAN TAKIM ÜYELERİ
 
 Abdullah Kadir Çelik 2407231061
