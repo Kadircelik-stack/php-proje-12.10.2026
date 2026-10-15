@@ -1,4 +1,5 @@
 # php-proje-12.10.2026
+
 Açık Arttırma Sitesi
 
 PROJEYİ YAPAN TAKIM ÜYELERİ
