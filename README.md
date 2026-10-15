@@ -1,8 +1,12 @@
 # php-proje-12.10.2026
 Açık Arttırma Sitesi
+
 PROJEYİ YAPAN TAKIM ÜYELERİ
+
 Abdullah Kadir Çelik 2407231061
+
 Esra Yıldırım 2407231069
+
 Rümeysa Şevval Kandilci 2407231031
 
 PROJE GENEL AÇIKLAMA
