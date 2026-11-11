@@ -1,0 +1,6 @@
+/vendor/
+/storage/locks/*.lock
+/storage/*.tmp.*
+.DS_Store
+Thumbs.db
+*.log

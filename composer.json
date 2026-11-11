@@ -1,0 +1,37 @@
+{
+  "name": "zeroday/martello-auction-platform",
+  "description": "Martello Cevrimici Muzayede ve Ekspertiz Platformu - 2. Asama: JSON Veri Deposu, Tasarim Desenleri, Is Kurallari ve Katmanli Mimari",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Esra Yildirim",
+      "role": "Developer"
+    },
+    {
+      "name": "Abdullah Kadir Celik",
+      "role": "Developer"
+    },
+    {
+      "name": "Rumeysa Sevval Kandilci",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Martello\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Martello\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "start": "php -S localhost:8000 index.php",
+    "test": "php tests/Stage2ArchitectureAndRulesTest.php"
+  }
+}

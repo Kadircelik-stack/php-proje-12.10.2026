@@ -1,17 +1,43 @@
-# Martello-12.10.2026
+# MARTELLO — Çevrimiçi Müzayede ve Ekspertiz Platformu (PHP Katmanlı Mimari & JSON Veri Deposu)
 
-Açık Arttırma Sitesi
+**Gümüşhane Üniversitesi — Yazılım Mühendisliği (ZeroDay Ekibi)**
+* **Esra Yıldırım** — `2407231069`
+* **Abdullah Kadir Çelik** — `2407231061`
+* **Rümeysa Şevval Kandilci** — `2407231031`
 
-Not: Son düzenlenmiş belgeler; Martollo SRS Documanı.pdf, Martello SRS Sunumu-5.pdf, Martello Takım üyelerinin görevleri.docx, README.md.  Bu belgeler düzenlenmiştir. Değerlendirmeler bu belgeler üzerinden yapılması gerekir. 
+---
 
-PROJEYİ YAPAN TAKIM ÜYELERİ
+## 1. Proje Özeti ve 2. Aşama Kapsamı
 
-Abdullah Kadir Çelik 2407231061
+Bu depo, **Martello Açık Artırma Sitesi SRS Dokümanı** (IEEE Std 830-1998 & ISO/IEC/IEEE 29148:2018) kapsamında tanımlanan tüm fonksiyonel (**FR-01 – FR-37**), fonksiyonel olmayan (**NFR-01 – NFR-25**) ve risk (**R-01 – R-12**) gereksinimlerini **PHP 8+ Katmanlı Mimari (Layered Architecture)** ve **JSON Veri Deposu (`storage/martello_datastore.json`)** üzerinde eksiksiz olarak uygular:
 
-Esra Yıldırım 2407231069
+1. **Sunum ve İstemci Katmanı (`views/` & `public/`):** Bileşen Tabanlı Mimari (CBSE) prensibiyle geliştirilmiş 5 rol çalışma alanı (**Alıcı, Satıcı, Ekspertiz Uzmanı, Canlı Destek, Admin**) ve yeniden kullanılabilir bileşenler (`LotCard`, `AuctionTimer`, `CurrentBidDisplay`, `BidHistory`, `EscrowStatus`, `CurrencySelector`).
+2. **Güvenlik, RBAC ve Maskeleme Katmanı (`src/Middlewares/`):** 5 rol erişim kontrolü (**FR-05**), VIP Tier kontrolü (**NFR-14**), 50.000 eşzamanlı katılımcı kontenjan sınırı (**NFR-06**), Admin FIDO2/WebAuthn donanım tabanlı MFA (**NFR-18**) ve katılımcı kimliğini `Anonim-XYZ` olarak maskeleme (**NFR-25**).
+3. **İş Mantığı ve Tasarım Desenleri Katmanı (`src/Services/` & `src/Patterns/`):**
+   * **Strategy Deseni (`src/Patterns/Strategy/`):** `IBiddingRuleStrategy` (`LiveAuctionStrategy`, `VipAuctionStrategy`), `ICommissionStrategy` (`ArtAntiqueCommission`, `VehicleCommission`), `IPaymentStrategy` (`EscrowWalletStrategy`, `ThreeDSecurePosStrategy`), `ICurrencyStrategy` (`TryCurrencyStrategy`, `UsdCurrencyStrategy`, `EurCurrencyStrategy`).
+   * **Observer Deseni (`src/Patterns/Observer/`):** `AuctionSubject` yayımcısı ve 7 somut gözlemci (`LiveBidScreenObserver`, `TimerSyncObserver`, `WatchlistObserver`, `EscrowReleaseObserver`, `NotificationObserver`, `OrderAndReminderObserver`, `AuditAndFraudObserver`).
+   * **Çekirdek İş Kuralları:** Otomatik Teklif / Proxy Bidding (**Bölüm 2.6.1, NFR-24**), Son Saniye Uzatması / Anti-Sniping (`<30 sn` kala ilk 2 uzamada `+30 sn`, 3+ uzamada `+10 sn` — **FR-33, NFR-23**), Eşzamanlı Teklif Yarışı Karamsar Kilitleme (`flock(LOCK_EX)` — **Bölüm 2.6.3, NFR-04**).
+4. **Veri Erişim ve JSON Veri Deposu Katmanı (`src/Core/JsonDataStore.php`, `src/Repositories/`, `storage/`):** Tam ACID Transaction (Atomicity, Consistency, Isolation, Durability) ve Rollback destekli 20 koleksiyonlu aktif JSON veri deposu (`storage/martello_datastore.json`), 1+ yıl soğuk arşiv deposu (`storage/martello_archive_store.json` — **NFR-21**), Argon2id parola hashleme (**NFR-19**), AES-256-GCM şifreleme (**NFR-12**) ve SHA-256 blok zincirlemeli WORM denetim izi (**FR-25, R-12**).
 
-Rümeysa Şevval Kandilci 2407231031
+---
 
-PROJE GENEL AÇIKLAMA
+## 2. Kurulum ve Çalıştırma
 
-Martello Açık Artırma Sitesi (Çevrimiçi Müzayede ve Ekspertiz Platformu), yüksek değerli ve koleksiyonluk ürünlerin (lotların) bireysel veya kurumsal satıcılar tarafından sisteme eklendiği, bağımsız ve akredite ekspertiz uzmanlarınca fiziksel ve teknik açıdan incelenerek orijinallik raporu ve piyasa değerlemesiyle doğrulandığı, yönetici (Admin) denetiminden geçtikten sonra Canlı, Aktif (süreli) veya VIP müzayedelerde alıcıların rekabetçi tekliflerine (peylerine) açıldığı web ve bulut tabanlı bir e-ticaret ekosistemidir. Rol tabanlı erişim kontrolü (RBAC) ve KVKK uyumlu kimlik doğrulama (KYC) altyapısı üzerinde Alıcı, Satıcı, Ekspertiz, Canlı Destek ve Admin olmak üzere beş temel paydaşı buluşturan platform; istemci tarafında Bileşen Tabanlı Mimari (CBSE), arka uçta ise gerçek zamanlı WebSocket pey motoru ile Observer ve Strategy tasarım desenlerini birlikte kullanır. Bu mimari sayesinde sistem; milisaniyelik anlık fiyat ve sunucu senkronizasyonlu geri sayım yayını, eşzamanlı teklif çakışmalarını (Race Condition) önleyen dağıtık/karamsar kilitlenme mekanizmaları, son dakika tekliflerinde süreyi otomatik uzatan Anti-Sniping (Soft Close) kuralı ve tavan bütçe dahilinde çalışan Otomatik Teklif (Proxy Bidding) gibi kritik mühendislik problemlerini çözer. Ayrıca teklif anında devreye giren Emanet (Escrow) hesap blokajı, çoklu para birimi (TRY/USD/EUR) desteği, kategori bazlı dinamik komisyon hesaplama, PCI-DSS uyumlu 3D Secure Sanal POS entegrasyonu, otomatik sipariş ve ödeme hatırlatma akışları, canlı destek/ihtilaf çözümü ve değiştirilemez (WORM) denetim izi kayıtlarıyla uçtan uca şeffaf, adil ve güvenli bir müzayede süreci sunar.
+### Windows (XAMPP veya Yerleşik PHP)
+`baslat.bat` dosyasına çift tıklayın veya terminalde şu komutu çalıştırın:
+```bash
+php -S localhost:8000 index.php
+```
+Ardından tarayıcınızda `http://localhost:8000` adresini açın.
+
+### macOS / Linux / GitHub Codespaces
+```bash
+./baslat.command
+# veya
+php -S localhost:8000 index.php
+```
+
+### 2. Aşama Otomatik Testlerini Çalıştırma
+```bash
+php tests/Stage2ArchitectureAndRulesTest.php
+```
