@@ -29,8 +29,6 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
 <header class="martello-topbar">
   <div class="brand-wrap">
     <a href="?role=vitrin" class="brand-title">MARTELLO</a>
-    <div class="brand-divider"></div>
-    <span class="brand-gavel">🔨</span>
   </div>
 
   <div class="topbar-nav">
