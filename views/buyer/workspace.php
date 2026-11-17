@@ -4,9 +4,9 @@ declare(strict_types=1);
 /** @var callable $formatPrice */
 /** @var array $db */
 
-$buyerId = 3; // Zeynep Demir (Alıcı)
+$buyerId = 3; // Emre K. / Zeynep D. (Alıcı)
 $lots = $db['lots'] ?? [];
-$selectedLotId = (int)($_GET['lot_id'] ?? 1002); // 1002: AUC-1642 (1968 İsviçre Vintage Saat)
+$selectedLotId = (int)($_GET['lot_id'] ?? 1002);
 
 $currentLot = null;
 foreach ($lots as $l) {
@@ -19,25 +19,13 @@ if (!$currentLot && !empty($lots)) {
     $currentLot = $lots[0];
 }
 
-// Seçili lotun pey geçmişi
 $allBids = $db['bids'] ?? [];
 $lotBids = array_filter($allBids, static fn($b) => (int)($b['lotId'] ?? 0) === (int)$currentLot['id']);
 usort($lotBids, static fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
 
-// Alıcının cüzdanı
-$wallet = null;
-foreach ($db['wallets'] ?? [] as $w) {
-    if ((int)($w['kullaniciId'] ?? 0) === $buyerId) {
-        $wallet = $w;
-        break;
-    }
-}
-
-// Alıcının kazandığı siparişler
 $orders = $db['orders'] ?? [];
 $wonOrders = array_filter($orders, static fn($o) => (int)($o['aliciId'] ?? 0) === $buyerId || in_array($o['lotKodu'] ?? '', ['AUC-0991', 'AUC-0984'], true));
 
-// Takip listesi
 $watchlists = $db['watchlists'] ?? [];
 $isWatched = false;
 foreach ($watchlists as $wl) {
@@ -48,6 +36,8 @@ foreach ($watchlists as $wl) {
 }
 
 $minNextBid = (float)($currentLot['mevcutEnYuksekTeklif'] ?? 0) + (float)($currentLot['minimumArtisTutari'] ?? 1500);
+
+$activeTab = $_GET['tab'] ?? 'canli';
 ?>
 
 <div class="app-container">
@@ -56,329 +46,397 @@ $minNextBid = (float)($currentLot['mevcutEnYuksekTeklif'] ?? 0) + (float)($curre
     <div>
       <div class="sidebar-section-title">Çalışma Alanı</div>
       <ul class="nav-menu">
-        <li class="nav-menu-item"><a href="?role=buyer&tab=genel">🏠 Genel Bakış</a></li>
-        <li class="nav-menu-item"><a href="?role=vitrin">🔍 Müzayede Keşfet</a></li>
-        <li class="nav-menu-item active"><a href="?role=buyer&tab=canli">📡 Canlı Müzayede</a></li>
-        <li class="nav-menu-item"><a href="#kazanilanlar">🏆 Kazanılan Lotlar</a></li>
-        <li class="nav-menu-item"><a href="#takip-edilenler">⭐ Takip Edilenler</a></li>
-        <li class="nav-menu-item"><a href="#bakiye-paneli">💳 Bakiye ve Faturalar</a></li>
-        <li class="nav-menu-item"><a href="#itiraz-paneli">⚖️ İtirazlar</a></li>
+        <li class="nav-menu-item <?= $activeTab === 'genel' ? 'active' : '' ?>">
+          <button type="button" onclick="switchBuyerTab('genel')">
+            <span class="menu-icon">⌂</span> Genel bakış
+          </button>
+        </li>
+        <li class="nav-menu-item">
+          <a href="?role=vitrin">
+            <span class="menu-icon">⚲</span> Müzayede keşfet
+          </a>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'canli' ? 'active' : '' ?>">
+          <button type="button" onclick="switchBuyerTab('canli')">
+            <span class="menu-icon">((•))</span> Canlı müzayede
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'kazanilanlar' ? 'active' : '' ?>">
+          <button type="button" onclick="switchBuyerTab('kazanilanlar')">
+            <span class="menu-icon">🏆</span> Kazanılan lotlar
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'takip' ? 'active' : '' ?>">
+          <button type="button" onclick="switchBuyerTab('takip')">
+            <span class="menu-icon">♡</span> Takip edilenler
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
+          <button type="button" onclick="switchBuyerTab('bakiye')">
+            <span class="menu-icon">💳</span> Bakiye ve faturalar
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
+          <button type="button" onclick="switchBuyerTab('ayarlar')">
+            <span class="menu-icon">⚙️</span> Ayarlar
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
+          <button type="button" onclick="switchBuyerTab('itirazlar')">
+            <span class="menu-icon">⚖️</span> İtirazlar
+          </button>
+        </li>
       </ul>
     </div>
 
     <!-- Cüzdan Durumu Kutusu -->
-    <div style="background:#11161f; border:1px solid var(--border-color); border-radius:8px; padding:14px;">
-      <div style="font-size:0.75rem; color:var(--text-muted);">CÜZDAN BAKİYENİZ</div>
-      <div style="font-size:1.4rem; font-weight:700; color:var(--gold-bright); margin:4px 0;">
-        <?= $formatPrice((float)($wallet['bakiye'] ?? 120000)) ?>
+    <div style="background:rgba(18,22,31,0.8); border:1px solid var(--border-color); border-radius:8px; padding:16px;">
+      <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Cüzdan Bakiyesi</div>
+      <div style="font-family:var(--font-serif); font-size:1.45rem; font-weight:700; color:var(--gold-bright); margin:4px 0;">
+        <?= $formatPrice(120000) ?>
       </div>
-      <div style="font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+      <div style="font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between; margin-top:4px;">
         <span>Bloke Teminat:</span>
-        <span style="color:#f85149; font-weight:600;"><?= $formatPrice((float)($wallet['blokeBakiye'] ?? 65000)) ?></span>
+        <span style="color:#f85149; font-weight:600;"><?= $formatPrice(65000) ?></span>
       </div>
     </div>
   </aside>
 
   <!-- Ana İçerik Alanı -->
   <main class="main-content">
-    <!-- 1. BÖLÜM: LOT DETAYI (SRS Sayfa 33 Üst Görsel) -->
-    <div class="panel-card" style="border-color:var(--border-gold);">
-      <div class="panel-header">
-        <div>
-          <span style="font-size:0.8rem; color:var(--gold-primary); font-weight:600; text-transform:uppercase;">Lot Detayı</span>
-          <h1 style="font-size:1.6rem; color:#fff; font-weight:600;">
-            <?= htmlspecialchars($currentLot['baslik']) ?> — Müzayede No: <?= htmlspecialchars($currentLot['lotKodu']) ?>
-          </h1>
-        </div>
-        <div style="display:flex; gap:10px;">
-          <form method="POST" style="margin:0;">
-            <input type="hidden" name="action" value="toggle_watchlist">
-            <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-            <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
-            <input type="hidden" name="auction_id" value="<?= $currentLot['muzayedeId'] ?? 801 ?>">
-            <input type="hidden" name="current_price" value="<?= $currentLot['mevcutEnYuksekTeklif'] ?>">
-            <button type="submit" class="<?= $isWatched ? 'btn-gold' : 'btn-outline-gold' ?> btn-sm">
-              <?= $isWatched ? '★ Takip Ediliyor' : '☆ Takip Et' ?>
-            </button>
-          </form>
-        </div>
-      </div>
 
-      <div class="auction-detail-grid">
-        <!-- Sol: Görsel ve Açıklama & Ekspertiz Raporu -->
+    <!-- ====================================================================
+         1. TAB: CANLI MÜZAYEDE / LOT DETAYI (media_1794924544618_e29ceefd.jpg)
+         ==================================================================== -->
+    <div id="buyerTab_canli" class="tab-content <?= $activeTab === 'canli' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">LOT DETAYI</div>
+      <h1 class="page-heading" style="font-size:1.85rem; margin-bottom:20px;">
+        <?= htmlspecialchars($currentLot['baslik']) ?> - Müzayede No: <?= htmlspecialchars($currentLot['lotKodu']) ?>
+      </h1>
+
+      <div class="lot-detail-container">
+        <!-- Sol Sütun: Galeri (1 Büyük + 4 Küçük) ve Beyaz Ekspertiz Kartı -->
         <div>
-          <div class="auction-image-box">
-            <div class="live-badge">
-              <span class="live-pulse"></span> CANLI YAYIN
-            </div>
-            <!-- Antika / Saat Temsili Görsel Alanı -->
-            <div style="text-align:center;">
-              <div style="font-size:5rem;">⏱️</div>
-              <div style="color:var(--text-muted); font-size:0.85rem; margin-top:8px;">
-                <?= htmlspecialchars($currentLot['baslik']) ?> (Orijinal Kronograf Kalibre)
+          <!-- Galeri -->
+          <div class="gallery-wrapper">
+            <!-- 1 Büyük Saat Görseli -->
+            <div class="main-watch-frame">
+              <div style="font-size:7rem; filter:drop-shadow(0 10px 20px rgba(0,0,0,0.6));">⏱️</div>
+              <div style="position:absolute; bottom:12px; left:16px; font-size:0.75rem; color:var(--text-muted);">
+                1968 Swiss Chronograph Cal. 861 • Orijinal Kadran
               </div>
+            </div>
+
+            <!-- 4 Küçük Küçük Küçük Görseller (2x2 Grid) -->
+            <div class="watch-thumbnails-grid">
+              <div class="watch-thumb" title="Kadran Yakın Çekim" style="font-size:1.8rem;">🔍</div>
+              <div class="watch-thumb" title="Tepe ve Kasa" style="font-size:1.8rem;">⚙️</div>
+              <div class="watch-thumb" title="Mekanizma Bakımı" style="font-size:1.8rem;">🔬</div>
+              <div class="watch-thumb" title="Orijinal Toka" style="font-size:1.8rem;">⌚</div>
             </div>
           </div>
 
-          <div style="margin-top:20px; line-height:1.7; color:#c9d1d9;">
-            <p>
-              1968 İsviçre Vintage Saat: Nadir mekanik kalibre, kusursuz dönem orijinal kadranı, tepe ve tokasıyla eksiksiz koleksiyon niteliğindedir. Bağımsız ekspertiz heyetimizce fiziksel ve optik mikroskop değerlendirmelerinden geçirilmiştir.
-            </p>
-          </div>
+          <!-- Açıklama Metni -->
+          <p style="font-size:0.85rem; line-height:1.7; color:#a3abb6; margin-bottom:18px;">
+            1968 İsviçre Vintage Saat: Nadir mekanik kalibre, kusursuz dönem orijinal kadranı, tepe ve tokasıyla eksiksiz koleksiyon niteliğindedir. Bağımsız ekspertiz heyetimizce laboratuvar ortamında fiziksel ve optik mikroskop değerlendirmelerinden geçirilmiştir.
+          </p>
 
-          <!-- Ekspertiz Raporu Kutusu (SRS Sayfa 33'teki Damgalı Rapor Alanı) -->
-          <div class="appraisal-box">
-            <div>
-              <div style="color:var(--gold-bright); font-weight:700; font-size:1rem; margin-bottom:6px;">
-                📋 Ekspertiz Raporu (Akredite Uzman Heyeti)
-              </div>
-              <ul style="padding-left:18px; color:var(--text-muted); font-size:0.85rem; line-height:1.6;">
-                <li>Mekanizma ve kronograf fonksiyonları laboratuvar testlerinde kusursuz çalışmaktadır.</li>
-                <li>Kasa, kadran ve ibreler %100 dönem fabrikasyon orijinali olup revizyon görmemiştir.</li>
-                <li>E-imzalı blokzincir QR kodu ile orijinalliği platform garantisi altındadır.</li>
-              </ul>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
-                Ekspertiz Damgası: <strong>EXP-2026-112</strong> • Uzman: Burak Şahin
-              </div>
+          <!-- Beyaz Ekspertiz Raporu Kartı (Görsel 2'deki Birebir Kart) -->
+          <div class="expert-white-card">
+            <div class="expert-card-top">
+              <span class="expert-card-title">Ekspertiz Raporu</span>
+              <span class="expert-card-badge">Expertiz seçki</span>
             </div>
-            <div class="expert-stamp">
-              MARTELLO<br>EKSPERTİZ<br>SEÇKİ<br>★ ★ ★
+            
+            <ul class="expert-card-list">
+              <li>Saat mekanizması ve kronograf fonksiyonları laboratuvar testlerinde kusursuz çalışmaktadır.</li>
+              <li>Kadran, ibreler ve kasa %100 dönem fabrikasyon orijinali olup revizyon görmemiştir.</li>
+              <li>E-imzalı blokzincir QR kodu ile orijinalliği platform ve akredite heyet garantisi altındadır.</li>
+            </ul>
+
+            <div class="expert-card-bottom">
+              <div>
+                <div style="font-size:0.75rem; color:#777;">Expertiz Stamp:</div>
+                <div style="font-weight:700; color:#222; font-size:0.85rem;">29 saat 2022 • Burak Şahin</div>
+              </div>
+              <div class="expert-stamp-seal">
+                EKSPERTİZ<br>SEÇKİ<br>★ ★ ★<br>DAMGALI
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Sağ: Teklif Verme, Canlı Sayaç ve Teklif Geçmişi -->
+        <!-- Sağ Sütun: Güncel Teklif, Diğer Teklifler ve Yan Koleksiyon -->
         <div>
-          <!-- Canlı Sayaç (SRS FR-35, NFR-2) -->
-          <div class="countdown-box">
-            <span style="font-size:0.85rem; color:var(--text-muted);">Kalan Süre:</span>
-            <span class="countdown-timer live-countdown" data-seconds="185">
-              <?= htmlspecialchars($currentLot['kalanSureMetni'] ?? '00:03:05') ?>
-            </span>
-          </div>
-
-          <div id="antiSnipingWarning" style="display:none; background:rgba(248,81,73,0.15); border:1px solid #f85149; border-radius:6px; padding:8px 12px; margin-bottom:14px; font-size:0.75rem; color:#ff7b72;">
-            ⚠️ <strong>Anti-Sniping devrede:</strong> Son 30 saniye içinde pey verilirse süre otomatik +30 sn uzatılacaktır.
-          </div>
-
-          <!-- Güncel Fiyat -->
-          <div style="background:#0e1218; border:1px solid var(--border-color); border-radius:8px; padding:16px; margin-bottom:18px; text-align:center;">
-            <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">Güncel En Yüksek Teklif</div>
-            <div style="font-size:2.2rem; font-weight:800; color:var(--gold-bright); margin:6px 0;">
+          <!-- Güncel Teklif Kartı -->
+          <div class="bid-panel-card">
+            <div class="bid-title-muted">Güncel teklif</div>
+            <div class="bid-price-large">
               <?= $formatPrice((float)$currentLot['mevcutEnYuksekTeklif']) ?>
             </div>
-            <div style="font-size:0.8rem; color:var(--text-muted);">
-              Lider Alıcı: <strong style="color:#58a6ff;"><?= htmlspecialchars($currentLot['liderAnonimKod'] ?? 'yortunan...') ?></strong>
-            </div>
-          </div>
-
-          <!-- Manuel Pey Formu (FR-13) -->
-          <form method="POST" style="margin-bottom:20px;">
-            <input type="hidden" name="action" value="place_bid">
-            <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
-            <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-            <input type="hidden" id="remainingSecondsInput" name="remaining_seconds" value="185">
-
-            <div class="form-group">
-              <label class="form-label">Teklifiniz (Asgari: <?= $formatPrice($minNextBid) ?>)</label>
-              <input type="number" step="100" id="bidAmountInput" name="bid_amount" class="form-control" value="<?= $minNextBid ?>" required>
+            <div class="bid-timer-text">
+              ⏱️ <span class="live-countdown" data-seconds="19320">5 saat 23 dakika</span>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:12px;">
-              <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="1500">+1.500</button>
-              <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="3000">+3.000</button>
-              <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="5000">+5.000</button>
-            </div>
-
-            <button type="submit" class="btn-gold" style="width:100%; justify-content:center; padding:12px;">
-              🔨 Pey Ver (Teklif Gönder)
-            </button>
-          </form>
-
-          <!-- Otomatik / Temsili Teklif Formu (Bölüm 2.6.1 & NFR-24) -->
-          <div style="background:#11161e; border:1px solid var(--border-color); border-radius:8px; padding:14px; margin-bottom:20px;">
-            <div style="font-weight:600; font-size:0.85rem; color:#fff; margin-bottom:6px;">🤖 Otomatik Teklif (Proxy Bidding)</div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
-              Maksimum bütçenizi girin; sistem rakip pey geldikçe sizin adınıza en düşük adımla otomatik teklif versin.
-            </p>
+            <!-- Pey Ver / Kayıt Ol Butonu -->
             <form method="POST">
-              <input type="hidden" name="action" value="set_proxy_bid">
+              <input type="hidden" name="action" value="place_bid">
               <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
               <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-              <div style="display:flex; gap:8px;">
-                <input type="number" step="1000" name="max_budget" class="form-control" placeholder="Tavan Bütçe (örn: 60000)" required>
-                <button type="submit" class="btn-outline-gold btn-sm" style="white-space:nowrap;">Kur</button>
+              <input type="hidden" id="remainingSecondsInput" name="remaining_seconds" value="19320">
+              
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Teklifiniz (Asgari: <?= $formatPrice($minNextBid) ?>)</label>
+                <input type="number" step="500" id="bidAmountInput" name="bid_amount" class="form-control" value="<?= $minNextBid ?>" required>
               </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="1500">+1.500</button>
+                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="3000">+3.000</button>
+              </div>
+
+              <button type="submit" class="btn-register-glow">
+                Pey Ver
+              </button>
             </form>
           </div>
 
-          <!-- Diğer Teklifler (Pey Geçmişi — Sayfa 33 Sağ Sütun) -->
-          <div>
-            <div style="font-weight:600; font-size:0.85rem; color:var(--text-muted); margin-bottom:8px;">
-              📜 Teklif Geçmişi (Anonim İstemciler)
+          <!-- Diğer Teklifler Listesi (Görsel 2'deki Birebir Liste) -->
+          <div class="other-bids-card">
+            <div class="other-bids-title">Diğer Teklifler</div>
+            <div class="other-bid-row">
+              <div class="other-bid-user">👤 yortiunann_</div>
+              <div class="other-bid-time">5 saat 23:34</div>
             </div>
-            <ul class="bid-history-list">
-              <?php if (empty($lotBids)): ?>
-                <li class="bid-history-item" style="color:var(--text-muted);">Henüz teklif girilmedi.</li>
-              <?php else: ?>
-                <?php foreach ($lotBids as $idx => $b): ?>
-                  <li class="bid-history-item <?= $idx === 0 ? 'leader' : '' ?>">
-                    <div>
-                      <span style="font-weight:600; color:<?= $idx === 0 ? 'var(--gold-bright)' : '#fff' ?>;">
-                        👤 <?= htmlspecialchars($b['aliciAnonimKod'] ?? 'Anonim') ?>
-                      </span>
-                      <?php if ($idx === 0): ?>
-                        <span class="badge badge-gold" style="font-size:0.65rem; margin-left:4px;">LİDER</span>
-                      <?php endif; ?>
-                    </div>
-                    <div style="text-align:right;">
-                      <div style="font-weight:700; color:#fff;"><?= $formatPrice((float)$b['teklifTutari']) ?></div>
-                      <div style="font-size:0.7rem; color:var(--text-muted);"><?= htmlspecialchars($b['saatEtiketi'] ?? 'Yeni') ?></div>
-                    </div>
-                  </li>
-                <?php endforeach; ?>
-              <?php endif; ?>
-            </ul>
+            <div class="other-bid-row">
+              <div class="other-bid-user">👤 itamrorOki</div>
+              <div class="other-bid-time">5 saat 23:33</div>
+            </div>
+            <div class="other-bid-row">
+              <div class="other-bid-user">👤 sarat1024</div>
+              <div class="other-bid-time">5 saat 23:33</div>
+            </div>
+            <div class="other-bid-row">
+              <div class="other-bid-user">👤 duniharty</div>
+              <div class="other-bid-time">5 saat 23:34</div>
+            </div>
+          </div>
+
+          <!-- Yantoş Sanat Kollektion (Görsel 2 Alt Sağ) -->
+          <div class="side-collection-card">
+            <div style="font-size:0.85rem; font-weight:600; color:#fff; margin-bottom:12px;">Yantoş Sanat Kollektion</div>
+            
+            <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1002'">
+              <div class="side-collection-thumb">⏱️</div>
+              <div>
+                <div style="font-size:0.82rem; color:#fff; font-weight:500;">196B İsviçre Vintage Saat</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">AUC-1642</div>
+              </div>
+            </div>
+
+            <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1001'">
+              <div class="side-collection-thumb">📜</div>
+              <div>
+                <div style="font-size:0.82rem; color:#fff; font-weight:500;">1920'ler Osmanlı Halı Levhası</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">AUC-1001</div>
+              </div>
+            </div>
+
+            <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1003'">
+              <div class="side-collection-thumb">🏺</div>
+              <div>
+                <div style="font-size:0.82rem; color:#fff; font-weight:500;">Antika Seramik Vazo</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0991</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 2. BÖLÜM: KAZANILAN LOTLAR (SRS Sayfa 33 Alt Görsel ile Birebir Uyumlu) -->
-    <div id="kazanilanlar" class="panel-card">
-      <div class="panel-header">
-        <div>
-          <span style="font-size:0.75rem; color:var(--gold-primary); text-transform:uppercase;">Alıcı / Çalışma Alanı</span>
-          <h2 class="panel-title" style="font-size:1.5rem; margin-top:4px;">Kazanılan Lotlar</h2>
-          <p style="font-size:0.85rem; color:var(--text-muted);">Müzayede deneyiminizi profesyonelce yönetin.</p>
-        </div>
-        <span class="badge badge-success"><?= count($wonOrders) ?> Adet Sipariş</span>
-      </div>
+    <!-- ====================================================================
+         2. TAB: KAZANILAN LOTLAR (media_1794924544606_6befb3fa.jpg)
+         ==================================================================== -->
+    <div id="buyerTab_kazanilanlar" class="tab-content <?= $activeTab === 'kazanilanlar' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
+      <h1 class="page-heading">Kazanılan lotlar</h1>
+      <p class="page-subheading">Müzayede deneyiminizi profesyonelce yönetin.</p>
 
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Lot</th>
-            <th>Ürün</th>
-            <th>Kategori</th>
-            <th>Son Tarih</th>
-            <th>Son Fiyat</th>
-            <th>Ödeme Durumu</th>
-            <th>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($wonOrders as $ord): ?>
+      <!-- Tablo Kutusu -->
+      <div class="won-lots-table-box">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Lot</th>
+              <th>Ürün</th>
+              <th>Kategori</th>
+              <th>Son Tarih</th>
+              <th>Son Fiyat</th>
+              <th>Ödeme Durumu</th>
+              <th>İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
             <tr>
               <td>
-                <span class="badge badge-gold"><?= htmlspecialchars($ord['lotKodu'] ?? 'AUC-000') ?></span>
-              </td>
-              <td style="font-weight:600; color:#fff;">
-                <?= htmlspecialchars($ord['urunBaslik'] ?? 'Koleksiyon Eseri') ?>
-              </td>
-              <td style="color:var(--text-muted);"><?= htmlspecialchars($ord['kategoriAdi'] ?? 'Sanat') ?></td>
-              <td><?= htmlspecialchars($ord['sonTarih'] ?? '12-Ekim-2026') ?></td>
-              <td style="font-weight:700; color:var(--gold-bright);">
-                <?= $formatPrice((float)$ord['kapanisFiyati']) ?>
-              </td>
-              <td>
-                <span class="badge <?= ($ord['siparisDurumu'] ?? '') === 'Ödendi' ? 'badge-success' : 'badge-warning' ?>">
-                  <?= htmlspecialchars($ord['siparisDurumu'] ?? 'Ödendi') ?>
-                </span>
-              </td>
-              <td>
-                <div style="display:flex; gap:8px;">
-                  <button type="button" class="btn-outline-gold btn-sm" onclick="alert('Fatura No: FAT-2026-1088\nToplam Tutar: <?= $formatPrice((float)$ord['kapanisFiyati']) ?>\nDurum: Ödendi')">
-                    Faturayı İndir
-                  </td>
-                  <td>
-                  <button type="button" class="btn-gold btn-sm" onclick="alert('Kargo Takip No: <?= htmlspecialchars($ord['kargoTakipNo'] ?? 'KRG-99887766') ?>\nDurum: Özel Sanat Lojistiği / Dağıtımda')">
-                    Kargoyu Takip Et
-                  </button>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:1.4rem;">🏺</span>
+                  <span class="badge badge-gold">AUC-0991</span>
                 </div>
               </td>
+              <td style="font-weight:600; color:#fff;">Antika Seramik Vazo</td>
+              <td style="color:var(--text-muted);">Sanat</td>
+              <td>12-Ekim-2026</td>
+              <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">
+                <?= $formatPrice(12800) ?>
+              </td>
+              <td><span style="color:#3fb950; font-weight:600;">Ödendi</span></td>
+              <td>
+                <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-1088\nTutar: <?= $formatPrice(12800) ?>')" style="color:var(--gold-primary); font-size:0.82rem; margin-right:12px;">Faturayı İndir</a>
+                <a href="javascript:void(0)" onclick="alert('Kargo: KRG-99887701 (Özel Taşıma / Dağıtımda)')" style="color:var(--gold-primary); font-size:0.82rem;">Kargoyu Takip Et</a>
+              </td>
             </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
 
-      <!-- Ödeme Detayları Kartı (Sayfa 33 Altındaki Kutu) -->
-      <div style="margin-top:24px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px; padding:18px; max-width:400px;">
-        <div style="font-weight:600; font-size:0.9rem; color:var(--gold-bright); margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:6px;">
-          Ödeme Detayları
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:1.4rem;">📚</span>
+                  <span class="badge badge-gold">AUC-0984</span>
+                </div>
+              </td>
+              <td style="font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</td>
+              <td style="color:var(--text-muted);">Sanat</td>
+              <td>12-Ekim-2026</td>
+              <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">
+                <?= $formatPrice(9200) ?>
+              </td>
+              <td><span style="color:#3fb950; font-weight:600;">Ödendi</span></td>
+              <td>
+                <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-1089\nTutar: <?= $formatPrice(9200) ?>')" style="color:var(--gold-primary); font-size:0.82rem; margin-right:12px;">Faturayı İndir</a>
+                <a href="javascript:void(0)" onclick="alert('Kargo: KRG-99887702 (Özel Taşıma / Dağıtımda)')" style="color:var(--gold-primary); font-size:0.82rem;">Kargoyu Takip Et</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Ödeme Detayları Kutusu (Görsel 3 Alt) -->
+      <div class="order-summary-box">
+        <div class="order-summary-title">Ödeme Detayları</div>
+        <div class="order-summary-row">
+          <span style="color:var(--text-muted);">Lot</span>
+          <span>ALIC-0991</span>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
-          <span style="color:var(--text-muted);">Lot:</span>
-          <span>AUC-0991</span>
+        <div class="order-summary-row">
+          <span style="color:var(--text-muted);">Son Fiyat</span>
+          <span><?= $formatPrice(12800) ?></span>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
-          <span style="color:var(--text-muted);">Son Fiyat:</span>
-          <span style="font-weight:600;"><?= $formatPrice(12800) ?></span>
+        <div class="order-summary-row">
+          <span style="color:var(--text-muted);">Ödeme Durumu</span>
+          <span style="color:#3fb950;">Ödendi</span>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
-          <span style="color:var(--text-muted);">Ödeme Durumu:</span>
-          <span style="color:#3fb950; font-weight:600;">Ödendi (3D Secure)</span>
+        <div class="order-summary-row">
+          <span style="color:var(--text-muted);">Ödeme Son yni</span>
+          <span><?= $formatPrice(3200) ?></span>
         </div>
-        <div style="display:flex; justify-content:space-between; font-size:0.95rem; font-weight:700; color:var(--gold-bright); border-top:1px solid var(--border-color); padding-top:8px; margin-top:8px;">
-          <span>Ödeme Toplam:</span>
+        <div class="order-summary-row" style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:8px; font-weight:700; color:var(--gold-bright);">
+          <span>Ödeme Detayları</span>
           <span><?= $formatPrice(12800) ?></span>
         </div>
       </div>
     </div>
 
-    <!-- 3. BÖLÜM: CÜZDANA BAKİYE YÜKLEME VE İHTİLAF / İTİRAZ TALEBİ -->
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
-      <!-- Bakiye Yükleme (FR-07/Alıcı) -->
-      <div id="bakiye-paneli" class="panel-card">
-        <div class="panel-header">
-          <h3 class="panel-title">💳 Bakiye Yükle (3D Secure POS)</h3>
-        </div>
-        <form method="POST">
-          <input type="hidden" name="action" value="deposit_wallet">
-          <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-          <div class="form-group">
-            <label class="form-label">Yüklenecek Tutar (TRY)</label>
-            <input type="number" name="amount" class="form-control" placeholder="Örn: 25000" min="500" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Ödeme Yöntemi</label>
-            <select class="form-control">
-              <option>Kayıtlı Kart (Garanti BBVA **** 8821 - 3D Secure)</option>
-              <option>Yeni Kredi / Banka Kartı</option>
-            </select>
-          </div>
-          <button type="submit" class="btn-gold" style="width:100%; justify-content:center;">
-            Güvenli Ödeme Yap (≤3sn Onay)
-          </button>
-        </form>
-      </div>
+    <!-- ====================================================================
+         3. TAB: GENEL BAKIŞ & DİĞER SEKMELER
+         ==================================================================== -->
+    <div id="buyerTab_genel" class="tab-content <?= $activeTab === 'genel' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
+      <h1 class="page-heading">Genel bakış</h1>
+      <p class="page-subheading">Seçkin müzayede deneyiminizi yönetin</p>
 
-      <!-- İhtilaf / İtiraz Talebi Oluşturma (FR-20) -->
-      <div id="itiraz-paneli" class="panel-card">
-        <div class="panel-header">
-          <h3 class="panel-title">⚖️ İhtilaf / İtiraz Bildirimi (Tahkim)</h3>
+      <div class="kpi-grid">
+        <div class="kpi-card highlight">
+          <div class="kpi-label">Kazanılan Lotlar</div>
+          <div class="kpi-value">2</div>
         </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Aktif Teklifler</div>
+          <div class="kpi-value">1</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Takip Ettiklerim</div>
+          <div class="kpi-value">3</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Toplam Harcama</div>
+          <div class="kpi-value"><?= $formatPrice(22000) ?></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. TAB: BAKİYE VE FATURALAR -->
+    <div id="buyerTab_bakiye" class="tab-content <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
+      <h1 class="page-heading">Bakiye ve Faturalar</h1>
+      <p class="page-subheading">Cüzdanınızı yönetin ve 3D Secure ile bakiye yükleyin</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+        <div class="panel-card">
+          <div class="panel-header"><h3 class="panel-title">💳 Bakiye Yükle (3D Secure POS)</h3></div>
+          <form method="POST">
+            <input type="hidden" name="action" value="deposit_wallet">
+            <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+            <div class="form-group">
+              <label class="form-label">Yüklenecek Tutar (TRY)</label>
+              <input type="number" name="amount" class="form-control" value="25000" required>
+            </div>
+            <button type="submit" class="btn-gold" style="width:100%; justify-content:center;">Bakiye Yükle</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. TAB: İTİRAZLAR -->
+    <div id="buyerTab_itirazlar" class="tab-content <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
+      <h1 class="page-heading">İtiraz ve İhtilaf Talepleri</h1>
+      <p class="page-subheading">Uyuşmazlık bildirimlerinizi takip edin</p>
+      
+      <div class="panel-card">
         <form method="POST">
           <input type="hidden" name="action" value="create_dispute">
           <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-          <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
+          <input type="hidden" name="lot_id" value="1002">
           <div class="form-group">
-            <label class="form-label">Uyuşmazlık Konusu</label>
+            <label class="form-label">Konu</label>
             <select name="topic" class="form-control">
-              <option value="KONDİSYON_UYUŞMAZLIĞI">Kondisyon Uyuşmazlığı (Katalog Farkı)</option>
-              <option value="KARGO_HASAR">Kargo Hasar / Teslimat Gecikmesi</option>
-              <option value="ORIJINALLIK_ITIRAZ">Orijinallik Şüphesi / Ek Ekspertiz Talebi</option>
+              <option value="KONDİSYON_UYUŞMAZLIĞI">Kondisyon Uyuşmazlığı</option>
+              <option value="TESLİMAT_GECİKMESİ">Teslimat Gecikmesi</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Açıklama ve Kanıt Detayı</label>
-            <textarea name="description" class="form-control" rows="3" placeholder="Uyuşmazlık gerekçenizi yazınız..." required></textarea>
+            <label class="form-label">Açıklama</label>
+            <textarea name="description" class="form-control" rows="3" required></textarea>
           </div>
-          <button type="submit" class="btn-outline-gold" style="width:100%; justify-content:center;">
-            İhtilaf Dosyası Aç (Admin Tahkimine Gönder)
-          </button>
+          <button type="submit" class="btn-outline-gold">İtiraz Bildir</button>
         </form>
       </div>
     </div>
+
   </main>
 </div>
+
+<script>
+function switchBuyerTab(tabId) {
+  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+
+  const activeBtn = event.currentTarget.closest('.nav-menu-item');
+  if (activeBtn) activeBtn.classList.add('active');
+
+  const target = document.getElementById('buyerTab_' + tabId);
+  if (target) {
+    target.classList.add('active');
+  }
+}
+</script>
