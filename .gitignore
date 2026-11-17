@@ -1,4 +1,5 @@
-/vendor/
+/vendor/*
+!/vendor/autoload.php
 /storage/locks/*.lock
 /storage/*.tmp.*
 .DS_Store
