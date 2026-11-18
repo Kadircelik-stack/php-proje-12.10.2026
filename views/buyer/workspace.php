@@ -304,9 +304,9 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             </div>
           </div>
         </div>
-        </div>
+      </div>
 
-        <!-- Sağ Sütun: Güncel Teklif, Diğer Teklifler ve Yan Koleksiyon -->
+      <!-- Sağ Sütun: Güncel Teklif, Diğer Teklifler ve Yan Koleksiyon -->
         <div>
           <!-- Güncel Teklif Kartı -->
           <div class="bid-panel-card">
@@ -340,8 +340,8 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               </div>
 
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
-                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="1500">+1.500</button>
-                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="3000">+3.000</button>
+                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="1500" onclick="const bi=document.getElementById('bidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+1500;">+1.500</button>
+                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="3000" onclick="const bi=document.getElementById('bidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+3000;">+3.000</button>
               </div>
 
               <button type="submit" class="btn-register-glow">
@@ -477,7 +477,6 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
           </div>
         </div>
       </div>
-    </div>
 
     <!-- ====================================================================
          2. TAB: KAZANILAN LOTLAR (media_1795014776286_1ee53420.jpg ile Birebir)
@@ -734,26 +733,52 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
     <div id="buyerTab_itirazlar" class="tab-content <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">İtiraz ve İhtilaf Talepleri</h1>
-      <p class="page-subheading">Uyuşmazlık bildirimlerinizi takip edin</p>
+      <p class="page-subheading" style="margin-bottom:24px;">Uyuşmazlık bildirimlerinizi ve hakem heyeti kararlarını takip edin</p>
       
-      <div class="panel-card">
-        <form method="POST">
-          <input type="hidden" name="action" value="create_dispute">
-          <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-          <input type="hidden" name="lot_id" value="1002">
-          <div class="form-group">
-            <label class="form-label">Konu</label>
-            <select name="topic" class="form-control">
-              <option value="KONDİSYON_UYUŞMAZLIĞI">Kondisyon Uyuşmazlığı</option>
-              <option value="TESLİMAT_GECİKMESİ">Teslimat Gecikmesi</option>
-            </select>
+      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px; align-items:start;">
+        <!-- Sol: İtiraz Bildirim Formu -->
+        <div class="panel-card" style="margin-bottom:0;">
+          <div class="panel-header">
+            <h3 class="panel-title">Yeni İhtilaf Talebi Oluştur</h3>
+            <span class="badge badge-gold">Emanet Korumalı</span>
           </div>
-          <div class="form-group">
-            <label class="form-label">Açıklama</label>
-            <textarea name="description" class="form-control" rows="3" required></textarea>
+          <form method="POST">
+            <input type="hidden" name="action" value="create_dispute">
+            <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+            <input type="hidden" name="lot_id" value="1002">
+            <div class="form-group">
+              <label class="form-label">Uyuşmazlık Konusu</label>
+              <select name="topic" class="form-control">
+                <option value="KONDİSYON_UYUŞMAZLIĞI">Kondisyon / Orijinallik Uyuşmazlığı</option>
+                <option value="TESLİMAT_GECİKMESİ">Teslimat Gecikmesi / Kargo Hasarı</option>
+                <option value="TANIM_FARKLILIGI">Eser Tanımı ve Fotoğraf Uyuşmazlığı</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Detaylı Açıklama & Kanıtlar</label>
+              <textarea name="description" class="form-control" rows="4" placeholder="Uyuşmazlık detayını, kargo takip numarasını veya görsel bulguları belirtiniz..." required></textarea>
+            </div>
+            <button type="submit" class="btn-gold" style="padding:10px 24px;">İtiraz Dosyası Aç</button>
+          </form>
+        </div>
+
+        <!-- Sağ: Hakem Heyeti ve Çözüm Politikası -->
+        <div class="panel-card" style="margin-bottom:0;">
+          <div class="panel-header">
+            <h3 class="panel-title">Çözüm Politikası & Güvence</h3>
           </div>
-          <button type="submit" class="btn-outline-gold">İtiraz Bildir</button>
-        </form>
+          <div style="display:flex; flex-direction:column; gap:12px; font-size:0.84rem; color:var(--text-muted); line-height:1.5;">
+            <div style="padding:10px 12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <strong style="color:#fff;">1. Emanet Blokesi:</strong> İhtilaf açıldığı anda ilgili lotun satıcıya aktarımı dondurulur, paranız güvendedir.
+            </div>
+            <div style="padding:10px 12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <strong style="color:#fff;">2. Bağımsız Ekspertiz:</strong> Eser tarafsız kıdemli heyet tarafından fiziki muayeneye alınır.
+            </div>
+            <div style="padding:10px 12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <strong style="color:#fff;">3. 48 Saat İade Garantisi:</strong> Haklı itirazlarda tam tutar derhal cüzdanınıza iade edilir.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -761,26 +786,49 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
     <div id="buyerTab_takip" class="tab-content <?= $activeTab === 'takip' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Takip Ettiklerim</h1>
-      <p class="page-subheading">İlgilendiğiniz veya teklif vermeyi düşündüğünüz eserleri tek panelden izleyin</p>
+      <p class="page-subheading" style="margin-bottom:24px;">İlgilendiğiniz veya teklif vermeyi düşündüğünüz eserleri tek panelden izleyin</p>
 
-      <div class="panel-card">
-        <table class="data-table">
-          <thead>
-            <tr><th>Lot Kodu</th><th>Eser Başlığı</th><th>Güncel Fiyat</th><th>Kalan Süre</th><th>İşlem</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="badge badge-gold">AUC-1642</span></td>
-              <td style="font-weight:600; color:#fff;">1968 İsviçre Vintage Saat</td>
-              <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$currentLot['mevcutEnYuksekTeklif']) ?></td>
-              <td>5 saat 23 dk</td>
-              <td>
-                <a href="?role=buyer&tab=canli&lot_id=1002" class="btn-gold btn-sm" style="text-decoration:none;">Müzayedeye Git</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px; align-items:start;">
+        <!-- Sol: Takip Tablosu -->
+        <div class="panel-card" style="margin-bottom:0;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Lot Kodu</th><th>Eser Başlığı</th><th>Güncel Fiyat</th><th>Kalan Süre</th><th>İşlem</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-gold">AUC-1642</span></td>
+                <td style="font-weight:600; color:#fff;">1968 İsviçre Vintage Saat</td>
+                <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$currentLot['mevcutEnYuksekTeklif']) ?></td>
+                <td>5 saat 23 dk</td>
+                <td>
+                  <a href="?role=buyer&tab=canli&lot_id=1002" class="btn-gold btn-sm" style="text-decoration:none;">Müzayedeye Git &rarr;</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Sağ: Takip Listesi İpuçları & Bildirim Ayarları -->
+        <div class="panel-card" style="margin-bottom:0;">
+          <div class="panel-header">
+            <h3 class="panel-title">Takip Bildirimleri</h3>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px; font-size:0.84rem;">
+            <div style="padding:10px 12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <strong style="color:var(--gold-bright);">✓ Son 10 Dakika Uyarısı Açık:</strong> Listenizdeki eserde müzayede kapanışına 10 dk kala SMS/E-posta bildirimi alırsınız.
+            </div>
+            <div style="padding:10px 12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <strong style="color:#58a6ff;">✓ Otomatik Pey Entegrasyonu:</strong> Takip ettiğiniz eserlere tek tıkla otomatik tavan bütçe belirleyebilirsiniz.
+            </div>
+            <button type="button" onclick="switchBuyerTab('canli', this)" class="btn-outline-gold" style="width:100%; justify-content:center; padding:9px;">
+              Canlı Lot Ekranına Dön
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
+
     <!-- 7. TAB: AYARLAR (Profil Güncelleme - Use Case 4) -->
     <div id="buyerTab_ayarlar" class="tab-content <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
@@ -862,8 +910,6 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
           </div>
         </div>
       </div>
-    </div>
-
     </div>
 
   </main>
