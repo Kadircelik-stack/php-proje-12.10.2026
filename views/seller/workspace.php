@@ -19,32 +19,61 @@ $activeTab = $_GET['tab'] ?? 'genel';
       <ul class="nav-menu">
         <li class="nav-menu-item <?= $activeTab === 'genel' ? 'active' : '' ?>">
           <button type="button" onclick="switchSellerTab('genel')">
-            <span class="menu-icon">⌂</span> Genel bakış
+            <span class="menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </span> Genel bakış
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'yeni' ? 'active' : '' ?>">
           <button type="button" onclick="switchSellerTab('yeni')">
-            <span class="menu-icon">🏷️</span> Yeni ürün ekle
+            <span class="menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+              </svg>
+            </span> Yeni ürün ekle
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ilanlar' ? 'active' : '' ?>">
           <button type="button" onclick="switchSellerTab('ilanlar')">
-            <span class="menu-icon">⭐</span> İlanlarım
+            <span class="menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"></path>
+                <line x1="4" y1="19" x2="20" y2="19"></line>
+              </svg>
+            </span> İlanlarım
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'teklifler' ? 'active' : '' ?>">
           <button type="button" onclick="switchSellerTab('teklifler')">
-            <span class="menu-icon">♡</span> Teklif geçmişi
+            <span class="menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </span> Teklif geçmişi
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
           <button type="button" onclick="switchSellerTab('bakiye')">
-            <span class="menu-icon">💳</span> Bakiye ve komisyon
+            <span class="menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+            </span> Bakiye ve komisyon
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
           <button type="button" onclick="switchSellerTab('itirazlar')">
-            <span class="menu-icon">⚖️</span> İtirazlar
+            <span class="menu-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+            </span> İtirazlar
           </button>
         </li>
       </ul>

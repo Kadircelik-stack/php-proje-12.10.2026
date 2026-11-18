@@ -22,52 +22,52 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       <ul class="nav-menu">
         <li class="nav-menu-item <?= $activeTab === 'konsol' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('konsol')">
-            <span class="menu-icon">⚙️</span> Yönetim konsolu
+            Yönetim konsolu
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'kullanicilar' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('kullanicilar')">
-            <span class="menu-icon">👥</span> Kullanıcılar
+            Kullanıcılar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('moderasyon')">
-            <span class="menu-icon">🔨</span> Müzayede & Lot Düzenleme
+            Müzayede & Lot Düzenleme
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('ekspertiz')">
-            <span class="menu-icon">🔍</span> Ekspertiz atama
+            Ekspertiz atama
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('kategoriler')">
-            <span class="menu-icon">📂</span> Kategoriler
+            Kategoriler
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('komisyon')">
-            <span class="menu-icon">📊</span> Komisyon oranları
+            Komisyon oranları
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('raporlar')">
-            <span class="menu-icon">📑</span> Raporlar
+            Raporlar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ihtilaflar' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('ihtilaflar')">
-            <span class="menu-icon">⚖️</span> İhtilaflar
+            İhtilaflar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'denetim' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('denetim')">
-            <span class="menu-icon">📜</span> Denetim izi
+            Denetim izi
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
           <button type="button" onclick="switchAdminTab('ayarlar')">
-            <span class="menu-icon">⚡</span> Sistem ayarları
+            Sistem ayarları
           </button>
         </li>
       </ul>
@@ -234,7 +234,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
                 </td>
                 <td>
                   <button type="button" class="btn-gold btn-sm" style="padding:4px 10px; font-size:0.78rem; cursor:pointer;" onclick='openEditLotModal(<?= json_encode($lot, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
-                    Düzenle ✏️
+                    Düzenle
                   </button>
                 </td>
               </tr>
@@ -284,7 +284,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
         <button type="button" onclick="closeEditLotModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
         
         <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:4px;">
-          ✏️ Müzayede Lotu Düzenle (<span id="editLotKoduModal"></span>)
+          Müzayede Lotu Düzenle (<span id="editLotKoduModal"></span>)
         </div>
         <div style="color:#888; font-size:0.8rem; margin-bottom:16px;">
           Fiyat, pey adımı, süre ve müzayede durumunu güncelleyin. Değişiklikler anında canlı kataloğa yansır.

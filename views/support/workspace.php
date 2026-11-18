@@ -15,10 +15,10 @@ $disputes = $db['disputes'] ?? [];
     <div>
       <div class="sidebar-section-title">Çalışma Alanı</div>
       <ul class="nav-menu">
-        <li class="nav-menu-item active"><a href="?role=support">💬 Canlı Sohbet</a></li>
-        <li class="nav-menu-item"><a href="#kargo-takip">📦 Kargo Takibi</a></li>
-        <li class="nav-menu-item"><a href="#destek-talepleri">🎫 Destek Talepleri</a></li>
-        <li class="nav-menu-item"><a href="#ihtilaf-yonetimi">⚖️ İhtilaf Eskalasyonu</a></li>
+        <li class="nav-menu-item active"><a href="?role=support">Canlı Sohbet</a></li>
+        <li class="nav-menu-item"><a href="#kargo-takip">Kargo Takibi</a></li>
+        <li class="nav-menu-item"><a href="#destek-talepleri">Destek Talepleri</a></li>
+        <li class="nav-menu-item"><a href="#ihtilaf-yonetimi">İhtilaf Eskalasyonu</a></li>
       </ul>
     </div>
 
@@ -39,7 +39,7 @@ $disputes = $db['disputes'] ?? [];
       <div class="panel-card" style="display:flex; flex-direction:column; height:560px;">
         <div class="panel-header">
           <div>
-            <h3 class="panel-title">💬 Canlı Sohbet: <?= htmlspecialchars($activeSession['kullaniciAd'] ?? 'Müşteri') ?></h3>
+            <h3 class="panel-title">Canlı Sohbet: <?= htmlspecialchars($activeSession['kullaniciAd'] ?? 'Müşteri') ?></h3>
             <span style="font-size:0.75rem; color:var(--text-muted);">Oturum ID: <?= htmlspecialchars($activeSession['oturumId'] ?? 'CHAT-1') ?></span>
           </div>
           <span class="badge badge-success">Görüşme Aktif</span>
@@ -75,7 +75,7 @@ $disputes = $db['disputes'] ?? [];
       <div>
         <div id="kargo-takip" class="panel-card" style="margin-bottom:24px;">
           <div class="panel-header">
-            <h3 class="panel-title">📦 Kargo Teslimat Sorgulama</h3>
+            <h3 class="panel-title">Kargo Teslimat Sorgulama</h3>
           </div>
           <div class="form-group">
             <label class="form-label">Kargo veya Lot Takip No</label>
@@ -92,7 +92,7 @@ $disputes = $db['disputes'] ?? [];
 
         <div id="ihtilaf-yonetimi" class="panel-card">
           <div class="panel-header">
-            <h3 class="panel-title">⚖️ Aktif Uyuşmazlıklar</h3>
+            <h3 class="panel-title">Aktif Uyuşmazlıklar</h3>
             <span class="badge badge-warning"><?= count($disputes) ?></span>
           </div>
           <?php foreach ($disputes as $disp): ?>

@@ -57,42 +57,50 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
       <ul class="nav-menu">
         <li class="nav-menu-item <?= $activeTab === 'genel' ? 'active' : '' ?>">
           <button type="button" onclick="switchBuyerTab('genel')">
-            <span class="menu-icon">⌂</span> Genel bakış
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+            Genel bakış
           </button>
         </li>
         <li class="nav-menu-item">
           <a href="?role=vitrin">
-            <span class="menu-icon">🚀</span> Müzayede keşfet
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
+            Müzayede keşfet
           </a>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'canli' ? 'active' : '' ?>">
           <button type="button" onclick="switchBuyerTab('canli')">
-            <span class="menu-icon">⏱️</span> Canlı müzayede
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+            Canlı müzayede
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'kazanilanlar' ? 'active' : '' ?>">
           <button type="button" onclick="switchBuyerTab('kazanilanlar')">
-            <span class="menu-icon">🏆</span> Kazanılan lotlar
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>
+            Kazanılan lotlar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'takip' ? 'active' : '' ?>">
           <button type="button" onclick="switchBuyerTab('takip')">
-            <span class="menu-icon">🔖</span> Takip edilenler
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></span>
+            Takip edilenler
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
           <button type="button" onclick="switchBuyerTab('bakiye')">
-            <span class="menu-icon">💳</span> Bakiye ve faturalar
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></span>
+            Bakiye ve faturalar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
           <button type="button" onclick="switchBuyerTab('ayarlar')">
-            <span class="menu-icon">⚙️</span> Ayarlar
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg></span>
+            Ayarlar
           </button>
         </li>
         <li class="nav-menu-item">
           <a href="?role=support">
-            <span class="menu-icon">❓</span> Destek ve Yardım
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></span>
+            Destek ve Yardım
           </a>
         </li>
       </ul>
@@ -122,20 +130,28 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
         <div>
           <!-- Galeri -->
           <div class="gallery-wrapper">
-            <!-- 1 Büyük Saat Görseli -->
-            <div class="main-watch-frame">
-              <div style="font-size:7rem; filter:drop-shadow(0 10px 20px rgba(0,0,0,0.6));">⏱️</div>
-              <div style="position:absolute; bottom:12px; left:16px; font-size:0.75rem; color:var(--text-muted);">
+            <!-- 1 Büyük Saat Görseli (Gerçekçi Müze Kalitesi Eser Görseli) -->
+            <div class="main-watch-frame" style="background:#090b10; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; min-height:300px;">
+              <img src="public/assets/images/watch.jpg" alt="1968 Swiss Chronograph" style="max-height:280px; width:auto; object-fit:contain; filter:drop-shadow(0 15px 30px rgba(0,0,0,0.9));">
+              <div style="position:absolute; bottom:12px; left:16px; font-size:0.75rem; color:#848d9a; background:rgba(0,0,0,0.6); padding:3px 8px; border-radius:4px;">
                 1968 Swiss Chronograph Cal. 861 • Orijinal Kadran
               </div>
             </div>
 
-            <!-- 4 Küçük Küçük Küçük Görseller (2x2 Grid) -->
+            <!-- 4 Küçük Görsel / Detay İnceleme (SVG İkonik Makro Açıları) -->
             <div class="watch-thumbnails-grid">
-              <div class="watch-thumb" title="Kadran Yakın Çekim" style="font-size:1.8rem;">🔍</div>
-              <div class="watch-thumb" title="Tepe ve Kasa" style="font-size:1.8rem;">⚙️</div>
-              <div class="watch-thumb" title="Mekanizma Bakımı" style="font-size:1.8rem;">🔬</div>
-              <div class="watch-thumb" title="Orijinal Toka" style="font-size:1.8rem;">⌚</div>
+              <div class="watch-thumb" title="Kadran Yakın Çekim" style="display:flex; align-items:center; justify-content:center; color:#c5a059;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><circle cx="11" cy="11" r="3"/></svg>
+              </div>
+              <div class="watch-thumb" title="Tepe ve Kasa" style="display:flex; align-items:center; justify-content:center; color:#c5a059;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </div>
+              <div class="watch-thumb" title="Mekanizma Kalibresi" style="display:flex; align-items:center; justify-content:center; color:#c5a059;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="watch-thumb" title="Akredite Damga" style="display:flex; align-items:center; justify-content:center; color:#c5a059;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
             </div>
           </div>
 
@@ -178,12 +194,16 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <?= $formatPrice((float)$currentLot['mevcutEnYuksekTeklif']) ?>
             </div>
             <div class="bid-timer-text" style="display:flex; align-items:center; justify-content:space-between;">
-              <div>⏱️ <span class="live-countdown" data-seconds="<?= (!empty($currentLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 19320 ?>">5 saat 23 dakika</span></div>
-              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(45)" title="Jüriye göstermek için sayacı son 45 saniyeye ayarlar">⏱️ 45sn Test</button>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span class="live-countdown" data-seconds="<?= (!empty($currentLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 19320 ?>">5 saat 23 dakika</span>
+              </div>
+              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(45)" title="Jüriye göstermek için sayacı son 45 saniyeye ayarlar">45sn Test</button>
             </div>
 
-            <div id="antiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px;">
-              ⚠️ Son 1 dakika! Bu süre içinde pey verilirse süre 1 dakika uzatılacaktır.
+            <div id="antiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span>Son 1 dakika! Bu süre içinde pey verilirse süre 1 dakika uzatılacaktır.</span>
             </div>
 
             <!-- Pey Ver / Kayıt Ol Butonu -->
@@ -214,8 +234,9 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <input type="hidden" name="user_id" value="<?= $buyerId ?>">
               <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
               <input type="hidden" name="current_price" value="<?= $currentLot['mevcutEnYuksekTeklif'] ?>">
-              <button type="submit" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center;">
-                <?= $isWatched ? '★ Takip Ediliyor (Listeden Çıkar)' : '☆ Listeye Ekle / Takip Et' ?>
+              <button type="submit" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center; display:inline-flex; align-items:center; gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="<?= $isWatched ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                <span><?= $isWatched ? 'Takip Ediliyor (Listeden Çıkar)' : 'Listeye Ekle / Takip Et' ?></span>
               </button>
             </form>
           </div>
@@ -223,8 +244,9 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
           <!-- Otomatik Teklif / Temsili Bütçe Kartı (Proxy Bidding) -->
           <div class="bid-panel-card" style="margin-top:16px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-              <div style="font-size:0.95rem; font-weight:700; color:var(--gold-primary); display:flex; align-items:center; gap:6px;">
-                <span>🤖</span> Otomatik Teklif
+              <div style="font-size:0.95rem; font-weight:700; color:var(--gold-primary); display:flex; align-items:center; gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Otomatik Teklif</span>
               </div>
               <span class="badge <?= $activeProxy ? 'badge-success' : 'badge-gold' ?>">
                 <?= $activeProxy ? 'Aktif' : 'Tanımlı Değil' ?>
@@ -237,7 +259,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 
             <?php if ($activeProxy): ?>
               <div style="background:rgba(63,185,80,0.1); border:1px solid rgba(63,185,80,0.3); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:0.82rem;">
-                <div style="color:#3fb950; font-weight:600; margin-bottom:2px;">✓ Otomatik Teklifiniz Devrede</div>
+                <div style="color:#3fb950; font-weight:600; margin-bottom:2px;">Otomatik Teklifiniz Devrede</div>
                 <div style="color:#ddd;">Tavan Bütçeniz: <strong><?= $formatPrice((float)$activeProxy['maksimumButceTutari']) ?></strong></div>
                 <div style="font-size:0.75rem; color:#aaa; margin-top:4px;">Yeni rakip teklif geldiğinde sistem anında karşı teklif basacaktır.</div>
               </div>
@@ -258,62 +280,74 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               </button>
             </form>
 
-            <!-- Canlı Simülasyon / Test Butonu (Jüriye Göstermek İçin) -->
+            <!-- Canlı Simülasyon / Test Butonu -->
             <div style="border-top:1px dashed #2a3449; margin-top:14px; padding-top:12px;">
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">🧪 Otomatik Teklifi Canlı Test Et:</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">Otomatik Teklifi Canlı Test Et:</div>
               <form method="POST" style="margin:0;">
                 <input type="hidden" name="action" value="simulate_competitor_bid">
                 <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
                 <button type="submit" class="btn-outline-gold btn-sm" style="width:100%; font-size:0.75rem; justify-content:center; color:#60a5fa !important; border-color:#60a5fa; cursor:pointer;" title="Başka bir katılımcı adına pey verir, sistemin hemen sizin adınıza otomatik karşı teklif üretmesini test edersiniz">
-                  ⚡ Başka Alıcıdan Rakip Pey Gönder (+<?= $formatPrice((float)($currentLot['minimumArtisTutari'] ?? 1500)) ?>)
+                  Başka Alıcıdan Rakip Pey Gönder (+<?= $formatPrice((float)($currentLot['minimumArtisTutari'] ?? 1500)) ?>)
                 </button>
               </form>
             </div>
           </div>
 
-          <!-- Diğer Teklifler Listesi (Görsel 2'deki Birebir Liste) -->
+          <!-- Diğer Teklifler Listesi -->
           <div class="other-bids-card">
             <div class="other-bids-title">Diğer Teklifler</div>
             <div class="other-bid-row">
-              <div class="other-bid-user">👤 yortiunann_</div>
+              <div class="other-bid-user" style="display:flex; align-items:center; gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>yortiunann_</span>
+              </div>
               <div class="other-bid-time">5 saat 23:34</div>
             </div>
             <div class="other-bid-row">
-              <div class="other-bid-user">👤 itamrorOki</div>
+              <div class="other-bid-user" style="display:flex; align-items:center; gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>itamrorOki</span>
+              </div>
               <div class="other-bid-time">5 saat 23:33</div>
             </div>
             <div class="other-bid-row">
-              <div class="other-bid-user">👤 sarat1024</div>
+              <div class="other-bid-user" style="display:flex; align-items:center; gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>sarat1024</span>
+              </div>
               <div class="other-bid-time">5 saat 23:33</div>
             </div>
             <div class="other-bid-row">
-              <div class="other-bid-user">👤 duniharty</div>
+              <div class="other-bid-user" style="display:flex; align-items:center; gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>duniharty</span>
+              </div>
               <div class="other-bid-time">5 saat 23:34</div>
             </div>
           </div>
 
-          <!-- Yantoş Sanat Kollektion (Görsel 2 Alt Sağ) -->
+          <!-- Yantoş Sanat Kollektion -->
           <div class="side-collection-card">
-            <div style="font-size:0.85rem; font-weight:600; color:#fff; margin-bottom:12px;">Yantoş Sanat Kollektion</div>
+            <div style="font-size:0.85rem; font-weight:600; color:#fff; margin-bottom:12px;">Seçkin Sanat Koleksiyonu</div>
             
             <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1002'">
-              <div class="side-collection-thumb">⏱️</div>
+              <img src="public/assets/images/watch.jpg" alt="Saat" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid #333e50;">
               <div>
-                <div style="font-size:0.82rem; color:#fff; font-weight:500;">196B İsviçre Vintage Saat</div>
+                <div style="font-size:0.82rem; color:#fff; font-weight:500;">1968 İsviçre Vintage Saat</div>
                 <div style="font-size:0.75rem; color:var(--text-muted);">AUC-1642</div>
               </div>
             </div>
 
             <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1001'">
-              <div class="side-collection-thumb">📜</div>
+              <img src="public/assets/images/books.jpg" alt="Kitap" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid #333e50;">
               <div>
-                <div style="font-size:0.82rem; color:#fff; font-weight:500;">1920'ler Osmanlı Halı Levhası</div>
-                <div style="font-size:0.75rem; color:var(--text-muted);">AUC-1001</div>
+                <div style="font-size:0.82rem; color:#fff; font-weight:500;">Nadir Kitap Koleksiyonu</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0984</div>
               </div>
             </div>
 
             <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1003'">
-              <div class="side-collection-thumb">🏺</div>
+              <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid #333e50;">
               <div>
                 <div style="font-size:0.82rem; color:#fff; font-weight:500;">Antika Seramik Vazo</div>
                 <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0991</div>
@@ -350,7 +384,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <tr>
               <td style="padding-left:24px;">
                 <div style="display:flex; align-items:center; gap:12px;">
-                  <img src="public/assets/images/vase.svg" alt="Vazo" style="width:42px; height:42px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
+                  <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:42px; height:42px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
                   <span style="font-weight:600; color:#fff;">AUC-0991</span>
                 </div>
               </td>
@@ -368,7 +402,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <tr>
               <td style="padding-left:24px;">
                 <div style="display:flex; align-items:center; gap:12px;">
-                  <img src="public/assets/images/books.svg" alt="Kitap" style="width:42px; height:42px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
+                  <img src="public/assets/images/books.jpg" alt="Kitap" style="width:42px; height:42px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
                   <span style="font-weight:600; color:#fff;">AUC-0984</span>
                 </div>
               </td>
@@ -426,7 +460,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <!-- Kart 1: Vazo -->
             <div style="background:#161c27; border:1px solid #263143; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
               <div style="display:flex; gap:12px; align-items:center; margin-bottom:14px;">
-                <img src="public/assets/images/vase.svg" alt="Vazo" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
+                <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
                 <div>
                   <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0991</div>
                   <div style="font-size:0.84rem; font-weight:600; color:#fff;">Antika Seramik Vazo</div>
@@ -440,7 +474,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <!-- Kart 2: Kitap -->
             <div style="background:#161c27; border:1px solid #263143; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
               <div style="display:flex; gap:12px; align-items:center; margin-bottom:14px;">
-                <img src="public/assets/images/books.svg" alt="Kitap" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
+                <img src="public/assets/images/books.jpg" alt="Kitap" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
                 <div>
                   <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0984</div>
                   <div style="font-size:0.84rem; font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</div>
@@ -491,7 +525,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
         <div class="panel-card">
-          <div class="panel-header"><h3 class="panel-title">💳 Bakiye Yükle (3D Secure POS)</h3></div>
+          <div class="panel-header"><h3 class="panel-title">Bakiye Yükle (3D Secure POS)</h3></div>
           <form method="POST">
             <input type="hidden" name="action" value="deposit_wallet">
             <input type="hidden" name="user_id" value="<?= $buyerId ?>">
@@ -548,7 +582,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <td><span class="badge badge-gold">AUC-1642</span></td>
               <td style="font-weight:600; color:#fff;">1968 İsviçre Vintage Saat</td>
               <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$currentLot['mevcutEnYuksekTeklif']) ?></td>
-              <td>⏱️ 5 saat 23 dk</td>
+              <td>5 saat 23 dk</td>
               <td>
                 <a href="?role=buyer&tab=canli&lot_id=1002" class="btn-gold btn-sm" style="text-decoration:none;">Müzayedeye Git</a>
               </td>

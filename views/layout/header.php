@@ -50,9 +50,9 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
       <div class="topbar-messages" style="font-size:0.85rem; color:#848d9a;">
         Mesajlar: <strong style="color:#f0f3f6;">0</strong>
       </div>
-      <div class="user-avatar-pill" onclick="openProfileModal()" style="display:inline-flex; align-items:center; gap:8px; padding:4px 12px; background:linear-gradient(135deg, #d1b179 0%, #aa8647 100%); border-radius:20px; cursor:pointer;" title="Kullanıcı Profili">
-        <img src="public/assets/images/avatar.svg" alt="User" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
-        <span style="font-size:0.75rem; color:#16120b; font-weight:700;">⌄</span>
+      <div class="user-avatar-pill" onclick="openProfileModal()" style="display:inline-flex; align-items:center; gap:8px; padding:3px 10px; background:#1b212c; border:1px solid #3d3525; border-radius:20px; cursor:pointer;" title="Kullanıcı Profili">
+        <img src="public/assets/images/avatar.jpg" alt="User" style="width:24px; height:24px; border-radius:50%; object-fit:cover; border:1px solid #d4af37;">
+        <span style="font-size:0.75rem; color:#d4af37; font-weight:700;">⌄</span>
       </div>
       <button type="button" onclick="openRoleModal()" class="btn-dark-pill" style="padding:7px 16px; font-size:0.82rem; cursor:pointer;">
         Rol değiştir
@@ -86,37 +86,49 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
       <a href="?role=vitrin&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'vitrin' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
-        <div style="font-size:1.2rem; margin-bottom:4px;">🌐</div>
+        <div style="color:#d4af37; margin-bottom:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
         <div style="font-weight:600; color:#fff; font-size:0.9rem;">Vitrin (Keşfet)</div>
         <div style="font-size:0.75rem; color:#848d9a;">Müzayede kataloğu ve lot listesi</div>
       </a>
 
       <a href="?role=buyer&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'buyer' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
-        <div style="font-size:1.2rem; margin-bottom:4px;">🏆</div>
+        <div style="color:#d4af37; margin-bottom:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        </div>
         <div style="font-weight:600; color:#fff; font-size:0.9rem;">Alıcı Paneli</div>
         <div style="font-size:0.75rem; color:#848d9a;">Kazanılan lotlar, pey verme, bakiye</div>
       </a>
 
       <a href="?role=seller&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'seller' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
-        <div style="font-size:1.2rem; margin-bottom:4px;">💼</div>
+        <div style="color:#d4af37; margin-bottom:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
         <div style="font-weight:600; color:#fff; font-size:0.9rem;">Satıcı Paneli</div>
         <div style="font-size:0.75rem; color:#848d9a;">İlanlarım, yeni ürün ekle, satışlar</div>
       </a>
 
       <a href="?role=appraiser&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'appraiser' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
-        <div style="font-size:1.2rem; margin-bottom:4px;">🔍</div>
+        <div style="color:#d4af37; margin-bottom:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
+        </div>
         <div style="font-weight:600; color:#fff; font-size:0.9rem;">Ekspertiz Uzmanı</div>
         <div style="font-size:0.75rem; color:#848d9a;">Görev paneli, rapor oluşturma</div>
       </a>
 
       <a href="?role=support&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'support' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
-        <div style="font-size:1.2rem; margin-bottom:4px;">💬</div>
+        <div style="color:#d4af37; margin-bottom:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
         <div style="font-weight:600; color:#fff; font-size:0.9rem;">Canlı Destek</div>
         <div style="font-size:0.75rem; color:#848d9a;">Müşteri mesajları ve canlı yardım</div>
       </a>
 
       <a href="?role=admin&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'admin' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
-        <div style="font-size:1.2rem; margin-bottom:4px;">⚙️</div>
+        <div style="color:#d4af37; margin-bottom:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
         <div style="font-weight:600; color:#fff; font-size:0.9rem;">Admin Konsolu</div>
         <div style="font-size:0.75rem; color:#848d9a;">Yönetim konsolu, moderasyon, denetim</div>
       </a>
@@ -206,8 +218,9 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
         <label class="form-label">Kayıtlı E-Posta Adresiniz</label>
         <input type="email" name="email" class="form-control" placeholder="ornek@martello.com" required>
       </div>
-      <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:14px; line-height:1.4;">
-        ℹ️ Şifre sıfırlama bağlantısı en geç 30 saniye içinde e-posta kutunuza ulaştırılır.
+      <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:14px; line-height:1.4; display:flex; align-items:center; gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Şifre sıfırlama bağlantısı en geç 30 saniye içinde e-posta kutunuza ulaştırılır.</span>
       </div>
       <button type="submit" class="btn-register-glow" style="width:100%;">Şifre Sıfırlama Bağlantısı Gönder</button>
     </form>
@@ -219,7 +232,7 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
   <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:480px; width:90%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.8); position:relative;">
     <button type="button" onclick="closeProfileModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
     
-    <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:6px;">👤 Profil ve Hesap Ayarları</div>
+    <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:6px;">Profil ve Hesap Ayarları</div>
     <div style="color:#888; font-size:0.8rem; margin-bottom:16px;">İletişim, adres ve faturalandırma bilgilerinizi buradan güncelleyebilirsiniz.</div>
 
     <form method="POST">

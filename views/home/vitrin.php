@@ -22,8 +22,9 @@ $lots = $db['lots'] ?? [];
       <a href="?role=buyer" class="btn-gold" style="padding:12px 28px; font-size:0.95rem;">
         Müzayedeleri Keşfet ↗
       </a>
-      <button type="button" onclick="document.getElementById('searchFilterSection').scrollIntoView({behavior:'smooth'})" class="btn-outline-gold" style="padding:12px 20px; font-size:0.95rem;">
-        🔍 Eser Ara & Filtrele
+      <button type="button" onclick="document.getElementById('searchFilterSection').scrollIntoView({behavior:'smooth'})" class="btn-outline-gold" style="padding:12px 20px; font-size:0.95rem; display:inline-flex; align-items:center; gap:6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Eser Ara & Filtrele</span>
       </button>
     </div>
   </div>
@@ -32,8 +33,9 @@ $lots = $db['lots'] ?? [];
 <!-- Arama ve Filtreleme Bölümü -->
 <section id="searchFilterSection" style="max-width:1240px; margin:0 auto; padding:24px 36px 0 36px; width:100%;">
   <div class="panel-card" style="margin-bottom:0; background:rgba(18,22,31,0.85); border:1px solid #2a3449;">
-    <div style="font-size:0.85rem; color:var(--gold-primary); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">
-      🔍 Ürün & Eser Arama Altyapısı
+    <div style="font-size:0.85rem; color:var(--gold-primary); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Ürün & Eser Arama Altyapısı</span>
     </div>
     <form method="GET" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:12px; align-items:flex-end;">
       <input type="hidden" name="role" value="vitrin">
@@ -84,42 +86,42 @@ $lots = $db['lots'] ?? [];
     </div>
   </div>
 
-  <!-- 4 Adet Kategori Kartı (Görseldeki Gibi) -->
+  <!-- 4 Adet Kategori Kartı (Müze Kalitesinde Fotoğrafik Seçki) -->
   <div class="category-cards-grid">
-    <!-- 1. Efemera -->
+    <!-- 1. Efemera & Nadir Kitap -->
     <div class="category-item-card" onclick="window.location.href='?role=buyer'">
       <div class="category-image-wrap">
-        <div style="font-size:3.5rem;">📜</div>
-        <div style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:var(--text-muted);">Tarihi Harita & Yazışmalar</div>
+        <img src="public/assets/images/books.jpg" alt="Efemera" style="width:100%; height:100%; object-fit:cover; filter:brightness(0.85); transition:transform 0.4s ease;">
+        <div style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:#fff; background:rgba(0,0,0,0.65); padding:2px 8px; border-radius:4px; backdrop-filter:blur(4px);">Tarihi Yazma & Belgeler</div>
       </div>
-      <div class="category-label-footer">Efemera</div>
+      <div class="category-label-footer">Nadir Kitap & Efemera</div>
     </div>
 
-    <!-- 2. Filateli -->
+    <!-- 2. Sanat & Seramik -->
     <div class="category-item-card" onclick="window.location.href='?role=buyer'">
       <div class="category-image-wrap">
-        <div style="font-size:3.5rem;">📮</div>
-        <div style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:var(--text-muted);">Nadir Posta Pulları</div>
+        <img src="public/assets/images/vase.jpg" alt="Sanat" style="width:100%; height:100%; object-fit:cover; filter:brightness(0.85); transition:transform 0.4s ease;">
+        <div style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:#fff; background:rgba(0,0,0,0.65); padding:2px 8px; border-radius:4px; backdrop-filter:blur(4px);">Antik Seramik & Vazo</div>
       </div>
-      <div class="category-label-footer">Filateli</div>
+      <div class="category-label-footer">Antika & Güzel Sanatlar</div>
     </div>
 
-    <!-- 3. Osmanlı Eserleri -->
+    <!-- 3. Horoloji & Saat -->
     <div class="category-item-card" onclick="window.location.href='?role=buyer'">
       <div class="category-image-wrap">
-        <div style="font-size:3.5rem;">⚔️</div>
-        <div style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:var(--text-muted);">Saray İşi Kılıç & Tombak</div>
+        <img src="public/assets/images/watch.jpg" alt="Horoloji" style="width:100%; height:100%; object-fit:cover; filter:brightness(0.85); transition:transform 0.4s ease;">
+        <div style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:#fff; background:rgba(0,0,0,0.65); padding:2px 8px; border-radius:4px; backdrop-filter:blur(4px);">İsviçre Mekanik Kronograf</div>
       </div>
-      <div class="category-label-footer">Osmanlı Eserleri</div>
+      <div class="category-label-footer">Horoloji & Zaman Eserleri</div>
     </div>
 
-    <!-- 4. Nümismatik -->
+    <!-- 4. Koleksiyon & Klasik Cihazlar -->
     <div class="category-item-card" onclick="window.location.href='?role=buyer'">
       <div class="category-image-wrap">
-        <div style="font-size:3.5rem;">🪙</div>
-        <div style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:var(--text-muted);">Altın & Gümüş Sikkeler</div>
+        <img src="public/assets/images/camera.jpg" alt="Koleksiyon" style="width:100%; height:100%; object-fit:cover; filter:brightness(0.85); transition:transform 0.4s ease;">
+        <div style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:#fff; background:rgba(0,0,0,0.65); padding:2px 8px; border-radius:4px; backdrop-filter:blur(4px);">Klasik Analog & Tasarım</div>
       </div>
-      <div class="category-label-footer">Nümismatik</div>
+      <div class="category-label-footer">Koleksiyon & Nadir Cihazlar</div>
     </div>
   </div>
 

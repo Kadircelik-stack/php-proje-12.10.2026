@@ -19,27 +19,27 @@ $activeTab = $_GET['tab'] ?? 'gorev';
       <ul class="nav-menu">
         <li class="nav-menu-item <?= $activeTab === 'gorev' ? 'active' : '' ?>">
           <button type="button" onclick="switchAppraiserTab('gorev')">
-            <span class="menu-icon">📋</span> Görev paneli
+            Görev paneli
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'inceleme' ? 'active' : '' ?>">
           <button type="button" onclick="switchAppraiserTab('inceleme')">
-            <span class="menu-icon">🔬</span> İncelemeler
+            İncelemeler
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'gecmis' ? 'active' : '' ?>">
           <button type="button" onclick="switchAppraiserTab('gecmis')">
-            <span class="menu-icon">📁</span> Rapor geçmişi
+            Rapor geçmişi
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'itiraz' ? 'active' : '' ?>">
           <button type="button" onclick="switchAppraiserTab('itiraz')">
-            <span class="menu-icon">⚖️</span> İtiraz talepleri
+            İtiraz talepleri
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'bildirim' ? 'active' : '' ?>">
           <button type="button" onclick="switchAppraiserTab('bildirim')">
-            <span class="menu-icon">🔔</span> Bildirimler
+            Bildirimler
           </button>
         </li>
       </ul>
@@ -183,7 +183,7 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
           </div>
 
           <button type="submit" class="btn-gold" style="padding:12px 28px;">
-            🛡️ Raporu Mühürle ve Admin Onayına Gönder
+            Raporu Mühürle ve Admin Onayına Gönder
           </button>
         </form>
       </div>

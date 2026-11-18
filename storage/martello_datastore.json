@@ -83,7 +83,7 @@
             "email": "mehmet@antik.com",
             "telefon": "+905322223344",
             "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-            "durum": "ASKIDA",
+            "durum": "AKTIF",
             "anonimKod": "Anonim-S02",
             "kycDogrulama": {
                 "dogrulandiMi": true,
@@ -116,7 +116,7 @@
             "email": "zeynep@koleksiyon.com",
             "telefon": "+90 532 100 20 30",
             "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-            "durum": "ASKIDA",
+            "durum": "AKTIF",
             "anonimKod": "yortunen...",
             "kycDogrulama": {
                 "dogrulandiMi": true,
@@ -183,7 +183,7 @@
             "email": "elif@destek.com",
             "telefon": "+905556667788",
             "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-            "durum": "ASKIDA",
+            "durum": "AKTIF",
             "anonimKod": "SUP-ELIF",
             "canliDestekProfili": {
                 "departman": "Müzayede Operasyon",
@@ -199,7 +199,7 @@
             "email": "emre.k@koleksiyon.com",
             "telefon": "+905327778899",
             "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-            "durum": "ASKIDA",
+            "durum": "AKTIF",
             "anonimKod": "damror0ki",
             "kycDogrulama": {
                 "dogrulandiMi": true,
@@ -221,7 +221,7 @@
             "telefon": "+905517116571",
             "tcKimlikNo": "26363636325363636366",
             "rol": "ALICI",
-            "durum": "BEKLEMEDE",
+            "durum": "AKTIF",
             "sifreHash": "$2y$10$uVQ8x5Za.Nh07c9Ie.SQ1.C3wzd9LQZkEi4gTxuZQwk3/5KN6jsJm",
             "anonimKod": "Anonim-AB9C",
             "kycDogrulama": {
@@ -443,6 +443,16 @@
             ],
             "olusturmaTarihi": "2026-11-18T13:53:51+00:00",
             "id": 14
+        },
+        {
+            "kategoriAdi": "eşya",
+            "kategoriKodu": "23266",
+            "aktifMi": true,
+            "zorunluNitelikler": [
+                "2567"
+            ],
+            "olusturmaTarihi": "2026-11-18T15:33:20+00:00",
+            "id": 15
         }
     ],
     "products": [
