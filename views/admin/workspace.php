@@ -21,52 +21,52 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       <div class="sidebar-section-title">Çalışma Alanı</div>
       <ul class="nav-menu">
         <li class="nav-menu-item <?= $activeTab === 'konsol' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('konsol')">
+          <button type="button" data-tab="konsol" onclick="switchAdminTab('konsol', this)">
             Yönetim konsolu
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'kullanicilar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('kullanicilar')">
+          <button type="button" data-tab="kullanicilar" onclick="switchAdminTab('kullanicilar', this)">
             Kullanıcılar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('moderasyon')">
+          <button type="button" data-tab="moderasyon" onclick="switchAdminTab('moderasyon', this)">
             Müzayede & Lot Düzenleme
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('ekspertiz')">
+          <button type="button" data-tab="ekspertiz" onclick="switchAdminTab('ekspertiz', this)">
             Ekspertiz atama
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('kategoriler')">
+          <button type="button" data-tab="kategoriler" onclick="switchAdminTab('kategoriler', this)">
             Kategoriler
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('komisyon')">
+          <button type="button" data-tab="komisyon" onclick="switchAdminTab('komisyon', this)">
             Komisyon oranları
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('raporlar')">
+          <button type="button" data-tab="raporlar" onclick="switchAdminTab('raporlar', this)">
             Raporlar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ihtilaflar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('ihtilaflar')">
+          <button type="button" data-tab="ihtilaflar" onclick="switchAdminTab('ihtilaflar', this)">
             İhtilaflar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'denetim' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('denetim')">
+          <button type="button" data-tab="denetim" onclick="switchAdminTab('denetim', this)">
             Denetim izi
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAdminTab('ayarlar')">
+          <button type="button" data-tab="ayarlar" onclick="switchAdminTab('ayarlar', this)">
             Sistem ayarları
           </button>
         </li>
@@ -685,16 +685,40 @@ $activeTab = $_GET['tab'] ?? 'konsol';
 </div>
 
 <script>
-function switchAdminTab(tabId) {
-  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
+function switchAdminTab(tabId, btn) {
+  // Hide all tab contents and remove active from nav items
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
 
-  const activeBtn = event.currentTarget.closest('.nav-menu-item');
-  if (activeBtn) activeBtn.classList.add('active');
-
+  // Activate target tab content
   const target = document.getElementById('admTab_' + tabId);
   if (target) {
     target.classList.add('active');
+  }
+
+  // Activate menu item
+  let navItem = null;
+  if (btn && btn.closest) {
+    navItem = btn.closest('.nav-menu-item');
+  }
+  if (!navItem) {
+    const matchingBtn = document.querySelector(`.sidebar button[data-tab="${tabId}"]`) ||
+                        document.querySelector(`.sidebar button[onclick*="'${tabId}'"]`);
+    if (matchingBtn) {
+      navItem = matchingBtn.closest('.nav-menu-item');
+    }
+  }
+  if (navItem) {
+    navItem.classList.add('active');
+  }
+
+  // Update URL state without page reload
+  if (window.history && window.history.replaceState) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tabId);
+      window.history.replaceState({}, '', url);
+    } catch(e) {}
   }
 }
 

@@ -56,7 +56,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
       <div class="sidebar-section-title">Çalışma Alanı</div>
       <ul class="nav-menu">
         <li class="nav-menu-item <?= $activeTab === 'genel' ? 'active' : '' ?>">
-          <button type="button" onclick="switchBuyerTab('genel')">
+          <button type="button" data-tab="genel" onclick="switchBuyerTab('genel', this)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
             Genel bakış
           </button>
@@ -68,31 +68,37 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
           </a>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'canli' ? 'active' : '' ?>">
-          <button type="button" onclick="switchBuyerTab('canli')">
+          <button type="button" data-tab="canli" onclick="switchBuyerTab('canli', this)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
             Canlı müzayede
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'kazanilanlar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchBuyerTab('kazanilanlar')">
+          <button type="button" data-tab="kazanilanlar" onclick="switchBuyerTab('kazanilanlar', this)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>
             Kazanılan lotlar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'takip' ? 'active' : '' ?>">
-          <button type="button" onclick="switchBuyerTab('takip')">
+          <button type="button" data-tab="takip" onclick="switchBuyerTab('takip', this)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></span>
             Takip edilenler
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
-          <button type="button" onclick="switchBuyerTab('bakiye')">
+          <button type="button" data-tab="bakiye" onclick="switchBuyerTab('bakiye', this)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></span>
             Bakiye ve faturalar
           </button>
         </li>
+                <li class="nav-menu-item <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
+          <button type="button" data-tab="itirazlar" onclick="switchBuyerTab('itirazlar', this)">
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+            İtiraz ve İhtilaf
+          </button>
+        </li>
         <li class="nav-menu-item <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchBuyerTab('ayarlar')">
+          <button type="button" data-tab="ayarlar" onclick="switchBuyerTab('ayarlar', this)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg></span>
             Ayarlar
           </button>
@@ -630,22 +636,129 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
           </tbody>
         </table>
       </div>
+    <!-- 7. TAB: AYARLAR (Profil Güncelleme - Use Case 4) -->
+    <div id="buyerTab_ayarlar" class="tab-content <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
+      <h1 class="page-heading">Hesap & Profil Ayarları</h1>
+      <p class="page-subheading">Kişisel bilgilerinizi, teslimat adresinizi ve güvenlik ayarlarınızı yönetin</p>
+
+      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px;">
+        <div class="panel-card">
+          <div class="panel-header">
+            <h3 class="panel-title">Profil Bilgilerini Güncelle</h3>
+            <span class="badge badge-success">✓ KYC Onaylı</span>
+          </div>
+          <form method="POST">
+            <input type="hidden" name="action" value="update_profile">
+            <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Ad Soyad</label>
+                <input type="text" name="adSoyad" class="form-control" value="Emre Karahan" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-posta Adresi</label>
+                <input type="email" name="eposta" class="form-control" value="emre.karahan@antika.example" required>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Telefon Numarası</label>
+                <input type="text" name="telefon" class="form-control" value="+90 532 555 10 20" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">T.C. Kimlik / Vergi No</label>
+                <input type="text" class="form-control" value="12847592014" disabled style="opacity:0.65; cursor:not-allowed;">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Fatura & Teslimat Adresi</label>
+              <textarea name="adres" class="form-control" rows="3">Teşvikiye Mah. Abdi İpekçi Cad. No: 42 Daire: 6, Şişli / İstanbul</textarea>
+            </div>
+
+            <button type="submit" class="btn-gold" style="padding:10px 24px;">
+              Bilgileri Güncelle
+            </button>
+          </form>
+        </div>
+
+        <!-- Güvenlik & Bildirim Tercihleri -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <h3 class="panel-title">Güvenlik & Bildirimler</h3>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <div>
+                <div style="font-weight:600; color:#fff; font-size:0.9rem;">İki Adımlı Doğrulama (2FA)</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Giriş ve yüksek peylerde SMS onayı</div>
+              </div>
+              <span class="badge badge-success">AKTİF</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <div>
+                <div style="font-weight:600; color:#fff; font-size:0.9rem;">Canlı Müzayede Sesli Uyarı</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Pey geçildiğinde çekiç sesi efekti</div>
+              </div>
+              <span class="badge badge-gold">AÇIK</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <div>
+                <div style="font-weight:600; color:#fff; font-size:0.9rem;">E-Posta Bülteni</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Haftalık seçki ve koleksiyon bültenleri</div>
+              </div>
+              <span class="badge badge-info">ABONE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     </div>
 
   </main>
 </div>
 
 <script>
-function switchBuyerTab(tabId) {
-  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
+function switchBuyerTab(tabId, btn) {
+  // Hide all tab contents and remove active from nav items
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
 
-  const activeBtn = event.currentTarget.closest('.nav-menu-item');
-  if (activeBtn) activeBtn.classList.add('active');
-
+  // Activate target tab content
   const target = document.getElementById('buyerTab_' + tabId);
   if (target) {
     target.classList.add('active');
+  }
+
+  // Activate menu item
+  let navItem = null;
+  if (btn && btn.closest) {
+    navItem = btn.closest('.nav-menu-item');
+  }
+  if (!navItem) {
+    const matchingBtn = document.querySelector(`.sidebar button[data-tab="${tabId}"]`) ||
+                        document.querySelector(`.sidebar button[onclick*="'${tabId}'"]`);
+    if (matchingBtn) {
+      navItem = matchingBtn.closest('.nav-menu-item');
+    }
+  }
+  if (navItem) {
+    navItem.classList.add('active');
+  }
+
+  // Update URL state without page reload
+  if (window.history && window.history.replaceState) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tabId);
+      window.history.replaceState({}, '', url);
+    } catch(e) {}
   }
 }
 </script>

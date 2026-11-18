@@ -18,7 +18,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
       <div class="sidebar-section-title">Çalışma Alanı</div>
       <ul class="nav-menu">
         <li class="nav-menu-item <?= $activeTab === 'genel' ? 'active' : '' ?>">
-          <button type="button" onclick="switchSellerTab('genel')">
+          <button type="button" data-tab="genel" onclick="switchSellerTab('genel', this)">
             <span class="menu-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -28,7 +28,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'yeni' ? 'active' : '' ?>">
-          <button type="button" onclick="switchSellerTab('yeni')">
+          <button type="button" data-tab="yeni" onclick="switchSellerTab('yeni', this)">
             <span class="menu-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
@@ -38,7 +38,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ilanlar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchSellerTab('ilanlar')">
+          <button type="button" data-tab="ilanlar" onclick="switchSellerTab('ilanlar', this)">
             <span class="menu-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"></path>
@@ -48,7 +48,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'teklifler' ? 'active' : '' ?>">
-          <button type="button" onclick="switchSellerTab('teklifler')">
+          <button type="button" data-tab="teklifler" onclick="switchSellerTab('teklifler', this)">
             <span class="menu-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -57,7 +57,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
-          <button type="button" onclick="switchSellerTab('bakiye')">
+          <button type="button" data-tab="bakiye" onclick="switchSellerTab('bakiye', this)">
             <span class="menu-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="14" x="2" y="5" rx="2"></rect>
@@ -66,8 +66,14 @@ $activeTab = $_GET['tab'] ?? 'genel';
             </span> Bakiye ve komisyon
           </button>
         </li>
-        <li class="nav-menu-item <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchSellerTab('itirazlar')">
+        <li class="nav-menu-item <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">                <li class="nav-menu-item <?= $activeTab === 'profil' ? 'active' : '' ?>">
+          <button type="button" data-tab="profil" onclick="switchSellerTab('profil', this)">
+            <span class="menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            Profil & Mağaza
+          </button>
+        </li>
+
+          <button type="button" data-tab="itirazlar" onclick="switchSellerTab('itirazlar', this)">
             <span class="menu-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 11 12 14 22 4"></polyline>
@@ -121,7 +127,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
         <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:20px;">
           İlanlarınızı ve yeni teklifleri tek yerden yönetin.
         </p>
-        <button type="button" class="btn-gold-pill" style="padding:10px 22px; cursor:pointer;" onclick="switchSellerTab('yeni')">
+        <button type="button" class="btn-gold-pill" style="padding:10px 22px; cursor:pointer;" data-tab="yeni" onclick="switchSellerTab('yeni', this)">
           Yeni ilan oluştur
         </button>
       </div>
@@ -299,22 +305,115 @@ $activeTab = $_GET['tab'] ?? 'genel';
       <div class="panel-card">
         <p style="color:var(--text-muted);">Şu anda adınıza açılmış aktif bir uyuşmazlık veya itiraz bulunmamaktadır.</p>
       </div>
+    <!-- 7. TAB: PROFİL & MAĞAZA (Use Case 2: Profil Güncelleme) -->
+    <div id="sellerTab_profil" class="tab-content <?= $activeTab === 'profil' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">SATICI / ÇALIŞMA ALANI</div>
+      <h1 class="page-heading">Satıcı Profili & Doğrulama</h1>
+      <p class="page-subheading">Koleksiyoner / Galeri bilgilerinizi ve hakediş transfer IBAN adresinizi güncelleyin</p>
+
+      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px;">
+        <div class="panel-card">
+          <div class="panel-header">
+            <h3 class="panel-title">Satıcı Bilgilerini Güncelle</h3>
+            <span class="badge badge-success">✓ Onaylı Satıcı</span>
+          </div>
+          <form method="POST">
+            <input type="hidden" name="action" value="update_profile">
+            <input type="hidden" name="user_id" value="<?= $sellerId ?>">
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Mağaza / Temsilci Adı</label>
+                <input type="text" name="adSoyad" class="form-control" value="Mehmet Kaya (Antika Galeri)" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-posta</label>
+                <input type="email" name="eposta" class="form-control" value="mehmet.kaya@antika.example" required>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Telefon Numarası</label>
+                <input type="text" name="telefon" class="form-control" value="+90 532 100 20 30" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Kayıtlı IBAN (Hakediş Hesabı)</label>
+                <input type="text" name="iban" class="form-control" value="TR34 0006 1005 1930 2938 4720 01" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Galeri / Mağaza Açıklaması</label>
+              <textarea name="adres" class="form-control" rows="3">Çukurcuma Antikacılar Sokağı No: 18 Beyoğlu / İstanbul. 35 yıllık nümismatik ve mekanik saat koleksiyoncusu.</textarea>
+            </div>
+
+            <button type="submit" class="btn-gold" style="padding:10px 24px;">
+              Profil ve IBAN Güncelle
+            </button>
+          </form>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-header"><h3 class="panel-title">Doğrulama ve Rozetler</h3></div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <div style="font-weight:600; color:var(--gold-bright); font-size:0.9rem;">★ Kıdemli Koleksiyoner</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Platformda 50+ başarılı satış tamamlandı</div>
+            </div>
+            <div style="padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <div style="font-weight:600; color:#3fb950; font-size:0.9rem;">✓ T.C. Kimlik & Vergi Levhası Onaylı</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Tüm kurumsal evraklar eksiksiz denetlendi</div>
+            </div>
+            <div style="padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
+              <div style="font-weight:600; color:#58a6ff; font-size:0.9rem;">Güvenilir Kargo Partneri</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Özel zırhlı ve sigortalı teslimat anlaşması</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     </div>
 
   </main>
 </div>
 
 <script>
-function switchSellerTab(tabId) {
-  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
+function switchSellerTab(tabId, btn) {
+  // Hide all tab contents and remove active from nav items
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
 
-  const activeBtn = event.currentTarget.closest('.nav-menu-item');
-  if (activeBtn) activeBtn.classList.add('active');
-
+  // Activate target tab content
   const target = document.getElementById('sellerTab_' + tabId);
   if (target) {
     target.classList.add('active');
+  }
+
+  // Activate menu item
+  let navItem = null;
+  if (btn && btn.closest) {
+    navItem = btn.closest('.nav-menu-item');
+  }
+  if (!navItem) {
+    const matchingBtn = document.querySelector(`.sidebar button[data-tab="${tabId}"]`) ||
+                        document.querySelector(`.sidebar button[onclick*="'${tabId}'"]`);
+    if (matchingBtn) {
+      navItem = matchingBtn.closest('.nav-menu-item');
+    }
+  }
+  if (navItem) {
+    navItem.classList.add('active');
+  }
+
+  // Update URL state without page reload
+  if (window.history && window.history.replaceState) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tabId);
+      window.history.replaceState({}, '', url);
+    } catch(e) {}
   }
 }
 </script>

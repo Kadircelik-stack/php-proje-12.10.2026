@@ -18,27 +18,27 @@ $activeTab = $_GET['tab'] ?? 'gorev';
       <div class="sidebar-section-title">Çalışma Alanı</div>
       <ul class="nav-menu">
         <li class="nav-menu-item <?= $activeTab === 'gorev' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAppraiserTab('gorev')">
+          <button type="button" data-tab="gorev" onclick="switchAppraiserTab('gorev', this)">
             Görev paneli
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'inceleme' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAppraiserTab('inceleme')">
+          <button type="button" data-tab="inceleme" onclick="switchAppraiserTab('inceleme', this)">
             İncelemeler
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'gecmis' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAppraiserTab('gecmis')">
+          <button type="button" data-tab="gecmis" onclick="switchAppraiserTab('gecmis', this)">
             Rapor geçmişi
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'itiraz' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAppraiserTab('itiraz')">
+          <button type="button" data-tab="itiraz" onclick="switchAppraiserTab('itiraz', this)">
             İtiraz talepleri
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'bildirim' ? 'active' : '' ?>">
-          <button type="button" onclick="switchAppraiserTab('bildirim')">
+          <button type="button" data-tab="bildirim" onclick="switchAppraiserTab('bildirim', this)">
             Bildirimler
           </button>
         </li>
@@ -338,31 +338,41 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
 </div>
 
 <script>
-function switchAppraiserTab(tabId) {
-  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
+function switchAppraiserTab(tabId, btn) {
+  // Hide all tab contents and remove active from nav items
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sidebar .nav-menu-item').forEach(el => el.classList.remove('active'));
 
-  const activeBtn = event.currentTarget.closest('.nav-menu-item');
-  if (activeBtn) activeBtn.classList.add('active');
-
+  // Activate target tab content
   const target = document.getElementById('appTab_' + tabId);
   if (target) {
     target.classList.add('active');
   }
-}
 
-function openExpertReportModal(reqId, lotKodu, title, value, notes) {
-  document.getElementById('modalReqId').value = reqId;
-  document.getElementById('modalLotKodu').textContent = lotKodu;
-  document.getElementById('modalItemTitle').textContent = title;
-  document.getElementById('modalValue').value = value || 25000;
-  if (notes) {
-    document.getElementById('modalNotes').value = notes;
+  // Activate menu item
+  let navItem = null;
+  if (btn && btn.closest) {
+    navItem = btn.closest('.nav-menu-item');
   }
-  document.getElementById('expertReportModal').style.display = 'flex';
+  if (!navItem) {
+    const matchingBtn = document.querySelector(`.sidebar button[data-tab="${tabId}"]`) ||
+                        document.querySelector(`.sidebar button[onclick*="'${tabId}'"]`);
+    if (matchingBtn) {
+      navItem = matchingBtn.closest('.nav-menu-item');
+    }
+  }
+  if (navItem) {
+    navItem.classList.add('active');
+  }
+
+  // Update URL state without page reload
+  if (window.history && window.history.replaceState) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tabId);
+      window.history.replaceState({}, '', url);
+    } catch(e) {}
+  }
 }
 
-function closeExpertModal() {
-  document.getElementById('expertReportModal').style.display = 'none';
-}
-</script>
+
