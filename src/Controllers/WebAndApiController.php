@@ -62,6 +62,22 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'simulate_competitor_bid':
+                $lotId = (int)($post['lot_id'] ?? 1002);
+                $lot = $this->dataStore->getItem('lots', 'id', $lotId);
+                $step = (float)($lot['minimumArtisTutari'] ?? 1500);
+                $competitorBid = (float)($lot['mevcutEnYuksekTeklif'] ?? 0) + $step;
+
+                // Rakip kullanıcı (ID 6 - damror0ki) teklif versin
+                $res = $this->auctionService->placeBid($lotId, 6, $competitorBid, 'MANUEL', 120);
+                if ($res['success']) {
+                    return [
+                        'type' => 'info',
+                        'text' => "⚡ Rakip alıcı (damror0ki) ₺" . number_format($competitorBid, 2, ',', '.') . " tutarında pey verdi. Otomatik Teklif sisteminiz hemen devreye girerek adınıza otomatik karşı pey sürdü ve liderliği korudu!",
+                    ];
+                }
+                return ['type' => 'warning', 'text' => $res['message']];
+
             case 'close_lot':
                 $lotId = (int)($post['lot_id'] ?? 0);
                 $res = $this->auctionService->closeLot($lotId);

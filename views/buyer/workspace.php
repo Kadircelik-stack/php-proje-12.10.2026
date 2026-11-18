@@ -35,6 +35,15 @@ foreach ($watchlists as $wl) {
     }
 }
 
+$proxyBids = $db['proxyBids'] ?? [];
+$activeProxy = null;
+foreach ($proxyBids as $pb) {
+    if ((int)($pb['lotId'] ?? 0) === (int)$currentLot['id'] && (int)($pb['aliciId'] ?? 0) === $buyerId && !empty($pb['aktifMi'])) {
+        $activeProxy = $pb;
+        break;
+    }
+}
+
 $minNextBid = (float)($currentLot['mevcutEnYuksekTeklif'] ?? 0) + (float)($currentLot['minimumArtisTutari'] ?? 1500);
 
 $activeTab = $_GET['tab'] ?? 'canli';
@@ -215,6 +224,57 @@ $activeTab = $_GET['tab'] ?? 'canli';
                 <?= $isWatched ? '★ Takip Ediliyor (Listeden Çıkar)' : '☆ Listeye Ekle / Takip Et' ?>
               </button>
             </form>
+          </div>
+
+          <!-- Otomatik Teklif / Temsili Bütçe Kartı (Proxy Bidding) -->
+          <div class="bid-panel-card" style="margin-top:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <div style="font-size:0.95rem; font-weight:700; color:var(--gold-primary); display:flex; align-items:center; gap:6px;">
+                <span>🤖</span> Otomatik Teklif
+              </div>
+              <span class="badge <?= $activeProxy ? 'badge-success' : 'badge-gold' ?>">
+                <?= $activeProxy ? 'Aktif' : 'Tanımlı Değil' ?>
+              </span>
+            </div>
+            
+            <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4; margin-bottom:12px;">
+              Maksimum bütçenizi tanımlayın; siz ekran başında değilken bile sistem, rakip tekliflerin bir adım üzerine çıkacak şekilde adınıza otomatik teklif versin.
+            </p>
+
+            <?php if ($activeProxy): ?>
+              <div style="background:rgba(63,185,80,0.1); border:1px solid rgba(63,185,80,0.3); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:0.82rem;">
+                <div style="color:#3fb950; font-weight:600; margin-bottom:2px;">✓ Otomatik Teklifiniz Devrede</div>
+                <div style="color:#ddd;">Tavan Bütçeniz: <strong><?= $formatPrice((float)$activeProxy['maksimumButceTutari']) ?></strong></div>
+                <div style="font-size:0.75rem; color:#aaa; margin-top:4px;">Yeni rakip teklif geldiğinde sistem anında karşı teklif basacaktır.</div>
+              </div>
+            <?php endif; ?>
+
+            <form method="POST">
+              <input type="hidden" name="action" value="set_proxy_bid">
+              <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
+              <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+              
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Maksimum Tavan Bütçeniz (TRY)</label>
+                <input type="number" step="500" name="max_budget" class="form-control" value="<?= $activeProxy ? (float)$activeProxy['maksimumButceTutari'] : ($minNextBid + 15000) ?>" min="<?= $minNextBid ?>" required>
+              </div>
+
+              <button type="submit" class="btn-outline-gold" style="width:100%; justify-content:center; padding:10px; cursor:pointer;">
+                <?= $activeProxy ? 'Tavan Bütçeyi Güncelle' : 'Otomatik Teklifi Başlat' ?>
+              </button>
+            </form>
+
+            <!-- Canlı Simülasyon / Test Butonu (Jüriye Göstermek İçin) -->
+            <div style="border-top:1px dashed #2a3449; margin-top:14px; padding-top:12px;">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">🧪 Otomatik Teklifi Canlı Test Et:</div>
+              <form method="POST" style="margin:0;">
+                <input type="hidden" name="action" value="simulate_competitor_bid">
+                <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
+                <button type="submit" class="btn-outline-gold btn-sm" style="width:100%; font-size:0.75rem; justify-content:center; color:#60a5fa !important; border-color:#60a5fa; cursor:pointer;" title="Başka bir katılımcı adına pey verir, sistemin hemen sizin adınıza otomatik karşı teklif üretmesini test edersiniz">
+                  ⚡ Başka Alıcıdan Rakip Pey Gönder (+<?= $formatPrice((float)($currentLot['minimumArtisTutari'] ?? 1500)) ?>)
+                </button>
+              </form>
+            </div>
           </div>
 
           <!-- Diğer Teklifler Listesi (Görsel 2'deki Birebir Liste) -->
