@@ -40,6 +40,18 @@ class AuctionEngineService
      * Canlı Açık Artırmada Pey (Teklif) Ver
      * Pessimistic Locking, ACID Transaction, Escrow Bloke, Anti-Sniping ve Proxy Bidding tetiklemesi içerir.
      */
+    
+    /**
+     * Eserin müzayede türüne göre (VIP vs CANLI) uygun BiddingRuleStrategy nesnesini dinamik çözer.
+     */
+    public function getStrategyForLot(array $lot): IBiddingRuleStrategy
+    {
+        if (($lot['muzyedeTuru'] ?? '') === 'VIP' || ($lot['tur'] ?? '') === 'VIP' || (int)($lot['muzayedeId'] ?? 0) === 802) {
+            return new \Martello\Patterns\Strategy\Bidding\VipAuctionStrategy();
+        }
+        return $this->biddingStrategy;
+    }
+
     public function placeBid(
         int $lotId,
         int $userId,
@@ -81,7 +93,8 @@ class AuctionEngineService
             }
 
             // 1. Kural Denetimi (Strategy)
-            $ruleValidation = $this->biddingStrategy->validateBid($lot, $amount, $user);
+            $activeStrategy = $this->getStrategyForLot($lot);
+            $ruleValidation = $activeStrategy->validateBid($lot, $amount, $user);
             if (!$ruleValidation['valid']) {
                 $this->dataStore->rollback();
                 $this->dataStore->unlock($lockKey);
@@ -155,7 +168,8 @@ class AuctionEngineService
             // Anti-Sniping Değerlendirmesi (FR-33, NFR-23)
             $antiSnipInfo = null;
             if ($remainingSeconds !== null) {
-                $antiSnipInfo = $this->biddingStrategy->evaluateAntiSniping($lot, $remainingSeconds);
+                $activeStrategy = $this->getStrategyForLot($lot);
+                $antiSnipInfo = $activeStrategy->evaluateAntiSniping($lot, $remainingSeconds);
                 if ($antiSnipInfo['extended']) {
                     $sayac = $lot['antiSnipingSayaci'] ?? ['uzatmaSayisi' => 0];
                     $sayac['uzatmaSayisi'] = ((int)($sayac['uzatmaSayisi'] ?? 0)) + 1;
@@ -219,7 +233,8 @@ class AuctionEngineService
             return ['success' => false, 'message' => 'Lot bulunamadı.'];
         }
 
-        $minNext = $this->biddingStrategy->calculateMinimumNextBid($lot);
+        $activeStrategy = $this->getStrategyForLot($lot);
+        $minNext = $activeStrategy->calculateMinimumNextBid($lot);
         if ($maxBudget < $minNext) {
             return [
                 'success' => false,

@@ -62,6 +62,59 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'simulate_vip_bid':
+                $lotId = (int)($post['lot_id'] ?? 1005);
+                $lot = $this->dataStore->getItem('lots', 'id', $lotId);
+                if (!$lot) {
+                    return ['type' => 'danger', 'text' => "VIP Lot bulunamadı."];
+                }
+                $step = (float)($lot['minimumArtisTutari'] ?? 10000);
+                $competitorBid = (float)($lot['mevcutEnYuksekTeklif'] ?? 0) + $step;
+
+                // Rakip VIP kullanıcı (ID 6 - damror0ki / GOLD Tier) pey versin
+                $res = $this->auctionService->placeBid($lotId, 6, $competitorBid, 'MANUEL', 90);
+                if ($res['success']) {
+                    return [
+                        'type' => 'info',
+                        'text' => "👑 VIP Salonu: Akredite diğer VIP Koleksiyoner (damror0ki - GOLD) ₺" . number_format($competitorBid, 2, ',', '.') . " tutarında resmi VIP pey sürdü.",
+                    ];
+                }
+                return ['type' => 'warning', 'text' => $res['message']];
+
+            case 'vip_reserve_phone':
+                $lotId = (int)($post['lot_id'] ?? 1005);
+                $userId = (int)($post['user_id'] ?? 3);
+                $phone = trim($post['phone'] ?? '+90 532 100 20 30');
+                $lang = trim($post['preferred_language'] ?? 'Türkçe / İngilizce');
+                
+                $this->dataStore->insertItem('notifications', [
+                    'kullaniciId' => $userId,
+                    'baslik'      => "VIP Telefonla Pey Talebi Alındı",
+                    'icerik'      => "Lot #{$lotId} için özel temsilciniz (Leyla Alptekin) müzayede günü {$phone} numarasından sizi canlı bağlayacaktır.",
+                    'okundu'      => false,
+                    'tarih'       => date('c'),
+                    'oncelik'     => 'VIP',
+                ]);
+                return [
+                    'type' => 'success',
+                    'text' => "✓ VIP Telefonla Katılım Rezervasyonunuz onaylandı. Özel Temsilciniz (Leyla Alptekin) müzayededen 15 dakika önce {$phone} numarasından doğrudan şifreli hat kuracaktır.",
+                ];
+
+            case 'vip_request_limit':
+                $userId = (int)($post['user_id'] ?? 3);
+                $targetLimit = (float)($post['target_limit'] ?? 2000000);
+                $user = $this->dataStore->getItem('users', 'id', $userId);
+                if ($user) {
+                    $prof = $user['aliciProfili'] ?? [];
+                    $prof['teklifLimiti'] = $targetLimit;
+                    $user['aliciProfili'] = $prof;
+                    $this->dataStore->updateItem('users', 'id', $userId, ['aliciProfili' => $prof]);
+                }
+                return [
+                    'type' => 'success',
+                    'text' => "✓ VIP Konsiyerj: Özel Müşteri teklif limitiniz anında ₺" . number_format($targetLimit, 2, ',', '.') . " seviyesine yükseltildi.",
+                ];
+
             case 'simulate_competitor_bid':
                 $lotId = (int)($post['lot_id'] ?? 1002);
                 $lot = $this->dataStore->getItem('lots', 'id', $lotId);

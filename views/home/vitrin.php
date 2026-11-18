@@ -102,6 +102,43 @@ $lots = $db['lots'] ?? [];
   </div>
 </section>
 
+<!-- VIP MÜZAYEDE SALONU VITRIN BANNER -->
+<section style="max-width:1260px; margin:0 auto 40px auto; padding:0 32px; width:100%;">
+  <div style="background:linear-gradient(135deg, #090c12 0%, #161c28 50%, #0c0f16 100%); border:1px solid rgba(212,175,55,0.4); border-radius:16px; padding:32px 40px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:24px; box-shadow:0 12px 40px rgba(0,0,0,0.8), inset 0 0 50px rgba(212,175,55,0.06); position:relative; overflow:hidden;">
+    <div style="position:absolute; right:0; top:0; width:50%; height:100%; background:radial-gradient(circle at 80% 50%, rgba(212,175,55,0.12) 0%, transparent 70%); pointer-events:none;"></div>
+    
+    <div style="max-width:680px; position:relative; z-index:2;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="color:#d4af37;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
+        </span>
+        <span style="font-family:var(--font-brand); font-size:0.75rem; letter-spacing:2px; color:#d4af37; text-transform:uppercase; font-weight:700;">
+          MARTELLO PRIVATE CLIENTS • SALON D'HONNEUR
+        </span>
+      </div>
+      <h3 style="font-family:var(--font-serif); font-size:2.1rem; color:#f5f0e6; margin:0 0 10px 0; font-weight:500;">
+        Özel Müşteriler VIP Müzayede Salonu
+      </h3>
+      <p style="font-size:0.92rem; color:#a0aab8; line-height:1.6; margin:0 0 18px 0;">
+        Nadir astronomik aletler, imparatorluk saatleri ve başyapıt niteliğindeki saray koleksiyonları. Yalnızca akredite VIP koleksiyonerlerin katılımına açık özel müzayede salonu.
+      </p>
+      <div style="display:flex; gap:20px; font-size:0.82rem; color:#d4af37; flex-wrap:wrap;">
+        <span>★ <strong>Gold, Platinum & Diamond</strong> Giriş</span>
+        <span>•</span>
+        <span><strong>Lloyds of London</strong> %100 Sigorta</span>
+        <span>•</span>
+        <span><strong>Zırhlı Kurye</strong> Noter Teslimatı</span>
+      </div>
+    </div>
+
+    <div style="position:relative; z-index:2;">
+      <a href="?role=buyer&tab=vip" class="btn-register-glow" style="padding:14px 32px; font-size:0.95rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+        VIP Salona Giriş Yap &rarr;
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- 3. CANLI MÜZAYEDELER & ARAMA ALTYAPISI (Aşağı Kaydırıldığında Erişilebilir) -->
 <main style="max-width:1260px; margin:20px auto 60px auto; padding:0 32px; width:100%;">
   <!-- Arama ve Filtreleme Bölümü -->

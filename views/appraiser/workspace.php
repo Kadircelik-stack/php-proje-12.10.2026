@@ -206,16 +206,7 @@ $activeTab = $_GET['tab'] ?? 'gorev';
             </p>
           </div>
           <div style="margin-top:24px;">
-            <button type="button" class="btn-dark-pill" style="padding:8px 18px; cursor:pointer;" onclick="openExpertReportModal(204, 'AUC-1044', 'Çağdaş Sanat Baskısı', 18000, 'Kağıt ve baskı kalitesi laboratuvar ortamında spektral testlerle incelenmiş ve doğrulanmıştır.')">
-              Rapor oluştur
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-          </div>
-          <div style="margin-top:24px;">
-            <button type="button" class="btn-gold btn-sm" onclick="openAppraisalForm(204, 'AUC-1044', 'Çağdaş Sanat Baskısı')">
+            <button type="button" class="btn-gold btn-sm" onclick="openExpertReportModal(204, 'AUC-1044', 'Çağdaş Sanat Baskısı', 18000, 'Kağıt ve baskı kalitesi laboratuvar ortamında spektral testlerle incelenmiş ve doğrulanmıştır.')">
               Rapor oluştur
             </button>
           </div>

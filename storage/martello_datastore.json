@@ -137,7 +137,7 @@
                 }
             ],
             "aliciProfili": {
-                "teklifLimiti": 200000,
+                "teklifLimiti": 5000000,
                 "dogrulandiMi": true,
                 "vipSeviyesi": "GOLD",
                 "toplamKazanilanLot": 3,
@@ -300,7 +300,7 @@
                     "olusturmaZamani": "2026-10-12T21:15:30+03:00"
                 }
             ],
-            "sonGuncelleme": "2026-11-18T13:38:35+00:00"
+            "sonGuncelleme": "2026-11-18T20:18:24+00:00"
         },
         {
             "id": 104,
@@ -325,9 +325,9 @@
             "kullaniciId": 6,
             "paraBirimi": "TRY",
             "bakiye": 110000,
-            "blokeBakiye": 132000,
+            "blokeBakiye": 150000,
             "aktifBlokeler": [],
-            "sonGuncelleme": "2026-11-18T13:38:35+00:00"
+            "sonGuncelleme": "2026-11-18T20:18:24+00:00"
         },
         {
             "kullaniciId": 7,
@@ -787,6 +787,18 @@
             "bitisZamani": "2026-11-15T23:00:00+03:00",
             "katilimciSayisi": 1420,
             "maksimumKatilimci": 50000
+        },
+        {
+            "id": 802,
+            "baslik": "Özel Müşteriler VIP Nadir Eserler ve Başyapıtlar Salonu",
+            "tur": "VIP",
+            "durum": "AKTIF",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-10-15T21:00:00+03:00",
+            "bitisZamani": "2026-11-20T23:59:00+03:00",
+            "katilimciSayisi": 48,
+            "maksimumKatilimci": 100,
+            "girisKosulu": "GOLD, PLATINUM veya DIAMOND VIP Statüsü"
         }
     ],
     "lots": [
@@ -803,15 +815,15 @@
             "paraBirimi": "TRY",
             "baslangicFiyati": 32000,
             "rezervFiyat": 40000,
-            "mevcutEnYuksekTeklif": 88500,
+            "mevcutEnYuksekTeklif": 106500,
             "minimumArtisTutari": 1500,
             "liderAliciId": 6,
             "liderAnonimKod": "damror0ki",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "00:01:43",
+            "kalanSureMetni": "00:01:42",
             "antiSnipingSayaci": {
-                "uzatmaSayisi": 2,
-                "sonBitisZamani": "2026-11-18T13:19:45+00:00"
+                "uzatmaSayisi": 3,
+                "sonBitisZamani": "2026-11-18T20:16:28+00:00"
             }
         },
         {
@@ -884,6 +896,69 @@
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": "2026-10-12T21:00:00+03:00"
+            }
+        },
+        {
+            "id": 1005,
+            "lotKodu": "VIP-001",
+            "muzayedeId": 802,
+            "baslik": "16. Yüzyıl Osmanlı Saray Ustası İmzalı Pirinç Usturlap",
+            "kategoriId": 104,
+            "durum": "ACIK_ARTIRMADA",
+            "baslangicFiyati": 450000,
+            "mevcutEnYuksekTeklif": 620000,
+            "minimumArtisTutari": 10000,
+            "paraBirimi": "TRY",
+            "gorselUrl": "public/assets/images/astrolabe_clean.jpg",
+            "muzyedeTuru": "VIP",
+            "ekspertizNotu": "Topkapı Sarayı Müzesi envanter şeceresi ve spektrometre sertifikalı, kusursuz pirinç astronomik başyapıt.",
+            "saticiId": 2,
+            "liderKullaniciId": 6,
+            "antiSnipingSayaci": {
+                "sonBitisZamani": "2026-11-20T23:59:00+03:00",
+                "uzatildiMi": false
+            }
+        },
+        {
+            "id": 1006,
+            "lotKodu": "VIP-002",
+            "muzayedeId": 802,
+            "baslik": "1895 Fabergé İmparatorluk Altın Emaye Masa Saati",
+            "kategoriId": 101,
+            "durum": "ACIK_ARTIRMADA",
+            "baslangicFiyati": 850000,
+            "mevcutEnYuksekTeklif": 1150000,
+            "minimumArtisTutari": 25000,
+            "paraBirimi": "TRY",
+            "gorselUrl": "public/assets/images/watch.jpg",
+            "muzyedeTuru": "VIP",
+            "ekspertizNotu": "Romanov hanedanı armalı, altın ve guilloş emaye işçilikli müze eseri. Cenevre Bağımsız Heyeti sertifikalı.",
+            "saticiId": 2,
+            "liderKullaniciId": 3,
+            "antiSnipingSayaci": {
+                "sonBitisZamani": "2026-11-20T23:59:00+03:00",
+                "uzatildiMi": false
+            }
+        },
+        {
+            "id": 1007,
+            "lotKodu": "VIP-003",
+            "muzayedeId": 802,
+            "baslik": "Antik Dönem Helenistik Altın Sikke ve Kolye",
+            "kategoriId": 103,
+            "durum": "ACIK_ARTIRMADA",
+            "baslangicFiyati": 320000,
+            "mevcutEnYuksekTeklif": 390000,
+            "minimumArtisTutari": 10000,
+            "paraBirimi": "TRY",
+            "gorselUrl": "public/assets/images/cat_numismatik.jpg",
+            "muzyedeTuru": "VIP",
+            "ekspertizNotu": "MÖ 3. Yüzyıl Büyük İskender portreli nadir tetradrahmi; nümizmatik arşiv kaydı tescilli.",
+            "saticiId": 2,
+            "liderKullaniciId": 6,
+            "antiSnipingSayaci": {
+                "sonBitisZamani": "2026-11-20T23:59:00+03:00",
+                "uzatildiMi": false
             }
         }
     ],
@@ -1601,6 +1676,174 @@
             "durum": "GECERLI",
             "blokeIslemId": "TX-ESCROW-1AEE3CAE0210",
             "id": 9047
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 90000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T20:14:46+00:00",
+            "saatEtiketi": "20:14:46",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-DC625A8956FE",
+            "id": 9048
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 6,
+            "aliciAnonimKod": "damror0ki",
+            "teklifTutari": 91500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T20:18:07+00:00",
+            "saatEtiketi": "20:18:07",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-BDF05A329E57",
+            "id": 9049
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 93000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "OTOMATIK_PROXIED",
+            "teklifZamani": "2026-11-18T20:18:07+00:00",
+            "saatEtiketi": "20:18:07",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-FEA276682AFB",
+            "id": 9050
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 6,
+            "aliciAnonimKod": "damror0ki",
+            "teklifTutari": 94500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T20:18:10+00:00",
+            "saatEtiketi": "20:18:10",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-644D6298771C",
+            "id": 9051
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 96000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "OTOMATIK_PROXIED",
+            "teklifZamani": "2026-11-18T20:18:10+00:00",
+            "saatEtiketi": "20:18:10",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-67298D2CDDE1",
+            "id": 9052
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 6,
+            "aliciAnonimKod": "damror0ki",
+            "teklifTutari": 97500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T20:18:13+00:00",
+            "saatEtiketi": "20:18:13",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-189E49326F5F",
+            "id": 9053
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 99000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "OTOMATIK_PROXIED",
+            "teklifZamani": "2026-11-18T20:18:13+00:00",
+            "saatEtiketi": "20:18:13",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-2C5A97B5593C",
+            "id": 9054
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 6,
+            "aliciAnonimKod": "damror0ki",
+            "teklifTutari": 100500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T20:18:18+00:00",
+            "saatEtiketi": "20:18:18",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-7EF129923520",
+            "id": 9055
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 102000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "OTOMATIK_PROXIED",
+            "teklifZamani": "2026-11-18T20:18:18+00:00",
+            "saatEtiketi": "20:18:18",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-987727650225",
+            "id": 9056
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 6,
+            "aliciAnonimKod": "damror0ki",
+            "teklifTutari": 103500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T20:18:21+00:00",
+            "saatEtiketi": "20:18:21",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-0B3BF09B1DA9",
+            "id": 9057
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 105000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "OTOMATIK_PROXIED",
+            "teklifZamani": "2026-11-18T20:18:21+00:00",
+            "saatEtiketi": "20:18:21",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-EBA22F60664E",
+            "id": 9058
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 6,
+            "aliciAnonimKod": "damror0ki",
+            "teklifTutari": 106500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T20:18:24+00:00",
+            "saatEtiketi": "20:18:24",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-825C2BA352C5",
+            "id": 9059
         }
     ],
     "proxyBids": [
@@ -1616,12 +1859,12 @@
         {
             "lotId": 1002,
             "aliciId": 3,
-            "maksimumButceTutari": 89000,
+            "maksimumButceTutari": 106500,
             "paraBirimi": "TRY",
             "aktifMi": false,
             "olusturmaZamani": "2026-11-18T13:34:15+00:00",
             "id": 3002,
-            "guncellemeZamani": "2026-11-18T13:38:28+00:00",
+            "guncellemeZamani": "2026-11-18T20:17:15+00:00",
             "kapanmaSebebi": "BUTCE_ASILDI"
         }
     ],
@@ -1802,6 +2045,15 @@
             "icerik": "1968 İsviçre Vintage Saat için 43.500 TL teklifiniz lider konumda.",
             "okunduMu": false,
             "gonderimZamani": "2026-10-12T22:34:01+03:00"
+        },
+        {
+            "kullaniciId": 3,
+            "baslik": "VIP Telefonla Pey Talebi Alındı",
+            "icerik": "Lot #1005 için özel temsilciniz (Leyla Alptekin) müzayede günü +90 532 100 20 30 numarasından sizi canlı bağlayacaktır.",
+            "okundu": false,
+            "tarih": "2026-11-18T20:36:48+00:00",
+            "oncelik": "VIP",
+            "id": 6002
         }
     ],
     "auditLogs": [

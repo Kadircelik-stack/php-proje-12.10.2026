@@ -98,6 +98,12 @@ $activeTab = $_GET['tab'] ?? 'genel';
             </a>
           </li>
           <li class="nav-menu-item">
+            <a href="?role=buyer&tab=vip">
+              <span class="menu-icon" style="color:#d4af37;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg></span>
+              <span style="color:#dfbe7e; font-weight:600;">VIP Müzayede Salonu</span>
+            </a>
+          </li>
+          <li class="nav-menu-item">
             <a href="?role=buyer&tab=canli">
               <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
               Canlı Müzayedeler
@@ -253,7 +259,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
               <label class="form-label">Kategori</label>
               <select name="kategoriId" class="form-control">
                 <?php foreach ($categories as $cat): ?>
-                  <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['ad']) ?> (Komisyon: %<?= $cat['komisyonOraniYuzde'] ?>)</option>
+                  <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['ad'] ?? $cat['kategoriAdi'] ?? 'Kategori') ?> (Komisyon: %<?= $cat['komisyonOraniYuzde'] ?? 7.0 ?>)</option>
                 <?php endforeach; ?>
               </select>
             </div>

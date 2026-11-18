@@ -46,6 +46,33 @@ foreach ($proxyBids as $pb) {
 
 $minNextBid = (float)($currentLot['mevcutEnYuksekTeklif'] ?? 0) + (float)($currentLot['minimumArtisTutari'] ?? 1500);
 
+$vipLots = array_values(array_filter($lots, static fn($l) => ($l['muzyedeTuru'] ?? '') === 'VIP' || (int)($l['muzayedeId'] ?? 0) === 802));
+$selectedVipLotId = (int)($_GET['vip_lot_id'] ?? ($vipLots[0]['id'] ?? 1005));
+$currentVipLot = null;
+foreach ($vipLots as $vl) {
+    if ((int)$vl['id'] === $selectedVipLotId) {
+        $currentVipLot = $vl;
+        break;
+    }
+}
+if (!$currentVipLot && !empty($vipLots)) {
+    $currentVipLot = $vipLots[0];
+}
+
+$vipLotBids = array_filter($allBids, static fn($b) => (int)($b['lotId'] ?? 0) === (int)($currentVipLot['id'] ?? 0));
+usort($vipLotBids, static fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
+
+$currentUserRecord = null;
+foreach ($db['users'] ?? [] as $u) {
+    if ((int)($u['id'] ?? 0) === $buyerId) {
+        $currentUserRecord = $u;
+        break;
+    }
+}
+$userVipLevel = $currentUserRecord['aliciProfili']['vipSeviyesi'] ?? 'GOLD';
+$userLimit = (float)($currentUserRecord['aliciProfili']['teklifLimiti'] ?? 2000000);
+$minNextVipBid = (float)($currentVipLot['mevcutEnYuksekTeklif'] ?? 0) + (float)($currentVipLot['minimumArtisTutari'] ?? 10000);
+
 $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 ?>
 
@@ -66,6 +93,17 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
             Müzayede keşfet
           </a>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'vip' ? 'active' : '' ?>">
+          <button type="button" data-tab="vip" onclick="switchBuyerTab('vip', this)" style="border-left: 2px solid #d4af37; background: linear-gradient(90deg, rgba(212,175,55,0.14) 0%, transparent 100%);">
+            <span class="menu-icon" style="color:#d4af37;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
+            </span>
+            <span style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+              <span style="font-weight:600; color:#f0f3f6;">VIP Salonu</span>
+              <span style="font-size:0.65rem; padding:1px 6px; background:#d4af37; color:#0b0e14; border-radius:10px; font-weight:700; letter-spacing:0.5px;">ÖZEL</span>
+            </span>
+          </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'canli' ? 'active' : '' ?>">
           <button type="button" data-tab="canli" onclick="switchBuyerTab('canli', this)">
@@ -474,6 +512,279 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               </div>
               <a href="javascript:void(0)" onclick="alert('Müze müdürlüğü izin belgesi geçerli.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VIP MÜZAYEDE / SALON D'HONNEUR (Özel Müşteriler VIP Müzayede Salonu)
+         ==================================================================== -->
+    <div id="buyerTab_vip" class="tab-content <?= $activeTab === 'vip' ? 'active' : '' ?>">
+      <!-- VIP Özel Statü & Konsiyerj Danışma Şeridi -->
+      <div style="background:linear-gradient(135deg, #11151f 0%, #171d2b 50%, #0d1017 100%); border:1px solid #c5a059; border-radius:14px; padding:20px 24px; margin-bottom:24px; box-shadow:0 8px 30px rgba(0,0,0,0.65), inset 0 0 40px rgba(197,160,89,0.08); position:relative; overflow:hidden;">
+        <div style="position:absolute; right:-20px; top:-20px; width:160px; height:160px; background:radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%); pointer-events:none;"></div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="color:#d4af37; display:inline-flex; align-items:center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
+              </span>
+              <span style="font-family:var(--font-brand); font-size:0.75rem; letter-spacing:2px; color:#d4af37; text-transform:uppercase; font-weight:700;">MARTELLO PRIVATE CLIENT SERVICES • SALON D'HONNEUR</span>
+            </div>
+            <h1 style="font-family:var(--font-serif); font-size:1.95rem; color:#f5f0e6; margin:0 0 6px 0; font-weight:500;">
+              Özel Müşteriler VIP Müzayede Salonu
+            </h1>
+            <div style="font-size:0.84rem; color:#a0aab8; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <span>Üyelik: <strong style="color:#3fb950;">✓ <?= htmlspecialchars($userVipLevel) ?> TIER (Akredite)</strong></span>
+              <span>•</span>
+              <span>Özel Temsilciniz: <strong style="color:#f0f3f6;">Leyla Alptekin (Private Client Executive)</strong></span>
+              <span>•</span>
+              <span>VIP Doğrudan Hat: <strong style="color:#d4af37;">+90 (212) 980 00 24</strong></span>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="background:rgba(0,0,0,0.5); border:1px solid #334155; border-radius:10px; padding:10px 16px; text-align:right;">
+              <div style="font-size:0.72rem; color:#8b949e; text-transform:uppercase; letter-spacing:0.5px;">VIP Teklif Limitiniz</div>
+              <div style="font-size:1.25rem; font-weight:700; color:#d4af37; font-family:var(--font-serif);"><?= $formatPrice($userLimit) ?></div>
+            </div>
+            <button type="button" class="btn-gold" style="padding:11px 18px; font-size:0.82rem; font-weight:600; white-space:nowrap;" onclick="document.getElementById('vipLimitModal').style.display='flex'">
+              Limit Artır ↗
+            </button>
+            <button type="button" class="btn-outline-gold" style="padding:11px 18px; font-size:0.82rem; font-weight:600; white-space:nowrap;" onclick="document.getElementById('vipPhoneModal').style.display='flex'">
+              Telefonla Katılım Rezerve Et
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIP Eser Seçim Sekmeleri (Lot Switcher Bar) -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:0.8rem; color:#c5a059; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="12 6 12 12 16 14"/></svg>
+          <span>Aktif VIP Başyapıtlar (Salon Oturumu #802)</span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+          <?php foreach ($vipLots as $vlot): 
+            $isSelected = (int)$vlot['id'] === (int)$currentVipLot['id'];
+          ?>
+            <a href="?role=buyer&tab=vip&vip_lot_id=<?= $vlot['id'] ?>" style="text-decoration:none; display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:10px; background:<?= $isSelected ? 'rgba(212,175,55,0.12)' : '#11151f' ?>; border:1px solid <?= $isSelected ? '#d4af37' : '#232b3b' ?>; transition:all 0.2s;" onmouseover="this.style.borderColor='#d4af37';" onmouseout="this.style.borderColor='<?= $isSelected ? '#d4af37' : '#232b3b' ?>';">
+              <img src="<?= htmlspecialchars($vlot['gorselUrl']) ?>" alt="<?= htmlspecialchars($vlot['baslik']) ?>" style="width:48px; height:48px; border-radius:6px; object-fit:cover; border:1px solid #3d4a61;">
+              <div style="flex:1; overflow:hidden;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                  <span style="font-size:0.7rem; font-weight:700; color:#d4af37; background:rgba(212,175,55,0.15); padding:1px 6px; border-radius:4px;"><?= htmlspecialchars($vlot['lotKodu']) ?></span>
+                  <span style="font-size:0.75rem; color:#3fb950; font-weight:600;">CANLI</span>
+                </div>
+                <div style="font-size:0.83rem; color:#fff; font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;"><?= htmlspecialchars($vlot['baslik']) ?></div>
+                <div style="font-size:0.78rem; color:#aaa; margin-top:2px;">Teklif: <strong style="color:#d4af37;"><?= $formatPrice((float)$vlot['mevcutEnYuksekTeklif']) ?></strong></div>
+              </div>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- VIP 2 SÜTUNLU DETAY VE PEY ALANI -->
+      <div class="lot-detail-container" style="display:grid; grid-template-columns:1.3fr 380px; gap:26px;">
+        <!-- SOL SÜTUN: VIP Eser Galerisi, Tarihçe, Bilimsel Ekspertiz ve Zırhlı Lojistik -->
+        <div>
+          <!-- Galeri Çerçevesi -->
+          <div class="gallery-wrapper" style="border:1px solid rgba(212,175,55,0.3); box-shadow:0 10px 35px rgba(0,0,0,0.85);">
+            <div class="main-watch-frame" style="background:#080a0f; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; min-height:340px;">
+              <img id="mainVipLotImage" src="<?= htmlspecialchars($currentVipLot['gorselUrl']) ?>" alt="<?= htmlspecialchars($currentVipLot['baslik']) ?>" style="max-height:310px; width:auto; object-fit:contain; filter:drop-shadow(0 15px 35px rgba(0,0,0,0.95)); transition:all 0.3s ease;">
+              
+              <div style="position:absolute; top:14px; left:16px; font-size:0.72rem; color:#0b0e14; background:linear-gradient(135deg, #dfbe7e 0%, #aa8037 100%); padding:4px 10px; border-radius:4px; font-weight:700; letter-spacing:0.5px; box-shadow:0 2px 8px rgba(0,0,0,0.5);">
+                ★ SARAY KOLEKSİYONU & MÜZE STATÜSÜ
+              </div>
+
+              <div style="position:absolute; bottom:12px; left:16px; font-size:0.75rem; color:#c5cbd3; background:rgba(0,0,0,0.75); padding:4px 10px; border-radius:4px; border:1px solid rgba(255,255,255,0.1);">
+                <?= htmlspecialchars($currentVipLot['baslik']) ?> • Lot: <?= htmlspecialchars($currentVipLot['lotKodu']) ?>
+              </div>
+            </div>
+
+            <!-- 4 Makro İnceleme Thumbnail'i -->
+            <div class="watch-thumbnails-grid">
+              <div class="watch-thumb" title="Optik Spektrometre İncelemesi" style="display:flex; align-items:center; justify-content:center; color:#c5a059; cursor:pointer;" onclick="document.getElementById('mainVipLotImage').src='<?= htmlspecialchars($currentVipLot['gorselUrl']) ?>';">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><circle cx="11" cy="11" r="3"/></svg>
+              </div>
+              <div class="watch-thumb" title="Usta İmzası ve Hicri Tarih Damgası" style="display:flex; align-items:center; justify-content:center; color:#c5a059; cursor:pointer;" onclick="document.getElementById('mainVipLotImage').src='<?= htmlspecialchars($currentVipLot['gorselUrl']) ?>';">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="watch-thumb" title="Alaşımsal Metalurji Analiz Raporu" style="display:flex; align-items:center; justify-content:center; color:#c5a059; cursor:pointer;" onclick="document.getElementById('mainVipLotImage').src='<?= htmlspecialchars($currentVipLot['gorselUrl']) ?>';">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+              </div>
+              <div class="watch-thumb" title="Provenans ve Hanedan Şeceresi" style="display:flex; align-items:center; justify-content:center; color:#c5a059; cursor:pointer;" onclick="document.getElementById('mainVipLotImage').src='<?= htmlspecialchars($currentVipLot['gorselUrl']) ?>';">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Eser Açıklaması ve Sanat Tarihsel Önemi -->
+          <div style="background:#11151f; border:1px solid #232b3b; border-radius:12px; padding:18px 22px; margin-top:16px; margin-bottom:16px;">
+            <div style="font-size:0.75rem; color:#d4af37; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;">PROVENANS VE SANAT TARİHİ DETAYLARI</div>
+            <p style="font-size:0.87rem; line-height:1.7; color:#cbd5e1; margin:0 0 10px 0;">
+              <?= htmlspecialchars($currentVipLot['baslik']) ?>: Dönemin saray astronomları ve en seçkin sanatkârları tarafından imal edilmiştir. Gezegensel hareketler, 12 burç takımyıldızı ve kubbe koordinatları aslına uygun olarak kusursuz korunmuştur. Eser, 2863 Sayılı Kültür ve Tabiat Varlıklarını Koruma Kanunu tescil ve yurtiçi özel koleksiyon devir izinlerine haizdir.
+            </p>
+            <div style="display:flex; gap:16px; font-size:0.78rem; color:#94a3b8; border-top:1px dashed #2a3449; padding-top:10px;">
+              <span>Dönem: <strong>Klasik Osmanlı / 16. Yüzyıl</strong></span>
+              <span>Materyal: <strong>Yaldızlı Gravürlü Pirinç</strong></span>
+              <span>Mevcut Koruma: <strong>Koleksiyoner Kasası</strong></span>
+            </div>
+          </div>
+
+          <!-- Beyaz Lüks Bilimsel Ekspertiz Kartı -->
+          <div class="expert-white-card" style="box-shadow:0 8px 30px rgba(0,0,0,0.5);">
+            <div class="expert-card-top">
+              <span class="expert-card-title">Arkeometrik & Bilimsel Ekspertiz Raporu</span>
+              <span class="expert-card-badge" style="background:#0c0f14; color:#d4af37; border:1px solid #d4af37;">VIP SEÇKİ BAŞYAPIT</span>
+            </div>
+            
+            <ul class="expert-card-list">
+              <li>XRF Spektrometre Metalurjik Analizi: Alaşım kompozisyonu (%88 Cu, %12 Zn) 16. Yy. saray dökmeciliği ile %99.4 eşleşmektedir.</li>
+              <li>İmza & Ebced Tetkiki: İmzalı usta mührü ve döküm üzerindeki hicri tarih dökümanter arşiv kayıtlarıyla doğrulanmıştır.</li>
+              <li>Topkapı Sarayı 1912 Hazine İntikal Defteri ve Viyana Sanat Tarihi Enstitüsü mukayeseli şeceresi tamdır.</li>
+            </ul>
+
+            <div class="expert-card-bottom">
+              <div>
+                <div class="expert-reviewer-title">Akredite Kurul İncelemesi:</div>
+                <div class="expert-stars">★ ★ ★ ★ ★</div>
+              </div>
+              
+              <div class="expert-stamp-seal" style="border-color:#b45309; color:#b45309;">
+                MARTELLO<br>VIP SALON<br>★ ★ ★<br>SARAY MÜHRÜ
+              </div>
+            </div>
+          </div>
+
+          <!-- Zırhlı Özel Lojistik ve Lloyds Sanat Sigortası Güvencesi -->
+          <div style="background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.3); border-radius:10px; padding:14px 18px; margin-top:16px; display:flex; align-items:center; gap:14px;">
+            <div style="color:#d4af37;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div style="font-size:0.82rem; color:#cbd5e1; line-height:1.5;">
+              <strong style="color:#fff;">Özel Zırhlı Taşıma ve %100 Teminat:</strong> Kazanan VIP alıcıya teslimat, silahlı sanat kuryeleri ve Lloyds of London tam kıymet sigortasıyla noter huzurunda teslim edilir.
+            </div>
+          </div>
+        </div>
+
+        <!-- SAĞ SÜTUN: VIP Canlı Teklif Kartı, Telefonla Pey ve VIP Katılımcı Akışı -->
+        <div>
+          <!-- VIP Canlı Teklif Kartı -->
+          <div class="bid-panel-card" style="border-color:#c5a059; box-shadow:0 8px 30px rgba(0,0,0,0.7), inset 0 0 20px rgba(212,175,55,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div class="bid-title-muted" style="color:#d4af37; font-weight:700; letter-spacing:1px; text-transform:uppercase;">VIP GÜNCEL TEKLİF</div>
+              <span class="badge" style="background:rgba(63,185,80,0.15); color:#3fb950; border:1px solid #3fb950; font-size:0.7rem;">LİDER TEKLİF</span>
+            </div>
+
+            <div class="bid-price-large" style="color:#dfbe7e; font-size:2.2rem;">
+              <?= $formatPrice((float)$currentVipLot['mevcutEnYuksekTeklif']) ?>
+            </div>
+
+            <div class="bid-timer-text" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span class="live-countdown" data-seconds="<?= (!empty($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 43200 ?>">12 gün 04 saat</span>
+              </div>
+              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(45)" title="Anti-sniping tetiklemesi için süreyi son 45 saniyeye ayarlar">VIP 45sn Test</button>
+            </div>
+
+            <!-- VIP Kurallar Bilgi Notu -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid #232b3b; border-radius:6px; padding:8px 10px; font-size:0.74rem; color:#8b949e; margin-bottom:14px; line-height:1.4;">
+              ⚡ <strong style="color:#ddd;">VIP Müzayede Kuralı (SRS NFR-14):</strong> Asgari artırım adımı <strong><?= $formatPrice((float)($currentVipLot['minimumArtisTutari'] ?? 10000)) ?></strong>. Son 60 sn içinde pey verilirse süre +60 sn uzatılır.
+            </div>
+
+            <!-- VIP Pey Ver Formu -->
+            <form method="POST">
+              <input type="hidden" name="action" value="place_bid">
+              <input type="hidden" name="lot_id" value="<?= $currentVipLot['id'] ?>">
+              <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+              <input type="hidden" id="remainingSecondsInput" name="remaining_seconds" value="43200">
+
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label" style="color:#c5cbd3;">Teklifiniz (Asgari: <?= $formatPrice($minNextVipBid) ?>)</label>
+                <input type="number" step="5000" id="vipBidAmountInput" name="bid_amount" class="form-control" value="<?= $minNextVipBid ?>" required style="font-size:1.15rem; font-weight:700; color:#d4af37; background:#07090e; border-color:#c5a059;">
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+                <button type="button" class="btn-outline-gold btn-sm" onclick="const bi=document.getElementById('vipBidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+10000;">+10.000</button>
+                <button type="button" class="btn-outline-gold btn-sm" onclick="const bi=document.getElementById('vipBidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+25000;">+25.000</button>
+                <button type="button" class="btn-outline-gold btn-sm" onclick="const bi=document.getElementById('vipBidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+50000;">+50.000</button>
+                <button type="button" class="btn-outline-gold btn-sm" onclick="const bi=document.getElementById('vipBidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+100000;">+100.000</button>
+              </div>
+
+              <button type="submit" class="btn-register-glow" style="font-size:1rem; padding:12px;">
+                👑 VIP Resmi Pey Ver
+              </button>
+            </form>
+
+            <!-- VIP Rakip Teklif Canlı Simülasyonu Butonu -->
+            <div style="border-top:1px dashed #2a3449; margin-top:14px; padding-top:12px;">
+              <form method="POST" style="margin:0;">
+                <input type="hidden" name="action" value="simulate_vip_bid">
+                <input type="hidden" name="lot_id" value="<?= $currentVipLot['id'] ?>">
+                <button type="submit" class="btn-outline-gold btn-sm" style="width:100%; font-size:0.75rem; justify-content:center; color:#60a5fa !important; border-color:#60a5fa; cursor:pointer;" title="Salondaki diğer bir VIP alıcının canlı pey sürmesini test eder">
+                  ⚡ Başka VIP Alıcıdan Rakip Pey Gönder (+<?= $formatPrice((float)($currentVipLot['minimumArtisTutari'] ?? 10000)) ?>)
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- VIP Telefonla Katılım & Konsiyerj Hizmeti Kartı -->
+          <div class="bid-panel-card" style="margin-top:16px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+              <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #dfbe7e 0%, #aa8037 100%); display:flex; align-items:center; justify-content:center; color:#0c0f14; font-weight:700;">
+                LA
+              </div>
+              <div>
+                <div style="font-size:0.85rem; font-weight:700; color:#fff;">Leyla Alptekin</div>
+                <div style="font-size:0.72rem; color:#d4af37;">Kıdemli Özel Müşteri Danışmanı</div>
+              </div>
+            </div>
+            <p style="font-size:0.79rem; color:#94a3b8; line-height:1.45; margin-bottom:12px;">
+              Salonda fiziksel olarak bulunamayan müşterilerimiz için özel şifreli hat üzerinden canlı telefonla pey hizmeti tahsis edilmektedir.
+            </p>
+            <button type="button" class="btn-outline-gold" style="width:100%; justify-content:center; font-size:0.8rem; padding:8px;" onclick="document.getElementById('vipPhoneModal').style.display='flex'">
+              Telefonla Katılım Rezerve Et ↗
+            </button>
+          </div>
+
+          <!-- VIP Salondaki Son Teklifler Akışı -->
+          <div class="other-bids-card" style="margin-top:16px;">
+            <div class="other-bids-title" style="color:#d4af37; display:flex; align-items:center; justify-content:space-between;">
+              <span>VIP Salonu Teklif Geçmişi</span>
+              <span style="font-size:0.7rem; color:#8b949e;">Canlı Akış</span>
+            </div>
+            
+            <?php if (!empty($vipLotBids)): ?>
+              <?php foreach (array_slice($vipLotBids, 0, 5) as $vb): ?>
+                <div class="other-bid-row">
+                  <div class="other-bid-user" style="display:flex; align-items:center; gap:6px;">
+                    <span style="color:#d4af37;">★</span>
+                    <span><?= htmlspecialchars($vb['anonimKod'] ?? $vb['aliciAnonimKod'] ?? 'VIP Katılımcı') ?></span>
+                  </div>
+                  <div class="other-bid-time">
+                    <strong style="color:#dfbe7e;"><?= $formatPrice((float)$vb['teklifTutari']) ?></strong>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <div class="other-bid-row">
+                <div class="other-bid-user" style="display:flex; align-items:center; gap:6px;">
+                  <span style="color:#d4af37;">★</span>
+                  <span>damror0ki (VIP)</span>
+                </div>
+                <div class="other-bid-time"><strong style="color:#dfbe7e;"><?= $formatPrice((float)$currentVipLot['mevcutEnYuksekTeklif']) ?></strong></div>
+              </div>
+              <div class="other-bid-row">
+                <div class="other-bid-user" style="display:flex; align-items:center; gap:6px;">
+                  <span style="color:#d4af37;">★</span>
+                  <span>yortunen... (VIP)</span>
+                </div>
+                <div class="other-bid-time"><strong style="color:#dfbe7e;"><?= $formatPrice((float)$currentVipLot['mevcutEnYuksekTeklif'] - 10000) ?></strong></div>
+              </div>
+            <?php endif; ?>
           </div>
         </div>
       </div>
@@ -912,6 +1223,69 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
         </div>
       </div>
     </div>
+
+  <!-- VIP Limit Artırım Modalı -->
+<div id="vipLimitModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#12161f; border:1px solid #c5a059; border-radius:12px; max-width:480px; width:92%; padding:26px; position:relative; box-shadow:0 12px 40px rgba(0,0,0,0.9);">
+    <button type="button" onclick="document.getElementById('vipLimitModal').style.display='none'" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+    <div style="color:#d4af37; font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">MARTELLO PRIVATE CLIENTS</div>
+    <h3 style="color:#fff; font-size:1.3rem; margin-bottom:8px;">VIP Teklif Limiti Güncelleme</h3>
+    <p style="font-size:0.83rem; color:#94a3b8; line-height:1.5; margin-bottom:16px;">
+      Akredite GOLD/PLATINUM statünüz gereği teminat limitiniz konsiyerj onayına gerek kalmaksızın sistem tarafından anında tahsis edilebilir.
+    </p>
+    <form method="POST">
+      <input type="hidden" name="action" value="vip_request_limit">
+      <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label">Talep Edilen VIP Teklif Limiti (TRY)</label>
+        <select name="target_limit" class="form-control" style="font-size:1rem; font-weight:600; color:#d4af37;">
+          <option value="2000000" <?= $userLimit == 2000000 ? 'selected' : '' ?>>₺ 2.000.000 (Standart VIP Limit)</option>
+          <option value="3500000" <?= $userLimit == 3500000 ? 'selected' : '' ?>>₺ 3.500.000 (Platinum Seviye)</option>
+          <option value="5000000" <?= $userLimit == 5000000 ? 'selected' : '' ?>>₺ 5.000.000 (Diamond Seviye)</option>
+          <option value="10000000" <?= $userLimit == 10000000 ? 'selected' : '' ?>>₺ 10.000.000 (Özel Konsorsiyum Limiti)</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-register-glow" style="width:100%;">
+        Limiti Anında Onayla ve Güncelle
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- VIP Telefonla Katılım Rezervasyon Modalı -->
+<div id="vipPhoneModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#12161f; border:1px solid #c5a059; border-radius:12px; max-width:480px; width:92%; padding:26px; position:relative; box-shadow:0 12px 40px rgba(0,0,0,0.9);">
+    <button type="button" onclick="document.getElementById('vipPhoneModal').style.display='none'" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+    <div style="color:#d4af37; font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">SALON D'HONNEUR • TELEFONLA KATILIM</div>
+    <h3 style="color:#fff; font-size:1.3rem; margin-bottom:8px;">Canlı Salonda Telefonla Temsil</h3>
+    <p style="font-size:0.83rem; color:#94a3b8; line-height:1.5; margin-bottom:16px;">
+      Özel temsilciniz müzayede salonunda masanızda hazır bulunacak ve canlı telefon bağlantısıyla verdiğiniz talimatları salonda adınıza icra edecektir.
+    </p>
+    <form method="POST">
+      <input type="hidden" name="action" value="vip_reserve_phone">
+      <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+      <input type="hidden" name="lot_id" value="<?= $currentVipLot['id'] ?>">
+      
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label">Aranacak VIP Telefon Numarası</label>
+        <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($currentUserRecord['telefon'] ?? '+90 532 100 20 30') ?>" required>
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label">Tercih Edilen Temsil Dili</label>
+        <select name="preferred_language" class="form-control">
+          <option value="Türkçe" selected>Türkçe (Ana Dil)</option>
+          <option value="İngilizce">İngilizce (English)</option>
+          <option value="Fransızca">Fransızca (Français)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-register-glow" style="width:100%;">
+        Telefonla Katılımı Kesinleştir
+      </button>
+    </form>
+  </div>
+</div>
 
   </main>
 </div>
