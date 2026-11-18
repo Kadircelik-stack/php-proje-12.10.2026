@@ -137,7 +137,7 @@
                 }
             ],
             "aliciProfili": {
-                "teklifLimiti": 5000000,
+                "teklifLimiti": 10000000,
                 "dogrulandiMi": true,
                 "vipSeviyesi": "GOLD",
                 "toplamKazanilanLot": 3,
@@ -159,7 +159,7 @@
             "ad": "Burak",
             "soyad": "Şahin",
             "email": "burak@ekspertiz.com",
-            "telefon": "+905334445566",
+            "telefon": "+90 533 444 55 66",
             "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
             "durum": "AKTIF",
             "anonimKod": "EXP-BURAK",
@@ -178,7 +178,9 @@
                 "dogrulandiMi": true,
                 "onaylayan": "Sistem Yöneticisi",
                 "onayTarihi": "2026-11-18T13:49:44+00:00"
-            }
+            },
+            "adres": "İstanbul, Türkiye",
+            "faturaBilgisi": "Bireysel Fatura"
         },
         {
             "id": 5,
@@ -603,9 +605,10 @@
             "lotKodu": "AUC-1043",
             "urunId": 505,
             "atananEksperId": 4,
-            "durum": "TAMAMLANDI",
+            "durum": "REVIZE_ISTENDI",
             "eskalasyon": false,
-            "not": "Ekspertiz raporu tamamlandı."
+            "not": "Uzman revize talep etti: Kamera deklanşör yayının detaylı makro fotoğrafı gereklidir.",
+            "revizeNedeni": "Kamera deklanşör yayının detaylı makro fotoğrafı gereklidir."
         },
         {
             "id": 204,
@@ -613,9 +616,10 @@
             "lotKodu": "AUC-1044",
             "urunId": 506,
             "atananEksperId": 4,
-            "durum": "TAMAMLANDI",
-            "eskalasyon": false,
-            "not": "Ekspertiz raporu tamamlandı."
+            "durum": "ESKALE_EDILDI",
+            "eskalasyon": true,
+            "not": "Yüksek ihtisas heyetine eskale edildi: Nadir baskı niteliği dolayısıyla üst kurula yönlendirildi.",
+            "eskalasyonNedeni": "Nadir baskı niteliği dolayısıyla üst kurula yönlendirildi."
         },
         {
             "talepNo": "EXP-REQ-661",
@@ -740,6 +744,21 @@
             "denetimDurumu": "ONAYLANDI",
             "raporTarihi": "2026-11-18T13:52:34+00:00",
             "id": 307
+        },
+        {
+            "raporNo": "REP-2026-690",
+            "talepId": 202,
+            "urunId": 502,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 68000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Optik testler ve mekanizma kalibrasyonu tamamlandı.",
+                "Parçalar orijinaldir."
+            ],
+            "denetimDurumu": "ONAYLANDI",
+            "raporTarihi": "2026-11-18T21:35:27+00:00",
+            "id": 308
         }
     ],
     "listings": [
@@ -749,14 +768,14 @@
             "urunId": 501,
             "saticiId": 2,
             "ekspertizRaporId": 301,
-            "durum": "ONAYLANDI"
+            "durum": "YAYINDA"
         },
         {
             "id": 602,
             "ilanKodu": "ILN-2026-100",
             "urunId": 502,
             "saticiId": 2,
-            "ekspertizRaporId": 305,
+            "ekspertizRaporId": 308,
             "durum": "ONAYLANDI"
         },
         {
@@ -824,7 +843,8 @@
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 3,
                 "sonBitisZamani": "2026-11-18T20:16:28+00:00"
-            }
+            },
+            "gorselUrl": "public/assets/images/watch.jpg"
         },
         {
             "id": 1001,
@@ -848,7 +868,8 @@
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 2,
                 "sonBitisZamani": "2026-11-18T13:06:22+00:00"
-            }
+            },
+            "gorselUrl": "public/assets/images/cat_osmanli.jpg"
         },
         {
             "id": 1003,
@@ -872,7 +893,8 @@
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 1,
                 "sonBitisZamani": "2026-10-12T22:00:30+03:00"
-            }
+            },
+            "gorselUrl": "public/assets/images/vase.jpg"
         },
         {
             "id": 1004,
@@ -896,7 +918,8 @@
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": "2026-10-12T21:00:00+03:00"
-            }
+            },
+            "gorselUrl": "public/assets/images/books.jpg"
         },
         {
             "id": 1005,
@@ -960,6 +983,31 @@
                 "sonBitisZamani": "2026-11-20T23:59:00+03:00",
                 "uzatildiMi": false
             }
+        },
+        {
+            "lotKodu": "AUC-2330",
+            "lotNumarasi": 30,
+            "muzayedeId": 801,
+            "urunId": 501,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "1920'ler Osmanlı Halı Levhası",
+            "kategoriAdi": "Antika & Sanat",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 32000,
+            "rezervFiyat": 40000,
+            "mevcutEnYuksekTeklif": 32000,
+            "minimumArtisTutari": 1500,
+            "liderAliciId": null,
+            "liderAnonimKod": "Henüz Teklif Yok",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "2 gün 04 saat",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-11-20T20:46:54+00:00"
+            },
+            "id": 1008,
+            "gorselUrl": "public/assets/images/camera.jpg"
         }
     ],
     "bids": [
@@ -1995,8 +2043,11 @@
             "olusturanKullaniciId": 3,
             "konuTipi": "KONDİSYON_UYUŞMAZLIĞI",
             "aciklama": "Çerçeve sağ alt köşede katalogda görünmeyen mikro iz teyidi.",
-            "durum": "INCELENIYOR",
-            "olusturmaTarihi": "2026-10-12T23:24:00+03:00"
+            "durum": "EKSPER_GORUSU_ALINDI",
+            "olusturmaTarihi": "2026-10-12T23:24:00+03:00",
+            "eksperGorus": "Çerçeve üzerindeki mikro çizik fabrikasyon ve dönem aşınması olup sonradan hasar değildir.",
+            "eksperId": 4,
+            "gorusTarihi": "2026-11-18T21:35:33+00:00"
         }
     ],
     "liveChatSessions": [

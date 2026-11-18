@@ -307,6 +307,23 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'submit_dispute_opinion':
+                $dispId = (int)($post['dispute_id'] ?? 0);
+                $expertId = (int)($post['expert_id'] ?? 4);
+                $opinion = trim($post['expert_opinion'] ?? 'Ekspertiz teknik mütalaası sunuldu.');
+
+                $disp = $this->dataStore->getItem('disputes', 'id', $dispId);
+                if ($disp) {
+                    $this->dataStore->updateItem('disputes', 'id', $dispId, [
+                        'eksperGorus' => $opinion,
+                        'eksperId'    => $expertId,
+                        'gorusTarihi' => date('c'),
+                        'durum'       => 'EKSPER_GORUSU_ALINDI',
+                    ]);
+                    return ['type' => 'success', 'text' => "✓ Ekspertiz teknik mütalaanız ihtilaf dosyasına başarıyla kaydedildi ve hakem kuruluna iletildi."];
+                }
+                return ['type' => 'danger', 'text' => "İhtilaf dosyası bulunamadı."];
+
             case 'resolve_dispute':
                 $dispId = (int)($post['dispute_id'] ?? 0);
                 $decision = $post['decision'] ?? 'ALICI_HAKLI';
