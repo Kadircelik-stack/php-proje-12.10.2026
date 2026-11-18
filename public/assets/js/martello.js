@@ -27,15 +27,18 @@ document.addEventListener("DOMContentLoaded", function () {
         ":" +
         String(s).padStart(2, "0");
 
-      // Son 30 saniye kuralı (Anti-Sniping Eşiği - NFR-23)
-      if (remaining <= 30) {
-        if (box) {
-          box.classList.add("critical");
-          const warningEl = document.getElementById("antiSnipingWarning");
-          if (warningEl) warningEl.style.display = "block";
+      // Son 1 dakika (60 saniye) kuralı (Anti-Sniping Eşiği - FR-33 & NFR-23)
+      if (remaining <= 60) {
+        if (box) box.classList.add("critical");
+        const warningEl = document.getElementById("antiSnipingWarning");
+        if (warningEl) {
+          warningEl.style.display = "block";
+          warningEl.textContent = "⚠️ Son 1 dakika! Bu süre içinde pey verilirse süre 1 dakika uzatılacaktır.";
         }
       } else {
         if (box) box.classList.remove("critical");
+        const warningEl = document.getElementById("antiSnipingWarning");
+        if (warningEl) warningEl.style.display = "none";
       }
 
       // Kalan süreyi gizli inputa yaz (Böylece POST edildiğinde doğru Anti-Sniping hesaplanır)
@@ -45,6 +48,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       remaining--;
+    };
+
+    // Hocaya veya jüriye canlı test/demo göstermek için yardımcı fonksiyon
+    window.setDemoTimer = function (seconds) {
+      remaining = parseInt(seconds, 10);
+      updateDisplay();
     };
 
     updateDisplay();

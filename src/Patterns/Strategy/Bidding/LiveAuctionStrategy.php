@@ -47,30 +47,30 @@ class LiveAuctionStrategy implements IBiddingRuleStrategy
     }
 
     /**
-     * NFR-23: İhalenin son 30 saniyesi içinde yeni bir teklif gelmesi durumunda sistemin
-     * süreyi kademeli uzatması (ilk 2 uzamada +30 sn, 3. ve sonrakilerde +10 sn).
+     * Anti-Sniping Kuralı (FR-33 & NFR-23):
+     * Pey başına süre uzatılmaz.
+     * SADECE son 1 dakika (60 saniye) içinde verilen peyler süreyi 1 dakika (+60 saniye) uzatır.
      */
     public function evaluateAntiSniping(array $lot, int $remainingSeconds): array
     {
-        $threshold = 30; // Son 30 saniye kuralı
+        $threshold = 60; // Son 1 dakika (60 saniye) eşiği
         if ($remainingSeconds > $threshold) {
             return [
                 'extended'            => false,
                 'additionalSeconds'   => 0,
                 'newRemainingSeconds' => $remainingSeconds,
-                'reason'              => "Kalan süre eşik değerin ({$threshold} sn) üzerinde olduğundan süre uzatılmadı.",
+                'reason'              => "Kalan süre 1 dakikadan fazla ({$remainingSeconds} sn) olduğundan süre uzatılmadı (Pey başına süre uzamaz).",
             ];
         }
 
-        $extensionCount = (int)($lot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
-        $additional = ($extensionCount < 2) ? 30 : 10;
+        $additional = 60; // Son 1 dakika kala pey verilirse süreyi 1 dakika (+60 sn) uzat
         $newRemaining = $remainingSeconds + $additional;
 
         return [
             'extended'            => true,
             'additionalSeconds'   => $additional,
             'newRemainingSeconds' => $newRemaining,
-            'reason'              => "Anti-Sniping tetiklendi! Son saniye teklifi nedeniyle süreye +{$additional} saniye eklendi.",
+            'reason'              => "Son 1 dakika içinde pey verildiğinden süre 1 dakika (+60 sn) uzatıldı.",
         ];
     }
 

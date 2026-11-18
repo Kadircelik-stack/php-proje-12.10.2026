@@ -188,9 +188,14 @@ class AuctionEngineService
             // 4. Çekirdek Problem 1: Otomatik Teklif (Proxy Bidding) Zincirleme Tetikleme
             $this->evaluateProxyBidding($lotId, $userId, $amount);
 
+            $snipNotice = "";
+            if ($antiSnipInfo && $antiSnipInfo['extended']) {
+                $snipNotice = " ⏳ (Anti-Sniping: Son 1 dakika içinde pey verildiğinden süre 1 dakika uzatıldı!)";
+            }
+
             return [
                 'success'      => true,
-                'message'      => "₺" . number_format($amount, 2, ',', '.') . " tutarındaki teklifiniz başarıyla alındı.",
+                'message'      => "₺" . number_format($amount, 2, ',', '.') . " tutarındaki teklifiniz başarıyla alındı." . $snipNotice,
                 'lot'          => $lot,
                 'bid'          => $savedBid,
                 'antiSnip'     => $antiSnipInfo,

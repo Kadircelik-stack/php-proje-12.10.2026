@@ -174,8 +174,13 @@ $activeTab = $_GET['tab'] ?? 'canli';
             <div class="bid-price-large">
               <?= $formatPrice((float)$currentLot['mevcutEnYuksekTeklif']) ?>
             </div>
-            <div class="bid-timer-text">
-              ⏱️ <span class="live-countdown" data-seconds="19320">5 saat 23 dakika</span>
+            <div class="bid-timer-text" style="display:flex; align-items:center; justify-content:space-between;">
+              <div>⏱️ <span class="live-countdown" data-seconds="<?= (!empty($currentLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 19320 ?>">5 saat 23 dakika</span></div>
+              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(45)" title="Jüriye göstermek için sayacı son 45 saniyeye ayarlar">⏱️ 45sn Test</button>
+            </div>
+
+            <div id="antiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px;">
+              ⚠️ Son 1 dakika! Bu süre içinde pey verilirse süre 1 dakika uzatılacaktır.
             </div>
 
             <!-- Pey Ver / Kayıt Ol Butonu -->
