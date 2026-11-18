@@ -240,13 +240,25 @@ a:hover {
 }
 
 .sidebar {
-  width: 260px;
+  width: 270px;
+  min-width: 270px;
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
-  padding: 24px 14px;
+  padding: 20px 14px 28px 14px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 16px;
+  overflow-y: auto;
+  max-height: calc(100vh - 65px);
+  position: sticky;
+  top: 65px;
+}
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(197, 160, 89, 0.25);
+  border-radius: 4px;
 }
 .sidebar-section-title {
   font-size: 0.72rem;

@@ -46,6 +46,81 @@ $activeTab = $_GET['tab'] ?? 'gorev';
     </div>
 
     <!-- Sidebar Demo Rozeti -->
+    
+      <!-- 2. BÖLÜM: PAZAR YERİ SEÇENEKLERİ -->
+      <div style="margin-top:16px;">
+        <div class="sidebar-section-title">Pazar Yeri</div>
+        <ul class="nav-menu">
+          <li class="nav-menu-item">
+            <a href="?role=vitrin">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
+              Koleksiyonlar & Keşif
+            </a>
+          </li>
+          <li class="nav-menu-item">
+            <a href="?role=buyer&tab=canli">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+              Canlı Müzayedeler
+            </a>
+          </li>
+          <li class="nav-menu-item">
+            <button type="button" onclick="openInfoModal('categories')">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+              Ürün Kategorileri
+            </button>
+          </li>
+          <li class="nav-menu-item">
+            <button type="button" onclick="openInfoModal('about')">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+              Hakkımızda
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 3. BÖLÜM: MÜZAYEDE ŞARTLARI & GİZLİLİK SEÇENEKLERİ -->
+      <div style="margin-top:16px;">
+        <div class="sidebar-section-title">Şartlar & Gizlilik</div>
+        <ul class="nav-menu">
+          <li class="nav-menu-item">
+            <button type="button" onclick="openInfoModal('terms')">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+              Müzayede Şartları
+            </button>
+          </li>
+          <li class="nav-menu-item">
+            <button type="button" onclick="openInfoModal('privacy')">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              Gizlilik Politikası & KVK
+            </button>
+          </li>
+          <li class="nav-menu-item">
+            <button type="button" onclick="openInfoModal('help')">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+              Yardım Merkezi & SSS
+            </button>
+          </li>
+          <li class="nav-menu-item">
+            <a href="?role=support">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+              Canlı Destek Masası
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 4. BÖLÜM: HIZLI ROL ERİŞİMİ -->
+      <div style="margin-top:16px;">
+        <div class="sidebar-section-title">Hızlı Panel Erişimi</div>
+        <ul class="nav-menu" style="font-size:0.8rem;">
+          <li class="nav-menu-item"><a href="?role=buyer" style="padding:7px 12px; font-size:0.8rem;">Alıcı Paneli</a></li>
+          <li class="nav-menu-item"><a href="?role=seller" style="padding:7px 12px; font-size:0.8rem;">Satıcı Paneli</a></li>
+          <li class="nav-menu-item"><a href="?role=appraiser" style="padding:7px 12px; font-size:0.8rem;">Ekspertiz Paneli</a></li>
+          <li class="nav-menu-item"><a href="?role=support" style="padding:7px 12px; font-size:0.8rem;">Canlı Destek & Kargo</a></li>
+          <li class="nav-menu-item"><a href="?role=admin" style="padding:7px 12px; font-size:0.8rem;">Admin Konsolu</a></li>
+        </ul>
+      </div>
+
     <div class="sidebar-demo-badge">
       <div style="font-weight:700; font-size:0.75rem; color:#d4af37; letter-spacing:0.5px;">MARTELLO / DEMO</div>
       <div style="font-size:0.7rem; color:#888; margin-top:2px;">İşlemler sunum amaçlıdır.</div>

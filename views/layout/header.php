@@ -84,6 +84,46 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
       </select>
     <?php endif; ?>
   </div>
+
+<!-- Bilgi ve Şartlar Modalı (Tüm Pazar Yeri & Gizlilik Seçenekleri) -->
+<div id="infoModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:540px; width:90%; max-height:85vh; overflow-y:auto; padding:26px; box-shadow:0 12px 40px rgba(0,0,0,0.85); position:relative;">
+    <button type="button" onclick="closeInfoModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.6rem; cursor:pointer; line-height:1;">&times;</button>
+    <div id="infoModalBadge" style="color:var(--gold-primary); font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">MARTELLO BİLGİ BANKASI</div>
+    <h3 id="infoModalTitle" style="color:#fff; font-size:1.35rem; margin-bottom:12px;">Başlık</h3>
+    <div id="infoModalBody" style="color:#abb2bf; font-size:0.88rem; line-height:1.6;">İçerik</div>
+  </div>
+</div>
+
+<script>
+function openInfoModal(type) {
+  const titles = {
+    'about': 'Hakkımızda',
+    'terms': 'Müzayede Şartları & Pey Kuralları',
+    'privacy': 'Gizlilik Politikası & KVK',
+    'help': 'Yardım Merkezi & Sıkça Sorulan Sorular',
+    'categories': 'Eser Kategorileri & Seçki Rehberi'
+  };
+  const contents = {
+    'about': '<p>MARTELLO, Türkiye\'nin seçkin antika, horoloji, filateli ve sanat koleksiyonları için geliştirilmiş bağımsız çevrimiçi müzayede platformudur. Tüm eserler lisanslı eksper onayından ve seçki damgasından geçirilmektedir.</p><p style="margin-top:10px; font-size:0.8rem; color:#888;">Geliştirici Ekip: ZeroDay (Esra Yıldırım, Abdullah Kadir Çelik, Rümeysa Şevval Kandilci)</p>',
+    'terms': '<p><strong>1. Asgari Pey Kuralı:</strong> Her lot için minimum artış tutarı tanımlıdır; altında pey kabul edilmez.</p><p style="margin-top:8px;"><strong>2. 60 Saniye Anti-Sniping Kuralı:</strong> Kapanışa son 60 saniye kala verilen peyler süreyi 60 saniye uzatır.</p><p style="margin-top:8px;"><strong>3. Emanet & Teminat:</strong> Ödemeler teslimat ve alıcı onayı gerçekleşene kadar emanet havuzunda bloke tutulur.</p>',
+    'privacy': '<p>6698 Sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca verileriniz ve pey loglarınız 256-bit SSL ve SHA-256 denetim iziyle korunmaktadır.</p><p style="margin-top:8px;">Canlı açık artırmalarda alıcı gizliliği gereği tüm katılımcılar anonim rumuzlarla listelenir.</p>',
+    'help': '<p><strong>Nasıl Pey Veririm?</strong> Cüzdanınıza bakiye yükledikten sonra canlı müzayede ekranından dilediğiniz tutarda veya hızlı butonlarla (+1.500, +3.000) pey verebilirsiniz.</p><p style="margin-top:8px;"><strong>Otomatik Teklif Nedir?</strong> Tavan bütçenizi girerek sistemin siz çevrimdışıyken bile rakip peylerin bir adım üzerine çıkmasını sağlayabilirsiniz.</p>',
+    'categories': '<p>Platformumuz Horoloji (Vintage Mekanik Saatler), Antika & Sanat, Osmanlı Dönemi Koleksiyonları, Filateli ve Nümismatik ana kategorilerinde hizmet vermektedir.</p>'
+  };
+  const t = document.getElementById('infoModalTitle');
+  const b = document.getElementById('infoModalBody');
+  if (t) t.innerText = titles[type] || 'Bilgilendirme';
+  if (b) b.innerHTML = contents[type] || '';
+  const m = document.getElementById('infoModal');
+  if (m) m.style.display = 'flex';
+}
+function closeInfoModal() {
+  const m = document.getElementById('infoModal');
+  if (m) m.style.display = 'none';
+}
+</script>
+
 </header>
 
 <!-- Rol Değiştirme Modalı -->
