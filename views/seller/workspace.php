@@ -92,7 +92,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
       </div>
     </div>
 
-    <!-- 2. TAB: YENİ ÜRÜN EKLE (FR-07, FR-31) -->
+    <!-- 2. TAB: YENİ ÜRÜN EKLE -->
     <div id="sellerTab_yeni" class="tab-content <?= $activeTab === 'yeni' ? 'active' : '' ?>">
       <div class="page-breadcrumb">SATICI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Yeni Ürün Ekle</h1>

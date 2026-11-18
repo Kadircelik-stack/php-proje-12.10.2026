@@ -205,14 +205,14 @@ $activeTab = $_GET['tab'] ?? 'canli';
               </button>
             </form>
 
-            <!-- Takip Listesine Ekle / Çıkar Butonu (FR-36) -->
+            <!-- Takip Listesine Ekle / Çıkar Butonu -->
             <form method="POST" style="margin-top:10px;">
               <input type="hidden" name="action" value="toggle_watchlist">
               <input type="hidden" name="user_id" value="<?= $buyerId ?>">
               <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
               <input type="hidden" name="current_price" value="<?= $currentLot['mevcutEnYuksekTeklif'] ?>">
               <button type="submit" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center;">
-                <?= $isWatched ? '★ Takip Ediliyor (Listeden Çıkar - FR-36)' : '☆ Listeye Ekle / Takip Et (FR-36)' ?>
+                <?= $isWatched ? '★ Takip Ediliyor (Listeden Çıkar)' : '☆ Listeye Ekle / Takip Et' ?>
               </button>
             </form>
           </div>
@@ -439,10 +439,10 @@ $activeTab = $_GET['tab'] ?? 'canli';
       </div>
     </div>
 
-    <!-- 6. TAB: TAKİP EDİLENLER (FR-36) -->
+    <!-- 6. TAB: TAKİP EDİLENLER -->
     <div id="buyerTab_takip" class="tab-content <?= $activeTab === 'takip' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Takip Ettiklerim (FR-36)</h1>
+      <h1 class="page-heading">Takip Ettiklerim</h1>
       <p class="page-subheading">İlgilendiğiniz veya teklif vermeyi düşündüğünüz eserleri tek panelden izleyin</p>
 
       <div class="panel-card">

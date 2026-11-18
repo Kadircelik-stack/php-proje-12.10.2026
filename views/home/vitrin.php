@@ -23,17 +23,17 @@ $lots = $db['lots'] ?? [];
         Müzayedeleri Keşfet ↗
       </a>
       <button type="button" onclick="document.getElementById('searchFilterSection').scrollIntoView({behavior:'smooth'})" class="btn-outline-gold" style="padding:12px 20px; font-size:0.95rem;">
-        🔍 Eser Ara & Filtrele (FR-11)
+        🔍 Eser Ara & Filtrele
       </button>
     </div>
   </div>
 </div>
 
-<!-- Arama ve Filtreleme Bölümü (FR-11) -->
+<!-- Arama ve Filtreleme Bölümü -->
 <section id="searchFilterSection" style="max-width:1240px; margin:0 auto; padding:24px 36px 0 36px; width:100%;">
   <div class="panel-card" style="margin-bottom:0; background:rgba(18,22,31,0.85); border:1px solid #2a3449;">
     <div style="font-size:0.85rem; color:var(--gold-primary); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">
-      🔍 Ürün & Eser Arama Altyapısı (FR-11, FR-08)
+      🔍 Ürün & Eser Arama Altyapısı
     </div>
     <form method="GET" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:12px; align-items:flex-end;">
       <input type="hidden" name="role" value="vitrin">

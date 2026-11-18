@@ -8,7 +8,7 @@ use Martello\Patterns\Observer\AuctionSubject;
 
 /**
  * PlatformWorkflowService — İş Akışları, Moderasyon ve Yetkilendirme Servisi
- * SRS FR-01..FR-09, FR-16..FR-20, FR-25..FR-31 gereksinimlerini karşılar.
+ * SRS .., .., ..gereksinimlerini karşılar.
  */
 class PlatformWorkflowService
 {
@@ -22,7 +22,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Kullanıcı Kaydı (FR-01, FR-04, NFR-13, NFR-19)
+     * Kullanıcı Kaydı
      */
     public function registerUser(array $data): array
     {
@@ -54,7 +54,7 @@ class PlatformWorkflowService
             'telefon'       => $phone,
             'tcKimlikNo'    => $tc,
             'rol'           => $role,
-            'durum'         => 'BEKLEMEDE', // KYC onayı bekliyor (FR-04)
+            'durum'         => 'BEKLEMEDE', // KYC onayı bekliyor
             'sifreHash'     => $passwordHash,
             'anonimKod'     => $anonCode,
             'kycDogrulama'  => [
@@ -81,13 +81,13 @@ class PlatformWorkflowService
 
         return [
             'success' => true,
-            'message' => "Hesabınız başarıyla oluşturuldu! Güvenlik gereği kimlik ve iletişim bilgileriniz (KYC) doğrulama sürecine (FR-04) aktarıldı.",
+            'message' => "Hesabınız başarıyla oluşturuldu! Güvenlik gereği kimlik ve iletişim bilgileriniz (KYC) doğrulama sürecine aktarıldı.",
             'user'    => $newUser,
         ];
     }
 
     /**
-     * Kullanıcı Girişi (FR-02, FR-06)
+     * Kullanıcı Girişi
      */
     public function loginUser(string $email, string $password): array
     {
@@ -96,11 +96,11 @@ class PlatformWorkflowService
             return ['success' => false, 'message' => "Girdiğiniz e-posta veya şifre hatalı."];
         }
 
-        // FR-06: Hesap Askıya Alınmış / Banlanmışsa engelle
+        // : Hesap Askıya Alınmış / Banlanmışsa engelle
         if (in_array($user['durum'] ?? '', ['ASKIDA', 'BANLI', 'ENGELENMIS'], true)) {
             return [
                 'success' => false,
-                'message' => "Hesabınız askıya alınmıştır. Platform güvenliği gereği giriş yetkiniz durdurulmuştur (FR-06).",
+                'message' => "Hesabınız askıya alınmıştır. Platform güvenliği gereği giriş yetkiniz durdurulmuştur.",
             ];
         }
 
@@ -124,7 +124,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Kullanıcı Profili Güncelleme (FR-03)
+     * Kullanıcı Profili Güncelleme
      */
     public function updateProfile(int $userId, array $data): array
     {
@@ -149,12 +149,12 @@ class PlatformWorkflowService
 
         return [
             'success' => true,
-            'message' => "Profil bilgileriniz başarıyla güncellendi (FR-03).",
+            'message' => "Profil bilgileriniz başarıyla güncellendi.",
         ];
     }
 
     /**
-     * Kullanıcı Doğrulama / KYC İnceleme (FR-04, FR-05)
+     * Kullanıcı Doğrulama / KYC İnceleme
      */
     public function verifyUserKyc(int $userId, bool $approve): array
     {
@@ -174,7 +174,7 @@ class PlatformWorkflowService
             ]);
             return [
                 'success' => true,
-                'message' => "Kullanıcı (#{$userId} {$user['ad']}) KYC kimlik doğrulaması ONAYLANDI (FR-04). Kullanıcıya tam yetki verildi (FR-05).",
+                'message' => "Kullanıcı (#{$userId} {$user['ad']}) KYC kimlik doğrulaması ONAYLANDI. Kullanıcıya tam yetki verildi.",
             ];
         }
 
@@ -193,7 +193,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Şifremi Unuttum Kurtarma Akışı (FR-30)
+     * Şifremi Unuttum Kurtarma Akışı
      */
     public function requestPasswordReset(string $email): array
     {
@@ -202,7 +202,7 @@ class PlatformWorkflowService
             // Güvenlik gereği kullanıcı var/yok belli edilmez, ama simülasyonda bilgi veririz
             return [
                 'success' => true,
-                'message' => "Eğer sistemde kayıtlı ise, şifre sıfırlama bağlantısı 30 saniye içinde e-posta adresinize iletilecektir (FR-30).",
+                'message' => "Eğer sistemde kayıtlı ise, şifre sıfırlama bağlantısı 30 saniye içinde e-posta adresinize iletilecektir.",
             ];
         }
 
@@ -214,12 +214,12 @@ class PlatformWorkflowService
 
         return [
             'success' => true,
-            'message' => "Şifre sıfırlama bağlantısı {$email} adresine 30 saniye içinde iletildi (FR-30 simülasyonu aktif).",
+            'message' => "Şifre sıfırlama bağlantısı {$email} adresine 30 saniye içinde iletildi (simülasyonu aktif).",
         ];
     }
 
     /**
-     * Eksper ve Kurum Atama (FR-17)
+     * Eksper ve Kurum Atama
      */
     public function assignExpertToLot(int $requestId, int $expertId): array
     {
@@ -239,12 +239,12 @@ class PlatformWorkflowService
 
         return [
             'success' => true,
-            'message' => "İlan başarıyla {$expertName} uzmanına atandı ve eksper paneline iletildi (FR-17).",
+            'message' => "İlan başarıyla {$expertName} uzmanına atandı ve eksper paneline iletildi.",
         ];
     }
 
     /**
-     * Ekspertiz Akreditasyon Yönetimi (FR-19)
+     * Ekspertiz Akreditasyon Yönetimi
      */
     public function accreditExpert(int $expertId, bool $approve): array
     {
@@ -262,7 +262,7 @@ class PlatformWorkflowService
             ],
         ]);
 
-        $statusStr = $approve ? "onaylandı ve 'Aktif Eksper' statüsü kazandı (FR-19)" : "reddedildi";
+        $statusStr = $approve ? "onaylandı ve 'Aktif Eksper' statüsü kazandı" : "reddedildi";
         return [
             'success' => true,
             'message' => "{$user['ad']} {$user['soyad']} mesleki akreditasyonu {$statusStr}.",
@@ -270,7 +270,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * İhtilaf Çözümü ve Tahkim Kararı (FR-20, FR-24)
+     * İhtilaf Çözümü ve Tahkim Kararı
      */
     public function resolveDispute(int $disputeId, string $decision): array
     {
@@ -287,10 +287,10 @@ class PlatformWorkflowService
                 'durum'       => 'COZULDU',
                 'karar'       => 'ALICI_HAKLI',
                 'kararTarihi' => date('c'),
-                'aciklama'    => 'Hakem heyeti alıcıyı haklı buldu. Emanet bloke çözülerek alıcı cüzdanına iade yapıldı (FR-24).',
+                'aciklama'    => 'Hakem heyeti alıcıyı haklı buldu. Emanet bloke çözülerek alıcı cüzdanına iade yapıldı.',
             ]);
 
-            // Para iadesi simülasyonu (FR-24)
+            // Para iadesi simülasyonu
             $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $buyerId);
             if ($wallet) {
                 $refundAmount = 12800.0; // Lot bedeli
@@ -302,7 +302,7 @@ class PlatformWorkflowService
 
             return [
                 'success' => true,
-                'message' => "İhtilaf #{$disputeId} için ALICI HAKLI kararı verildi. Bedel alıcıya iade edildi (FR-20, FR-24).",
+                'message' => "İhtilaf #{$disputeId} için ALICI HAKLI kararı verildi. Bedel alıcıya iade edildi.",
             ];
         }
 
@@ -315,12 +315,12 @@ class PlatformWorkflowService
 
         return [
             'success' => true,
-            'message' => "İhtilaf #{$disputeId} için SATICI HAKLI kararı verildi. Satış süreci devam ettiriliyor (FR-20).",
+            'message' => "İhtilaf #{$disputeId} için SATICI HAKLI kararı verildi. Satış süreci devam ettiriliyor.",
         ];
     }
 
     /**
-     * Kural Dışı Teklif veya İlan İptal Etme (FR-15, FR-24)
+     * Kural Dışı Teklif veya İlan İptal Etme
      */
     public function cancelBidOrLot(int $lotId, ?int $bidId, string $reason): array
     {
@@ -359,7 +359,7 @@ class PlatformWorkflowService
                 'liderAnonimKod'       => $newAnon,
             ]);
 
-            // İptal edilen alıcının blokesini iade et (FR-24)
+            // İptal edilen alıcının blokesini iade et
             $refundUserId = (int)$lastBid['aliciId'];
             $refundAmount = (float)$lastBid['teklifTutari'];
             $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $refundUserId);
@@ -373,7 +373,7 @@ class PlatformWorkflowService
 
             return [
                 'success' => true,
-                'message' => "Kural dışı teklif (#{$lastBid['id']}) iptal edildi. Süreç bir önceki peye döndürüldü ve bloke tutarı iade edildi (FR-15, FR-24).",
+                'message' => "Kural dışı teklif (#{$lastBid['id']}) iptal edildi. Süreç bir önceki peye döndürüldü ve bloke tutarı iade edildi.",
             ];
         }
 
@@ -381,7 +381,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Kategori ve Dinamik Nitelik Şablonu Ekleme (FR-08)
+     * Kategori ve Dinamik Nitelik Şablonu Ekleme
      */
     public function addCategoryAttribute(string $name, string $code, array $attributes): array
     {
@@ -395,13 +395,13 @@ class PlatformWorkflowService
 
         return [
             'success' => true,
-            'message' => "'{$name}' kategorisi ve özellik şablonu başarıyla tanımlandı (FR-08).",
+            'message' => "'{$name}' kategorisi ve özellik şablonu başarıyla tanımlandı.",
             'category' => $newCat,
         ];
     }
 
     /**
-     * Satıcı Ürün ve İlan Ekleme (FR-07, FR-31)
+     * Satıcı Ürün ve İlan Ekleme
      */
     public function createProductAndListing(int $sellerId, array $data): array
     {
@@ -436,7 +436,7 @@ class PlatformWorkflowService
             'durum'            => 'EKSPERTIZ_BEKLIYOR',
         ]);
 
-        // Ekspertiz talebi aç (FR-17)
+        // Ekspertiz talebi aç
         $this->dataStore->insertItem('appraisalRequests', [
             'talepNo'        => 'EXP-REQ-' . mt_rand(500, 999),
             'lotKodu'        => 'AUC-' . mt_rand(1100, 1999),
@@ -456,7 +456,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Ekspertiz Raporu Düzenleme ve Fiyat Önerisi Girme (FR-18)
+     * Ekspertiz Raporu Düzenleme ve Fiyat Önerisi Girme
      */
     public function submitAppraisalReport(int $expertId, int $requestId, float $suggestedValue, string $authenticityNote, array $points): array
     {
@@ -503,7 +503,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Admin: İlan Onaylama / Reddetme ve Müzayedeye Lot Olarak Ekleme (FR-09, FR-10)
+     * Admin: İlan Onaylama / Reddetme ve Müzayedeye Lot Olarak Ekleme
      */
     public function approveListingAndPublish(int $listingId, float $startPrice, float $reservePrice, float $minStep): array
     {
@@ -549,7 +549,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Admin: Kullanıcı Durumu Değiştirme (Askıya Alma / Banlama / Aktif Etme) (FR-06)
+     * Admin: Kullanıcı Durumu Değiştirme (Askıya Alma / Banlama / Aktif Etme)
      */
     public function toggleUserBan(int $userId, string $newStatus): array
     {
@@ -566,7 +566,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Cüzdana Bakiye Yükleme (FR-07/Alıcı)
+     * Cüzdana Bakiye Yükleme (/Alıcı)
      */
     public function depositToWallet(int $userId, float $amount): array
     {
@@ -599,7 +599,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * İhtilaf / İtiraz Talebi Oluşturma (FR-20)
+     * İhtilaf / İtiraz Talebi Oluşturma
      */
     public function createDispute(int $userId, int $lotId, string $topic, string $description): array
     {
@@ -624,7 +624,7 @@ class PlatformWorkflowService
     }
 
     /**
-     * Canlı Sohbet Mesajı Gönderme (FR-27)
+     * Canlı Sohbet Mesajı Gönderme
      */
     public function sendChatMessage(int $sessionId, int $senderId, string $senderName, string $text): array
     {

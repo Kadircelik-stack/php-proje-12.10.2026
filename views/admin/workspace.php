@@ -112,7 +112,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- 2. TAB: KULLANICILAR (FR-05, FR-06) -->
+    <!-- 2. TAB: KULLANICILAR -->
     <div id="admTab_kullanicilar" class="tab-content <?= $activeTab === 'kullanicilar' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Kullanıcı Yönetimi</h1>
@@ -146,7 +146,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
                       <input type="hidden" name="action" value="verify_kyc">
                       <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
                       <input type="hidden" name="decision" value="approve">
-                      <button type="submit" class="btn-outline-gold btn-sm" style="padding:2px 8px; font-size:0.75rem;" title="Kullanıcı kimliğini doğrula ve onay statüsüne geçir (FR-04)">✓ KYC Onayla</button>
+                      <button type="submit" class="btn-outline-gold btn-sm" style="padding:2px 8px; font-size:0.75rem;" title="Kullanıcı kimliğini doğrula ve onay statüsüne geçir">✓ KYC Onayla</button>
                     </form>
                   <?php endif; ?>
                 </td>
@@ -162,7 +162,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
                       <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
                       <?php if (($u['durum'] ?? '') === 'AKTIF'): ?>
                         <input type="hidden" name="new_status" value="ASKIDA">
-                        <button type="submit" class="btn-outline-gold btn-sm" style="color:#f85149 !important; border-color:#f85149;">Askıya Al (FR-06)</button>
+                        <button type="submit" class="btn-outline-gold btn-sm" style="color:#f85149 !important; border-color:#f85149;">Askıya Al</button>
                       <?php else: ?>
                         <input type="hidden" name="new_status" value="AKTIF">
                         <button type="submit" class="btn-gold btn-sm">Yasağı Kaldır</button>
@@ -179,7 +179,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- 3. TAB: İLAN MODERASYONU (FR-09, FR-10) -->
+    <!-- 3. TAB: İLAN MODERASYONU -->
     <div id="admTab_moderasyon" class="tab-content <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">İlan Moderasyonu</h1>
@@ -218,14 +218,14 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- 4. TAB: EKSPERTİZ ATAMA & AKREDİTASYON (FR-17, FR-19) -->
+    <!-- 4. TAB: EKSPERTİZ ATAMA & AKREDİTASYON -->
     <div id="admTab_ekspertiz" class="tab-content <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Ekspertiz ve Kurum Atama (FR-17, FR-19)</h1>
+      <h1 class="page-heading">Ekspertiz ve Kurum Atama</h1>
       <p class="page-subheading">Yeni ürünlere alanında uzman akredite eksper veya bağımsız kurum atayın</p>
 
       <div class="panel-card" style="margin-bottom:20px;">
-        <h3 class="panel-title" style="margin-bottom:12px;">Yeni Görev / Eksper Atama Formu (FR-17)</h3>
+        <h3 class="panel-title" style="margin-bottom:12px;">Yeni Görev / Eksper Atama Formu</h3>
         <form method="POST" style="display:grid; grid-template-columns:1fr 1fr auto; gap:14px; align-items:flex-end;">
           <input type="hidden" name="action" value="assign_expert">
           <input type="hidden" name="request_id" value="301">
@@ -241,13 +241,13 @@ $activeTab = $_GET['tab'] ?? 'konsol';
             </select>
           </div>
           <div>
-            <button type="submit" class="btn-register-glow">Görevi Ata (FR-17)</button>
+            <button type="submit" class="btn-register-glow">Görevi Ata</button>
           </div>
         </form>
       </div>
 
       <div class="panel-card">
-        <h3 class="panel-title" style="margin-bottom:12px;">Eksper Akreditasyon Onay Paneli (FR-19)</h3>
+        <h3 class="panel-title" style="margin-bottom:12px;">Eksper Akreditasyon Onay Paneli</h3>
         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">
           Ekspertiz yapacak uzmanların lisans ve yeterlilik belgeleri admin heyeti tarafından onaylanır.
         </p>
@@ -255,15 +255,15 @@ $activeTab = $_GET['tab'] ?? 'konsol';
           <input type="hidden" name="action" value="accredit_expert">
           <input type="hidden" name="expert_id" value="4">
           <input type="hidden" name="decision" value="approve">
-          <button type="submit" class="btn-gold btn-sm">✓ Burak Şahin Akreditasyonunu Yenile / Onayla (FR-19)</button>
+          <button type="submit" class="btn-gold btn-sm">✓ Burak Şahin Akreditasyonunu Yenile / Onayla</button>
         </form>
       </div>
     </div>
 
-    <!-- 5. TAB: KATEGORİ ÖZELLİK YÖNETİMİ (FR-08) -->
+    <!-- 5. TAB: KATEGORİ ÖZELLİK YÖNETİMİ -->
     <div id="admTab_kategoriler" class="tab-content <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Kategori Özellik Yönetimi (FR-08)</h1>
+      <h1 class="page-heading">Kategori Özellik Yönetimi</h1>
       <p class="page-subheading">Ürün kategorileri, komisyon ve dinamik zorunlu nitelik şablonları tanımlama</p>
 
       <div class="panel-card" style="margin-bottom:20px;">
@@ -308,10 +308,10 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- 6. TAB: KOMİSYON VE ÜCRET TANIMLAMA (FR-22) -->
+    <!-- 6. TAB: KOMİSYON VE ÜCRET TANIMLAMA -->
     <div id="admTab_komisyon" class="tab-content <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Komisyon ve Ücret Tanımlama (FR-22)</h1>
+      <h1 class="page-heading">Komisyon ve Ücret Tanımlama</h1>
       <p class="page-subheading">Platform gelir modeli, kademeli komisyon ve emanet bloke oranları (Strategy)</p>
 
       <div class="panel-card">
@@ -319,7 +319,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
           <div>
             <div style="font-weight:700; color:var(--gold-primary); margin-bottom:8px;">Sanat & Antika Komisyon Stratejisi (ArtAntiqueCommission)</div>
             <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
-              Kapanış tutarı üzerinden <strong>%8 Alıcı / Satıcı Hizmet Payı</strong> + <strong>₺1.500 Sabit Kurul Bedeli</strong> tahsil edilerek teminat emanet hesabına (FR-23) yansıtılır.
+              Kapanış tutarı üzerinden <strong>%8 Alıcı / Satıcı Hizmet Payı</strong> + <strong>₺1.500 Sabit Kurul Bedeli</strong> tahsil edilerek teminat emanet hesabına yansıtılır.
             </p>
           </div>
           <div>
@@ -332,10 +332,10 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- 7. TAB: RAPORLAR (FR-18, NFR-21) -->
+    <!-- 7. TAB: RAPORLAR -->
     <div id="admTab_raporlar" class="tab-content <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Ekspertiz ve Müzayede Raporları (FR-18, NFR-21)</h1>
+      <h1 class="page-heading">Ekspertiz ve Müzayede Raporları</h1>
       <p class="page-subheading">Onaylı değerlendirmeler ve 1 yıldan eski verilerin arşivleme politikası (Cold Storage)</p>
 
       <div class="panel-card">
@@ -356,16 +356,16 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- 8. TAB: İHTİLAF ÇÖZÜMÜ (FR-20, FR-24) -->
+    <!-- 8. TAB: İHTİLAF ÇÖZÜMÜ -->
     <div id="admTab_ihtilaflar" class="tab-content <?= $activeTab === 'ihtilaflar' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">İhtilaf ve Tahkim Çözümü (FR-20, FR-24)</h1>
+      <h1 class="page-heading">İhtilaf ve Tahkim Çözümü</h1>
       <p class="page-subheading">Alıcı ve satıcı uyuşmazlıklarında admin tahkim kararı ve bloke iade süreçleri</p>
 
       <div class="panel-card">
         <table class="data-table">
           <thead>
-            <tr><th>Talep No</th><th>Lot Kodu</th><th>Konu</th><th>Açıklama</th><th>Tahkim Kararı (FR-20)</th></tr>
+            <tr><th>Talep No</th><th>Lot Kodu</th><th>Konu</th><th>Açıklama</th><th>Tahkim Kararı</th></tr>
           </thead>
           <tbody>
             <tr>
@@ -379,7 +379,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
                     <input type="hidden" name="action" value="resolve_dispute">
                     <input type="hidden" name="dispute_id" value="1">
                     <input type="hidden" name="decision" value="ALICI_HAKLI">
-                    <button type="submit" class="btn-gold btn-sm" style="font-size:0.75rem;">Alıcı Haklı (FR-24 İade Et)</button>
+                    <button type="submit" class="btn-gold btn-sm" style="font-size:0.75rem;">Alıcı Haklı (İade Et)</button>
                   </form>
                   <form method="POST" style="margin:0;">
                     <input type="hidden" name="action" value="resolve_dispute">
@@ -395,23 +395,23 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- 9. TAB: WORM DENETİM İZİ & KURAL DIŞI PEY İPTALİ (FR-15, FR-25, NFR-11) -->
+    <!-- 9. TAB: WORM DENETİM İZİ & KURAL DIŞI PEY İPTALİ -->
     <div id="admTab_denetim" class="tab-content <?= $activeTab === 'denetim' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Değiştirilemez Denetim İzi (WORM) & Teklif İptali (FR-15, FR-25)</h1>
-      <p class="page-subheading">SHA-256 Kriptografik Hash Zincirleme (NFR-11) ve kural dışı teklifleri iptal etme (FR-15)</p>
+      <h1 class="page-heading">Değiştirilemez Denetim İzi (WORM) & Teklif İptali</h1>
+      <p class="page-subheading">SHA-256 Kriptografik Hash Zincirleme ve kural dışı teklifleri iptal etme</p>
 
       <div class="panel-card" style="margin-bottom:16px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="color:var(--gold-primary); font-weight:700;">Kural Dışı / Manipülatif Teklif İptal Paneli (FR-15)</div>
-            <div style="font-size:0.8rem; color:var(--text-muted);">İptal edilen teklif listeden düşer, önceki lider geçerli kılınır ve bloke iade edilir (FR-24).</div>
+            <div style="color:var(--gold-primary); font-weight:700;">Kural Dışı / Manipülatif Teklif İptal Paneli</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">İptal edilen teklif listeden düşer, önceki lider geçerli kılınır ve bloke iade edilir.</div>
           </div>
           <form method="POST" style="display:flex; gap:8px; margin:0;">
             <input type="hidden" name="action" value="cancel_bid">
             <input type="hidden" name="lot_id" value="1002">
             <input type="hidden" name="reason" value="Shill Bidding veya kural dışı pey artışı tespiti">
-            <button type="submit" class="btn-outline-gold btn-sm" style="color:#f87171 !important; border-color:#f87171;">⚠️ Son Teklifi İptal Et (FR-15)</button>
+            <button type="submit" class="btn-outline-gold btn-sm" style="color:#f87171 !important; border-color:#f87171;">⚠️ Son Teklifi İptal Et</button>
           </form>
         </div>
       </div>
@@ -437,7 +437,7 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- 10. TAB: SİSTEM AYARLARI (NFR-04, NFR-06, NFR-10, NFR-23) -->
+    <!-- 10. TAB: SİSTEM AYARLARI -->
     <div id="admTab_ayarlar" class="tab-content <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Sistem Parametreleri ve NFR Uyumluluğu</h1>
@@ -446,19 +446,19 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       <div class="panel-card">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
           <div>
-            <div style="font-weight:600; color:#fff; margin-bottom:8px;">⏱️ Anti-Sniping Kuralı (FR-33 & NFR-23)</div>
+            <div style="font-weight:600; color:#fff; margin-bottom:8px;">⏱️ Anti-Sniping Kuralı</div>
             <p style="font-size:0.82rem; color:var(--text-muted);">Eşik: <strong>Son 1 dakika (60 sn)</strong> • Kural: <strong>Son 1 dk içinde pey gelirse süre +1 dk uzar. 1 dk'dan önce pey başına süre uzamaz.</strong></p>
           </div>
           <div>
-            <div style="font-weight:600; color:#fff; margin-bottom:8px;">👥 Katılımcı Kapasitesi (NFR-06)</div>
+            <div style="font-weight:600; color:#fff; margin-bottom:8px;">👥 Katılımcı Kapasitesi</div>
             <p style="font-size:0.82rem; color:var(--text-muted);">Maksimum Sınır: <strong>50.000 eşzamanlı kullanıcı</strong> • Kota Aşımı: <strong>Otomatik bekleme odası yönlendirmesi</strong></p>
           </div>
           <div>
-            <div style="font-weight:600; color:#fff; margin-bottom:8px;">🔒 Eşzamanlılık & ACID (NFR-04, NFR-05)</div>
+            <div style="font-weight:600; color:#fff; margin-bottom:8px;">🔒 Eşzamanlılık & ACID</div>
             <p style="font-size:0.82rem; color:var(--text-muted);">Kilitleme: <strong>Pessimistic Locking (flock EXCLUSIVE)</strong> • Bütünlük: <strong>Atomik tmp rename ve transaction rollback</strong></p>
           </div>
           <div>
-            <div style="font-weight:600; color:#fff; margin-bottom:8px;">🛡️ Sahtecilik & Bot Koruması (NFR-10)</div>
+            <div style="font-weight:600; color:#fff; margin-bottom:8px;">🛡️ Sahtecilik & Bot Koruması</div>
             <p style="font-size:0.82rem; color:var(--text-muted);">Shill Bidding: <strong>Satıcının kendi ilanına teklif vermesi %100 engellenir.</strong></p>
           </div>
         </div>

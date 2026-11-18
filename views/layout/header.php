@@ -53,7 +53,7 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
       <button type="button" onclick="openAuthModal('login')" class="btn-gold btn-sm" style="padding:8px 18px; cursor:pointer;">Kayıt Ol / Giriş Yap</button>
     <?php else: ?>
       <!-- Sağ Kullanıcı Rozeti (Görsellerdeki 👤 Emre K. ⌄ Rozeti) -->
-      <div class="user-profile-badge" onclick="openProfileModal()" style="cursor:pointer;" title="Profilinizi ve hesap ayarlarınızı görüntüleyin (FR-03)">
+      <div class="user-profile-badge" onclick="openProfileModal()" style="cursor:pointer;" title="Profilinizi ve hesap ayarlarınızı görüntüleyin">
         <div class="user-avatar">
           <?= mb_substr($currentUser['name'], 0, 1) ?>
         </div>
@@ -64,18 +64,18 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
   </div>
 </header>
 
-<!-- Kimlik Doğrulama Modalı (FR-01, FR-02, FR-30, NFR-13) -->
+<!-- Kimlik Doğrulama Modalı -->
 <div id="authModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
   <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:480px; width:90%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.8); position:relative;">
     <button type="button" onclick="closeAuthModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
     
     <div style="display:flex; gap:10px; border-bottom:1px solid #2a3449; padding-bottom:12px; margin-bottom:16px;">
-      <button type="button" id="tabBtnLogin" onclick="switchAuthTab('login')" class="role-pill active">Giriş Yap (FR-02)</button>
-      <button type="button" id="tabBtnRegister" onclick="switchAuthTab('register')" class="role-pill">Kayıt Ol (FR-01)</button>
-      <button type="button" id="tabBtnForgot" onclick="switchAuthTab('forgot')" class="role-pill">Şifremi Unuttum (FR-30)</button>
+      <button type="button" id="tabBtnLogin" onclick="switchAuthTab('login')" class="role-pill active">Giriş Yap</button>
+      <button type="button" id="tabBtnRegister" onclick="switchAuthTab('register')" class="role-pill">Kayıt Ol</button>
+      <button type="button" id="tabBtnForgot" onclick="switchAuthTab('forgot')" class="role-pill">Şifremi Unuttum</button>
     </div>
 
-    <!-- Giriş Formu (FR-02) -->
+    <!-- Giriş Formu -->
     <form id="formLogin" method="POST" style="display:block;">
       <input type="hidden" name="action" value="login">
       <div class="form-group" style="margin-bottom:12px;">
@@ -88,11 +88,11 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
       </div>
       <button type="submit" class="btn-register-glow" style="width:100%;">Güvenli Giriş Yap</button>
       <div style="text-align:center; margin-top:10px; font-size:0.8rem; color:#888;">
-        Hesabınız askıya alınmışsa (FR-06) sistem otomatik olarak erişimi engeller.
+        Hesabınız askıya alınmışsa sistem otomatik olarak erişimi engeller.
       </div>
     </form>
 
-    <!-- Kayıt Formu (FR-01, FR-04, NFR-13, NFR-19) -->
+    <!-- Kayıt Formu -->
     <form id="formRegister" method="POST" style="display:none;">
       <input type="hidden" name="action" value="register">
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
@@ -134,12 +134,12 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
       </div>
       <div style="margin-bottom:14px; font-size:0.78rem; color:#aaa; display:flex; gap:8px;">
         <input type="checkbox" id="kvkkCheck" required style="accent-color:var(--gold-primary); margin-top:3px;">
-        <label for="kvkkCheck">Mesafeli Satış Sözleşmesi ve KVKK Gizlilik Şartlarını (NFR-12, NFR-13) kabul ediyorum.</label>
+        <label for="kvkkCheck">Mesafeli Satış Sözleşmesi ve KVKK Gizlilik Şartlarını kabul ediyorum.</label>
       </div>
       <button type="submit" class="btn-register-glow" style="width:100%;">Hesap Oluştur ve KYC'ye Aktar</button>
     </form>
 
-    <!-- Şifremi Unuttum Formu (FR-30) -->
+    <!-- Şifremi Unuttum Formu -->
     <form id="formForgot" method="POST" style="display:none;">
       <input type="hidden" name="action" value="reset_password">
       <div class="form-group" style="margin-bottom:14px;">
@@ -147,19 +147,19 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
         <input type="email" name="email" class="form-control" placeholder="ornek@martello.com" required>
       </div>
       <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:14px; line-height:1.4;">
-        ℹ️ Şifre sıfırlama bağlantısı en geç 30 saniye içinde e-posta kutunuza ulaştırılır (FR-30).
+        ℹ️ Şifre sıfırlama bağlantısı en geç 30 saniye içinde e-posta kutunuza ulaştırılır.
       </div>
       <button type="submit" class="btn-register-glow" style="width:100%;">Şifre Sıfırlama Bağlantısı Gönder</button>
     </form>
   </div>
 </div>
 
-<!-- Profil Güncelleme Modalı (FR-03) -->
+<!-- Profil Güncelleme Modalı -->
 <div id="profileModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
   <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:480px; width:90%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.8); position:relative;">
     <button type="button" onclick="closeProfileModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
     
-    <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:6px;">👤 Profil ve Hesap Ayarları (FR-03)</div>
+    <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:6px;">👤 Profil ve Hesap Ayarları</div>
     <div style="color:#888; font-size:0.8rem; margin-bottom:16px;">İletişim, adres ve faturalandırma bilgilerinizi buradan güncelleyebilirsiniz.</div>
 
     <form method="POST">

@@ -136,7 +136,7 @@ $activeTab = $_GET['tab'] ?? 'gorev';
     <!-- 2. TAB: İNCELEMELER & RAPOR DÜZENLEME FORMU -->
     <div id="appTab_inceleme" class="tab-content <?= $activeTab === 'inceleme' ? 'active' : '' ?>">
       <div class="page-breadcrumb">EKSPERTİZ UZMANI / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Ekspertiz Raporu Düzenle (FR-18)</h1>
+      <h1 class="page-heading">Ekspertiz Raporu Düzenle</h1>
       <p class="page-subheading">Laboratuvar incelemesi, orijinallik onayı ve piyasa değerlemesi</p>
 
       <div class="panel-card">
