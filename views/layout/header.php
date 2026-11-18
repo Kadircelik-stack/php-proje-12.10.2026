@@ -28,8 +28,10 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
 
 <header class="martello-topbar">
   <div class="brand-wrap">
-    <a href="?role=vitrin&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:inline-flex; align-items:center; gap:12px; text-decoration:none;">
-      <span class="brand-gavel-circle">
+    <a href="?role=vitrin&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:inline-flex; align-items:center; gap:10px; text-decoration:none;">
+      <span class="brand-title" style="font-family:var(--font-brand); letter-spacing:2.5px; font-size:1.15rem; color:#f0f3f6; font-weight:600;">MARTELLO</span>
+      <span style="color:rgba(255,255,255,0.25); font-weight:300; font-size:1.1rem; margin-top:-2px;">|</span>
+      <span class="brand-gavel-icon" style="display:inline-flex; align-items:center;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="m14 13-7.5 7.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L11 10"/>
           <path d="m16 16 6-6"/>
@@ -38,7 +40,6 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
           <path d="m21 11-8-8"/>
         </svg>
       </span>
-      <span class="brand-title">MARTELLO</span>
     </a>
   </div>
 
@@ -57,6 +58,18 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
       <button type="button" onclick="openRoleModal()" class="btn-dark-pill" style="padding:7px 16px; font-size:0.82rem; cursor:pointer;">
         Rol değiştir
       </button>
+      <select id="currencySelector" class="currency-select" title="Para Birimi Değiştir">
+        <option value="TRY" <?= $activeCurrency === 'TRY' ? 'selected' : '' ?>>₺ TRY</option>
+        <option value="USD" <?= $activeCurrency === 'USD' ? 'selected' : '' ?>>$ USD</option>
+        <option value="EUR" <?= $activeCurrency === 'EUR' ? 'selected' : '' ?>>€ EUR</option>
+      </select>
+    <?php elseif ($activeRole === 'vitrin'): ?>
+      <button type="button" onclick="openAuthModal('login')" class="btn-gold-pill" style="padding:8px 22px; font-size:0.84rem; font-weight:600; cursor:pointer; background:linear-gradient(135deg, #c89e58 0%, #a47937 100%); color:#0c0f14; border:1px solid #d4af37; border-radius:20px; box-shadow:0 2px 10px rgba(197, 160, 89, 0.25);">
+        Kayıt Ol / Giriş Yap
+      </button>
+      <button type="button" onclick="openRoleModal()" class="btn-dark-pill" style="padding:6px 10px; font-size:0.75rem; opacity:0.3; border:1px dashed #555; border-radius:16px;" title="Rol Değiştir (Demo)">
+        Rol
+      </button>
     <?php else: ?>
       <button type="button" onclick="openAuthModal('login')" class="btn-gold-pill" style="padding:7px 18px; font-size:0.82rem; font-weight:600; cursor:pointer;">
         Kayıt Ol / Giriş Yap
@@ -64,14 +77,12 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
       <button type="button" onclick="openRoleModal()" class="btn-dark-pill" style="padding:7px 18px; font-size:0.82rem; cursor:pointer;">
         Rol değiştir
       </button>
+      <select id="currencySelector" class="currency-select" title="Para Birimi Değiştir">
+        <option value="TRY" <?= $activeCurrency === 'TRY' ? 'selected' : '' ?>>₺ TRY</option>
+        <option value="USD" <?= $activeCurrency === 'USD' ? 'selected' : '' ?>>$ USD</option>
+        <option value="EUR" <?= $activeCurrency === 'EUR' ? 'selected' : '' ?>>€ EUR</option>
+      </select>
     <?php endif; ?>
-
-    <!-- Para Birimi Seçici (Kompakt) -->
-    <select id="currencySelector" class="currency-select" title="Para Birimi Değiştir">
-      <option value="TRY" <?= $activeCurrency === 'TRY' ? 'selected' : '' ?>>₺ TRY</option>
-      <option value="USD" <?= $activeCurrency === 'USD' ? 'selected' : '' ?>>$ USD</option>
-      <option value="EUR" <?= $activeCurrency === 'EUR' ? 'selected' : '' ?>>€ EUR</option>
-    </select>
   </div>
 </header>
 
