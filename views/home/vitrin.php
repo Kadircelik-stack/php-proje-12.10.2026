@@ -18,11 +18,58 @@ $lots = $db['lots'] ?? [];
     <p class="hero-desc">
       Seçkin koleksiyonları keşfedin, değerli parçalar için güvenle teklif verin.
     </p>
-    <a href="?role=buyer" class="btn-gold" style="padding:12px 28px; font-size:0.95rem;">
-      Müzayedeleri Keşfet ↗
-    </a>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <a href="?role=buyer" class="btn-gold" style="padding:12px 28px; font-size:0.95rem;">
+        Müzayedeleri Keşfet ↗
+      </a>
+      <button type="button" onclick="document.getElementById('searchFilterSection').scrollIntoView({behavior:'smooth'})" class="btn-outline-gold" style="padding:12px 20px; font-size:0.95rem;">
+        🔍 Eser Ara & Filtrele (FR-11)
+      </button>
+    </div>
   </div>
 </div>
+
+<!-- Arama ve Filtreleme Bölümü (FR-11) -->
+<section id="searchFilterSection" style="max-width:1240px; margin:0 auto; padding:24px 36px 0 36px; width:100%;">
+  <div class="panel-card" style="margin-bottom:0; background:rgba(18,22,31,0.85); border:1px solid #2a3449;">
+    <div style="font-size:0.85rem; color:var(--gold-primary); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">
+      🔍 Ürün & Eser Arama Altyapısı (FR-11, FR-08)
+    </div>
+    <form method="GET" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:12px; align-items:flex-end;">
+      <input type="hidden" name="role" value="vitrin">
+      <div>
+        <label class="form-label">Anahtar Kelime / Eser Adı</label>
+        <input type="text" name="q" class="form-control" placeholder="Örn: İsviçre Vintage Saat, Seramik, Vazo..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+      </div>
+      <div>
+        <label class="form-label">Kategori</label>
+        <select name="cat" class="form-control">
+          <option value="">Tüm Kategoriler</option>
+          <option value="Horoloji" <?= (($_GET['cat'] ?? '') === 'Horoloji') ? 'selected' : '' ?>>Horoloji & Saat</option>
+          <option value="Sanat" <?= (($_GET['cat'] ?? '') === 'Sanat') ? 'selected' : '' ?>>Antika & Sanat</option>
+          <option value="Osmanlı" <?= (($_GET['cat'] ?? '') === 'Osmanlı') ? 'selected' : '' ?>>Osmanlı Eserleri</option>
+          <option value="Nümismatik" <?= (($_GET['cat'] ?? '') === 'Nümismatik') ? 'selected' : '' ?>>Nümismatik & Para</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Maksimum Fiyat</label>
+        <input type="number" name="max_price" class="form-control" placeholder="₺ Tavan Fiyat" value="<?= htmlspecialchars($_GET['max_price'] ?? '') ?>">
+      </div>
+      <div>
+        <label class="form-label">Ekspertiz Durumu</label>
+        <select name="exp_status" class="form-control">
+          <option value="">Tümü</option>
+          <option value="ONAYLI" selected>✓ Ekspertiz Onaylı</option>
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="btn-register-glow" style="padding:10px 20px; white-space:nowrap;">
+          Filtrele
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
 
 <!-- Koleksiyonları Keşfedin Bölümü -->
 <main style="max-width:1240px; margin:0 auto; padding:48px 36px; width:100%;">

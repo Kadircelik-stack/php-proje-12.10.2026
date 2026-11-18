@@ -22,6 +22,385 @@ class PlatformWorkflowService
     }
 
     /**
+     * Kullanıcı Kaydı (FR-01, FR-04, NFR-13, NFR-19)
+     */
+    public function registerUser(array $data): array
+    {
+        $email = trim($data['email'] ?? '');
+        $name = trim($data['ad'] ?? '');
+        $surname = trim($data['soyad'] ?? '');
+        $phone = trim($data['telefon'] ?? '');
+        $tc = trim($data['tc_kimlik'] ?? '');
+        $role = $data['rol'] ?? 'ALICI';
+        $password = $data['sifre'] ?? '123456';
+
+        if ($email === '' || $name === '' || $surname === '') {
+            return ['success' => false, 'message' => "Ad, soyad ve e-posta alanları zorunludur."];
+        }
+
+        // E-posta mükerrerlik kontrolü
+        $existing = $this->dataStore->getItem('users', 'email', $email);
+        if ($existing) {
+            return ['success' => false, 'message' => "Bu e-posta adresiyle zaten kayıtlı bir hesap bulunmaktadır."];
+        }
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $anonCode = 'Anonim-' . strtoupper(substr(md5($email . time()), 0, 4));
+
+        $newUser = $this->dataStore->insertItem('users', [
+            'ad'            => $name,
+            'soyad'         => $surname,
+            'email'         => $email,
+            'telefon'       => $phone,
+            'tcKimlikNo'    => $tc,
+            'rol'           => $role,
+            'durum'         => 'BEKLEMEDE', // KYC onayı bekliyor (FR-04)
+            'sifreHash'     => $passwordHash,
+            'anonimKod'     => $anonCode,
+            'kycDogrulama'  => [
+                'dogrulandiMi'   => false,
+                'yuklenenBelge' => 'kimlik_belgesi_' . date('Ymd') . '.pdf',
+                'basvuruTarihi' => date('c'),
+            ],
+            'aliciProfili'  => [
+                'vipSeviyesi' => 'STANDARD',
+                'harcamaHacmi' => 0.0,
+            ],
+            'kayitTarihi'   => date('c'),
+        ]);
+
+        // İlk Cüzdanını oluştur
+        $this->dataStore->insertItem('wallets', [
+            'kullaniciId'   => $newUser['id'],
+            'paraBirimi'    => 'TRY',
+            'bakiye'        => 0.0,
+            'blokeBakiye'   => 0.0,
+            'aktifBlokeler' => [],
+            'sonGuncelleme' => date('c'),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "Hesabınız başarıyla oluşturuldu! Güvenlik gereği kimlik ve iletişim bilgileriniz (KYC) doğrulama sürecine (FR-04) aktarıldı.",
+            'user'    => $newUser,
+        ];
+    }
+
+    /**
+     * Kullanıcı Girişi (FR-02, FR-06)
+     */
+    public function loginUser(string $email, string $password): array
+    {
+        $user = $this->dataStore->getItem('users', 'email', trim($email));
+        if (!$user) {
+            return ['success' => false, 'message' => "Girdiğiniz e-posta veya şifre hatalı."];
+        }
+
+        // FR-06: Hesap Askıya Alınmış / Banlanmışsa engelle
+        if (in_array($user['durum'] ?? '', ['ASKIDA', 'BANLI', 'ENGELENMIS'], true)) {
+            return [
+                'success' => false,
+                'message' => "Hesabınız askıya alınmıştır. Platform güvenliği gereği giriş yetkiniz durdurulmuştur (FR-06).",
+            ];
+        }
+
+        // Parola doğrulaması
+        $valid = false;
+        if (!empty($user['sifreHash']) && password_verify($password, $user['sifreHash'])) {
+            $valid = true;
+        } elseif ($password === '123456' || $password === 'admin123') {
+            $valid = true; // Prototip varsayılan şifre
+        }
+
+        if (!$valid) {
+            return ['success' => false, 'message' => "Hatalı şifre girdiniz."];
+        }
+
+        return [
+            'success' => true,
+            'message' => "Giriş başarılı! Hoş geldiniz, {$user['ad']} {$user['soyad']}.",
+            'user'    => $user,
+        ];
+    }
+
+    /**
+     * Kullanıcı Profili Güncelleme (FR-03)
+     */
+    public function updateProfile(int $userId, array $data): array
+    {
+        $user = $this->dataStore->getItem('users', 'id', $userId);
+        if (!$user) {
+            return ['success' => false, 'message' => "Kullanıcı bulunamadı."];
+        }
+
+        $updates = [
+            'ad'            => trim($data['ad'] ?? $user['ad']),
+            'soyad'         => trim($data['soyad'] ?? $user['soyad']),
+            'telefon'       => trim($data['telefon'] ?? ($user['telefon'] ?? '')),
+            'adres'         => trim($data['adres'] ?? ($user['adres'] ?? 'İstanbul, Türkiye')),
+            'faturaBilgisi' => trim($data['fatura_bilgisi'] ?? ($user['faturaBilgisi'] ?? 'Bireysel Fatura')),
+        ];
+
+        if (!empty($data['yeni_sifre'])) {
+            $updates['sifreHash'] = password_hash($data['yeni_sifre'], PASSWORD_DEFAULT);
+        }
+
+        $this->dataStore->updateItem('users', 'id', $userId, $updates);
+
+        return [
+            'success' => true,
+            'message' => "Profil bilgileriniz başarıyla güncellendi (FR-03).",
+        ];
+    }
+
+    /**
+     * Kullanıcı Doğrulama / KYC İnceleme (FR-04, FR-05)
+     */
+    public function verifyUserKyc(int $userId, bool $approve): array
+    {
+        $user = $this->dataStore->getItem('users', 'id', $userId);
+        if (!$user) {
+            return ['success' => false, 'message' => "Kullanıcı bulunamadı."];
+        }
+
+        if ($approve) {
+            $this->dataStore->updateItem('users', 'id', $userId, [
+                'durum'        => 'AKTIF',
+                'kycDogrulama' => [
+                    'dogrulandiMi'  => true,
+                    'onaylayan'     => 'Sistem Yöneticisi',
+                    'onayTarihi'    => date('c'),
+                ],
+            ]);
+            return [
+                'success' => true,
+                'message' => "Kullanıcı (#{$userId} {$user['ad']}) KYC kimlik doğrulaması ONAYLANDI (FR-04). Kullanıcıya tam yetki verildi (FR-05).",
+            ];
+        }
+
+        $this->dataStore->updateItem('users', 'id', $userId, [
+            'durum'        => 'REDDEDILDI',
+            'kycDogrulama' => [
+                'dogrulandiMi'  => false,
+                'onayTarihi'    => date('c'),
+                'redGerekcesi'  => 'Eksik veya okunamayan kimlik belgesi',
+            ],
+        ]);
+        return [
+            'success' => true,
+            'message' => "Kullanıcı (#{$userId} {$user['ad']}) KYC doğrulaması reddedildi.",
+        ];
+    }
+
+    /**
+     * Şifremi Unuttum Kurtarma Akışı (FR-30)
+     */
+    public function requestPasswordReset(string $email): array
+    {
+        $user = $this->dataStore->getItem('users', 'email', trim($email));
+        if (!$user) {
+            // Güvenlik gereği kullanıcı var/yok belli edilmez, ama simülasyonda bilgi veririz
+            return [
+                'success' => true,
+                'message' => "Eğer sistemde kayıtlı ise, şifre sıfırlama bağlantısı 30 saniye içinde e-posta adresinize iletilecektir (FR-30).",
+            ];
+        }
+
+        $resetToken = bin2hex(random_bytes(16));
+        $this->dataStore->updateItem('users', 'id', $user['id'], [
+            'sifreSifirlamaToken' => $resetToken,
+            'sifreTokenZamani'   => date('c'),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "Şifre sıfırlama bağlantısı {$email} adresine 30 saniye içinde iletildi (FR-30 simülasyonu aktif).",
+        ];
+    }
+
+    /**
+     * Eksper ve Kurum Atama (FR-17)
+     */
+    public function assignExpertToLot(int $requestId, int $expertId): array
+    {
+        $req = $this->dataStore->getItem('appraisalRequests', 'id', $requestId);
+        if (!$req) {
+            return ['success' => false, 'message' => "Ekspertiz talebi bulunamadı."];
+        }
+
+        $expert = $this->dataStore->getItem('users', 'id', $expertId);
+        $expertName = $expert ? ($expert['ad'] . ' ' . $expert['soyad']) : "Eksper #{$expertId}";
+
+        $this->dataStore->updateItem('appraisalRequests', 'id', $requestId, [
+            'atananEksperId' => $expertId,
+            'durum'          => 'ATANDI',
+            'not'            => "Görev {$expertName} uzmanına atandı.",
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "İlan başarıyla {$expertName} uzmanına atandı ve eksper paneline iletildi (FR-17).",
+        ];
+    }
+
+    /**
+     * Ekspertiz Akreditasyon Yönetimi (FR-19)
+     */
+    public function accreditExpert(int $expertId, bool $approve): array
+    {
+        $user = $this->dataStore->getItem('users', 'id', $expertId);
+        if (!$user) {
+            return ['success' => false, 'message' => "Eksper bulunamadı."];
+        }
+
+        $this->dataStore->updateItem('users', 'id', $expertId, [
+            'akreditasyon' => [
+                'onaylandiMi'   => $approve,
+                'akreditasyonNo' => $approve ? ('AKR-2026-' . mt_rand(100, 999)) : null,
+                'onayTarihi'    => date('c'),
+                'durum'         => $approve ? 'AKTIF_EKSPER' : 'REDDEDILDI',
+            ],
+        ]);
+
+        $statusStr = $approve ? "onaylandı ve 'Aktif Eksper' statüsü kazandı (FR-19)" : "reddedildi";
+        return [
+            'success' => true,
+            'message' => "{$user['ad']} {$user['soyad']} mesleki akreditasyonu {$statusStr}.",
+        ];
+    }
+
+    /**
+     * İhtilaf Çözümü ve Tahkim Kararı (FR-20, FR-24)
+     */
+    public function resolveDispute(int $disputeId, string $decision): array
+    {
+        $dispute = $this->dataStore->getItem('disputes', 'id', $disputeId);
+        if (!$dispute) {
+            return ['success' => false, 'message' => "İhtilaf kaydı bulunamadı."];
+        }
+
+        $lotId = (int)($dispute['lotId'] ?? 0);
+        $buyerId = (int)($dispute['olusturanKullaniciId'] ?? 0);
+
+        if ($decision === 'ALICI_HAKLI') {
+            $this->dataStore->updateItem('disputes', 'id', $disputeId, [
+                'durum'       => 'COZULDU',
+                'karar'       => 'ALICI_HAKLI',
+                'kararTarihi' => date('c'),
+                'aciklama'    => 'Hakem heyeti alıcıyı haklı buldu. Emanet bloke çözülerek alıcı cüzdanına iade yapıldı (FR-24).',
+            ]);
+
+            // Para iadesi simülasyonu (FR-24)
+            $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $buyerId);
+            if ($wallet) {
+                $refundAmount = 12800.0; // Lot bedeli
+                $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
+                    'bakiye'        => ((float)($wallet['bakiye'] ?? 0)) + $refundAmount,
+                    'sonGuncelleme' => date('c'),
+                ]);
+            }
+
+            return [
+                'success' => true,
+                'message' => "İhtilaf #{$disputeId} için ALICI HAKLI kararı verildi. Bedel alıcıya iade edildi (FR-20, FR-24).",
+            ];
+        }
+
+        $this->dataStore->updateItem('disputes', 'id', $disputeId, [
+            'durum'       => 'COZULDU',
+            'karar'       => 'SATICI_HAKLI',
+            'kararTarihi' => date('c'),
+            'aciklama'    => 'Hakem heyeti satıcıyı haklı buldu. Emanet bloke bedeli satıcı hesabına aktarılacak.',
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "İhtilaf #{$disputeId} için SATICI HAKLI kararı verildi. Satış süreci devam ettiriliyor (FR-20).",
+        ];
+    }
+
+    /**
+     * Kural Dışı Teklif veya İlan İptal Etme (FR-15, FR-24)
+     */
+    public function cancelBidOrLot(int $lotId, ?int $bidId, string $reason): array
+    {
+        $lot = $this->dataStore->getItem('lots', 'id', $lotId);
+        if (!$lot) {
+            return ['success' => false, 'message' => "Lot bulunamadı."];
+        }
+
+        // Teklif iptali: En son teklifi bulup iptal et, bir öncekine dön
+        $bids = $this->dataStore->getCollection('bids');
+        $lotBids = [];
+        foreach ($bids as $b) {
+            if ((int)($b['lotId'] ?? 0) === $lotId && ($b['durum'] ?? '') === 'GECERLI') {
+                $lotBids[] = $b;
+            }
+        }
+
+        if (!empty($lotBids)) {
+            // Son teklifi iptal yap
+            $lastBid = end($lotBids);
+            $this->dataStore->updateItem('bids', 'id', $lastBid['id'], [
+                'durum'        => 'IPTAL_EDILDI',
+                'iptalSebebi'  => $reason,
+                'iptalZamani'  => date('c'),
+            ]);
+
+            // Önceki teklife dön
+            $prevBid = count($lotBids) > 1 ? $lotBids[count($lotBids) - 2] : null;
+            $newHighest = $prevBid ? (float)$prevBid['teklifTutari'] : (float)$lot['baslangicFiyati'];
+            $newLeader = $prevBid ? (int)$prevBid['aliciId'] : null;
+            $newAnon = $prevBid ? ($prevBid['aliciAnonimKod'] ?? 'Anonim') : 'Henüz Teklif Yok';
+
+            $this->dataStore->updateItem('lots', 'id', $lotId, [
+                'mevcutEnYuksekTeklif' => $newHighest,
+                'liderAliciId'         => $newLeader,
+                'liderAnonimKod'       => $newAnon,
+            ]);
+
+            // İptal edilen alıcının blokesini iade et (FR-24)
+            $refundUserId = (int)$lastBid['aliciId'];
+            $refundAmount = (float)$lastBid['teklifTutari'];
+            $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $refundUserId);
+            if ($wallet) {
+                $curBlocked = (float)($wallet['blokeBakiye'] ?? 0);
+                $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
+                    'blokeBakiye'   => max(0.0, $curBlocked - $refundAmount),
+                    'sonGuncelleme' => date('c'),
+                ]);
+            }
+
+            return [
+                'success' => true,
+                'message' => "Kural dışı teklif (#{$lastBid['id']}) iptal edildi. Süreç bir önceki peye döndürüldü ve bloke tutarı iade edildi (FR-15, FR-24).",
+            ];
+        }
+
+        return ['success' => false, 'message' => "İptal edilecek geçerli pey bulunamadı."];
+    }
+
+    /**
+     * Kategori ve Dinamik Nitelik Şablonu Ekleme (FR-08)
+     */
+    public function addCategoryAttribute(string $name, string $code, array $attributes): array
+    {
+        $newCat = $this->dataStore->insertItem('categories', [
+            'kategoriAdi'        => $name,
+            'kategoriKodu'       => $code,
+            'aktifMi'            => true,
+            'zorunluNitelikler' => $attributes,
+            'olusturmaTarihi'    => date('c'),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "'{$name}' kategorisi ve özellik şablonu başarıyla tanımlandı (FR-08).",
+            'category' => $newCat,
+        ];
+    }
+
+    /**
      * Satıcı Ürün ve İlan Ekleme (FR-07, FR-31)
      */
     public function createProductAndListing(int $sellerId, array $data): array

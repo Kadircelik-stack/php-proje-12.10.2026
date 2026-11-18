@@ -179,6 +179,94 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'register':
+                $res = $this->workflowService->registerUser($post);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'login':
+                $email = $post['email'] ?? '';
+                $pass = $post['password'] ?? '';
+                $res = $this->workflowService->loginUser($email, $pass);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'update_profile':
+                $userId = (int)($post['user_id'] ?? 3);
+                $res = $this->workflowService->updateProfile($userId, $post);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'verify_kyc':
+                $userId = (int)($post['user_id'] ?? 0);
+                $approve = ($post['decision'] ?? 'approve') === 'approve';
+                $res = $this->workflowService->verifyUserKyc($userId, $approve);
+                return [
+                    'type' => $res['success'] ? 'success' : 'warning',
+                    'text' => $res['message'],
+                ];
+
+            case 'assign_expert':
+                $reqId = (int)($post['request_id'] ?? 0);
+                $expertId = (int)($post['expert_id'] ?? 4);
+                $res = $this->workflowService->assignExpertToLot($reqId, $expertId);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'accredit_expert':
+                $expertId = (int)($post['expert_id'] ?? 4);
+                $approve = ($post['decision'] ?? 'approve') === 'approve';
+                $res = $this->workflowService->accreditExpert($expertId, $approve);
+                return [
+                    'type' => $res['success'] ? 'success' : 'warning',
+                    'text' => $res['message'],
+                ];
+
+            case 'resolve_dispute':
+                $dispId = (int)($post['dispute_id'] ?? 0);
+                $decision = $post['decision'] ?? 'ALICI_HAKLI';
+                $res = $this->workflowService->resolveDispute($dispId, $decision);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'cancel_bid':
+                $lotId = (int)($post['lot_id'] ?? 1002);
+                $bidId = isset($post['bid_id']) ? (int)$post['bid_id'] : null;
+                $reason = $post['reason'] ?? 'Kural dışı teklif tespiti';
+                $res = $this->workflowService->cancelBidOrLot($lotId, $bidId, $reason);
+                return [
+                    'type' => $res['success'] ? 'warning' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'reset_password':
+                $email = $post['email'] ?? '';
+                $res = $this->workflowService->requestPasswordReset($email);
+                return [
+                    'type' => $res['success'] ? 'info' : 'warning',
+                    'text' => $res['message'],
+                ];
+
+            case 'add_category':
+                $name = $post['kategori_adi'] ?? 'Yeni Kategori';
+                $code = $post['kategori_kodu'] ?? 'CAT-' . mt_rand(10, 99);
+                $attrs = array_filter(array_map('trim', explode(',', $post['nitelikler'] ?? 'Dönem, Menşei, Kondisyon')));
+                $res = $this->workflowService->addCategoryAttribute($name, $code, $attrs);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'pay_order':
                 $orderId = (int)($post['order_id'] ?? 0);
                 $orders = $this->dataStore->getCollection('orders');

@@ -204,6 +204,17 @@ $activeTab = $_GET['tab'] ?? 'canli';
                 Pey Ver
               </button>
             </form>
+
+            <!-- Takip Listesine Ekle / Çıkar Butonu (FR-36) -->
+            <form method="POST" style="margin-top:10px;">
+              <input type="hidden" name="action" value="toggle_watchlist">
+              <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+              <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
+              <input type="hidden" name="current_price" value="<?= $currentLot['mevcutEnYuksekTeklif'] ?>">
+              <button type="submit" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center;">
+                <?= $isWatched ? '★ Takip Ediliyor (Listeden Çıkar - FR-36)' : '☆ Listeye Ekle / Takip Et (FR-36)' ?>
+              </button>
+            </form>
           </div>
 
           <!-- Diğer Teklifler Listesi (Görsel 2'deki Birebir Liste) -->
@@ -425,6 +436,32 @@ $activeTab = $_GET['tab'] ?? 'canli';
           </div>
           <button type="submit" class="btn-outline-gold">İtiraz Bildir</button>
         </form>
+      </div>
+    </div>
+
+    <!-- 6. TAB: TAKİP EDİLENLER (FR-36) -->
+    <div id="buyerTab_takip" class="tab-content <?= $activeTab === 'takip' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
+      <h1 class="page-heading">Takip Ettiklerim (FR-36)</h1>
+      <p class="page-subheading">İlgilendiğiniz veya teklif vermeyi düşündüğünüz eserleri tek panelden izleyin</p>
+
+      <div class="panel-card">
+        <table class="data-table">
+          <thead>
+            <tr><th>Lot Kodu</th><th>Eser Başlığı</th><th>Güncel Fiyat</th><th>Kalan Süre</th><th>İşlem</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-gold">AUC-1642</span></td>
+              <td style="font-weight:600; color:#fff;">1968 İsviçre Vintage Saat</td>
+              <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$currentLot['mevcutEnYuksekTeklif']) ?></td>
+              <td>⏱️ 5 saat 23 dk</td>
+              <td>
+                <a href="?role=buyer&tab=canli&lot_id=1002" class="btn-gold btn-sm" style="text-decoration:none;">Müzayedeye Git</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
