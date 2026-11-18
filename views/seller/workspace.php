@@ -265,32 +265,39 @@ $activeTab = $_GET['tab'] ?? 'genel';
       <h1 class="page-heading">Bakiye ve Komisyon</h1>
       <p class="page-subheading">Kategori bazlı komisyon kesintileri ve hakedişleriniz</p>
 
-      <div class="panel-card">
-        <div style="font-size:0.8rem; color:var(--text-muted);">TOPLAM HAKEDİŞ BAKİYESİ</div>
-        <div style="font-family:var(--font-serif); font-size:2rem; font-weight:700; color:var(--gold-bright); margin:6px 0;">
-          <?= $formatPrice(142800) ?>
-        </div>
-        <div style="color:var(--text-muted); font-size:0.85rem; margin-top:8px; margin-bottom:20px;">
-          Antika & Sanat kategorisi komisyon oranı: <strong>%8</strong> • Sabit Ekspertiz Bedeli: <strong>1.500 TL</strong>
+      <!-- Yan Yana 2 Sütunlu Yerleşim: Bakiye Özeti ve Hakediş Transfer Formu -->
+      <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:24px; align-items:start;">
+        <div class="panel-card" style="margin-bottom:0;">
+          <div style="font-size:0.8rem; color:var(--text-muted);">TOPLAM HAKEDİŞ BAKİYESİ</div>
+          <div style="font-family:var(--font-serif); font-size:2rem; font-weight:700; color:var(--gold-bright); margin:6px 0;">
+            <?= $formatPrice(142800) ?>
+          </div>
+          <div style="color:var(--text-muted); font-size:0.85rem; margin-top:8px;">
+            Antika & Sanat kategorisi komisyon oranı: <strong>%8</strong> • Sabit Ekspertiz Bedeli: <strong>1.500 TL</strong>
+          </div>
+          <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border-color); font-size:0.82rem; color:#8b949e;">
+            Bloke Edilen Ekspertiz Bedeli: <strong>₺ 1.500</strong><br>
+            Net Çekilebilir Tutar: <strong style="color:#3fb950;">₺ 141.300</strong>
+          </div>
         </div>
 
         <!-- Banka Hesabına Para Çekme Formu (Payout) -->
-        <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:18px;">
+        <div class="panel-card" style="margin-bottom:0;">
           <h3 style="font-size:1.05rem; color:#fff; margin-bottom:12px;">Banka Hesabına Transfer (Hakediş Çekimi)</h3>
-          <form method="POST" style="display:grid; grid-template-columns:1fr 2fr auto; gap:12px; align-items:flex-end;">
+          <form method="POST">
             <input type="hidden" name="action" value="request_payout">
             <input type="hidden" name="seller_id" value="<?= $sellerId ?>">
-            <div>
+            <div class="form-group" style="margin-bottom:12px;">
               <label class="form-label">Çekilecek Tutar (TRY)</label>
               <input type="number" name="amount" class="form-control" value="50000" min="1000" max="142800" required>
             </div>
-            <div>
-              <label class="form-label">Alıcı IBAN</label>
-              <input type="text" name="iban" class="form-control" value="TR34 0006 2000 0001 2345 6789 01" required>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Transfer Yapılacak IBAN</label>
+              <input type="text" name="iban" class="form-control" value="TR34 0006 1005 1930 2938 4720 01" required>
             </div>
-            <div>
-              <button type="submit" class="btn-gold" style="white-space:nowrap; padding:10px 20px;">Transfer Talep Et</button>
-            </div>
+            <button type="submit" class="btn-gold" style="width:100%; justify-content:center; padding:10px;">
+              Hakedişi Banka Hesabıma Aktar
+            </button>
           </form>
         </div>
       </div>

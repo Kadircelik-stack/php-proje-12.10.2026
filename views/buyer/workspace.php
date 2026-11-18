@@ -412,126 +412,141 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
       <h1 class="page-heading">Kazanılan lotlar</h1>
       <p class="page-subheading" style="margin-bottom:24px;">Müzayede deneyiminizi profesyonelce yönetin.</p>
 
-      <!-- Tablo Kutusu -->
-      <div class="panel-card" style="padding:0; overflow:hidden; margin-bottom:24px;">
-        <table class="data-table" style="margin:0;">
-          <thead>
-            <tr>
-              <th style="padding-left:24px;">Lot</th>
-              <th>Ürün</th>
-              <th>Kategori</th>
-              <th>Son Tarih</th>
-              <th>Son Fiyat</th>
-              <th>Ödeme Durumu</th>
-              <th style="padding-right:24px;">İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding-left:24px;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                  <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:42px; height:42px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
-                  <span style="font-weight:600; color:#fff;">AUC-0991</span>
-                </div>
-              </td>
-              <td style="font-weight:600; color:#fff;">Antika Seramik Vazo</td>
-              <td style="color:var(--text-muted);">Sanat</td>
-              <td>12-Ekim-2026</td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:#fff;">₺43.500</td>
-              <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
-              <td style="padding-right:24px;">
-                <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0991 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.82rem; display:block; text-decoration:none;">Faturayı İndir</a>
-                <a href="javascript:void(0)" onclick="alert('Kargo: MTR-98213840 (Teslim Edildi)')" style="color:#d1b179; font-size:0.82rem; display:block; margin-top:4px; text-decoration:none;">Kargoyu Takip Et</a>
-              </td>
-            </tr>
-
-            <tr>
-              <td style="padding-left:24px;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                  <img src="public/assets/images/books.jpg" alt="Kitap" style="width:42px; height:42px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
-                  <span style="font-weight:600; color:#fff;">AUC-0984</span>
-                </div>
-              </td>
-              <td style="font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</td>
-              <td style="color:var(--text-muted);">Sanat</td>
-              <td>12-Ekim-2026</td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:#fff;">₺3.200</td>
-              <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
-              <td style="padding-right:24px;">
-                <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0984 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.82rem; display:block; text-decoration:none;">Faturayı İndir</a>
-                <a href="javascript:void(0)" onclick="alert('Kargo: MTR-87321044 (Teslim Edildi)')" style="color:#d1b179; font-size:0.82rem; display:block; margin-top:4px; text-decoration:none;">Kargoyu Takip Et</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Alt İkili Panel: Ödeme Detayları (Sol) ve Son Kazandığınız Lotlar (Sağ) -->
-      <div style="display:grid; grid-template-columns:1fr 1.35fr; gap:20px; align-items:start;">
-        <!-- Sol: Ödeme Detayları Kutusu -->
-        <div class="panel-card" style="margin-bottom:0;">
-          <div style="font-size:0.95rem; font-weight:600; color:#fff; margin-bottom:14px;">Ödeme Detayları</div>
-          
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
-            <span style="color:var(--text-muted);">Lot</span>
-            <span style="color:#fff; font-weight:500;">AUC-0991</span>
+      <!-- Çalışma Alanı ve Yan Paneller (Yan Yana 2 Sütunlu Yerleşim) -->
+      <div style="display:grid; grid-template-columns:1.6fr 1fr; gap:24px; align-items:start;">
+        
+        <!-- Sol Sütun: Kazanılan Lotlar Tablosu (Ana Çalışma Alanı) -->
+        <div class="panel-card" style="padding:0; overflow:hidden; margin-bottom:0;">
+          <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:600; color:#fff; font-size:0.95rem;">Kazanılan Lotlar Listesi</div>
+            <span class="badge badge-success">2 Lot Ödendi</span>
           </div>
 
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
-            <span style="color:var(--text-muted);">Son Fiyat</span>
-            <span style="color:#fff; font-weight:500;">₺43.500</span>
-          </div>
+          <table class="data-table" style="margin:0;">
+            <thead>
+              <tr>
+                <th style="padding-left:20px;">Lot</th>
+                <th>Ürün</th>
+                <th>Kategori</th>
+                <th>Son Tarih</th>
+                <th>Son Fiyat</th>
+                <th>Ödeme</th>
+                <th style="padding-right:20px;">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding-left:20px;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
+                    <span style="font-weight:600; color:#fff;">AUC-0991</span>
+                  </div>
+                </td>
+                <td style="font-weight:600; color:#fff;">Antika Seramik Vazo</td>
+                <td style="color:var(--text-muted);">Sanat</td>
+                <td>12-Ekim-2026</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">₺43.500</td>
+                <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
+                <td style="padding-right:20px;">
+                  <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0991 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.8rem; display:block; text-decoration:none;">Faturayı İndir</a>
+                  <a href="javascript:void(0)" onclick="alert('Kargo: MTR-98213840 (Teslim Edildi)')" style="color:#d1b179; font-size:0.8rem; display:block; margin-top:2px; text-decoration:none;">Kargoyu Takip Et</a>
+                </td>
+              </tr>
 
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
-            <span style="color:var(--text-muted);">Ödeme Durumu</span>
-            <span style="color:#fff; font-weight:500;">₺9.200</span>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
-            <span style="color:var(--text-muted);">Ödeme Son jini</span>
-            <span style="color:#fff; font-weight:500;">₺3.200</span>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px solid var(--border-color); font-size:0.85rem;">
-            <span style="color:var(--text-muted);">Ödeme Detayları</span>
-            <span style="color:#fff; font-weight:700;">₺12.800</span>
-          </div>
+              <tr>
+                <td style="padding-left:20px;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="public/assets/images/books.jpg" alt="Kitap" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
+                    <span style="font-weight:600; color:#fff;">AUC-0984</span>
+                  </div>
+                </td>
+                <td style="font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</td>
+                <td style="color:var(--text-muted);">Sanat</td>
+                <td>12-Ekim-2026</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">₺3.200</td>
+                <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
+                <td style="padding-right:20px;">
+                  <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0984 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.8rem; display:block; text-decoration:none;">Faturayı İndir</a>
+                  <a href="javascript:void(0)" onclick="alert('Kargo: MTR-87321044 (Teslim Edildi)')" style="color:#d1b179; font-size:0.8rem; display:block; margin-top:2px; text-decoration:none;">Kargoyu Takip Et</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <!-- Sağ: Son Kazandığınız Lotlar (Kartlar + İncele Butonları) -->
-        <div class="panel-card" style="margin-bottom:0;">
-          <div style="font-size:0.95rem; font-weight:600; color:#fff; margin-bottom:14px;">Son Kazandığınız Lotlar</div>
+        <!-- Sağ Sütun: Altta Kalan Bölümler (Ödeme Detayları ve Son Kazandığınız Lotlar) -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
           
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-            <!-- Kart 1: Vazo -->
-            <div style="background:#161c27; border:1px solid #263143; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
-              <div style="display:flex; gap:12px; align-items:center; margin-bottom:14px;">
-                <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
-                <div>
-                  <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0991</div>
-                  <div style="font-size:0.84rem; font-weight:600; color:#fff;">Antika Seramik Vazo</div>
-                </div>
-              </div>
-              <button type="button" onclick="switchBuyerTab('canli')" class="btn-gold-pill" style="width:100%; padding:8px 0; font-size:0.82rem; cursor:pointer;">
-                İncele
-              </button>
+          <!-- Ödeme Detayları Kutusu -->
+          <div class="panel-card" style="margin-bottom:0;">
+            <div style="font-size:0.95rem; font-weight:600; color:#fff; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+              <span>Ödeme Detayları</span>
+              <span class="badge badge-gold" style="font-size:0.7rem;">Dekont Kayıtlı</span>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+              <span style="color:var(--text-muted);">Lot</span>
+              <span style="color:#fff; font-weight:500;">AUC-0991</span>
             </div>
 
-            <!-- Kart 2: Kitap -->
-            <div style="background:#161c27; border:1px solid #263143; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
-              <div style="display:flex; gap:12px; align-items:center; margin-bottom:14px;">
-                <img src="public/assets/images/books.jpg" alt="Kitap" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
-                <div>
-                  <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0984</div>
-                  <div style="font-size:0.84rem; font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</div>
-                </div>
-              </div>
-              <button type="button" onclick="switchBuyerTab('canli')" class="btn-gold-pill" style="width:100%; padding:8px 0; font-size:0.82rem; cursor:pointer;">
-                İncele
-              </button>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+              <span style="color:var(--text-muted);">Son Fiyat</span>
+              <span style="color:#fff; font-weight:500;">₺43.500</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+              <span style="color:var(--text-muted);">Ödeme Durumu</span>
+              <span style="color:#4ade80; font-weight:600;">₺9.200 (Ödendi)</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+              <span style="color:var(--text-muted);">Ödeme Son Günü</span>
+              <span style="color:#fff; font-weight:500;">12-Ekim-2026</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px solid var(--border-color); font-size:0.9rem;">
+              <span style="color:var(--text-muted);">Ödeme Detayları</span>
+              <span style="color:var(--gold-bright); font-weight:700;">₺12.800</span>
             </div>
           </div>
+
+          <!-- Son Kazandığınız Lotlar (Kartlar + İncele Butonları) -->
+          <div class="panel-card" style="margin-bottom:0;">
+            <div style="font-size:0.95rem; font-weight:600; color:#fff; margin-bottom:14px;">Son Kazandığınız Lotlar</div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <!-- Kart 1: Vazo -->
+              <div style="background:#161c27; border:1px solid #263143; border-radius:10px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
+                  <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
+                  <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0991</div>
+                    <div style="font-size:0.82rem; font-weight:600; color:#fff;">Antika Seramik Vazo</div>
+                  </div>
+                </div>
+                <button type="button" onclick="switchBuyerTab('canli', this)" class="btn-gold-pill" style="width:100%; padding:7px 0; font-size:0.8rem; cursor:pointer;">
+                  İncele
+                </button>
+              </div>
+
+              <!-- Kart 2: Kitap -->
+              <div style="background:#161c27; border:1px solid #263143; border-radius:10px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
+                  <img src="public/assets/images/books.jpg" alt="Kitap" style="width:40px; height:40px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
+                  <div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0984</div>
+                    <div style="font-size:0.82rem; font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</div>
+                  </div>
+                </div>
+                <button type="button" onclick="switchBuyerTab('canli', this)" class="btn-gold-pill" style="width:100%; padding:7px 0; font-size:0.8rem; cursor:pointer;">
+                  İncele
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </div>
 
