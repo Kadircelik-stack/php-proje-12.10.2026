@@ -207,13 +207,13 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
       </h1>
 
       <div class="lot-detail-container">
-        <!-- Sol Sütun: Galeri (1 Büyük + 4 Küçük) ve Beyaz Ekspertiz Kartı -->
+        <!-- SOL SÜTUN: Galeri, Açıklama, Beyaz Ekspertiz Kartı ve Ekler Butonu -->
         <div>
           <!-- Galeri -->
           <div class="gallery-wrapper">
             <!-- 1 Büyük Saat Görseli (Gerçekçi Müze Kalitesi Eser Görseli) -->
             <div class="main-watch-frame" style="background:#090b10; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; min-height:300px;">
-              <img src="public/assets/images/watch.jpg" alt="1968 Swiss Chronograph" style="max-height:280px; width:auto; object-fit:contain; filter:drop-shadow(0 15px 30px rgba(0,0,0,0.9));">
+              <img id="mainLotImage" src="public/assets/images/watch.jpg" alt="1968 Swiss Chronograph" style="max-height:280px; width:auto; object-fit:contain; filter:drop-shadow(0 15px 30px rgba(0,0,0,0.9));">
               <div style="position:absolute; bottom:12px; left:16px; font-size:0.75rem; color:#848d9a; background:rgba(0,0,0,0.6); padding:3px 8px; border-radius:4px;">
                 1968 Swiss Chronograph Cal. 861 • Orijinal Kadran
               </div>
@@ -221,16 +221,16 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 
             <!-- 4 Küçük Görsel / Detay İnceleme (SVG İkonik Makro Açıları) -->
             <div class="watch-thumbnails-grid">
-              <div class="watch-thumb" title="Kadran Yakın Çekim" style="display:flex; align-items:center; justify-content:center; color:#c5a059;">
+              <div class="watch-thumb" title="Kadran Yakın Çekim" style="display:flex; align-items:center; justify-content:center; color:#c5a059; cursor:pointer;" onclick="document.getElementById('mainLotImage').src='public/assets/images/watch.jpg';">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><circle cx="11" cy="11" r="3"/></svg>
               </div>
-              <div class="watch-thumb" title="Tepe ve Kasa" style="display:flex; align-items:center; justify-content:center; color:#c5a059;">
+              <div class="watch-thumb" title="Tepe ve Kasa" style="display:flex; align-items:center; justify-content:center; color:#c5a059; cursor:pointer;" onclick="document.getElementById('mainLotImage').src='public/assets/images/watch.jpg';">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
               </div>
-              <div class="watch-thumb" title="Mekanizma Kalibresi" style="display:flex; align-items:center; justify-content:center; color:#c5a059;">
+              <div class="watch-thumb" title="Mekanizma Kalibresi" style="display:flex; align-items:center; justify-content:center; color:#c5a059; cursor:pointer;" onclick="document.getElementById('mainLotImage').src='public/assets/images/watch.jpg';">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
               </div>
-              <div class="watch-thumb" title="Akredite Damga" style="display:flex; align-items:center; justify-content:center; color:#c5a059;">
+              <div class="watch-thumb" title="Akredite Damga" style="display:flex; align-items:center; justify-content:center; color:#c5a059; cursor:pointer;" onclick="document.getElementById('mainLotImage').src='public/assets/images/watch.jpg';">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               </div>
             </div>
@@ -256,57 +256,25 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 
             <div class="expert-card-bottom">
               <div>
-                <div style="font-size:0.75rem; color:#777;">Expertiz Stamp:</div>
-                <div style="font-weight:700; color:#222; font-size:0.85rem;">29 saat 2022 • Burak Şahin</div>
+                <div class="expert-reviewer-title">Uzman İncelemesi:</div>
+                <div class="expert-stars">★ ★ ★ ★ ★</div>
               </div>
+              
               <div class="expert-stamp-seal">
                 EKSPERTİZ<br>SEÇKİ<br>★ ★ ★<br>DAMGALI
               </div>
             </div>
           </div>
 
-          <!-- Müzayede Ekleri (Use Case: Müzayede Ekleri Görüntüle) -->
+          <!-- Müzayede Ekleri Butonu -->
           <div style="margin-top:14px;">
-            <button type="button" class="btn-outline-gold" style="width:100%; justify-content:center; font-size:0.84rem; padding:9px 16px;" onclick="document.getElementById('lotEklerModal').style.display='flex'">
+            <button type="button" class="btn-outline-gold" style="width:100%; justify-content:center; font-size:0.84rem; padding:10px 16px;" onclick="document.getElementById('lotEklerModal').style.display='flex'">
               Müzayede Ekleri ve Provenans Raporu &rarr;
             </button>
           </div>
         </div>
 
-        <!-- Müzayede Ekleri Modalı -->
-        <div id="lotEklerModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
-          <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:540px; width:92%; padding:24px; position:relative;">
-            <button type="button" onclick="document.getElementById('lotEklerModal').style.display='none'" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
-            <div style="color:var(--gold-primary); font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">MARTELLO • LOT DÖKÜMANLARI</div>
-            <h3 style="color:#fff; font-size:1.25rem; margin-bottom:12px;">Müzayede Ekleri & Sertifikalar</h3>
-            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
-              <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <div style="font-weight:600; color:#fff;">Laboratuvar Kondisyon Belgesi (PDF)</div>
-                  <div style="color:#848d9a; font-size:0.75rem;">SHA-256 E-İmza ile mühürlü • 2.4 MB</div>
-                </div>
-                <a href="javascript:void(0)" onclick="alert('Kondisyon raporu açıldı.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
-              </div>
-              <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <div style="font-weight:600; color:#fff;">Provenans & Sahiplik Şeceresi</div>
-                  <div style="color:#848d9a; font-size:0.75rem;">1968-2026 Koleksiyoner zincir kaydı • 1.1 MB</div>
-                </div>
-                <a href="javascript:void(0)" onclick="alert('Provenans belgesi doğrulandı.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
-              </div>
-              <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <div style="font-weight:600; color:#fff;">Kültür Varlığı İnceleme Belgesi</div>
-                  <div style="color:#848d9a; font-size:0.75rem;">2863 Sayılı Yasa kapsam dışı belgesi • 850 KB</div>
-                </div>
-                <a href="javascript:void(0)" onclick="alert('Müze müdürlüğü izin belgesi geçerli.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sağ Sütun: Güncel Teklif, Diğer Teklifler ve Yan Koleksiyon -->
+        <!-- SAĞ SÜTUN: Güncel Teklif, Diğer Teklifler ve Yan Koleksiyon -->
         <div>
           <!-- Güncel Teklif Kartı -->
           <div class="bid-panel-card">
@@ -327,13 +295,13 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <span>Son 1 dakika! Bu süre içinde pey verilirse süre 1 dakika uzatılacaktır.</span>
             </div>
 
-            <!-- Pey Ver / Kayıt Ol Butonu -->
+            <!-- Pey Ver Formu -->
             <form method="POST">
               <input type="hidden" name="action" value="place_bid">
               <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
               <input type="hidden" name="user_id" value="<?= $buyerId ?>">
               <input type="hidden" id="remainingSecondsInput" name="remaining_seconds" value="19320">
-              
+
               <div class="form-group" style="margin-bottom:12px;">
                 <label class="form-label">Teklifiniz (Asgari: <?= $formatPrice($minNextBid) ?>)</label>
                 <input type="number" step="500" id="bidAmountInput" name="bid_amount" class="form-control" value="<?= $minNextBid ?>" required>
@@ -373,7 +341,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <?= $activeProxy ? 'Aktif' : 'Tanımlı Değil' ?>
               </span>
             </div>
-            
+
             <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4; margin-bottom:12px;">
               Maksimum bütçenizi tanımlayın; siz ekran başında değilken bile sistem, rakip tekliflerin bir adım üzerine çıkacak şekilde adınıza otomatik teklif versin.
             </p>
@@ -390,7 +358,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <input type="hidden" name="action" value="set_proxy_bid">
               <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
               <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-              
+
               <div class="form-group" style="margin-bottom:12px;">
                 <label class="form-label">Maksimum Tavan Bütçeniz (TRY)</label>
                 <input type="number" step="500" name="max_budget" class="form-control" value="<?= $activeProxy ? (float)$activeProxy['maksimumButceTutari'] : ($minNextBid + 15000) ?>" min="<?= $minNextBid ?>" required>
@@ -447,11 +415,11 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             </div>
           </div>
 
-          <!-- Yantoş Sanat Kollektion -->
+          <!-- Seçkin Sanat Koleksiyonu -->
           <div class="side-collection-card">
             <div style="font-size:0.85rem; font-weight:600; color:#fff; margin-bottom:12px;">Seçkin Sanat Koleksiyonu</div>
             
-            <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1002'">
+            <div class="side-collection-item" onclick="window.location.href='?role=buyer&tab=canli&lot_id=1002'">
               <img src="public/assets/images/watch.jpg" alt="Saat" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid #333e50;">
               <div>
                 <div style="font-size:0.82rem; color:#fff; font-weight:500;">1968 İsviçre Vintage Saat</div>
@@ -459,7 +427,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               </div>
             </div>
 
-            <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1001'">
+            <div class="side-collection-item" onclick="window.location.href='?role=buyer&tab=canli&lot_id=1001'">
               <img src="public/assets/images/books.jpg" alt="Kitap" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid #333e50;">
               <div>
                 <div style="font-size:0.82rem; color:#fff; font-weight:500;">Nadir Kitap Koleksiyonu</div>
@@ -467,7 +435,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               </div>
             </div>
 
-            <div class="side-collection-item" onclick="window.location.href='?role=buyer&lot_id=1003'">
+            <div class="side-collection-item" onclick="window.location.href='?role=buyer&tab=canli&lot_id=1003'">
               <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid #333e50;">
               <div>
                 <div style="font-size:0.82rem; color:#fff; font-weight:500;">Antika Seramik Vazo</div>
@@ -477,6 +445,39 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
           </div>
         </div>
       </div>
+
+      <!-- Müzayede Ekleri Modalı -->
+      <div id="lotEklerModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+        <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:540px; width:92%; padding:24px; position:relative;">
+          <button type="button" onclick="document.getElementById('lotEklerModal').style.display='none'" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+          <div style="color:var(--gold-primary); font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">MARTELLO • LOT DÖKÜMANLARI</div>
+          <h3 style="color:#fff; font-size:1.25rem; margin-bottom:12px;">Müzayede Ekleri & Sertifikalar</h3>
+          <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
+            <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:600; color:#fff;">Laboratuvar Kondisyon Belgesi (PDF)</div>
+                <div style="color:#848d9a; font-size:0.75rem;">SHA-256 E-İmza ile mühürlü • 2.4 MB</div>
+              </div>
+              <a href="javascript:void(0)" onclick="alert('Kondisyon raporu açıldı.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
+            </div>
+            <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:600; color:#fff;">Provenans & Sahiplik Şeceresi</div>
+                <div style="color:#848d9a; font-size:0.75rem;">1968-2026 Koleksiyoner zincir kaydı • 1.1 MB</div>
+              </div>
+              <a href="javascript:void(0)" onclick="alert('Provenans belgesi doğrulandı.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
+            </div>
+            <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:600; color:#fff;">Kültür Varlığı İnceleme Belgesi</div>
+                <div style="color:#848d9a; font-size:0.75rem;">2863 Sayılı Yasa kapsam dışı belgesi • 850 KB</div>
+              </div>
+              <a href="javascript:void(0)" onclick="alert('Müze müdürlüğü izin belgesi geçerli.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ====================================================================
          2. TAB: KAZANILAN LOTLAR (media_1795014776286_1ee53420.jpg ile Birebir)
