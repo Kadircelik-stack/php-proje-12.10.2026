@@ -22,10 +22,9 @@ $disputes = $db['disputes'] ?? [];
       </ul>
     </div>
 
-    <div style="background:#11161f; border:1px solid var(--border-color); border-radius:8px; padding:14px;">
-      <div style="font-size:0.75rem; color:var(--text-muted);">DESTEK OPERASYON</div>
-      <div style="color:var(--gold-bright); font-weight:700; margin-top:4px;">Elif Çelik</div>
-      <div style="font-size:0.75rem; color:#3fb950; margin-top:2px;">● Çevrimiçi (1 Aktif Görüşme)</div>
+    <div class="sidebar-demo-badge" style="margin-top:auto;">
+      <div style="font-weight:700; font-size:0.75rem; color:#d4af37; letter-spacing:0.5px;">MARTELLO / DEMO</div>
+      <div style="font-size:0.7rem; color:#888; margin-top:2px;">İşlemler sunum amaçlıdır.</div>
     </div>
   </aside>
 

@@ -46,11 +46,11 @@ foreach ($proxyBids as $pb) {
 
 $minNextBid = (float)($currentLot['mevcutEnYuksekTeklif'] ?? 0) + (float)($currentLot['minimumArtisTutari'] ?? 1500);
 
-$activeTab = $_GET['tab'] ?? 'canli';
+$activeTab = $_GET['tab'] ?? 'kazanilanlar';
 ?>
 
 <div class="app-container">
-  <!-- Sol Menü (Sidebar) — SRS Sayfa 33 ile Birebir Uyumlu -->
+  <!-- Sol Menü (Sidebar) -->
   <aside class="sidebar">
     <div>
       <div class="sidebar-section-title">Çalışma Alanı</div>
@@ -62,12 +62,12 @@ $activeTab = $_GET['tab'] ?? 'canli';
         </li>
         <li class="nav-menu-item">
           <a href="?role=vitrin">
-            <span class="menu-icon">⚲</span> Müzayede keşfet
+            <span class="menu-icon">🚀</span> Müzayede keşfet
           </a>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'canli' ? 'active' : '' ?>">
           <button type="button" onclick="switchBuyerTab('canli')">
-            <span class="menu-icon">((•))</span> Canlı müzayede
+            <span class="menu-icon">⏱️</span> Canlı müzayede
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'kazanilanlar' ? 'active' : '' ?>">
@@ -77,7 +77,7 @@ $activeTab = $_GET['tab'] ?? 'canli';
         </li>
         <li class="nav-menu-item <?= $activeTab === 'takip' ? 'active' : '' ?>">
           <button type="button" onclick="switchBuyerTab('takip')">
-            <span class="menu-icon">♡</span> Takip edilenler
+            <span class="menu-icon">🔖</span> Takip edilenler
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
@@ -90,24 +90,18 @@ $activeTab = $_GET['tab'] ?? 'canli';
             <span class="menu-icon">⚙️</span> Ayarlar
           </button>
         </li>
-        <li class="nav-menu-item <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
-          <button type="button" onclick="switchBuyerTab('itirazlar')">
-            <span class="menu-icon">⚖️</span> İtirazlar
-          </button>
+        <li class="nav-menu-item">
+          <a href="?role=support">
+            <span class="menu-icon">❓</span> Destek ve Yardım
+          </a>
         </li>
       </ul>
     </div>
 
-    <!-- Cüzdan Durumu Kutusu -->
-    <div style="background:rgba(18,22,31,0.8); border:1px solid var(--border-color); border-radius:8px; padding:16px;">
-      <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Cüzdan Bakiyesi</div>
-      <div style="font-family:var(--font-serif); font-size:1.45rem; font-weight:700; color:var(--gold-bright); margin:4px 0;">
-        <?= $formatPrice(120000) ?>
-      </div>
-      <div style="font-size:0.75rem; color:var(--text-muted); display:flex; justify-content:space-between; margin-top:4px;">
-        <span>Bloke Teminat:</span>
-        <span style="color:#f85149; font-weight:600;"><?= $formatPrice(65000) ?></span>
-      </div>
+    <!-- Sidebar Demo Rozeti -->
+    <div class="sidebar-demo-badge">
+      <div style="font-weight:700; font-size:0.75rem; color:#d4af37; letter-spacing:0.5px;">MARTELLO / DEMO</div>
+      <div style="font-size:0.7rem; color:#888; margin-top:2px;">İşlemler sunum amaçlıdır.</div>
     </div>
   </aside>
 
@@ -331,93 +325,132 @@ $activeTab = $_GET['tab'] ?? 'canli';
     </div>
 
     <!-- ====================================================================
-         2. TAB: KAZANILAN LOTLAR (media_1794924544606_6befb3fa.jpg)
+         2. TAB: KAZANILAN LOTLAR (media_1795014776286_1ee53420.jpg ile Birebir)
          ==================================================================== -->
     <div id="buyerTab_kazanilanlar" class="tab-content <?= $activeTab === 'kazanilanlar' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Kazanılan lotlar</h1>
-      <p class="page-subheading">Müzayede deneyiminizi profesyonelce yönetin.</p>
+      <p class="page-subheading" style="margin-bottom:24px;">Müzayede deneyiminizi profesyonelce yönetin.</p>
 
       <!-- Tablo Kutusu -->
-      <div class="won-lots-table-box">
-        <table class="data-table">
+      <div class="panel-card" style="padding:0; overflow:hidden; margin-bottom:24px;">
+        <table class="data-table" style="margin:0;">
           <thead>
             <tr>
-              <th>Lot</th>
+              <th style="padding-left:24px;">Lot</th>
               <th>Ürün</th>
               <th>Kategori</th>
               <th>Son Tarih</th>
               <th>Son Fiyat</th>
               <th>Ödeme Durumu</th>
-              <th>İşlemler</th>
+              <th style="padding-right:24px;">İşlemler</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:1.4rem;">🏺</span>
-                  <span class="badge badge-gold">AUC-0991</span>
+              <td style="padding-left:24px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <img src="public/assets/images/vase.svg" alt="Vazo" style="width:42px; height:42px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
+                  <span style="font-weight:600; color:#fff;">AUC-0991</span>
                 </div>
               </td>
               <td style="font-weight:600; color:#fff;">Antika Seramik Vazo</td>
               <td style="color:var(--text-muted);">Sanat</td>
               <td>12-Ekim-2026</td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">
-                <?= $formatPrice(12800) ?>
-              </td>
-              <td><span style="color:#3fb950; font-weight:600;">Ödendi</span></td>
-              <td>
-                <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-1088\nTutar: <?= $formatPrice(12800) ?>')" style="color:var(--gold-primary); font-size:0.82rem; margin-right:12px;">Faturayı İndir</a>
-                <a href="javascript:void(0)" onclick="alert('Kargo: KRG-99887701 (Özel Taşıma / Dağıtımda)')" style="color:var(--gold-primary); font-size:0.82rem;">Kargoyu Takip Et</a>
+              <td style="font-family:var(--font-serif); font-weight:700; color:#fff;">₺43.500</td>
+              <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
+              <td style="padding-right:24px;">
+                <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0991 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.82rem; display:block; text-decoration:none;">Faturayı İndir</a>
+                <a href="javascript:void(0)" onclick="alert('Kargo: MTR-98213840 (Teslim Edildi)')" style="color:#d1b179; font-size:0.82rem; display:block; margin-top:4px; text-decoration:none;">Kargoyu Takip Et</a>
               </td>
             </tr>
 
             <tr>
-              <td>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:1.4rem;">📚</span>
-                  <span class="badge badge-gold">AUC-0984</span>
+              <td style="padding-left:24px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <img src="public/assets/images/books.svg" alt="Kitap" style="width:42px; height:42px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
+                  <span style="font-weight:600; color:#fff;">AUC-0984</span>
                 </div>
               </td>
               <td style="font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</td>
               <td style="color:var(--text-muted);">Sanat</td>
               <td>12-Ekim-2026</td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">
-                <?= $formatPrice(9200) ?>
-              </td>
-              <td><span style="color:#3fb950; font-weight:600;">Ödendi</span></td>
-              <td>
-                <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-1089\nTutar: <?= $formatPrice(9200) ?>')" style="color:var(--gold-primary); font-size:0.82rem; margin-right:12px;">Faturayı İndir</a>
-                <a href="javascript:void(0)" onclick="alert('Kargo: KRG-99887702 (Özel Taşıma / Dağıtımda)')" style="color:var(--gold-primary); font-size:0.82rem;">Kargoyu Takip Et</a>
+              <td style="font-family:var(--font-serif); font-weight:700; color:#fff;">₺3.200</td>
+              <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
+              <td style="padding-right:24px;">
+                <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0984 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.82rem; display:block; text-decoration:none;">Faturayı İndir</a>
+                <a href="javascript:void(0)" onclick="alert('Kargo: MTR-87321044 (Teslim Edildi)')" style="color:#d1b179; font-size:0.82rem; display:block; margin-top:4px; text-decoration:none;">Kargoyu Takip Et</a>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Ödeme Detayları Kutusu (Görsel 3 Alt) -->
-      <div class="order-summary-box">
-        <div class="order-summary-title">Ödeme Detayları</div>
-        <div class="order-summary-row">
-          <span style="color:var(--text-muted);">Lot</span>
-          <span>ALIC-0991</span>
+      <!-- Alt İkili Panel: Ödeme Detayları (Sol) ve Son Kazandığınız Lotlar (Sağ) -->
+      <div style="display:grid; grid-template-columns:1fr 1.35fr; gap:20px; align-items:start;">
+        <!-- Sol: Ödeme Detayları Kutusu -->
+        <div class="panel-card" style="margin-bottom:0;">
+          <div style="font-size:0.95rem; font-weight:600; color:#fff; margin-bottom:14px;">Ödeme Detayları</div>
+          
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);">Lot</span>
+            <span style="color:#fff; font-weight:500;">AUC-0991</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);">Son Fiyat</span>
+            <span style="color:#fff; font-weight:500;">₺43.500</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);">Ödeme Durumu</span>
+            <span style="color:#fff; font-weight:500;">₺9.200</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);">Ödeme Son jini</span>
+            <span style="color:#fff; font-weight:500;">₺3.200</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px solid var(--border-color); font-size:0.85rem;">
+            <span style="color:var(--text-muted);">Ödeme Detayları</span>
+            <span style="color:#fff; font-weight:700;">₺12.800</span>
+          </div>
         </div>
-        <div class="order-summary-row">
-          <span style="color:var(--text-muted);">Son Fiyat</span>
-          <span><?= $formatPrice(12800) ?></span>
-        </div>
-        <div class="order-summary-row">
-          <span style="color:var(--text-muted);">Ödeme Durumu</span>
-          <span style="color:#3fb950;">Ödendi</span>
-        </div>
-        <div class="order-summary-row">
-          <span style="color:var(--text-muted);">Ödeme Son yni</span>
-          <span><?= $formatPrice(3200) ?></span>
-        </div>
-        <div class="order-summary-row" style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:8px; font-weight:700; color:var(--gold-bright);">
-          <span>Ödeme Detayları</span>
-          <span><?= $formatPrice(12800) ?></span>
+
+        <!-- Sağ: Son Kazandığınız Lotlar (Kartlar + İncele Butonları) -->
+        <div class="panel-card" style="margin-bottom:0;">
+          <div style="font-size:0.95rem; font-weight:600; color:#fff; margin-bottom:14px;">Son Kazandığınız Lotlar</div>
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <!-- Kart 1: Vazo -->
+            <div style="background:#161c27; border:1px solid #263143; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div style="display:flex; gap:12px; align-items:center; margin-bottom:14px;">
+                <img src="public/assets/images/vase.svg" alt="Vazo" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
+                <div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0991</div>
+                  <div style="font-size:0.84rem; font-weight:600; color:#fff;">Antika Seramik Vazo</div>
+                </div>
+              </div>
+              <button type="button" onclick="switchBuyerTab('canli')" class="btn-gold-pill" style="width:100%; padding:8px 0; font-size:0.82rem; cursor:pointer;">
+                İncele
+              </button>
+            </div>
+
+            <!-- Kart 2: Kitap -->
+            <div style="background:#161c27; border:1px solid #263143; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div style="display:flex; gap:12px; align-items:center; margin-bottom:14px;">
+                <img src="public/assets/images/books.svg" alt="Kitap" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #333e50;">
+                <div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0984</div>
+                  <div style="font-size:0.84rem; font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</div>
+                </div>
+              </div>
+              <button type="button" onclick="switchBuyerTab('canli')" class="btn-gold-pill" style="width:100%; padding:8px 0; font-size:0.82rem; cursor:pointer;">
+                İncele
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -152,6 +152,14 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'edit_lot':
+                $lotId = (int)($post['lot_id'] ?? 0);
+                $res = $this->workflowService->editLot($lotId, $post);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'toggle_ban':
                 $userId = (int)($post['user_id'] ?? 0);
                 $status = $post['new_status'] ?? 'ASKIDA';

@@ -49,33 +49,39 @@ $activeTab = $_GET['tab'] ?? 'genel';
         </li>
       </ul>
     </div>
+
+    <!-- Sidebar Demo Rozeti -->
+    <div class="sidebar-demo-badge">
+      <div style="font-weight:700; font-size:0.75rem; color:#d4af37; letter-spacing:0.5px;">MARTELLO / DEMO</div>
+      <div style="font-size:0.7rem; color:#888; margin-top:2px;">İşlemler sunum amaçlıdır.</div>
+    </div>
   </aside>
 
   <!-- Ana İçerik Alanı -->
   <main class="main-content">
 
-    <!-- 1. TAB: GENEL BAKIŞ (media_1794924544603_fd16da41.jpg ile Birebir) -->
+    <!-- 1. TAB: GENEL BAKIŞ (media_1795014776287_77f7a951.jpg ile Birebir) -->
     <div id="sellerTab_genel" class="tab-content <?= $activeTab === 'genel' ? 'active' : '' ?>">
       <div class="page-breadcrumb">SATICI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Genel bakış</h1>
-      <p class="page-subheading">Seçkin müzayede deneyiminizi yönetin</p>
+      <p class="page-subheading" style="margin-bottom:24px;">Seçkin müzayede deneyiminizi yönetin</p>
 
-      <!-- 4 Adet KPI Kartı (Sayfa 34 Üst Tasarım) -->
+      <!-- 4 Adet KPI Kartı -->
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-label">Aktif İlanlar</div>
+          <div class="kpi-label">AKTİF İLANLAR</div>
           <div class="kpi-value">1</div>
         </div>
         <div class="kpi-card highlight">
-          <div class="kpi-label">Toplam Satış</div>
-          <div class="kpi-value"><?= $formatPrice(142800) ?></div>
+          <div class="kpi-label">TOPLAM SATIŞ</div>
+          <div class="kpi-value">₺142.800</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Taslaklar</div>
+          <div class="kpi-label">TASLAKLAR</div>
           <div class="kpi-value">0</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Teklifler</div>
+          <div class="kpi-label">TEKLİFLER</div>
           <div class="kpi-value">48</div>
         </div>
       </div>
@@ -86,8 +92,8 @@ $activeTab = $_GET['tab'] ?? 'genel';
         <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:20px;">
           İlanlarınızı ve yeni teklifleri tek yerden yönetin.
         </p>
-        <button type="button" class="btn-gold" onclick="switchSellerTab('yeni')">
-          Yeni İlan Oluştur
+        <button type="button" class="btn-gold-pill" style="padding:10px 22px; cursor:pointer;" onclick="switchSellerTab('yeni')">
+          Yeni ilan oluştur
         </button>
       </div>
     </div>

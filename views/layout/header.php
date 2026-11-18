@@ -28,41 +28,101 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
 
 <header class="martello-topbar">
   <div class="brand-wrap">
-    <a href="?role=vitrin" class="brand-title">MARTELLO</a>
+    <a href="?role=vitrin&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:inline-flex; align-items:center; gap:12px; text-decoration:none;">
+      <span class="brand-gavel-circle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m14 13-7.5 7.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L11 10"/>
+          <path d="m16 16 6-6"/>
+          <path d="m8 8 6-6"/>
+          <path d="m9 7 8 8"/>
+          <path d="m21 11-8-8"/>
+        </svg>
+      </span>
+      <span class="brand-title">MARTELLO</span>
+    </a>
   </div>
 
   <div class="topbar-nav">
-    <!-- Rol Değiştirici Piller (Test ve Sunum Geçişleri) -->
-    <div class="role-pills">
-      <a href="?role=vitrin&currency=<?= htmlspecialchars($activeCurrency) ?>" class="role-pill <?= $activeRole === 'vitrin' ? 'active' : '' ?>">Vitrin</a>
-      <a href="?role=buyer&currency=<?= htmlspecialchars($activeCurrency) ?>" class="role-pill <?= $activeRole === 'buyer' ? 'active' : '' ?>">Alıcı</a>
-      <a href="?role=seller&currency=<?= htmlspecialchars($activeCurrency) ?>" class="role-pill <?= $activeRole === 'seller' ? 'active' : '' ?>">Satıcı</a>
-      <a href="?role=appraiser&currency=<?= htmlspecialchars($activeCurrency) ?>" class="role-pill <?= $activeRole === 'appraiser' ? 'active' : '' ?>">Ekspertiz</a>
-      <a href="?role=support&currency=<?= htmlspecialchars($activeCurrency) ?>" class="role-pill <?= $activeRole === 'support' ? 'active' : '' ?>">Canlı Destek</a>
-      <a href="?role=admin&currency=<?= htmlspecialchars($activeCurrency) ?>" class="role-pill <?= $activeRole === 'admin' ? 'active' : '' ?>">Admin</a>
-    </div>
+    <?php if ($activeRole === 'buyer'): ?>
+      <div class="topbar-balance" style="font-size:0.85rem; color:#f0f3f6; font-weight:500;">
+        Bakiye: <strong style="color:#d4af37; font-weight:700;">₺ 2.012.100</strong>
+      </div>
+      <div class="topbar-messages" style="font-size:0.85rem; color:#848d9a;">
+        Mesajlar: <strong style="color:#f0f3f6;">0</strong>
+      </div>
+      <div class="user-avatar-pill" onclick="openProfileModal()" style="display:inline-flex; align-items:center; gap:8px; padding:4px 12px; background:linear-gradient(135deg, #d1b179 0%, #aa8647 100%); border-radius:20px; cursor:pointer;" title="Kullanıcı Profili">
+        <img src="public/assets/images/avatar.svg" alt="User" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
+        <span style="font-size:0.75rem; color:#16120b; font-weight:700;">⌄</span>
+      </div>
+      <button type="button" onclick="openRoleModal()" class="btn-dark-pill" style="padding:7px 16px; font-size:0.82rem; cursor:pointer;">
+        Rol değiştir
+      </button>
+    <?php else: ?>
+      <button type="button" onclick="openAuthModal('login')" class="btn-gold-pill" style="padding:7px 18px; font-size:0.82rem; font-weight:600; cursor:pointer;">
+        Kayıt Ol / Giriş Yap
+      </button>
+      <button type="button" onclick="openRoleModal()" class="btn-dark-pill" style="padding:7px 18px; font-size:0.82rem; cursor:pointer;">
+        Rol değiştir
+      </button>
+    <?php endif; ?>
 
-    <!-- Para Birimi Seçici (TRY / USD / EUR) -->
+    <!-- Para Birimi Seçici (Kompakt) -->
     <select id="currencySelector" class="currency-select" title="Para Birimi Değiştir">
       <option value="TRY" <?= $activeCurrency === 'TRY' ? 'selected' : '' ?>>₺ TRY</option>
       <option value="USD" <?= $activeCurrency === 'USD' ? 'selected' : '' ?>>$ USD</option>
       <option value="EUR" <?= $activeCurrency === 'EUR' ? 'selected' : '' ?>>€ EUR</option>
     </select>
-
-    <?php if ($activeRole === 'vitrin'): ?>
-      <button type="button" onclick="openAuthModal('login')" class="btn-gold btn-sm" style="padding:8px 18px; cursor:pointer;">Kayıt Ol / Giriş Yap</button>
-    <?php else: ?>
-      <!-- Sağ Kullanıcı Rozeti (Görsellerdeki 👤 Emre K. ⌄ Rozeti) -->
-      <div class="user-profile-badge" onclick="openProfileModal()" style="cursor:pointer;" title="Profilinizi ve hesap ayarlarınızı görüntüleyin">
-        <div class="user-avatar">
-          <?= mb_substr($currentUser['name'], 0, 1) ?>
-        </div>
-        <span style="font-weight:600; font-size:0.85rem; color:#fff;"><?= htmlspecialchars($currentUser['name']) ?></span>
-        <span style="font-size:0.75rem; color:var(--text-muted);">⌄</span>
-      </div>
-    <?php endif; ?>
   </div>
 </header>
+
+<!-- Rol Değiştirme Modalı -->
+<div id="roleModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:540px; width:92%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.8); position:relative;">
+    <button type="button" onclick="closeRoleModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+    
+    <div style="color:#d4af37; font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">MARTELLO • DEMO İŞLEM</div>
+    <div style="font-family:var(--font-serif); font-size:1.45rem; font-weight:600; color:#fff; margin-bottom:6px;">Rol Değiştir</div>
+    <div style="color:#888; font-size:0.82rem; margin-bottom:20px;">Geçmek istediğiniz kullanıcı rolünü ve çalışma alanını seçin:</div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <a href="?role=vitrin&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'vitrin' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
+        <div style="font-size:1.2rem; margin-bottom:4px;">🌐</div>
+        <div style="font-weight:600; color:#fff; font-size:0.9rem;">Vitrin (Keşfet)</div>
+        <div style="font-size:0.75rem; color:#848d9a;">Müzayede kataloğu ve lot listesi</div>
+      </a>
+
+      <a href="?role=buyer&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'buyer' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
+        <div style="font-size:1.2rem; margin-bottom:4px;">🏆</div>
+        <div style="font-weight:600; color:#fff; font-size:0.9rem;">Alıcı Paneli</div>
+        <div style="font-size:0.75rem; color:#848d9a;">Kazanılan lotlar, pey verme, bakiye</div>
+      </a>
+
+      <a href="?role=seller&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'seller' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
+        <div style="font-size:1.2rem; margin-bottom:4px;">💼</div>
+        <div style="font-weight:600; color:#fff; font-size:0.9rem;">Satıcı Paneli</div>
+        <div style="font-size:0.75rem; color:#848d9a;">İlanlarım, yeni ürün ekle, satışlar</div>
+      </a>
+
+      <a href="?role=appraiser&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'appraiser' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
+        <div style="font-size:1.2rem; margin-bottom:4px;">🔍</div>
+        <div style="font-weight:600; color:#fff; font-size:0.9rem;">Ekspertiz Uzmanı</div>
+        <div style="font-size:0.75rem; color:#848d9a;">Görev paneli, rapor oluşturma</div>
+      </a>
+
+      <a href="?role=support&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'support' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
+        <div style="font-size:1.2rem; margin-bottom:4px;">💬</div>
+        <div style="font-weight:600; color:#fff; font-size:0.9rem;">Canlı Destek</div>
+        <div style="font-size:0.75rem; color:#848d9a;">Müşteri mesajları ve canlı yardım</div>
+      </a>
+
+      <a href="?role=admin&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'admin' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none;">
+        <div style="font-size:1.2rem; margin-bottom:4px;">⚙️</div>
+        <div style="font-weight:600; color:#fff; font-size:0.9rem;">Admin Konsolu</div>
+        <div style="font-size:0.75rem; color:#848d9a;">Yönetim konsolu, moderasyon, denetim</div>
+      </a>
+    </div>
+  </div>
+</div>
 
 <!-- Kimlik Doğrulama Modalı -->
 <div id="authModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
@@ -222,6 +282,14 @@ function openProfileModal() {
 function closeProfileModal() {
   const p = document.getElementById('profileModal');
   if (p) p.style.display = 'none';
+}
+function openRoleModal() {
+  const r = document.getElementById('roleModal');
+  if (r) r.style.display = 'flex';
+}
+function closeRoleModal() {
+  const r = document.getElementById('roleModal');
+  if (r) r.style.display = 'none';
 }
 </script>
 

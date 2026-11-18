@@ -401,6 +401,59 @@ class PlatformWorkflowService
     }
 
     /**
+     * Admin: Müzayede / Lot Bilgilerini Düzenleme (Admin Düzenleme Yetkisi)
+     */
+    public function editLot(int $lotId, array $data): array
+    {
+        $lot = $this->dataStore->getItem('lots', 'id', $lotId);
+        if (!$lot) {
+            return ['success' => false, 'message' => "Düzenlenecek lot (#{$lotId}) bulunamadı."];
+        }
+
+        $updates = [];
+        if (!empty($data['baslik'])) {
+            $updates['baslik'] = trim((string)$data['baslik']);
+        }
+        if (isset($data['baslangicFiyati']) && is_numeric($data['baslangicFiyati'])) {
+            $updates['baslangicFiyati'] = (float)$data['baslangicFiyati'];
+        }
+        if (isset($data['rezervFiyat']) && is_numeric($data['rezervFiyat'])) {
+            $updates['rezervFiyat'] = (float)$data['rezervFiyat'];
+        }
+        if (isset($data['minimumArtisTutari']) && is_numeric($data['minimumArtisTutari'])) {
+            $updates['minimumArtisTutari'] = (float)$data['minimumArtisTutari'];
+        }
+        if (!empty($data['durum'])) {
+            $updates['durum'] = trim((string)$data['durum']);
+        }
+        if (!empty($data['kalanSureMetni'])) {
+            $updates['kalanSureMetni'] = trim((string)$data['kalanSureMetni']);
+        }
+        if (!empty($data['kategoriAdi'])) {
+            $updates['kategoriAdi'] = trim((string)$data['kategoriAdi']);
+        }
+
+        $this->dataStore->updateItem('lots', 'id', $lotId, $updates);
+
+        // Denetim günlüğüne kaydet (WORM Log)
+        $this->dataStore->insertItem('auditLogs', [
+            'logId'              => 'LOG-MOD-' . mt_rand(1000, 9999),
+            'zamanDamgasi'       => date('c'),
+            'kullaniciId'        => 1, // Admin
+            'islemTipi'          => 'MÜZAYEDE_DÜZENLEME',
+            'shillBiddingDurumu' => 'TEMİZ',
+            'detay'              => "Lot #{$lotId} ({$lot['lotKodu']}) admin tarafından güncellendi.",
+            'currentHash'        => hash('sha256', date('c') . $lotId . json_encode($updates)),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "Müzayede Lotu ({$lot['lotKodu']} - {$lot['baslik']}) bilgileri başarıyla güncellendi.",
+            'lot'     => array_merge($lot, $updates),
+        ];
+    }
+
+    /**
      * Satıcı Ürün ve İlan Ekleme
      */
     public function createProductAndListing(int $sellerId, array $data): array
