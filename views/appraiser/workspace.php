@@ -182,9 +182,55 @@ Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.
 Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır.</textarea>
           </div>
 
-          <button type="submit" class="btn-gold" style="padding:12px 28px;">
-            Raporu Mühürle ve Admin Onayına Gönder
-          </button>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <button type="submit" class="btn-gold" style="padding:12px 28px;">
+              Raporu Mühürle ve Admin Onayına Gönder
+            </button>
+            <button type="button" class="btn-outline-gold" style="padding:12px 20px;" onclick="document.getElementById('revizeModal').style.display='flex'">
+              Düzeltme & Revize Talep Et
+            </button>
+            <button type="button" class="btn-outline-gold" style="padding:12px 20px; color:#f87171; border-color:rgba(239,68,68,0.4);" onclick="document.getElementById('eskaleModal').style.display='flex'">
+              Üst Heyete Eskale Et
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Revize Talep Modalı -->
+    <div id="revizeModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+      <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:480px; width:90%; padding:24px; position:relative;">
+        <button type="button" onclick="document.getElementById('revizeModal').style.display='none'" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+        <h3 style="color:var(--gold-primary); font-size:1.2rem; margin-bottom:8px;">Satıcıdan Düzeltme & Revize Talep Et</h3>
+        <p style="color:#888; font-size:0.82rem; margin-bottom:14px;">Satıcıya ekspertiz için gereken ek görsel veya orijinallik belgesi talebini iletin.</p>
+        <form method="POST">
+          <input type="hidden" name="action" value="request_revision">
+          <input type="hidden" name="expert_id" value="<?= $expertId ?>">
+          <input type="hidden" name="request_id" value="202">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Revize ve Belge Talebi Gerekçesi</label>
+            <textarea name="reason" class="form-control" rows="3" required>Mekanizma seri numarasının ve bezel köşelerinin yüksek çözünürlüklü makro fotoğrafları gereklidir.</textarea>
+          </div>
+          <button type="submit" class="btn-gold" style="width:100%;">Talebi Satıcıya İlet</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Eskalasyon Modalı -->
+    <div id="eskaleModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+      <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:480px; width:90%; padding:24px; position:relative;">
+        <button type="button" onclick="document.getElementById('eskaleModal').style.display='none'" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+        <h3 style="color:#f87171; font-size:1.2rem; margin-bottom:8px;">Üst İhtisas Kuruluna Eskale Et</h3>
+        <p style="color:#888; font-size:0.82rem; margin-bottom:14px;">Yüksek kıymetli veya ihtilaflı eseri baş eksper ve yönetim heyetine yönlendirin.</p>
+        <form method="POST">
+          <input type="hidden" name="action" value="escalate_appraisal">
+          <input type="hidden" name="expert_id" value="<?= $expertId ?>">
+          <input type="hidden" name="request_id" value="202">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Eskalasyon Gerekçesi</label>
+            <textarea name="reason" class="form-control" rows="3" required>Eser nadir müzeolojik nitelik taşımaktadır; rezerv fiyatın tespiti için kurul onayı gereklidir.</textarea>
+          </div>
+          <button type="submit" class="btn-gold" style="width:100%; background:#dc2626; border-color:#ef4444; color:#fff;">Üst Heyete Eskale Et</button>
         </form>
       </div>
     </div>

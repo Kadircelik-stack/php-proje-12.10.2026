@@ -307,6 +307,79 @@ class WebAndApiController
                     'text' => "3D Secure Sanal POS onayı alındı (≤3sn). Sipariş başarıyla ödendi.",
                 ];
 
+            case 'cancel_listing':
+                $listingId = (int)($post['listing_id'] ?? 0);
+                $sellerId = (int)($post['seller_id'] ?? 2);
+                $reason = trim($post['reason'] ?? 'Satıcı tarafından geri çekildi');
+                $res = $this->workflowService->cancelListing($listingId, $sellerId, $reason);
+                return [
+                    'type' => $res['success'] ? 'info' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'edit_listing':
+                $listingId = (int)($post['listing_id'] ?? 0);
+                $sellerId = (int)($post['seller_id'] ?? 2);
+                $res = $this->workflowService->editListing($listingId, $sellerId, $post);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'request_payout':
+                $sellerId = (int)($post['seller_id'] ?? 2);
+                $amount = (float)($post['amount'] ?? 0);
+                $iban = trim($post['iban'] ?? 'TR00 0000 0000 0000 0000 0000 00');
+                $res = $this->workflowService->requestPayout($sellerId, $amount, $iban);
+                return [
+                    'type' => $res['success'] ? 'success' : 'warning',
+                    'text' => $res['message'],
+                ];
+
+            case 'request_revision':
+                $reqId = (int)($post['request_id'] ?? 0);
+                $expertId = (int)($post['expert_id'] ?? 4);
+                $reason = trim($post['reason'] ?? 'Kondisyon ve fatura görseli netleştirilmeli');
+                $res = $this->workflowService->requestAppraisalRevision($expertId, $reqId, $reason);
+                return [
+                    'type' => $res['success'] ? 'info' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'escalate_appraisal':
+                $reqId = (int)($post['request_id'] ?? 0);
+                $expertId = (int)($post['expert_id'] ?? 4);
+                $reason = trim($post['reason'] ?? 'Nadir eser statüsü - Üst ihtisas kurulu kararı gereklidir');
+                $res = $this->workflowService->escalateAppraisal($expertId, $reqId, $reason);
+                return [
+                    'type' => $res['success'] ? 'warning' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'update_system_params':
+                $res = $this->workflowService->updateSystemParameters($post);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'create_staff':
+                $res = $this->workflowService->createStaffAccount($post);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'update_shipment':
+                $shipmentId = (int)($post['shipment_id'] ?? 0);
+                $status = $post['status'] ?? 'Teslim Edildi';
+                $note = $post['note'] ?? 'Özel sanat taşımacılığı ile alıcıya teslim edildi.';
+                $res = $this->workflowService->updateShipmentStatus($shipmentId, $status, $note);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             default:
                 return ['type' => 'info', 'text' => "İşlem alındı."];
         }

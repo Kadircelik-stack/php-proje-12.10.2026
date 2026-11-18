@@ -700,4 +700,240 @@ class PlatformWorkflowService
 
         return ['success' => true, 'message' => "Mesaj iletildi."];
     }
+
+    /**
+     * Satıcı: İlan İptal Etme
+     */
+    public function cancelListing(int $listingId, int $sellerId, string $reason): array
+    {
+        $listing = $this->dataStore->getItem('listings', 'id', $listingId);
+        if (!$listing) {
+            return ['success' => false, 'message' => "İlan bulunamadı."];
+        }
+
+        if ((int)($listing['saticiId'] ?? 0) !== $sellerId && $sellerId !== 1) { // 1 = Admin
+            return ['success' => false, 'message' => "Bu ilanı iptal etme yetkiniz bulunmuyor."];
+        }
+
+        $this->dataStore->updateItem('listings', 'id', $listingId, [
+            'durum'       => 'IPTAL_EDILDI',
+            'iptalSebebi' => $reason,
+            'iptalZamani' => date('c'),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "İlan (#{$listing['ilanKodu']}) başarıyla iptal edildi ve yayından kaldırıldı.",
+        ];
+    }
+
+    /**
+     * Satıcı: İlan Düzenleme
+     */
+    public function editListing(int $listingId, int $sellerId, array $data): array
+    {
+        $listing = $this->dataStore->getItem('listings', 'id', $listingId);
+        if (!$listing) {
+            return ['success' => false, 'message' => "İlan bulunamadı."];
+        }
+
+        $productId = (int)($listing['urunId'] ?? 0);
+        $product = $this->dataStore->getItem('products', 'id', $productId);
+        if (!$product) {
+            return ['success' => false, 'message' => "Ürün kaydı bulunamadı."];
+        }
+
+        $updates = [];
+        if (!empty($data['baslik'])) {
+            $updates['baslik'] = trim((string)$data['baslik']);
+        }
+        if (!empty($data['aciklama'])) {
+            $updates['aciklama'] = trim((string)$data['aciklama']);
+        }
+        if (!empty($data['fizikselKondisyon'])) {
+            $updates['fizikselKondisyon'] = trim((string)$data['fizikselKondisyon']);
+        }
+
+        if (!empty($updates)) {
+            $this->dataStore->updateItem('products', 'id', $productId, $updates);
+        }
+
+        return [
+            'success' => true,
+            'message' => "İlan ve ürün detayları başarıyla güncellendi.",
+        ];
+    }
+
+    /**
+     * Satıcı: Bakiye Çekim / Payout Talebi
+     */
+    public function requestPayout(int $sellerId, float $amount, string $iban): array
+    {
+        if ($amount <= 0) {
+            return ['success' => false, 'message' => "Geçerli bir çekim tutarı belirtiniz."];
+        }
+
+        $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $sellerId);
+        if (!$wallet || ((float)($wallet['bakiye'] ?? 0) < $amount)) {
+            return ['success' => false, 'message' => "Yetersiz bakiye. Çekilebilir tutarı aşamazsınız."];
+        }
+
+        $newBal = (float)$wallet['bakiye'] - $amount;
+        $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
+            'bakiye'        => $newBal,
+            'sonGuncelleme' => date('c'),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "₺" . number_format($amount, 2, ',', '.') . " tutarındaki transfer talebiniz {$iban} hesabına iletildi. Finans onayı sonrası hesabınıza aktarılacaktır.",
+        ];
+    }
+
+    /**
+     * Eksper: Revize / Ek Belge Talep Etme
+     */
+    public function requestAppraisalRevision(int $expertId, int $requestId, string $reason): array
+    {
+        $req = $this->dataStore->getItem('appraisalRequests', 'id', $requestId);
+        if (!$req) {
+            return ['success' => false, 'message' => "Ekspertiz talebi bulunamadı."];
+        }
+
+        $this->dataStore->updateItem('appraisalRequests', 'id', $requestId, [
+            'durum'        => 'REVIZE_ISTENDI',
+            'revizeNedeni' => $reason,
+            'not'          => "Uzman revize talep etti: {$reason}",
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "Satıcıya ek belge / kondisyon revize talebi başarıyla iletildi.",
+        ];
+    }
+
+    /**
+     * Eksper: Üst Birime Eskale Etme
+     */
+    public function escalateAppraisal(int $expertId, int $requestId, string $reason): array
+    {
+        $req = $this->dataStore->getItem('appraisalRequests', 'id', $requestId);
+        if (!$req) {
+            return ['success' => false, 'message' => "Ekspertiz talebi bulunamadı."];
+        }
+
+        $this->dataStore->updateItem('appraisalRequests', 'id', $requestId, [
+            'eskalasyon'      => true,
+            'durum'           => 'ESKALE_EDILDI',
+            'eskalasyonNedeni'=> $reason,
+            'not'             => "Yüksek ihtisas heyetine eskale edildi: {$reason}",
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "Dosya üst hakem kuruluna ve baş ekspere başarıyla eskale edildi.",
+        ];
+    }
+
+    /**
+     * Admin: Sistem Parametreleri Ayarlama
+     */
+    public function updateSystemParameters(array $data): array
+    {
+        $params = $this->dataStore->getCollection('systemParameters');
+        if (empty($params)) {
+            $params = [];
+        }
+
+        $antiSnipingSeconds = isset($data['anti_sniping_seconds']) ? (int)$data['anti_sniping_seconds'] : 60;
+        $minBidStep = isset($data['min_bid_step']) ? (float)$data['min_bid_step'] : 1500;
+        $sellerComm = isset($data['seller_commission']) ? (float)$data['seller_commission'] : 8.5;
+        $buyerPremium = isset($data['buyer_premium']) ? (float)$data['buyer_premium'] : 12.0;
+
+        $updatedParams = array_merge($params, [
+            'antiSnipingDuration' => $antiSnipingSeconds,
+            'defaultMinBidStep'   => $minBidStep,
+            'sellerCommission'    => $sellerComm,
+            'buyerPremium'        => $buyerPremium,
+            'lastUpdated'         => date('c'),
+        ]);
+
+        $this->dataStore->saveCollection('systemParameters', $updatedParams);
+
+        return [
+            'success' => true,
+            'message' => "Sistem parametreleri (Son 1 dk kuralı: {$antiSnipingSeconds}sn, Min Pey: ₺{$minBidStep}, Komisyon: %{$sellerComm}) başarıyla güncellendi.",
+        ];
+    }
+
+    /**
+     * Admin: Destek veya Ekspertiz Personel Hesabı Oluşturma
+     */
+    public function createStaffAccount(array $data): array
+    {
+        $name = trim($data['ad'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $role = $data['rol'] ?? 'CANLI_DESTEK';
+
+        if ($name === '' || $email === '') {
+            return ['success' => false, 'message' => "Ad ve e-posta zorunludur."];
+        }
+
+        $existing = $this->dataStore->getItem('users', 'email', $email);
+        if ($existing) {
+            return ['success' => false, 'message' => "Bu e-posta adresiyle bir hesap zaten mevcut."];
+        }
+
+        $user = $this->dataStore->insertItem('users', [
+            'ad'           => $name,
+            'soyad'        => '(Yetkili)',
+            'email'        => $email,
+            'telefon'      => '+90 532 ' . mt_rand(100, 999) . ' 0000',
+            'rol'          => $role,
+            'durum'        => 'AKTIF',
+            'sifreHash'    => password_hash('staff123', PASSWORD_DEFAULT),
+            'anonimKod'    => 'STF-' . mt_rand(10, 99),
+            'kycDogrulama' => ['dogrulandiMi' => true, 'onayTarihi' => date('c')],
+            'kayitTarihi'  => date('c'),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "Yeni personel hesabı ({$name} - {$role}) başarıyla tanımlandı ve yetkilendirildi.",
+            'user'    => $user,
+        ];
+    }
+
+    /**
+     * Kargo Teslimat Durumu Güncelleme
+     */
+    public function updateShipmentStatus(int $shipmentId, string $newStatus, string $note): array
+    {
+        $shipments = $this->dataStore->getCollection('shipments');
+        $found = false;
+        foreach ($shipments as &$s) {
+            if ((int)($s['id'] ?? 0) === $shipmentId || ($s['kargoKodu'] ?? '') === (string)$shipmentId) {
+                $s['kargoDurumu'] = $newStatus;
+                $s['gecmis'] = $s['gecmis'] ?? [];
+                $s['gecmis'][] = [
+                    'tarih'    => date('Y-m-d H:i:s'),
+                    'durum'    => $newStatus,
+                    'aciklama' => $note,
+                ];
+                $found = true;
+                break;
+            }
+        }
+        unset($s);
+
+        if ($found) {
+            $this->dataStore->saveCollection('shipments', $shipments);
+            return [
+                'success' => true,
+                'message' => "Kargo durumu '{$newStatus}' olarak güncellendi ve alıcıya bildirim gönderildi.",
+            ];
+        }
+
+        return ['success' => false, 'message' => "Kargo kaydı bulunamadı."];
+    }
 }

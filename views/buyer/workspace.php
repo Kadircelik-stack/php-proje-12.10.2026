@@ -183,6 +183,46 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               </div>
             </div>
           </div>
+
+          <!-- Müzayede Ekleri (Use Case: Müzayede Ekleri Görüntüle) -->
+          <div style="margin-top:14px;">
+            <button type="button" class="btn-outline-gold" style="width:100%; justify-content:center; font-size:0.84rem; padding:9px 16px;" onclick="document.getElementById('lotEklerModal').style.display='flex'">
+              Müzayede Ekleri ve Provenans Raporu &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Müzayede Ekleri Modalı -->
+        <div id="lotEklerModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+          <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:540px; width:92%; padding:24px; position:relative;">
+            <button type="button" onclick="document.getElementById('lotEklerModal').style.display='none'" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+            <div style="color:var(--gold-primary); font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">MARTELLO • LOT DÖKÜMANLARI</div>
+            <h3 style="color:#fff; font-size:1.25rem; margin-bottom:12px;">Müzayede Ekleri & Sertifikalar</h3>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
+              <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight:600; color:#fff;">Laboratuvar Kondisyon Belgesi (PDF)</div>
+                  <div style="color:#848d9a; font-size:0.75rem;">SHA-256 E-İmza ile mühürlü • 2.4 MB</div>
+                </div>
+                <a href="javascript:void(0)" onclick="alert('Kondisyon raporu açıldı.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
+              </div>
+              <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight:600; color:#fff;">Provenans & Sahiplik Şeceresi</div>
+                  <div style="color:#848d9a; font-size:0.75rem;">1968-2026 Koleksiyoner zincir kaydı • 1.1 MB</div>
+                </div>
+                <a href="javascript:void(0)" onclick="alert('Provenans belgesi doğrulandı.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
+              </div>
+              <div style="padding:10px 14px; background:#0a0d13; border:1px solid #263042; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight:600; color:#fff;">Kültür Varlığı İnceleme Belgesi</div>
+                  <div style="color:#848d9a; font-size:0.75rem;">2863 Sayılı Yasa kapsam dışı belgesi • 850 KB</div>
+                </div>
+                <a href="javascript:void(0)" onclick="alert('Müze müdürlüğü izin belgesi geçerli.')" class="btn-gold btn-sm" style="font-size:0.75rem;">Görüntüle</a>
+              </div>
+            </div>
+          </div>
+        </div>
         </div>
 
         <!-- Sağ Sütun: Güncel Teklif, Diğer Teklifler ve Yan Koleksiyon -->

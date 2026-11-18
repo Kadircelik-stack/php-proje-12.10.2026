@@ -60,6 +60,13 @@ $disputes = $db['disputes'] ?? [];
           <?php endforeach; ?>
         </div>
 
+        <!-- Hızlı Yanıtlar (Canned Responses) -->
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+          <button type="button" class="btn-outline-gold btn-sm" style="font-size:0.72rem; padding:2px 8px;" onclick="document.querySelector('input[name=message]').value='Eserlerimiz T.C. Kültür Bakanlığı lisanslı eksper onayından geçmiştir.'">Ekspertiz Bilgisi</button>
+          <button type="button" class="btn-outline-gold btn-sm" style="font-size:0.72rem; padding:2px 8px;" onclick="document.querySelector('input[name=message]').value='Pey verirken asgari artış kuralı geçerlidir; teminatınız emanet hesabında güvendedir.'">Pey Kuralları</button>
+          <button type="button" class="btn-outline-gold btn-sm" style="font-size:0.72rem; padding:2px 8px;" onclick="document.querySelector('input[name=message]').value='Kargonuz özel sigortalı sanat kuryesi ile yola çıkmıştır.'">Kargo Durumu</button>
+        </div>
+
         <!-- Yanıt Gönder Formu -->
         <form method="POST" style="display:flex; gap:8px;">
           <input type="hidden" name="action" value="send_chat">
@@ -71,9 +78,26 @@ $disputes = $db['disputes'] ?? [];
         </form>
       </div>
 
-      <!-- Sağ: Kargo Takibi & Acil Durum / İhtilaf -->
+      <!-- Sağ: Kullanıcı Bilgisi, Kargo Takibi & Acil Durum / İhtilaf -->
       <div>
-        <div id="kargo-takip" class="panel-card" style="margin-bottom:24px;">
+        <!-- Kullanıcı Profili ve KYC Bilgileri Kartı (Use Case) -->
+        <div class="panel-card" style="margin-bottom:16px;">
+          <div class="panel-header">
+            <h3 class="panel-title">Müşteri Bilgileri & KYC</h3>
+            <span class="badge badge-success">✓ Onaylı KYC</span>
+          </div>
+          <div style="font-size:0.85rem; color:#fff; font-weight:600; margin-bottom:4px;">
+            <?= htmlspecialchars($activeSession['kullaniciAd'] ?? 'Zeynep Demir') ?> (#3)
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+            VIP Seviyesi: <strong style="color:#d4af37;">PLATINUM</strong> • Bakiye: <strong>₺120.000</strong><br>
+            Kayıtlı E-Posta: zeynep.demir@ornek.com<br>
+            Kayıtlı Telefon: +90 532 999 8877
+          </div>
+        </div>
+
+        <!-- Kargo Takibi -->
+        <div id="kargo-takip" class="panel-card" style="margin-bottom:16px;">
           <div class="panel-header">
             <h3 class="panel-title">Kargo Teslimat Sorgulama</h3>
           </div>
@@ -81,20 +105,37 @@ $disputes = $db['disputes'] ?? [];
             <label class="form-label">Kargo veya Lot Takip No</label>
             <input type="text" id="kargoInput" class="form-control" value="KRG-99887766">
           </div>
-          <div style="background:#0e1218; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-top:12px;">
+          <div style="background:#0e1218; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-top:10px;">
             <div style="font-size:0.75rem; color:var(--text-muted);">GÜNCEL DURUM</div>
             <div style="color:#3fb950; font-weight:700; margin:4px 0;">Dağıtımda / Özel Sanat Taşıma</div>
-            <div style="font-size:0.8rem; color:#8b949e;">
+            <div style="font-size:0.8rem; color:#8b949e; margin-bottom:8px;">
               Özel sigortalı ahşap sandıklama tamamlandı, kurye teslimat adresine doğru yola çıktı.
             </div>
+            <!-- Kargo Durumu Güncelleme Butonu -->
+            <form method="POST" style="margin:0;">
+              <input type="hidden" name="action" value="update_shipment">
+              <input type="hidden" name="shipment_id" value="701">
+              <input type="hidden" name="status" value="Teslim Edildi">
+              <button type="submit" class="btn-outline-gold btn-sm" style="font-size:0.75rem;">'Teslim Edildi' Olarak İşaretle</button>
+            </form>
           </div>
         </div>
 
+        <!-- Acil Durum / İhtilaf Oluşturma (Use Case) -->
         <div id="ihtilaf-yonetimi" class="panel-card">
           <div class="panel-header">
             <h3 class="panel-title">Aktif Uyuşmazlıklar</h3>
             <span class="badge badge-warning"><?= count($disputes) ?></span>
           </div>
+          <form method="POST" style="margin-bottom:14px; background:#0e1218; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+            <input type="hidden" name="action" value="create_dispute">
+            <input type="hidden" name="user_id" value="3">
+            <input type="hidden" name="lot_id" value="1002">
+            <div style="font-size:0.78rem; color:#d4af37; font-weight:700; margin-bottom:6px;">Canlı Destekten Acil İhtilaf Aç</div>
+            <input type="text" name="topic" class="form-control" value="Müşteri Görüşme Talebi / Ödeme İtirazı" style="margin-bottom:6px; font-size:0.8rem;" required>
+            <input type="text" name="description" class="form-control" placeholder="Acil durum notu..." style="margin-bottom:8px; font-size:0.8rem;" required>
+            <button type="submit" class="btn-gold btn-sm" style="width:100%; font-size:0.78rem;">İhtilaf Kuruluna İlet</button>
+          </form>
           <?php foreach ($disputes as $disp): ?>
             <div style="border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px; margin-bottom:10px;">
               <div style="display:flex; justify-content:space-between; font-size:0.8rem;">

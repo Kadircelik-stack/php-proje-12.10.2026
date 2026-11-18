@@ -204,7 +204,17 @@ $activeTab = $_GET['tab'] ?? 'genel';
                 <td style="font-weight:600; color:#fff;">1968 İsviçre Vintage Saat</td>
                 <td><span style="color:#3fb950;">✓ Ekspertiz Seçki Damgalı</span></td>
                 <td><span class="badge badge-success"><?= htmlspecialchars($l['durum']) ?></span></td>
-                <td><a href="?role=buyer&lot_id=1002" class="btn-outline-gold btn-sm">Müzayedeyi Gör</a></td>
+                <td>
+                  <a href="?role=buyer&lot_id=1002" class="btn-outline-gold btn-sm">Müzayedeyi Gör</a>
+                  <?php if (($l['durum'] ?? '') !== 'IPTAL_EDILDI'): ?>
+                    <form method="POST" style="display:inline; margin-left:6px;" onsubmit="return confirm('Bu ilanı iptal etmek ve yayından çekmek istediğinize emin misiniz?');">
+                      <input type="hidden" name="action" value="cancel_listing">
+                      <input type="hidden" name="listing_id" value="<?= $l['id'] ?>">
+                      <input type="hidden" name="seller_id" value="<?= $sellerId ?>">
+                      <button type="submit" class="btn-outline-gold btn-sm" style="color:#f87171; border-color:rgba(239,68,68,0.35); padding:4px 8px; font-size:0.75rem;">İptal Et</button>
+                    </form>
+                  <?php endif; ?>
+                </td>
               </tr>
             <?php endforeach; ?>
           </tbody>
@@ -254,8 +264,28 @@ $activeTab = $_GET['tab'] ?? 'genel';
         <div style="font-family:var(--font-serif); font-size:2rem; font-weight:700; color:var(--gold-bright); margin:6px 0;">
           <?= $formatPrice(142800) ?>
         </div>
-        <div style="color:var(--text-muted); font-size:0.85rem; margin-top:8px;">
+        <div style="color:var(--text-muted); font-size:0.85rem; margin-top:8px; margin-bottom:20px;">
           Antika & Sanat kategorisi komisyon oranı: <strong>%8</strong> • Sabit Ekspertiz Bedeli: <strong>1.500 TL</strong>
+        </div>
+
+        <!-- Banka Hesabına Para Çekme Formu (Payout) -->
+        <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:18px;">
+          <h3 style="font-size:1.05rem; color:#fff; margin-bottom:12px;">Banka Hesabına Transfer (Hakediş Çekimi)</h3>
+          <form method="POST" style="display:grid; grid-template-columns:1fr 2fr auto; gap:12px; align-items:flex-end;">
+            <input type="hidden" name="action" value="request_payout">
+            <input type="hidden" name="seller_id" value="<?= $sellerId ?>">
+            <div>
+              <label class="form-label">Çekilecek Tutar (TRY)</label>
+              <input type="number" name="amount" class="form-control" value="50000" min="1000" max="142800" required>
+            </div>
+            <div>
+              <label class="form-label">Alıcı IBAN</label>
+              <input type="text" name="iban" class="form-control" value="TR34 0006 2000 0001 2345 6789 01" required>
+            </div>
+            <div>
+              <button type="submit" class="btn-gold" style="white-space:nowrap; padding:10px 20px;">Transfer Talep Et</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

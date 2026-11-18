@@ -236,6 +236,12 @@ $activeTab = $_GET['tab'] ?? 'konsol';
                   <button type="button" class="btn-gold btn-sm" style="padding:4px 10px; font-size:0.78rem; cursor:pointer;" onclick='openEditLotModal(<?= json_encode($lot, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
                     Düzenle
                   </button>
+                  <form method="POST" style="display:inline; margin-left:4px;" onsubmit="return confirm('Son verilen peyi kural ihlali gerekçesiyle iptal edip önceki peye dönmek istediğinize emin misiniz?');">
+                    <input type="hidden" name="action" value="cancel_bid">
+                    <input type="hidden" name="lot_id" value="<?= $lot['id'] ?>">
+                    <input type="hidden" name="reason" value="Admin kural dışı teklif iptali">
+                    <button type="submit" class="btn-outline-gold btn-sm" style="padding:4px 8px; font-size:0.75rem; color:#f87171; border-color:rgba(239,68,68,0.35);" title="Son peyi iptal et ve önceki fiyata dön">Pey İptal</button>
+                  </form>
                 </td>
               </tr>
             <?php endforeach; ?>
@@ -603,10 +609,39 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       <h1 class="page-heading">Sistem ayarları</h1>
       <p class="page-subheading" style="margin-bottom:24px;">Seçkin müzayede deneyiminizi yönetin</p>
 
+      <div class="panel-card" style="margin-bottom:20px;">
+        <h3 class="panel-title" style="margin-bottom:8px;">Sistem Parametreleri (Use Case: Sistem Parametreleri Ayarlama)</h3>
+        <p style="font-size:0.85rem; color:#848d9a; margin-bottom:16px;">
+          Anti-Sniping son 1 dk kuralı süresi, asgari artış kuralı ve platform komisyon oranları.
+        </p>
+        <form method="POST" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:12px; align-items:flex-end;">
+          <input type="hidden" name="action" value="update_system_params">
+          <div>
+            <label class="form-label">Anti-Sniping Süre (Sn)</label>
+            <input type="number" name="anti_sniping_seconds" class="form-control" value="60" required>
+          </div>
+          <div>
+            <label class="form-label">Min Pey Adımı (TRY)</label>
+            <input type="number" name="min_bid_step" class="form-control" value="1500" required>
+          </div>
+          <div>
+            <label class="form-label">Satıcı Komisyonu (%)</label>
+            <input type="number" step="0.5" name="seller_commission" class="form-control" value="8.0" required>
+          </div>
+          <div>
+            <label class="form-label">Alıcı Primi (%)</label>
+            <input type="number" step="0.5" name="buyer_premium" class="form-control" value="12.0" required>
+          </div>
+          <div>
+            <button type="submit" class="btn-gold" style="white-space:nowrap; padding:10px 18px;">Kaydet</button>
+          </div>
+        </form>
+      </div>
+
       <div class="panel-card">
-        <h3 class="panel-title" style="margin-bottom:8px;">Sistem ayarları</h3>
-        <p style="font-size:0.88rem; color:#848d9a; margin-bottom:20px;">
-          Sunum amaçlı yönetim araçları.
+        <h3 class="panel-title" style="margin-bottom:8px;">Personel ve Yetkilendirme</h3>
+        <p style="font-size:0.88rem; color:#848d9a; margin-bottom:16px;">
+          Sisteme yeni Canlı Destek Temsilcisi veya Ekspertiz Uzmanı hesabı tanımlayın.
         </p>
         <button type="button" onclick="openDemoSupportModal()" class="btn-dark-pill" style="padding:10px 20px; font-size:0.85rem; cursor:pointer;">
           Demo destek temsilcisi ekle
@@ -625,19 +660,21 @@ $activeTab = $_GET['tab'] ?? 'konsol';
     <div style="color:#d4af37; font-size:0.72rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">MARTELLO • DEMO İŞLEM</div>
     <div style="font-family:var(--font-serif); font-size:1.45rem; font-weight:600; color:#fff; margin-bottom:18px;">Demo destek temsilcisi</div>
 
-    <form method="POST" onsubmit="event.preventDefault(); alert('Demo destek temsilcisi başarıyla kaydedildi.'); closeDemoSupportModal();">
+    <form method="POST">
+      <input type="hidden" name="action" value="create_staff">
+      <input type="hidden" name="rol" value="CANLI_DESTEK">
       <div class="form-group" style="margin-bottom:14px;">
         <label class="form-label" style="font-size:0.82rem; color:#f0f3f6;">Temsilci adı *</label>
-        <input type="text" class="form-control" placeholder="" required style="border-radius:8px; background:#10131b;">
+        <input type="text" name="ad" class="form-control" placeholder="Örn: Cansu Güneş" required style="border-radius:8px; background:#10131b;">
       </div>
 
       <div class="form-group" style="margin-bottom:14px;">
         <label class="form-label" style="font-size:0.82rem; color:#f0f3f6;">İş e-postası *</label>
-        <input type="email" class="form-control" placeholder="" required style="border-radius:8px; background:#10131b;">
+        <input type="email" name="email" class="form-control" placeholder="cansu@martello.com" required style="border-radius:8px; background:#10131b;">
       </div>
 
       <div style="font-size:0.75rem; color:#788394; margin-bottom:20px;">
-        Parola veya gerçek oturum hesabı oluşturulmaz.
+        Kayıt doğrudan sisteme işlenir ve Canlı Destek yetkisi tanımlanır.
       </div>
 
       <button type="submit" class="btn-gold-pill" style="width:100%; padding:12px; font-size:0.9rem; cursor:pointer;">
