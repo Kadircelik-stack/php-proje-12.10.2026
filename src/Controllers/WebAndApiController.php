@@ -136,8 +136,28 @@ class WebAndApiController
                 $res = $this->auctionService->closeLot($lotId);
                 return [
                     'type' => $res['success'] ? 'success' : 'warning',
-                    'text' => $res['message'],
+                    'text' => $res['message'] . " (Pey verme ve uzatma sayacı sıfırlandı)",
                 ];
+
+            case 'reset_anti_sniping':
+                $lotId = (int)($post['lot_id'] ?? 0);
+                $lot = $this->dataStore->getItem('lots', 'id', $lotId);
+                if ($lot) {
+                    $lot['antiSnipingSayaci'] = [
+                        'uzatmaSayisi'   => 0,
+                        'sonBitisZamani' => null,
+                        'uzatildiMi'     => false,
+                    ];
+                    $this->dataStore->updateItem('lots', 'id', $lotId, [
+                        'antiSnipingSayaci' => $lot['antiSnipingSayaci'],
+                    ]);
+                    $this->dataStore->commit();
+                    return [
+                        'type' => 'success',
+                        'text' => "Lot #{$lotId} pey verme ve uzatma sayacı başarıyla sıfırlandı.",
+                    ];
+                }
+                return ['type' => 'warning', 'text' => "Lot bulunamadı."];
 
             case 'toggle_watchlist':
                 $userId = (int)($post['user_id'] ?? 3);

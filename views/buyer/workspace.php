@@ -328,17 +328,20 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <div style="display:flex; gap:4px;">
                 <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25, 'standard')" title="Kademeli uzatma testi: İlk 2 basımda +30 sn, 3. ve sonrakilerde +10 sn">25sn Test</button>
                 <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(5, 'standard')" title="Otomatik sonlandırma testi: Sayacı 5 saniyeye ayarlar">5sn Test</button>
+                <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer; color:#f87171 !important; border-color:rgba(239,68,68,0.5);" onclick="setDemoTimer(0, 'standard')" title="İhaleyi hemen sonlandırır ve pey verme sayısını sıfırlar">0sn Bitir</button>
               </div>
             </div>
 
             <!-- Kademeli Anti-Sniping Bilgi ve Sayaç Durumu -->
             <?php 
-              $stdExtCount = (int)($currentLot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
+              $isAuctionEnded = (($currentLot['durum'] ?? '') !== 'ACIK_ARTIRMADA') || 
+                                (!empty($currentLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) <= time());
+              $stdExtCount = $isAuctionEnded ? 0 : (int)($currentLot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
               $nextExtSeconds = ($stdExtCount < 2) ? 30 : 10;
             ?>
             <div style="background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.2); border-radius:6px; padding:6px 10px; margin:8px 0 10px 0; font-size:0.74rem; display:flex; justify-content:space-between; align-items:center;">
               <span>⚡ Kural: <strong style="color:#d4af37;">1. & 2. basım +30sn</strong>, <strong style="color:#c5cbd3;">3.+ basım +10sn</strong></span>
-              <span>Uzatma Sayısı: <strong style="color:#3fb950;"><?= $stdExtCount ?></strong> (Sıradaki: <strong style="color:<?= ($nextExtSeconds === 30) ? '#3fb950' : '#e3b341' ?>;">+<?= $nextExtSeconds ?> sn</strong>)</span>
+              <span>Uzatma Sayısı: <strong id="standardExtCountBadge" style="color:#3fb950;"><?= $stdExtCount ?></strong> (Sıradaki: <strong id="standardNextExtBadge" style="color:<?= ($nextExtSeconds === 30) ? '#3fb950' : '#e3b341' ?>;">+<?= $nextExtSeconds ?> sn</strong>)</span>
             </div>
 
             <div id="standardAntiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px; align-items:center; gap:6px;">
@@ -701,19 +704,22 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <span class="live-countdown" id="vipCountdown" data-target="vip" data-seconds="<?= (!empty($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 43200 ?>">12 gün 04 saat</span>
               </div>
               <div style="display:flex; gap:4px;">
-                <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25, 'vip')" title="VIP kademeli uzatma testi (1. ve 2. basımda +30 sn, 3. ve sonrakilerde +10 sn)">VIP 25sn Test</button>
+                <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25, 'vip')" title="VIP kademeli uzatma testi (1. ve 2. basımda +30 sn, 3.+ basımda +10 sn)">VIP 25sn Test</button>
                 <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(5, 'vip')" title="VIP otomatik sonlandırma testi">VIP 5sn Test</button>
+                <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer; color:#f87171 !important; border-color:rgba(239,68,68,0.5);" onclick="setDemoTimer(0, 'vip')" title="VIP ihaleyi hemen sonlandırır ve pey sayısını sıfırlar">VIP 0sn Bitir</button>
               </div>
             </div>
 
             <!-- VIP Kademeli Anti-Sniping Bilgi ve Sayaç Durumu -->
             <?php 
-              $vipExtCount = (int)($currentVipLot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
+              $isVipEnded = (($currentVipLot['durum'] ?? '') !== 'ACIK_ARTIRMADA') || 
+                            (!empty($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) <= time());
+              $vipExtCount = $isVipEnded ? 0 : (int)($currentVipLot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
               $nextVipExtSeconds = ($vipExtCount < 2) ? 30 : 10;
             ?>
             <div style="background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.2); border-radius:6px; padding:6px 10px; margin:8px 0 10px 0; font-size:0.74rem; display:flex; justify-content:space-between; align-items:center;">
               <span>👑 VIP Kural: <strong style="color:#d4af37;">1. & 2. basım +30sn</strong>, <strong style="color:#c5cbd3;">3.+ basım +10sn</strong></span>
-              <span>Uzatma: <strong id="vipExtCountBadge" style="color:#3fb950;"><?= $vipExtCount ?></strong> (Sıradaki: <strong style="color:<?= ($nextVipExtSeconds === 30) ? '#3fb950' : '#e3b341' ?>;">+<?= $nextVipExtSeconds ?> sn</strong>)</span>
+              <span>Uzatma: <strong id="vipExtCountBadge" style="color:#3fb950;"><?= $vipExtCount ?></strong> (Sıradaki: <strong id="vipNextExtBadge" style="color:<?= ($nextVipExtSeconds === 30) ? '#3fb950' : '#e3b341' ?>;">+<?= $nextVipExtSeconds ?> sn</strong>)</span>
             </div>
 
             <div id="vipAntiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px; align-items:center; gap:6px;">

@@ -96,9 +96,11 @@ class AuctionEngineService
             if ($remainingSeconds !== null && $remainingSeconds <= 0) {
                 $this->dataStore->rollback();
                 $this->dataStore->unlock($lockKey);
+                // İhaleyi kapat ve pey verme sayacını sıfırla
+                $this->closeLot($lotId);
                 return [
                     'success' => false,
-                    'message' => "İhale süresi dolmuştur (0 sn). Son 30 saniyede yeni teklif gelmediği için müzayede tamamlanmıştır.",
+                    'message' => "İhale süresi dolmuştur (0 sn). Son 30 saniyede yeni teklif gelmediği için müzayede tamamlanmış ve pey sayacı sıfırlanmıştır.",
                 ];
             }
 
@@ -349,7 +351,19 @@ class AuctionEngineService
         if ($winnerId && $closingPrice >= $reservePrice) {
             $lot['durum'] = 'SATILDI';
             $lot['kalanSureMetni'] = 'Tamamlandı';
+
+            // İhale bittiğinde tutulan pey verme sayısını sıfırla
+            if (!isset($lot['antiSnipingSayaci']) || !is_array($lot['antiSnipingSayaci'])) {
+                $lot['antiSnipingSayaci'] = [];
+            }
+            $lot['antiSnipingSayaci']['uzatmaSayisi'] = 0;
+            $lot['antiSnipingSayaci']['sonBitisZamani'] = null;
+            if (isset($lot['antiSnipingSayaci']['uzatildiMi'])) {
+                $lot['antiSnipingSayaci']['uzatildiMi'] = false;
+            }
+
             $this->auctionRepo->saveLot($lot);
+            $this->dataStore->commit();
 
             // Gözlemcileri tetikle (OrderAndReminderObserver siparişi oluşturacak)
             $this->auctionSubject->notifyObservers('LOT_CLOSED', [
@@ -393,7 +407,19 @@ class AuctionEngineService
 
         $lot['durum'] = 'REZERVE_ULASILMADI';
         $lot['kalanSureMetni'] = 'Tamamlandı';
+
+        // İhale bittiğinde tutulan pey verme sayısını sıfırla
+        if (!isset($lot['antiSnipingSayaci']) || !is_array($lot['antiSnipingSayaci'])) {
+            $lot['antiSnipingSayaci'] = [];
+        }
+        $lot['antiSnipingSayaci']['uzatmaSayisi'] = 0;
+        $lot['antiSnipingSayaci']['sonBitisZamani'] = null;
+        if (isset($lot['antiSnipingSayaci']['uzatildiMi'])) {
+            $lot['antiSnipingSayaci']['uzatildiMi'] = false;
+        }
+
         $this->auctionRepo->saveLot($lot);
+        $this->dataStore->commit();
 
         return [
             'success' => false,

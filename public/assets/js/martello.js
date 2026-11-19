@@ -2,7 +2,7 @@
  * MARTELLO — İstemci Tarafı Gerçek Zamanlı Müzayede ve Sayaç Betiği (ZeroDay)
  * Kademeli Anti-Sniping Kuralı:
  * - Son 30 saniye içinde pey verilirse: ilk 2 basımda +30 sn, 3. ve sonraki tüm basımlarda +10 sn uzatılır.
- * - Son 30 saniyede yeni pey gelmezse ihale otomatik sonlandırılır.
+ * - Son 30 saniyede yeni pey gelmezse ihale otomatik sonlandırılır ve tutulan pey verme sayısı sıfırlanır.
  */
 document.addEventListener("DOMContentLoaded", function () {
   // Timer yapılandırma listesi
@@ -12,14 +12,22 @@ document.addEventListener("DOMContentLoaded", function () {
       el: document.getElementById("standardCountdown") || document.querySelector(".live-countdown:not(#vipCountdown)"),
       warning: document.getElementById("standardAntiSnipingWarning") || document.getElementById("antiSnipingWarning"),
       input: document.getElementById("standardRemainingSecondsInput") || document.getElementById("remainingSecondsInput"),
-      button: document.getElementById("standardBidSubmitBtn") || document.querySelector('#standardBidForm button[type="submit"]')
+      button: document.getElementById("standardBidSubmitBtn") || document.querySelector('#standardBidForm button[type="submit"]'),
+      lotId: document.querySelector('#standardBidForm input[name="lot_id"]')?.value || '1002',
+      badge: document.getElementById("standardExtCountBadge"),
+      nextBadge: document.getElementById("standardNextExtBadge"),
+      closedSent: false
     },
     {
       key: "vip",
       el: document.getElementById("vipCountdown"),
       warning: document.getElementById("vipAntiSnipingWarning"),
       input: document.getElementById("vipRemainingSecondsInput"),
-      button: document.getElementById("vipBidSubmitBtn") || document.querySelector('#vipBidForm button[type="submit"]')
+      button: document.getElementById("vipBidSubmitBtn") || document.querySelector('#vipBidForm button[type="submit"]'),
+      lotId: document.querySelector('#vipBidForm input[name="lot_id"]')?.value || '1005',
+      badge: document.getElementById("vipExtCountBadge"),
+      nextBadge: document.getElementById("vipNextExtBadge"),
+      closedSent: false
     }
   ];
 
@@ -39,6 +47,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (box) box.classList.remove("critical");
         if (cfg.input) cfg.input.value = "0";
 
+        // İhale bittiğinde tutulan pey verme sayısını sıfırla
+        if (cfg.badge) {
+          cfg.badge.textContent = "0";
+        }
+        if (cfg.nextBadge) {
+          cfg.nextBadge.textContent = "+30 sn";
+          cfg.nextBadge.style.color = "#3fb950";
+        }
+
         if (cfg.warning) {
           cfg.warning.style.display = "flex";
           cfg.warning.style.borderColor = "rgba(63, 185, 80, 0.4)";
@@ -46,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
           cfg.warning.style.color = "#3fb950";
           cfg.warning.innerHTML = `
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>İhale son 30 saniyede yeni pey gelmediği için başarıyla sonlandırılmıştır. En yüksek teklif sahibi eseri kazandı.</span>
+            <span>İhale son 30 saniyede yeni pey gelmediği için başarıyla sonlandırılmıştır. Tutulan pey verme ve uzatma sayısı sıfırlanmıştır.</span>
           `;
         }
 
@@ -56,6 +73,18 @@ document.addEventListener("DOMContentLoaded", function () {
           cfg.button.disabled = true;
           cfg.button.style.opacity = "0.5";
           cfg.button.style.cursor = "not-allowed";
+        }
+
+        // Sunucuda lotu kapat ve veritabanında pey sayacını sıfırla
+        if (cfg.lotId && !cfg.closedSent) {
+          cfg.closedSent = true;
+          const formData = new FormData();
+          formData.append("action", "close_lot");
+          formData.append("lot_id", cfg.lotId);
+          fetch("index.php", {
+            method: "POST",
+            body: formData
+          }).catch(() => {});
         }
         return;
       }
@@ -105,6 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
       set: (sec) => {
         remaining = parseInt(sec, 10);
         if (cfg.input) cfg.input.value = remaining;
+        cfg.closedSent = false;
         updateDisplay();
       },
       getRemaining: () => remaining
