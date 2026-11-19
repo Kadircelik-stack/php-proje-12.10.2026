@@ -5,7 +5,7 @@ namespace Martello\Patterns\Strategy\Bidding;
 
 /**
  * VipAuctionStrategy — VIP Müzayede Kural Stratejisi
- * SRS NFR-14 (VIP Yetki ve Tier Kontrolü) ve Özel VIP Artırım Kurallarını uygular.
+ * Kademeli Anti-Sniping ve VIP Tier Denetim Kurallarını uygular.
  */
 class VipAuctionStrategy implements IBiddingRuleStrategy
 {
@@ -49,24 +49,35 @@ class VipAuctionStrategy implements IBiddingRuleStrategy
         return $current + $step;
     }
 
+    /**
+     * VIP Kademeli Anti-Sniping Kuralı:
+     * Son 30 saniye içinde pey gelirse kademeli uzatma:
+     * - İlk 2 uzatmada: +30 sn
+     * - 3. ve sonrakilerde: +10 sn
+     */
     public function evaluateAntiSniping(array $lot, int $remainingSeconds): array
     {
-        $threshold = 60; // VIP oturumlarda son 60 saniye
+        $threshold = 30; // Son 30 saniye kritik eşiği
         if ($remainingSeconds > $threshold) {
             return [
                 'extended'            => false,
                 'additionalSeconds'   => 0,
                 'newRemainingSeconds' => $remainingSeconds,
-                'reason'              => "Süre normal aralıkta.",
+                'reason'              => "Süre normal aralıkta ({$remainingSeconds} sn > 30 sn).",
             ];
         }
 
-        $additional = 60; // VIP oturumlarda her seferinde +60 sn
+        $extensionCount = (int)($lot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
+        $additional = ($extensionCount < 2) ? 30 : 10;
+        $newRemaining = $remainingSeconds + $additional;
+        $extensionIndex = $extensionCount + 1;
+
         return [
             'extended'            => true,
             'additionalSeconds'   => $additional,
-            'newRemainingSeconds' => $remainingSeconds + $additional,
-            'reason'              => "VIP Anti-Sniping tetiklendi (+60 sn).",
+            'newRemainingSeconds' => $newRemaining,
+            'extensionNumber'     => $extensionIndex,
+            'reason'              => "VIP Kademeli Anti-Sniping tetiklendi (+{$additional} sn, {$extensionIndex}. uzatma).",
         ];
     }
 

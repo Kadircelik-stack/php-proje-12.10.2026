@@ -325,12 +325,12 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <span class="live-countdown" data-seconds="<?= (!empty($currentLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 19320 ?>">5 saat 23 dakika</span>
               </div>
-              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(45)" title="Jüriye göstermek için sayacı son 45 saniyeye ayarlar">45sn Test</button>
+              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25)" title="Kademeli uzatma kuralı için sayacı son 25 saniyeye ayarlar">25sn Test</button>
             </div>
 
             <div id="antiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px; align-items:center; gap:6px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <span>Son 1 dakika! Bu süre içinde pey verilirse süre 1 dakika uzatılacaktır.</span>
+              <span>Son 30 saniye! Pey verilirse süre kademeli uzatılacaktır (İlk 2 uzatmada +30 sn, 3. ve sonrakilerde +10 sn). Pey gelmezse ihale sonlanacaktır.</span>
             </div>
 
             <!-- Pey Ver Formu -->
@@ -687,12 +687,12 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <span class="live-countdown" data-seconds="<?= (!empty($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 43200 ?>">12 gün 04 saat</span>
               </div>
-              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(45)" title="Anti-sniping tetiklemesi için süreyi son 45 saniyeye ayarlar">VIP 45sn Test</button>
+              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25)" title="Kademeli uzatma kuralı için sayacı son 25 saniyeye ayarlar">VIP 25sn Test</button>
             </div>
 
             <!-- VIP Kurallar Bilgi Notu -->
             <div style="background:rgba(255,255,255,0.03); border:1px solid #232b3b; border-radius:6px; padding:8px 10px; font-size:0.74rem; color:#8b949e; margin-bottom:14px; line-height:1.4;">
-              ⚡ <strong style="color:#ddd;">VIP Müzayede Kuralı (SRS NFR-14):</strong> Asgari artırım adımı <strong><?= $formatPrice((float)($currentVipLot['minimumArtisTutari'] ?? 10000)) ?></strong>. Son 60 sn içinde pey verilirse süre +60 sn uzatılır.
+              ⚡ <strong style="color:#ddd;">VIP Müzayede Kuralı (SRS NFR-14):</strong> Asgari artırım adımı <strong><?= $formatPrice((float)($currentVipLot['minimumArtisTutari'] ?? 10000)) ?></strong>. Son 30 sn içinde pey verilirse süre kademeli uzatılır: İlk 2 uzatmada +30 sn, 3. ve sonrakilerde +10 sn. Son 30 sn içinde pey gelmezse ihale sonlandırılır.
             </div>
 
             <!-- VIP Pey Ver Formu -->

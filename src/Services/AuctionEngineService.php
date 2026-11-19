@@ -204,7 +204,8 @@ class AuctionEngineService
 
             $snipNotice = "";
             if ($antiSnipInfo && $antiSnipInfo['extended']) {
-                $snipNotice = " ⏳ (Anti-Sniping: Son 1 dakika içinde pey verildiğinden süre 1 dakika uzatıldı!)";
+                $extNum = $antiSnipInfo['extensionNumber'] ?? ($lot['antiSnipingSayaci']['uzatmaSayisi'] ?? 1);
+                $snipNotice = " ⏳ (Kademeli Anti-Sniping: Son 30 saniye içinde pey verildiğinden süre +{$antiSnipInfo['additionalSeconds']} saniye uzatıldı! [{$extNum}. uzatma])";
             }
 
             return [

@@ -5,7 +5,11 @@ namespace Martello\Patterns\Strategy\Bidding;
 
 /**
  * LiveAuctionStrategy — Canlı Müzayede Kural Stratejisi
- * SRS FR-13, FR-32, FR-33, NFR-23 kurallarını uygular.
+ * Kademeli Anti-Sniping Kuralı:
+ * Son 30 saniye içinde pey gelirse süre kademeli olarak uzatılır:
+ * - İlk 2 uzatmada: +30 saniye
+ * - 3. ve sonrakilerde: +10 saniye
+ * Son 30 saniyede yeni pey gelmezse ihale sonlandırılır.
  */
 class LiveAuctionStrategy implements IBiddingRuleStrategy
 {
@@ -47,30 +51,37 @@ class LiveAuctionStrategy implements IBiddingRuleStrategy
     }
 
     /**
-     * Anti-Sniping Kuralı (FR-33 & NFR-23):
-     * Pey başına süre uzatılmaz.
-     * SADECE son 1 dakika (60 saniye) içinde verilen peyler süreyi 1 dakika (+60 saniye) uzatır.
+     * Kademeli Anti-Sniping Kuralı:
+     * - Son 30 saniye kritik eşiği
+     * - İlk 2 uzatmada +30 sn
+     * - 3. ve sonrakilerde +10 sn
      */
     public function evaluateAntiSniping(array $lot, int $remainingSeconds): array
     {
-        $threshold = 60; // Son 1 dakika (60 saniye) eşiği
+        $threshold = 30; // Son 30 saniye kritik eşiği
         if ($remainingSeconds > $threshold) {
             return [
                 'extended'            => false,
                 'additionalSeconds'   => 0,
                 'newRemainingSeconds' => $remainingSeconds,
-                'reason'              => "Kalan süre 1 dakikadan fazla ({$remainingSeconds} sn) olduğundan süre uzatılmadı (Pey başına süre uzamaz).",
+                'reason'              => "Kalan süre 30 saniyeden fazla ({$remainingSeconds} sn) olduğundan süre uzatılmadı.",
             ];
         }
 
-        $additional = 60; // Son 1 dakika kala pey verilirse süreyi 1 dakika (+60 sn) uzat
+        // Mevcut uzatma sayacı (Kaçıncı kez uzatılıyor?)
+        $extensionCount = (int)($lot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
+
+        // Kademeli kural: İlk 2 uzatmada +30 sn, 3. ve sonrakilerde +10 sn
+        $additional = ($extensionCount < 2) ? 30 : 10;
         $newRemaining = $remainingSeconds + $additional;
+        $extensionIndex = $extensionCount + 1;
 
         return [
             'extended'            => true,
             'additionalSeconds'   => $additional,
             'newRemainingSeconds' => $newRemaining,
-            'reason'              => "Son 1 dakika içinde pey verildiğinden süre 1 dakika (+60 sn) uzatıldı.",
+            'extensionNumber'     => $extensionIndex,
+            'reason'              => "Son 30 saniye içinde pey verildiğinden süre kademeli olarak +{$additional} sn uzatıldı ({$extensionIndex}. uzatma).",
         ];
     }
 

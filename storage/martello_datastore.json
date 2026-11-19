@@ -290,7 +290,7 @@
             "kullaniciId": 3,
             "paraBirimi": "TRY",
             "bakiye": 120000,
-            "blokeBakiye": 2796000,
+            "blokeBakiye": 2904000,
             "aktifBlokeler": [
                 {
                     "blokeId": "BLK-2026-9001",
@@ -302,7 +302,7 @@
                     "olusturmaZamani": "2026-10-12T21:15:30+03:00"
                 }
             ],
-            "sonGuncelleme": "2026-11-18T20:18:24+00:00"
+            "sonGuncelleme": "2026-11-19T08:20:21+00:00"
         },
         {
             "id": 104,
@@ -327,9 +327,9 @@
             "kullaniciId": 6,
             "paraBirimi": "TRY",
             "bakiye": 110000,
-            "blokeBakiye": 150000,
+            "blokeBakiye": 43500,
             "aktifBlokeler": [],
-            "sonGuncelleme": "2026-11-18T20:18:24+00:00"
+            "sonGuncelleme": "2026-11-19T08:20:21+00:00"
         },
         {
             "kullaniciId": 7,
@@ -834,15 +834,15 @@
             "paraBirimi": "TRY",
             "baslangicFiyati": 32000,
             "rezervFiyat": 40000,
-            "mevcutEnYuksekTeklif": 106500,
+            "mevcutEnYuksekTeklif": 108000,
             "minimumArtisTutari": 1500,
-            "liderAliciId": 6,
-            "liderAnonimKod": "damror0ki",
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "00:01:42",
+            "kalanSureMetni": "00:00:35",
             "antiSnipingSayaci": {
-                "uzatmaSayisi": 3,
-                "sonBitisZamani": "2026-11-18T20:16:28+00:00"
+                "uzatmaSayisi": 4,
+                "sonBitisZamani": "2026-11-19T08:20:56+00:00"
             },
             "gorselUrl": "public/assets/images/watch.jpg"
         },
@@ -1892,6 +1892,20 @@
             "durum": "GECERLI",
             "blokeIslemId": "TX-ESCROW-825C2BA352C5",
             "id": 9059
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 108000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-19T08:20:21+00:00",
+            "saatEtiketi": "08:20:21",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-11D47FE1EBCE",
+            "id": 9060
         }
     ],
     "proxyBids": [
