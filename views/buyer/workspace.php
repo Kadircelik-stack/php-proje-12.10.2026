@@ -323,22 +323,35 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <div class="bid-timer-text" style="display:flex; align-items:center; justify-content:space-between;">
               <div style="display:flex; align-items:center; gap:6px;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span class="live-countdown" data-seconds="<?= (!empty($currentLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 19320 ?>">5 saat 23 dakika</span>
+                <span class="live-countdown" id="standardCountdown" data-target="standard" data-seconds="<?= (!empty($currentLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 19320 ?>">5 saat 23 dakika</span>
               </div>
-              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25)" title="Kademeli uzatma kuralı için sayacı son 25 saniyeye ayarlar">25sn Test</button>
+              <div style="display:flex; gap:4px;">
+                <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25, 'standard')" title="Kademeli uzatma testi: İlk 2 basımda +30 sn, 3. ve sonrakilerde +10 sn">25sn Test</button>
+                <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(5, 'standard')" title="Otomatik sonlandırma testi: Sayacı 5 saniyeye ayarlar">5sn Test</button>
+              </div>
             </div>
 
-            <div id="antiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px; align-items:center; gap:6px;">
+            <!-- Kademeli Anti-Sniping Bilgi ve Sayaç Durumu -->
+            <?php 
+              $stdExtCount = (int)($currentLot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
+              $nextExtSeconds = ($stdExtCount < 2) ? 30 : 10;
+            ?>
+            <div style="background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.2); border-radius:6px; padding:6px 10px; margin:8px 0 10px 0; font-size:0.74rem; display:flex; justify-content:space-between; align-items:center;">
+              <span>⚡ Kural: <strong style="color:#d4af37;">1. & 2. basım +30sn</strong>, <strong style="color:#c5cbd3;">3.+ basım +10sn</strong></span>
+              <span>Uzatma Sayısı: <strong style="color:#3fb950;"><?= $stdExtCount ?></strong> (Sıradaki: <strong style="color:<?= ($nextExtSeconds === 30) ? '#3fb950' : '#e3b341' ?>;">+<?= $nextExtSeconds ?> sn</strong>)</span>
+            </div>
+
+            <div id="standardAntiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px; align-items:center; gap:6px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <span>Son 30 saniye! Pey verilirse süre kademeli uzatılacaktır (İlk 2 uzatmada +30 sn, 3. ve sonrakilerde +10 sn). Pey gelmezse ihale sonlanacaktır.</span>
+              <span>Son 30 saniye! Pey verilirse süre kademeli uzatılacaktır (İlk 2 basımda +30 sn, 3. ve sonrakilerde +10 sn). Pey gelmezse ihale sonlanacaktır.</span>
             </div>
 
             <!-- Pey Ver Formu -->
-            <form method="POST">
+            <form method="POST" id="standardBidForm">
               <input type="hidden" name="action" value="place_bid">
               <input type="hidden" name="lot_id" value="<?= $currentLot['id'] ?>">
               <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-              <input type="hidden" id="remainingSecondsInput" name="remaining_seconds" value="19320">
+              <input type="hidden" id="standardRemainingSecondsInput" name="remaining_seconds" value="<?= (!empty($currentLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 19320 ?>">
 
               <div class="form-group" style="margin-bottom:12px;">
                 <label class="form-label">Teklifiniz (Asgari: <?= $formatPrice($minNextBid) ?>)</label>
@@ -350,7 +363,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="3000" onclick="const bi=document.getElementById('bidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+3000;">+3.000</button>
               </div>
 
-              <button type="submit" class="btn-register-glow">
+              <button type="submit" id="standardBidSubmitBtn" class="btn-register-glow">
                 Pey Ver
               </button>
             </form>
@@ -685,22 +698,40 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <div class="bid-timer-text" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
               <div style="display:flex; align-items:center; gap:6px;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span class="live-countdown" data-seconds="<?= (!empty($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 43200 ?>">12 gün 04 saat</span>
+                <span class="live-countdown" id="vipCountdown" data-target="vip" data-seconds="<?= (!empty($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 43200 ?>">12 gün 04 saat</span>
               </div>
-              <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25)" title="Kademeli uzatma kuralı için sayacı son 25 saniyeye ayarlar">VIP 25sn Test</button>
+              <div style="display:flex; gap:4px;">
+                <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(25, 'vip')" title="VIP kademeli uzatma testi (1. ve 2. basımda +30 sn, 3. ve sonrakilerde +10 sn)">VIP 25sn Test</button>
+                <button type="button" class="btn-outline-gold" style="font-size:0.7rem; padding:3px 8px; border-radius:4px; cursor:pointer;" onclick="setDemoTimer(5, 'vip')" title="VIP otomatik sonlandırma testi">VIP 5sn Test</button>
+              </div>
+            </div>
+
+            <!-- VIP Kademeli Anti-Sniping Bilgi ve Sayaç Durumu -->
+            <?php 
+              $vipExtCount = (int)($currentVipLot['antiSnipingSayaci']['uzatmaSayisi'] ?? 0);
+              $nextVipExtSeconds = ($vipExtCount < 2) ? 30 : 10;
+            ?>
+            <div style="background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.2); border-radius:6px; padding:6px 10px; margin:8px 0 10px 0; font-size:0.74rem; display:flex; justify-content:space-between; align-items:center;">
+              <span>👑 VIP Kural: <strong style="color:#d4af37;">1. & 2. basım +30sn</strong>, <strong style="color:#c5cbd3;">3.+ basım +10sn</strong></span>
+              <span>Uzatma: <strong id="vipExtCountBadge" style="color:#3fb950;"><?= $vipExtCount ?></strong> (Sıradaki: <strong style="color:<?= ($nextVipExtSeconds === 30) ? '#3fb950' : '#e3b341' ?>;">+<?= $nextVipExtSeconds ?> sn</strong>)</span>
+            </div>
+
+            <div id="vipAntiSnipingWarning" style="display:none; color:#f87171; font-size:0.78rem; margin:8px 0 12px 0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:6px 10px; border-radius:6px; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span>Son 30 saniye! VIP pey verilirse süre kademeli uzatılacaktır (İlk 2 basımda +30 sn, 3. ve sonrakilerde +10 sn). Pey gelmezse ihale sonlanacaktır.</span>
             </div>
 
             <!-- VIP Kurallar Bilgi Notu -->
             <div style="background:rgba(255,255,255,0.03); border:1px solid #232b3b; border-radius:6px; padding:8px 10px; font-size:0.74rem; color:#8b949e; margin-bottom:14px; line-height:1.4;">
-              ⚡ <strong style="color:#ddd;">VIP Müzayede Kuralı (SRS NFR-14):</strong> Asgari artırım adımı <strong><?= $formatPrice((float)($currentVipLot['minimumArtisTutari'] ?? 10000)) ?></strong>. Son 30 sn içinde pey verilirse süre kademeli uzatılır: İlk 2 uzatmada +30 sn, 3. ve sonrakilerde +10 sn. Son 30 sn içinde pey gelmezse ihale sonlandırılır.
+              ⚡ <strong style="color:#ddd;">VIP Müzayede Kuralı (SRS NFR-14):</strong> Asgari artırım adımı <strong><?= $formatPrice((float)($currentVipLot['minimumArtisTutari'] ?? 10000)) ?></strong>. Son 30 sn içinde pey verilirse kademeli uzatma: İlk 2 basımda +30 sn, 3. ve sonrakilerde +10 sn. Son 30 sn içinde yeni pey gelmezse ihale sonlandırılır.
             </div>
 
             <!-- VIP Pey Ver Formu -->
-            <form method="POST">
+            <form method="POST" id="vipBidForm">
               <input type="hidden" name="action" value="place_bid">
               <input type="hidden" name="lot_id" value="<?= $currentVipLot['id'] ?>">
               <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-              <input type="hidden" id="remainingSecondsInput" name="remaining_seconds" value="43200">
+              <input type="hidden" id="vipRemainingSecondsInput" name="remaining_seconds" value="<?= (!empty($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) && strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) > time()) ? (strtotime($currentVipLot['antiSnipingSayaci']['sonBitisZamani']) - time()) : 43200 ?>">
 
               <div class="form-group" style="margin-bottom:12px;">
                 <label class="form-label" style="color:#c5cbd3;">Teklifiniz (Asgari: <?= $formatPrice($minNextVipBid) ?>)</label>
@@ -714,7 +745,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <button type="button" class="btn-outline-gold btn-sm" onclick="const bi=document.getElementById('vipBidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+100000;">+100.000</button>
               </div>
 
-              <button type="submit" class="btn-register-glow" style="font-size:1rem; padding:12px;">
+              <button type="submit" id="vipBidSubmitBtn" class="btn-register-glow" style="font-size:1rem; padding:12px;">
                 👑 VIP Resmi Pey Ver
               </button>
             </form>

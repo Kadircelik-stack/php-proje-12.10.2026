@@ -58,12 +58,12 @@ class VipAuctionStrategy implements IBiddingRuleStrategy
     public function evaluateAntiSniping(array $lot, int $remainingSeconds): array
     {
         $threshold = 30; // Son 30 saniye kritik eşiği
-        if ($remainingSeconds > $threshold) {
+        if ($remainingSeconds > $threshold || $remainingSeconds <= 0) {
             return [
                 'extended'            => false,
                 'additionalSeconds'   => 0,
                 'newRemainingSeconds' => $remainingSeconds,
-                'reason'              => "Süre normal aralıkta ({$remainingSeconds} sn > 30 sn).",
+                'reason'              => "Süre normal aralıkta veya süre bitmiş ({$remainingSeconds} sn).",
             ];
         }
 

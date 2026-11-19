@@ -59,12 +59,12 @@ class LiveAuctionStrategy implements IBiddingRuleStrategy
     public function evaluateAntiSniping(array $lot, int $remainingSeconds): array
     {
         $threshold = 30; // Son 30 saniye kritik eşiği
-        if ($remainingSeconds > $threshold) {
+        if ($remainingSeconds > $threshold || $remainingSeconds <= 0) {
             return [
                 'extended'            => false,
                 'additionalSeconds'   => 0,
                 'newRemainingSeconds' => $remainingSeconds,
-                'reason'              => "Kalan süre 30 saniyeden fazla ({$remainingSeconds} sn) olduğundan süre uzatılmadı.",
+                'reason'              => "Kalan süre 30 saniyeden fazla ({$remainingSeconds} sn) veya süre bitmiş olduğundan süre uzatılmadı.",
             ];
         }
 

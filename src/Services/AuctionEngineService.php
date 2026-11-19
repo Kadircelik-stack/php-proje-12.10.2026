@@ -92,6 +92,16 @@ class AuctionEngineService
                 return ['success' => false, 'message' => "Hesabınız askıya alınmıştır. Teklif veremezsiniz."];
             }
 
+            // Süre dolmuşsa pey kabul edilmez (Son 30 saniyede yeni pey gelmediğinde sonlandırma)
+            if ($remainingSeconds !== null && $remainingSeconds <= 0) {
+                $this->dataStore->rollback();
+                $this->dataStore->unlock($lockKey);
+                return [
+                    'success' => false,
+                    'message' => "İhale süresi dolmuştur (0 sn). Son 30 saniyede yeni teklif gelmediği için müzayede tamamlanmıştır.",
+                ];
+            }
+
             // 1. Kural Denetimi (Strategy)
             $activeStrategy = $this->getStrategyForLot($lot);
             $ruleValidation = $activeStrategy->validateBid($lot, $amount, $user);
@@ -205,7 +215,8 @@ class AuctionEngineService
             $snipNotice = "";
             if ($antiSnipInfo && $antiSnipInfo['extended']) {
                 $extNum = $antiSnipInfo['extensionNumber'] ?? ($lot['antiSnipingSayaci']['uzatmaSayisi'] ?? 1);
-                $snipNotice = " ⏳ (Kademeli Anti-Sniping: Son 30 saniye içinde pey verildiğinden süre +{$antiSnipInfo['additionalSeconds']} saniye uzatıldı! [{$extNum}. uzatma])";
+                $nextInfo = ($extNum < 2) ? " (Sıradaki 2. basım da +30 sn)" : (($extNum === 2) ? " (Sıradaki 3. basım +10 sn olacak)" : " (Sonraki basımlar +10 sn)");
+                $snipNotice = " ⏳ (Kademeli Anti-Sniping: Son 30 saniyede pey verildi! {$extNum}. basım: Süre +{$antiSnipInfo['additionalSeconds']} saniye uzatıldı!{$nextInfo})";
             }
 
             return [
