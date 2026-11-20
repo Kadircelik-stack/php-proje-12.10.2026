@@ -70,6 +70,12 @@ foreach ($products as $p) {
             <span>Emanet & Teminat Bloke</span>
           </button>
         </li>
+        <li class="nav-menu-item <?= $activeTab === 'denetim' ? 'active' : '' ?>">
+          <button type="button" data-tab="denetim" onclick="switchAdminTab('denetim', this)" style="display:flex; align-items:center; gap:6px; font-weight:600; color:#38bdf8;">
+            <span>📜</span>
+            <span>Denetim İzi & Log İnceleme</span>
+          </button>
+        </li>
 
         <li class="nav-menu-item <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
           <button type="button" data-tab="moderasyon" onclick="switchAdminTab('moderasyon', this)">
@@ -112,12 +118,6 @@ foreach ($products as $p) {
         <li class="nav-menu-item <?= $activeTab === 'yetkiler' ? 'active' : '' ?>">
           <button type="button" data-tab="yetkiler" onclick="switchAdminTab('yetkiler', this)">
             Rol & Yetki Yönetimi (RBAC)
-          </button>
-        </li>
-        <li class="nav-menu-item <?= $activeTab === 'denetim' ? 'active' : '' ?>">
-          <button type="button" data-tab="denetim" onclick="switchAdminTab('denetim', this)" style="display:flex; align-items:center; gap:6px; font-weight:600; color:#38bdf8;">
-            <span>📜</span>
-            <span>Denetim İzi & Log İnceleme</span>
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
@@ -2003,6 +2003,319 @@ foreach ($products as $p) {
     </script>
 
 
+    <!-- ====================================================================
+         9. TAB: ZAMAN DAMGALI KRİTİK İŞLEM KAYITLARI & DENETİM İZİ İNCELEME MASASI
+         SRS: "Sistemdeki tüm kritik kullanıcı, admin, teklif, ekspertiz ve finansal
+               işlem kayıtlarının (log) zaman damgalı olarak tutulması ve incelenmesidir."
+         ==================================================================== -->
+    <div id="admTab_denetim" class="tab-content <?= $activeTab === 'denetim' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / ZAMAN DAMGALI DENETİM İZİ & LOG İNCELEME</div>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <h1 class="page-heading" style="margin-bottom:6px;">
+            📜 Zaman Damgalı Kritik İşlem Kayıtları & Denetim İzi İnceleme Masası
+          </h1>
+          <p class="page-subheading" style="margin:0; line-height:1.5;">
+            ⚡ "Sistemdeki tüm kritik kullanıcı, admin, teklif, ekspertiz ve finansal işlem kayıtlarının (log) zaman damgalı olarak tutulması ve incelenmesidir."
+          </p>
+        </div>
+        <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.5rem;">🔒</span>
+          <div>
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#38bdf8; font-weight:700;">SHA-256 NOTER TASDİKLİ KRİPTOGRAFİK MÜHÜR</div>
+            <div style="font-size:0.8rem; color:#e2e8f0;">Tüm loglar adli bilişim standartlarında değişmez olarak saklanır.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Temel Kategori KPI Kartları (The 5 Critical Pillars) -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(5, 1fr); gap:14px; margin-bottom:22px;">
+        <!-- 1. KULLANICI -->
+        <div class="kpi-card" style="border-left: 4px solid #60a5fa; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>👤</span>
+            <span style="font-size:0.75rem;">1. KULLANICI İŞLEMLERİ</span>
+          </div>
+          <div class="kpi-value" style="color:#60a5fa; font-size:1.5rem; margin:6px 0;">
+            <?= (int)($auditLogStats['kullaniciCount'] ?? 0) ?>
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            KYC, Kayıt, Şifre, Kısıtlama
+          </div>
+        </div>
+
+        <!-- 2. ADMIN -->
+        <div class="kpi-card" style="border-left: 4px solid #c084fc; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>🛡️</span>
+            <span style="font-size:0.75rem;">2. ADMIN & YETKİ</span>
+          </div>
+          <div class="kpi-value" style="color:#c084fc; font-size:1.5rem; margin:6px 0;">
+            <?= (int)($auditLogStats['adminCount'] ?? 0) ?>
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            RBAC, İhale, Komisyon, Parametre
+          </div>
+        </div>
+
+        <!-- 3. TEKLİF -->
+        <div class="kpi-card" style="border-left: 4px solid #f87171; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>🔨</span>
+            <span style="font-size:0.75rem;">3. TEKLİF & PEY</span>
+          </div>
+          <div class="kpi-value" style="color:#f87171; font-size:1.5rem; margin:6px 0;">
+            <?= (int)($auditLogStats['teklifCount'] ?? 0) ?>
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            Canlı/VIP Pey, Otomatik, İptal
+          </div>
+        </div>
+
+        <!-- 4. EKSPERTİZ -->
+        <div class="kpi-card" style="border-left: 4px solid #38bdf8; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>📑</span>
+            <span style="font-size:0.75rem;">4. EKSPERTİZ & HEYET</span>
+          </div>
+          <div class="kpi-value" style="color:#38bdf8; font-size:1.5rem; margin:6px 0;">
+            <?= (int)($auditLogStats['ekspertizCount'] ?? 0) ?>
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            Atama, Rapor, Akreditasyon, Not
+          </div>
+        </div>
+
+        <!-- 5. FİNANSAL -->
+        <div class="kpi-card" style="border-left: 4px solid #34d399; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>💰</span>
+            <span style="font-size:0.75rem;">5. FİNANS & ESCROW</span>
+          </div>
+          <div class="kpi-value" style="color:#34d399; font-size:1.5rem; margin:6px 0;">
+            <?= (int)($auditLogStats['finansalCount'] ?? 0) ?>
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            Teminat, Bloke, Hakediş, İade
+          </div>
+        </div>
+      </div>
+
+      <!-- Kriptografik Denetim Protokolü Bilgilendirme Kutusu -->
+      <div class="panel-card" style="margin-bottom:22px; border:1px solid #1e293b; background:#0f172a; padding:16px 20px; border-radius:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:1.3rem;">🛡️</span>
+            <div>
+              <strong style="color:#38bdf8; font-size:0.86rem;">Tam Denetlenebilirlik & Adli Bilişim Standartları:</strong>
+              <span style="color:#94a3b8; font-size:0.8rem; display:block; margin-top:2px;">
+                Platformdaki her işlem; zaman damgası (ISO 8601), işlemi yapan IP, aktör kimliği, önceki/yeni durum verisi ve SHA-256 bütünlük özetiyle mühürlenir.
+              </span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="badge" style="background:#064e3b; color:#86efac; border:1px solid #16a34a; font-size:0.75rem; padding:5px 12px;">
+              ✓ Bütünlük Doğrulandı (%100 Geçerli)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtreleme ve Arama Çubuğu (Interactive Toolbar) -->
+      <div class="panel-card" style="padding:0; overflow:hidden;">
+        <div style="padding:16px 20px; border-bottom:1px solid #1f2736; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; background:#0e131d;">
+          <!-- Kategori Filtre Butonları -->
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn active" onclick="filterAuditLogs('ALL', null, this)" style="padding:6px 12px; font-size:0.78rem;">
+              Tümü (<?= (int)($auditLogStats['totalCount'] ?? 0) ?>)
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('KULLANICI', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#60a5fa;">
+              👤 Kullanıcı (<?= (int)($auditLogStats['kullaniciCount'] ?? 0) ?>)
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('ADMIN', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#c084fc;">
+              🛡️ Admin (<?= (int)($auditLogStats['adminCount'] ?? 0) ?>)
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('TEKLIF', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#f87171;">
+              🔨 Teklif (<?= (int)($auditLogStats['teklifCount'] ?? 0) ?>)
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('EKSPERTIZ', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#38bdf8;">
+              📑 Ekspertiz (<?= (int)($auditLogStats['ekspertizCount'] ?? 0) ?>)
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('FINANSAL', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#34d399;">
+              💰 Finansal (<?= (int)($auditLogStats['finansalCount'] ?? 0) ?>)
+            </button>
+          </div>
+
+          <!-- Canlı Arama Inputu -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="text" id="auditSearchInput" onkeyup="searchAuditLogs(this.value)" placeholder="Log no, kullanıcı, IP, işlem ara..." style="background:#141a26; border:1px solid #28354a; border-radius:6px; padding:6px 14px; font-size:0.8rem; color:#fff; width:260px;">
+          </div>
+        </div>
+
+        <!-- Zaman Damgalı Log Kütüğü Tablosu -->
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="width:100%; border-collapse:collapse; margin:0;" id="auditTable">
+            <thead>
+              <tr style="background:#090d14; border-bottom:1px solid #1f2736; color:#94a3b8; font-size:0.76rem; text-transform:uppercase;">
+                <th style="padding:12px 16px;">Tarih & Zaman Damgası</th>
+                <th style="padding:12px 16px;">Log Kodu & Mühür</th>
+                <th style="padding:12px 16px;">Kategori & İşlem</th>
+                <th style="padding:12px 16px;">İşlemi Yapan (Aktör)</th>
+                <th style="padding:12px 16px;">Hedef Varlık</th>
+                <th style="padding:12px 16px;">Açıklama & Durum Değişimi</th>
+                <th style="padding:12px 16px; text-align:center;">IP & Düzey</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($auditLogList as $log): 
+                $cat = strtoupper($log['kategori'] ?? 'ADMIN');
+                $sev = strtoupper($log['seviye'] ?? 'INFO');
+                $catColor = '#c084fc';
+                $catBadgeBg = 'rgba(192,132,252,0.15)';
+                $catBorder = 'rgba(192,132,252,0.3)';
+                if ($cat === 'KULLANICI') {
+                  $catColor = '#60a5fa'; $catBadgeBg = 'rgba(96,165,250,0.15)'; $catBorder = 'rgba(96,165,250,0.3)';
+                } elseif ($cat === 'TEKLIF') {
+                  $catColor = '#f87171'; $catBadgeBg = 'rgba(248,113,113,0.15)'; $catBorder = 'rgba(248,113,113,0.3)';
+                } elseif ($cat === 'EKSPERTIZ') {
+                  $catColor = '#38bdf8'; $catBadgeBg = 'rgba(56,189,248,0.15)'; $catBorder = 'rgba(56,189,248,0.3)';
+                } elseif ($cat === 'FINANSAL') {
+                  $catColor = '#34d399'; $catBadgeBg = 'rgba(52,211,153,0.15)'; $catBorder = 'rgba(52,211,153,0.3)';
+                }
+              ?>
+                <tr class="audit-row" data-cat="<?= htmlspecialchars($cat) ?>" data-sev="<?= htmlspecialchars($sev) ?>" style="border-bottom:1px solid #161e2c; font-size:0.82rem;">
+                  <!-- Tarih & Zaman Damgası -->
+                  <td style="padding:12px 16px; white-space:nowrap;">
+                    <div style="font-weight:600; color:#fff; font-family:monospace; font-size:0.83rem;">
+                      <?= htmlspecialchars($log['saatEtiketi'] ?? (substr($log['tarih'] ?? '', 0, 19))) ?>
+                    </div>
+                    <div style="font-size:0.68rem; color:#64748b; margin-top:2px;">
+                      ISO: <?= htmlspecialchars(substr($log['tarih'] ?? '', 0, 19)) ?>
+                    </div>
+                  </td>
+
+                  <!-- Log Kodu & Mühür -->
+                  <td style="padding:12px 16px; white-space:nowrap;">
+                    <div style="font-weight:700; color:#d4af37; font-family:'Cinzel', serif;">
+                      <?= htmlspecialchars($log['logKodu'] ?? ('LOG-' . $log['id'])) ?>
+                    </div>
+                    <div style="font-size:0.68rem; color:#64748b; font-family:monospace; margin-top:2px;">
+                      SHA: <?= htmlspecialchars($log['guvenlikOzeti'] ?? 'VALID-SEC') ?>
+                    </div>
+                  </td>
+
+                  <!-- Kategori & İşlem Türü -->
+                  <td style="padding:12px 16px;">
+                    <span class="badge" style="background:<?= $catBadgeBg ?>; color:<?= $catColor ?>; border:1px solid <?= $catBorder ?>; font-size:0.7rem; padding:3px 8px; display:inline-block; margin-bottom:3px;">
+                      <?= htmlspecialchars($cat) ?>
+                    </span>
+                    <div style="font-weight:600; color:#e2e8f0; font-size:0.77rem;">
+                      <?= htmlspecialchars($log['islemTuru'] ?? 'ISLEM') ?>
+                    </div>
+                  </td>
+
+                  <!-- İşlemi Yapan -->
+                  <td style="padding:12px 16px;">
+                    <div style="font-weight:600; color:#fff;">
+                      <?= htmlspecialchars($log['kullaniciAd'] ?? ('Kullanıcı #' . ($log['kullaniciId'] ?? '1'))) ?>
+                    </div>
+                    <div style="font-size:0.7rem; color:#94a3b8;">
+                      Rol: <span style="color:#d4af37; font-weight:500;"><?= htmlspecialchars($log['rol'] ?? 'ADMIN') ?></span> (#<?= (int)($log['kullaniciId'] ?? 1) ?>)
+                    </div>
+                  </td>
+
+                  <!-- Hedef Varlık -->
+                  <td style="padding:12px 16px; white-space:nowrap;">
+                    <?php if (!empty($log['hedefTur'])): ?>
+                      <span style="font-size:0.75rem; color:#cbd5e1; background:#161f2c; border:1px solid #28354a; border-radius:4px; padding:2px 6px;">
+                        <?= htmlspecialchars($log['hedefTur']) ?> #<?= htmlspecialchars((string)($log['hedefId'] ?? '')) ?>
+                      </span>
+                    <?php else: ?>
+                      <span style="color:#64748b; font-size:0.75rem;">Sistem</span>
+                    <?php endif; ?>
+                  </td>
+
+                  <!-- Açıklama & Durum Değişimi -->
+                  <td style="padding:12px 16px; line-height:1.4;">
+                    <div style="color:#e2e8f0; font-size:0.8rem;">
+                      <?= htmlspecialchars($log['aciklama'] ?? ($log['detay'] ?? 'Kayıt işlendi.')) ?>
+                    </div>
+                    <?php if (!empty($log['oncekiDeger']) || !empty($log['yeniDeger'])): ?>
+                      <div style="font-size:0.72rem; color:#94a3b8; margin-top:4px;">
+                        <span style="color:#f87171; text-decoration:line-through;"><?= htmlspecialchars((string)$log['oncekiDeger']) ?></span>
+                        <span style="color:#64748b;"> ➔ </span>
+                        <span style="color:#34d399; font-weight:600;"><?= htmlspecialchars((string)$log['yeniDeger']) ?></span>
+                      </div>
+                    <?php endif; ?>
+                  </td>
+
+                  <!-- IP & Düzey -->
+                  <td style="padding:12px 16px; text-align:center; white-space:nowrap;">
+                    <?php if ($sev === 'CRITICAL'): ?>
+                      <span class="badge" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #dc2626; font-size:0.68rem; padding:2px 6px;">
+                        🔴 KRİTİK
+                      </span>
+                    <?php elseif ($sev === 'WARNING'): ?>
+                      <span class="badge" style="background:rgba(251,146,60,0.2); color:#fdba74; border:1px solid #ea580c; font-size:0.68rem; padding:2px 6px;">
+                        🟡 UYARI
+                      </span>
+                    <?php else: ?>
+                      <span class="badge" style="background:rgba(56,189,248,0.2); color:#7dd3fc; border:1px solid #0284c7; font-size:0.68rem; padding:2px 6px;">
+                        🔵 BİLGİ
+                      </span>
+                    <?php endif; ?>
+                    <div style="font-size:0.68rem; color:#64748b; font-family:monospace; margin-top:4px;">
+                      <?= htmlspecialchars($log['ipAdresi'] ?? '127.0.0.1') ?>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function filterAuditLogs(category, severity, btn) {
+        if (btn) {
+          document.querySelectorAll('.audit-cat-btn').forEach(function(b) {
+            b.classList.remove('active');
+            b.style.borderColor = '';
+          });
+          btn.classList.add('active');
+          btn.style.borderColor = 'var(--gold-primary)';
+        }
+
+        const rows = document.querySelectorAll('.audit-row');
+        rows.forEach(function(r) {
+          const matchCat = (category === 'ALL' || r.getAttribute('data-cat') === category);
+          const matchSev = (!severity || severity === 'ALL' || r.getAttribute('data-sev') === severity);
+          if (matchCat && matchSev) {
+            r.style.display = '';
+          } else {
+            r.style.display = 'none';
+          }
+        });
+      }
+
+      function searchAuditLogs(q) {
+        q = (q || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('.audit-row');
+        rows.forEach(function(r) {
+          const text = r.innerText.toLowerCase();
+          if (!q || text.indexOf(q) !== -1) {
+            r.style.display = '';
+          } else {
+            r.style.display = 'none';
+          }
+        });
+      }
+    </script>
+
+
+
         <!-- 2. TAB: MÜZAYEDE & CANLI İHALE YÖNETİMİ (YUKARI TAŞINDI - BAŞLAT / DURAKLAT / SONLANDIR / PLANLA) -->
     <div id="admTab_moderasyon" class="tab-content <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / MÜZAYEDE & CANLI İHALE KONTROLÜ</div>
@@ -3741,318 +4054,6 @@ function filterAccreditation(filter, btn) {
     
 
     
-
-    <!-- ====================================================================
-         9. TAB: ZAMAN DAMGALI KRİTİK İŞLEM KAYITLARI & DENETİM İZİ İNCELEME MASASI
-         SRS: "Sistemdeki tüm kritik kullanıcı, admin, teklif, ekspertiz ve finansal
-               işlem kayıtlarının (log) zaman damgalı olarak tutulması ve incelenmesidir."
-         ==================================================================== -->
-    <div id="admTab_denetim" class="tab-content <?= $activeTab === 'denetim' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / ZAMAN DAMGALI DENETİM İZİ & LOG İNCELEME</div>
-
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
-        <div>
-          <h1 class="page-heading" style="margin-bottom:6px;">
-            📜 Zaman Damgalı Kritik İşlem Kayıtları & Denetim İzi İnceleme Masası
-          </h1>
-          <p class="page-subheading" style="margin:0; line-height:1.5;">
-            ⚡ "Sistemdeki tüm kritik kullanıcı, admin, teklif, ekspertiz ve finansal işlem kayıtlarının (log) zaman damgalı olarak tutulması ve incelenmesidir."
-          </p>
-        </div>
-        <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
-          <span style="font-size:1.5rem;">🔒</span>
-          <div>
-            <div style="font-size:0.75rem; text-transform:uppercase; color:#38bdf8; font-weight:700;">SHA-256 NOTER TASDİKLİ KRİPTOGRAFİK MÜHÜR</div>
-            <div style="font-size:0.8rem; color:#e2e8f0;">Tüm loglar adli bilişim standartlarında değişmez olarak saklanır.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5 Temel Kategori KPI Kartları (The 5 Critical Pillars) -->
-      <div class="kpi-grid" style="grid-template-columns: repeat(5, 1fr); gap:14px; margin-bottom:22px;">
-        <!-- 1. KULLANICI -->
-        <div class="kpi-card" style="border-left: 4px solid #60a5fa; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
-          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
-            <span>👤</span>
-            <span style="font-size:0.75rem;">1. KULLANICI İŞLEMLERİ</span>
-          </div>
-          <div class="kpi-value" style="color:#60a5fa; font-size:1.5rem; margin:6px 0;">
-            <?= (int)($auditLogStats['kullaniciCount'] ?? 0) ?>
-          </div>
-          <div style="font-size:0.72rem; color:#94a3b8;">
-            KYC, Kayıt, Şifre, Kısıtlama
-          </div>
-        </div>
-
-        <!-- 2. ADMIN -->
-        <div class="kpi-card" style="border-left: 4px solid #c084fc; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
-          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
-            <span>🛡️</span>
-            <span style="font-size:0.75rem;">2. ADMIN & YETKİ</span>
-          </div>
-          <div class="kpi-value" style="color:#c084fc; font-size:1.5rem; margin:6px 0;">
-            <?= (int)($auditLogStats['adminCount'] ?? 0) ?>
-          </div>
-          <div style="font-size:0.72rem; color:#94a3b8;">
-            RBAC, İhale, Komisyon, Parametre
-          </div>
-        </div>
-
-        <!-- 3. TEKLİF -->
-        <div class="kpi-card" style="border-left: 4px solid #f87171; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
-          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
-            <span>🔨</span>
-            <span style="font-size:0.75rem;">3. TEKLİF & PEY</span>
-          </div>
-          <div class="kpi-value" style="color:#f87171; font-size:1.5rem; margin:6px 0;">
-            <?= (int)($auditLogStats['teklifCount'] ?? 0) ?>
-          </div>
-          <div style="font-size:0.72rem; color:#94a3b8;">
-            Canlı/VIP Pey, Otomatik, İptal
-          </div>
-        </div>
-
-        <!-- 4. EKSPERTİZ -->
-        <div class="kpi-card" style="border-left: 4px solid #38bdf8; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
-          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
-            <span>📑</span>
-            <span style="font-size:0.75rem;">4. EKSPERTİZ & HEYET</span>
-          </div>
-          <div class="kpi-value" style="color:#38bdf8; font-size:1.5rem; margin:6px 0;">
-            <?= (int)($auditLogStats['ekspertizCount'] ?? 0) ?>
-          </div>
-          <div style="font-size:0.72rem; color:#94a3b8;">
-            Atama, Rapor, Akreditasyon, Not
-          </div>
-        </div>
-
-        <!-- 5. FİNANSAL -->
-        <div class="kpi-card" style="border-left: 4px solid #34d399; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
-          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
-            <span>💰</span>
-            <span style="font-size:0.75rem;">5. FİNANS & ESCROW</span>
-          </div>
-          <div class="kpi-value" style="color:#34d399; font-size:1.5rem; margin:6px 0;">
-            <?= (int)($auditLogStats['finansalCount'] ?? 0) ?>
-          </div>
-          <div style="font-size:0.72rem; color:#94a3b8;">
-            Teminat, Bloke, Hakediş, İade
-          </div>
-        </div>
-      </div>
-
-      <!-- Kriptografik Denetim Protokolü Bilgilendirme Kutusu -->
-      <div class="panel-card" style="margin-bottom:22px; border:1px solid #1e293b; background:#0f172a; padding:16px 20px; border-radius:10px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:1.3rem;">🛡️</span>
-            <div>
-              <strong style="color:#38bdf8; font-size:0.86rem;">Tam Denetlenebilirlik & Adli Bilişim Standartları:</strong>
-              <span style="color:#94a3b8; font-size:0.8rem; display:block; margin-top:2px;">
-                Platformdaki her işlem; zaman damgası (ISO 8601), işlemi yapan IP, aktör kimliği, önceki/yeni durum verisi ve SHA-256 bütünlük özetiyle mühürlenir.
-              </span>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="badge" style="background:#064e3b; color:#86efac; border:1px solid #16a34a; font-size:0.75rem; padding:5px 12px;">
-              ✓ Bütünlük Doğrulandı (%100 Geçerli)
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filtreleme ve Arama Çubuğu (Interactive Toolbar) -->
-      <div class="panel-card" style="padding:0; overflow:hidden;">
-        <div style="padding:16px 20px; border-bottom:1px solid #1f2736; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; background:#0e131d;">
-          <!-- Kategori Filtre Butonları -->
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn active" onclick="filterAuditLogs('ALL', null, this)" style="padding:6px 12px; font-size:0.78rem;">
-              Tümü (<?= (int)($auditLogStats['totalCount'] ?? 0) ?>)
-            </button>
-            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('KULLANICI', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#60a5fa;">
-              👤 Kullanıcı (<?= (int)($auditLogStats['kullaniciCount'] ?? 0) ?>)
-            </button>
-            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('ADMIN', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#c084fc;">
-              🛡️ Admin (<?= (int)($auditLogStats['adminCount'] ?? 0) ?>)
-            </button>
-            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('TEKLIF', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#f87171;">
-              🔨 Teklif (<?= (int)($auditLogStats['teklifCount'] ?? 0) ?>)
-            </button>
-            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('EKSPERTIZ', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#38bdf8;">
-              📑 Ekspertiz (<?= (int)($auditLogStats['ekspertizCount'] ?? 0) ?>)
-            </button>
-            <button type="button" class="btn-dark-pill btn-sm audit-cat-btn" onclick="filterAuditLogs('FINANSAL', null, this)" style="padding:6px 12px; font-size:0.78rem; color:#34d399;">
-              💰 Finansal (<?= (int)($auditLogStats['finansalCount'] ?? 0) ?>)
-            </button>
-          </div>
-
-          <!-- Canlı Arama Inputu -->
-          <div style="display:flex; align-items:center; gap:8px;">
-            <input type="text" id="auditSearchInput" onkeyup="searchAuditLogs(this.value)" placeholder="Log no, kullanıcı, IP, işlem ara..." style="background:#141a26; border:1px solid #28354a; border-radius:6px; padding:6px 14px; font-size:0.8rem; color:#fff; width:260px;">
-          </div>
-        </div>
-
-        <!-- Zaman Damgalı Log Kütüğü Tablosu -->
-        <div style="overflow-x:auto;">
-          <table class="data-table" style="width:100%; border-collapse:collapse; margin:0;" id="auditTable">
-            <thead>
-              <tr style="background:#090d14; border-bottom:1px solid #1f2736; color:#94a3b8; font-size:0.76rem; text-transform:uppercase;">
-                <th style="padding:12px 16px;">Tarih & Zaman Damgası</th>
-                <th style="padding:12px 16px;">Log Kodu & Mühür</th>
-                <th style="padding:12px 16px;">Kategori & İşlem</th>
-                <th style="padding:12px 16px;">İşlemi Yapan (Aktör)</th>
-                <th style="padding:12px 16px;">Hedef Varlık</th>
-                <th style="padding:12px 16px;">Açıklama & Durum Değişimi</th>
-                <th style="padding:12px 16px; text-align:center;">IP & Düzey</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($auditLogList as $log): 
-                $cat = strtoupper($log['kategori'] ?? 'ADMIN');
-                $sev = strtoupper($log['seviye'] ?? 'INFO');
-                $catColor = '#c084fc';
-                $catBadgeBg = 'rgba(192,132,252,0.15)';
-                $catBorder = 'rgba(192,132,252,0.3)';
-                if ($cat === 'KULLANICI') {
-                  $catColor = '#60a5fa'; $catBadgeBg = 'rgba(96,165,250,0.15)'; $catBorder = 'rgba(96,165,250,0.3)';
-                } elseif ($cat === 'TEKLIF') {
-                  $catColor = '#f87171'; $catBadgeBg = 'rgba(248,113,113,0.15)'; $catBorder = 'rgba(248,113,113,0.3)';
-                } elseif ($cat === 'EKSPERTIZ') {
-                  $catColor = '#38bdf8'; $catBadgeBg = 'rgba(56,189,248,0.15)'; $catBorder = 'rgba(56,189,248,0.3)';
-                } elseif ($cat === 'FINANSAL') {
-                  $catColor = '#34d399'; $catBadgeBg = 'rgba(52,211,153,0.15)'; $catBorder = 'rgba(52,211,153,0.3)';
-                }
-              ?>
-                <tr class="audit-row" data-cat="<?= htmlspecialchars($cat) ?>" data-sev="<?= htmlspecialchars($sev) ?>" style="border-bottom:1px solid #161e2c; font-size:0.82rem;">
-                  <!-- Tarih & Zaman Damgası -->
-                  <td style="padding:12px 16px; white-space:nowrap;">
-                    <div style="font-weight:600; color:#fff; font-family:monospace; font-size:0.83rem;">
-                      <?= htmlspecialchars($log['saatEtiketi'] ?? (substr($log['tarih'] ?? '', 0, 19))) ?>
-                    </div>
-                    <div style="font-size:0.68rem; color:#64748b; margin-top:2px;">
-                      ISO: <?= htmlspecialchars(substr($log['tarih'] ?? '', 0, 19)) ?>
-                    </div>
-                  </td>
-
-                  <!-- Log Kodu & Mühür -->
-                  <td style="padding:12px 16px; white-space:nowrap;">
-                    <div style="font-weight:700; color:#d4af37; font-family:'Cinzel', serif;">
-                      <?= htmlspecialchars($log['logKodu'] ?? ('LOG-' . $log['id'])) ?>
-                    </div>
-                    <div style="font-size:0.68rem; color:#64748b; font-family:monospace; margin-top:2px;">
-                      SHA: <?= htmlspecialchars($log['guvenlikOzeti'] ?? 'VALID-SEC') ?>
-                    </div>
-                  </td>
-
-                  <!-- Kategori & İşlem Türü -->
-                  <td style="padding:12px 16px;">
-                    <span class="badge" style="background:<?= $catBadgeBg ?>; color:<?= $catColor ?>; border:1px solid <?= $catBorder ?>; font-size:0.7rem; padding:3px 8px; display:inline-block; margin-bottom:3px;">
-                      <?= htmlspecialchars($cat) ?>
-                    </span>
-                    <div style="font-weight:600; color:#e2e8f0; font-size:0.77rem;">
-                      <?= htmlspecialchars($log['islemTuru'] ?? 'ISLEM') ?>
-                    </div>
-                  </td>
-
-                  <!-- İşlemi Yapan -->
-                  <td style="padding:12px 16px;">
-                    <div style="font-weight:600; color:#fff;">
-                      <?= htmlspecialchars($log['kullaniciAd'] ?? ('Kullanıcı #' . ($log['kullaniciId'] ?? '1'))) ?>
-                    </div>
-                    <div style="font-size:0.7rem; color:#94a3b8;">
-                      Rol: <span style="color:#d4af37; font-weight:500;"><?= htmlspecialchars($log['rol'] ?? 'ADMIN') ?></span> (#<?= (int)($log['kullaniciId'] ?? 1) ?>)
-                    </div>
-                  </td>
-
-                  <!-- Hedef Varlık -->
-                  <td style="padding:12px 16px; white-space:nowrap;">
-                    <?php if (!empty($log['hedefTur'])): ?>
-                      <span style="font-size:0.75rem; color:#cbd5e1; background:#161f2c; border:1px solid #28354a; border-radius:4px; padding:2px 6px;">
-                        <?= htmlspecialchars($log['hedefTur']) ?> #<?= htmlspecialchars((string)($log['hedefId'] ?? '')) ?>
-                      </span>
-                    <?php else: ?>
-                      <span style="color:#64748b; font-size:0.75rem;">Sistem</span>
-                    <?php endif; ?>
-                  </td>
-
-                  <!-- Açıklama & Durum Değişimi -->
-                  <td style="padding:12px 16px; line-height:1.4;">
-                    <div style="color:#e2e8f0; font-size:0.8rem;">
-                      <?= htmlspecialchars($log['aciklama'] ?? ($log['detay'] ?? 'Kayıt işlendi.')) ?>
-                    </div>
-                    <?php if (!empty($log['oncekiDeger']) || !empty($log['yeniDeger'])): ?>
-                      <div style="font-size:0.72rem; color:#94a3b8; margin-top:4px;">
-                        <span style="color:#f87171; text-decoration:line-through;"><?= htmlspecialchars((string)$log['oncekiDeger']) ?></span>
-                        <span style="color:#64748b;"> ➔ </span>
-                        <span style="color:#34d399; font-weight:600;"><?= htmlspecialchars((string)$log['yeniDeger']) ?></span>
-                      </div>
-                    <?php endif; ?>
-                  </td>
-
-                  <!-- IP & Düzey -->
-                  <td style="padding:12px 16px; text-align:center; white-space:nowrap;">
-                    <?php if ($sev === 'CRITICAL'): ?>
-                      <span class="badge" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #dc2626; font-size:0.68rem; padding:2px 6px;">
-                        🔴 KRİTİK
-                      </span>
-                    <?php elseif ($sev === 'WARNING'): ?>
-                      <span class="badge" style="background:rgba(251,146,60,0.2); color:#fdba74; border:1px solid #ea580c; font-size:0.68rem; padding:2px 6px;">
-                        🟡 UYARI
-                      </span>
-                    <?php else: ?>
-                      <span class="badge" style="background:rgba(56,189,248,0.2); color:#7dd3fc; border:1px solid #0284c7; font-size:0.68rem; padding:2px 6px;">
-                        🔵 BİLGİ
-                      </span>
-                    <?php endif; ?>
-                    <div style="font-size:0.68rem; color:#64748b; font-family:monospace; margin-top:4px;">
-                      <?= htmlspecialchars($log['ipAdresi'] ?? '127.0.0.1') ?>
-                    </div>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <script>
-      function filterAuditLogs(category, severity, btn) {
-        if (btn) {
-          document.querySelectorAll('.audit-cat-btn').forEach(function(b) {
-            b.classList.remove('active');
-            b.style.borderColor = '';
-          });
-          btn.classList.add('active');
-          btn.style.borderColor = 'var(--gold-primary)';
-        }
-
-        const rows = document.querySelectorAll('.audit-row');
-        rows.forEach(function(r) {
-          const matchCat = (category === 'ALL' || r.getAttribute('data-cat') === category);
-          const matchSev = (!severity || severity === 'ALL' || r.getAttribute('data-sev') === severity);
-          if (matchCat && matchSev) {
-            r.style.display = '';
-          } else {
-            r.style.display = 'none';
-          }
-        });
-      }
-
-      function searchAuditLogs(q) {
-        q = (q || '').toLowerCase().trim();
-        const rows = document.querySelectorAll('.audit-row');
-        rows.forEach(function(r) {
-          const text = r.innerText.toLowerCase();
-          if (!q || text.indexOf(q) !== -1) {
-            r.style.display = '';
-          } else {
-            r.style.display = 'none';
-          }
-        });
-      }
-    </script>
-
 
         <!-- 10. TAB: SİSTEM AYARLARI (media_1795014776310_317f5780.jpg ile Birebir) -->
     <div id="admTab_ayarlar" class="tab-content <?= $activeTab === 'ayarlar' ? 'active' : '' ?>">
