@@ -3547,6 +3547,30 @@
             "tarih": "2026-11-20T17:29:28+00:00",
             "ipAdresi": "127.0.0.1",
             "id": 5
+        },
+        {
+            "islemTuru": "EKSPER_AKREDITASYON_KARARI",
+            "kullaniciId": 1,
+            "hedefTur": "EXPERT_ACCREDITATION",
+            "hedefId": 105,
+            "aciklama": "Admin #1 tarafından 'Zehra Bilgin' (Tür: BIREYSEL) mesleki yeterlilik, lisans ve sertifikasyon dosyası incelendi. Karar: AKREDITE_EDILDI (Seviye: B_SEVIYESI_UZMAN). Not: Mesleki yeterlilik ve oda belgeleri onaylandı, B Seviyesi Uzman lisansı verildi.",
+            "oncekiDeger": "INCELEMEDE",
+            "yeniDeger": "AKREDITE_EDILDI",
+            "tarih": "2026-11-20T17:41:41+00:00",
+            "ipAdresi": "127.0.0.1",
+            "id": 6
+        },
+        {
+            "islemTuru": "EKSPER_AKREDITASYON_KARARI",
+            "kullaniciId": 1,
+            "hedefTur": "EXPERT_ACCREDITATION",
+            "hedefId": 104,
+            "aciklama": "Admin #1 tarafından 'İsviçre Gemoloji & Kronometri Laboratuvarı Ltd.' (Tür: KURUMSAL) mesleki yeterlilik, lisans ve sertifikasyon dosyası incelendi. Karar: ASKIYA_ALINDI (Seviye: AKREDITE_TEST_LABORATUVARI). Not: Periyodik metroloji ve kalibrasyon denetimi tamamlanana kadar geçici askı kararı verildi.",
+            "oncekiDeger": "AKREDITE_EDILDI",
+            "yeniDeger": "ASKIYA_ALINDI",
+            "tarih": "2026-11-20T17:41:43+00:00",
+            "ipAdresi": "127.0.0.1",
+            "id": 7
         }
     ],
     "pastSales": [
@@ -3693,6 +3717,210 @@
             "ekspertizNotu": "✓ Sah Damgası ve Tuğra Doğrulama Sertifikalı",
             "gorselUrl": "public/assets/images/astrolabe_clean.jpg",
             "durum": "SATILDI"
+        }
+    ],
+    "expertAccreditations": [
+        {
+            "id": 101,
+            "tur": "BIREYSEL",
+            "kullaniciId": 4,
+            "adSoyadUnvan": "Mehmet Demir",
+            "unvan": "Horoloji & Yüksek Saatçilik Başeksperi",
+            "uzmanlikAlanlari": [
+                "Lüks Saatler & Kronograflar",
+                "Mekanik Saat Kalibreleri",
+                "Vintage Koleksiyon"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "MYK Seviye 6 Kıymet Takdiri & Ekspertiz Belgesi",
+                "belgeNo": "MYK-HOR-2024-8841",
+                "kurum": "T.C. Mesleki Yeterlilik Kurumu & İsviçre Saatçilik Federasyonu (FH)",
+                "gecerlilikYili": "2024 - 2029"
+            },
+            "lisanslar": {
+                "lisansAdi": "T.C. Kültür ve Turizm Bakanlığı Taşınır Sanat Varlığı Bilirkişi Lisansı",
+                "lisansNo": "KULTUR-LISANS-TR-9941",
+                "sicilOdasi": "İstanbul Ticaret Odası Horoloji Komitesi (Sicil: 44910)",
+                "vizeDurumu": "GÜNCEL (2027'ye Kadar Geçerli)"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "WOSTEP (Watchmakers of Switzerland Training Program) Master Diploma",
+                    "kod": "WOSTEP-CH-552",
+                    "dogrulama": "Doğrulandı"
+                },
+                {
+                    "ad": "Nitelikli Elektronik İmza (NES) & E-Damga Sertifikası",
+                    "kod": "E-IMZA-TR-88194",
+                    "dogrulama": "Aktif"
+                }
+            ],
+            "durum": "AKREDITE_EDILDI",
+            "yetkiSeviyesi": "A_SEVIYESI_BAS_EKSPER",
+            "incelemeTarihi": "2026-10-01T10:00:00+03:00",
+            "vizeBitisTarihi": "2027-10-01",
+            "adminNotu": "Tüm mesleki yeterlilik belgeleri, WOSTEP diploması ve bakanlık lisansı aslı gibidir onaylandı."
+        },
+        {
+            "id": 102,
+            "tur": "BIREYSEL",
+            "kullaniciId": null,
+            "adSoyadUnvan": "Prof. Dr. Selim Arkan",
+            "unvan": "Osmanlı Sanatları & Hat/Tezhip Kıdemli Eksperi",
+            "uzmanlikAlanlari": [
+                "Klasik Hat Levhaları",
+                "Nadir El Yazmaları",
+                "Tuğralı Gümüşler",
+                "Saray Kumaşları"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "Sanat Tarihi Doktora & Adli Yargı Bilirkişilik Belgesi",
+                "belgeNo": "ADLI-BILIR-2025-3310",
+                "kurum": "İstanbul Üniversitesi Edebiyat Fakültesi & Adalet Bakanlığı Bilirkişilik Kurulu",
+                "gecerlilikYili": "2023 - 2028"
+            },
+            "lisanslar": {
+                "lisansAdi": "Vakıflar Genel Müdürlüğü Kültür Eseri Tespit & Ekspertiz Ruhsatı",
+                "lisansNo": "VGM-EKSPER-088",
+                "sicilOdasi": "Türk Arşivciler & Sanat Tarihçileri Derneği (Sicil: 1104)",
+                "vizeDurumu": "GÜNCEL"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "Topkapı Sarayı Müzesi Restorasyon & Konservasyon Onur Sertifikası",
+                    "kod": "TSM-CERT-441",
+                    "dogrulama": "Doğrulandı"
+                },
+                {
+                    "ad": "Kök Boya & Kağıt Lif Spektrometre Yetkinliği",
+                    "kod": "LAB-PIGMENT-990",
+                    "dogrulama": "Doğrulandı"
+                }
+            ],
+            "durum": "AKREDITE_EDILDI",
+            "yetkiSeviyesi": "A_SEVIYESI_BAS_EKSPER",
+            "incelemeTarihi": "2026-09-15T14:30:00+03:00",
+            "vizeBitisTarihi": "2028-09-15",
+            "adminNotu": "Akademik kürsü başkanlığı ve 25 yıllık adli bilirkişilik sicili incelendi, tam akreditasyon verildi."
+        },
+        {
+            "id": 103,
+            "tur": "KURUMSAL",
+            "kullaniciId": null,
+            "adSoyadUnvan": "Marmara Akredite Sanat Ekspertiz ve Değerleme A.Ş.",
+            "unvan": "Akredite Bağımsız Ekspertiz Kuruluşu & Muayene Merkezi",
+            "uzmanlikAlanlari": [
+                "Tablo & Çağdaş Sanat",
+                "Heykel & Bronz",
+                "Tarihi Mobilya & Porselen"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "TÜRKAK TS EN ISO/IEC 17020 Uygunluk Değerlendirme Akreditasyonu",
+                "belgeNo": "TURKAK-AB-0488-M",
+                "kurum": "Türk Akreditasyon Kurumu (TÜRKAK)",
+                "gecerlilikYili": "2024 - 2028"
+            },
+            "lisanslar": {
+                "lisansAdi": "Kültür Varlıkları ve Müzeler Genel Müdürlüğü Yetki Belgesi",
+                "lisansNo": "KV-YETKI-2024-19",
+                "sicilOdasi": "İstanbul Ticaret Odası 79. Komite (Tic. Sicil: 998412)",
+                "vizeDurumu": "GÜNCEL"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "ISO 9001:2015 Sanat Eseri Güvenli Ekspertiz Kalite Yönetimi",
+                    "kod": "ISO-9001-SANAT-102",
+                    "dogrulama": "Aktif"
+                },
+                {
+                    "ad": "Mesleki Sorumluluk Sigortası (Allianz €5.000.000 Teminatlı Poliçe)",
+                    "kod": "POLICE-MSS-2026-99",
+                    "dogrulama": "Yürürlükte"
+                }
+            ],
+            "durum": "AKREDITE_EDILDI",
+            "yetkiSeviyesi": "KURUMSAL_AKREDITE_HEYET",
+            "incelemeTarihi": "2026-10-10T16:00:00+03:00",
+            "vizeBitisTarihi": "2027-10-10",
+            "adminNotu": "TÜRKAK 17020 akreditasyonu ve €5M mesleki sorumluluk poliçesi teyit edildi."
+        },
+        {
+            "id": 104,
+            "tur": "KURUMSAL",
+            "kullaniciId": null,
+            "adSoyadUnvan": "İsviçre Gemoloji & Kronometri Laboratuvarı Ltd.",
+            "unvan": "Akredite Spektrometre, Radyokarbon & Değerli Taş Test Merkezi",
+            "uzmanlikAlanlari": [
+                "Gemoloji & Elmas Derecelendirme",
+                "Radyokarbon (C-14) Tarihlendirme",
+                "Raman Spektroskopisi",
+                "Metallerin XRF Analizi"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "ISO/IEC 17025 Deney ve Kalibrasyon Laboratuvarları Akreditasyonu",
+                "belgeNo": "SAS-TEST-CH-0194",
+                "kurum": "Swiss Accreditation Service (SAS) & CIBJO",
+                "gecerlilikYili": "2025 - 2030"
+            },
+            "lisanslar": {
+                "lisansAdi": "CIBJO (Dünya Mücevher Konfederasyonu) Onaylı Laboratuvar Lisansı",
+                "lisansNo": "CIBJO-LAB-2025-08",
+                "sicilOdasi": "İsviçre Federal Gemoloji Birliği",
+                "vizeDurumu": "GÜNCEL"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "GIA (Gemological Institute of America) Metodoloji Onayı",
+                    "kod": "GIA-COLLAB-77",
+                    "dogrulama": "Doğrulandı"
+                },
+                {
+                    "ad": "XRF Spektrometre Yıllık Metroloji Kalibrasyon Sertifikası",
+                    "kod": "CALIB-XRF-2026",
+                    "dogrulama": "Geçerli"
+                }
+            ],
+            "durum": "ASKIYA_ALINDI",
+            "yetkiSeviyesi": "AKREDITE_TEST_LABORATUVARI",
+            "incelemeTarihi": "2026-11-20T17:41:43+00:00",
+            "vizeBitisTarihi": "2029-10-18",
+            "adminNotu": "Periyodik metroloji ve kalibrasyon denetimi tamamlanana kadar geçici askı kararı verildi."
+        },
+        {
+            "id": 105,
+            "tur": "BIREYSEL",
+            "kullaniciId": null,
+            "adSoyadUnvan": "Zehra Bilgin",
+            "unvan": "Antika Dokuma & Doğu Halıları Uzmanı",
+            "uzmanlikAlanlari": [
+                "Hereke İpek Halıları",
+                "Gördes & Uşak Dokumaları",
+                "Kafkas & İran Antikaları"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "Mimar Sinan GSF Geleneksel Türk Sanatları Yüksek Lisans & Bilirkişi Adayı",
+                "belgeNo": "MSGSF-TEZ-2024-411",
+                "kurum": "Mimar Sinan Güzel Sanatlar Üniversitesi",
+                "gecerlilikYili": "2024 - Devam"
+            },
+            "lisanslar": {
+                "lisansAdi": "İstanbul Halıcılar ve Dokumacılar Odası Ekspertiz Başvuru Dosyası",
+                "lisansNo": "BASVURU-2026-092",
+                "sicilOdasi": "İstanbul Esnaf ve Sanatkarlar Odaları Birliği",
+                "vizeDurumu": "İNCELEMEDE"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "Doğal Kök Boya Ayrıştırma & Lif Mikroskopisi Eğitimi",
+                    "kod": "CERT-LIF-2025",
+                    "dogrulama": "İnceleniyor"
+                }
+            ],
+            "durum": "AKREDITE_EDILDI",
+            "yetkiSeviyesi": "B_SEVIYESI_UZMAN",
+            "incelemeTarihi": "2026-11-20T17:41:41+00:00",
+            "vizeBitisTarihi": "2027-11-19",
+            "adminNotu": "Mesleki yeterlilik ve oda belgeleri onaylandı, B Seviyesi Uzman lisansı verildi."
         }
     ]
 }

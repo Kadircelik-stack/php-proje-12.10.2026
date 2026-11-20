@@ -1996,4 +1996,91 @@ class PlatformWorkflowService
 
         return ['success' => false, 'message' => "Geçersiz hedef türü."];
     }
+
+    /**
+     * SRS: Sistemde yer alacak eksperlerin ve kurumların mesleki yeterlilik belgelerinin,
+     * lisanslarının ve sertifikasyonlarının incelenip akredite edilmesidir.
+     */
+    public function manageAccreditationDossier(int $id, string $decision, string $level = 'A_SEVIYESI_KIDEMLI', string $notes = '', int $adminId = 1): array
+    {
+        $item = $this->dataStore->getItem('expertAccreditations', 'id', $id);
+        if (!$item) {
+            return ['success' => false, 'message' => "Akreditasyon başvuru dosyası (#{$id}) bulunamadı."];
+        }
+
+        $now = date('c');
+        $normDec = strtoupper(trim($decision));
+        switch ($normDec) {
+            case 'REVISE':
+            case 'REVIZYON':
+                $newStatus = 'REVIZYON_ISTENDI';
+                $actionText = 'eksik belge/vize yenileme talebiyle revizyona alındı';
+                break;
+            case 'SUSPEND':
+            case 'ASKA':
+                $newStatus = 'ASKIYA_ALINDI';
+                $actionText = 'soruşturma/inceleme amacıyla geçici olarak askıya alındı';
+                break;
+            case 'REJECT':
+            case 'RED':
+                $newStatus = 'REDDEDILDI';
+                $actionText = 'yetersiz mesleki belge/lisans gerekçesiyle reddedildi';
+                break;
+            case 'APPROVE':
+            case 'ONAY':
+            default:
+                $newStatus = 'AKREDITE_EDILDI';
+                $actionText = 'mesleki yeterlilik ve lisansları onaylanarak resmi akredite statüsü kazandı';
+                break;
+        }
+
+        $adminNote = $notes ?: "Admin tarafından mesleki yeterlilik ve lisans dosyası incelendi. Karar: {$newStatus}";
+
+        $this->dataStore->updateItem('expertAccreditations', 'id', $id, [
+            'durum'          => $newStatus,
+            'yetkiSeviyesi'  => $level,
+            'incelemeTarihi' => $now,
+            'adminNotu'      => $adminNote,
+        ]);
+
+        // Bağlı kullanıcı varsa kullanıcı kaydını da güncelle
+        $userId = (int)($item['kullaniciId'] ?? 0);
+        if ($userId > 0) {
+            $user = $this->dataStore->getItem('users', 'id', $userId);
+            if ($user) {
+                $userProf = (array)($user['ekspertizProfili'] ?? []);
+                $userProf['yetkiDurumu'] = ($newStatus === 'AKREDITE_EDILDI') ? 'ONAYLI' : $newStatus;
+                $userProf['yetkiSeviyesi'] = $level;
+                $this->dataStore->updateItem('users', 'id', $userId, [
+                    'ekspertizProfili' => $userProf,
+                    'akreditasyon'     => [
+                        'onaylandiMi'    => ($newStatus === 'AKREDITE_EDILDI'),
+                        'akreditasyonNo' => $item['lisanslar']['lisansNo'] ?? ('AKR-' . $id),
+                        'onayTarihi'     => $now,
+                        'durum'          => ($newStatus === 'AKREDITE_EDILDI') ? 'AKTIF_EKSPER' : $newStatus,
+                    ],
+                ]);
+            }
+        }
+
+        // Denetim Kütüğü (Audit Log)
+        $this->dataStore->insertItem('auditLogs', [
+            'islemTuru'   => 'EKSPER_AKREDITASYON_KARARI',
+            'kullaniciId' => $adminId,
+            'hedefTur'    => 'EXPERT_ACCREDITATION',
+            'hedefId'     => $id,
+            'aciklama'    => "Admin #{$adminId} tarafından '{$item['adSoyadUnvan']}' (Tür: {$item['tur']}) mesleki yeterlilik, lisans ve sertifikasyon dosyası incelendi. Karar: {$newStatus} (Seviye: {$level}). Not: {$adminNote}",
+            'oncekiDeger' => $item['durum'] ?? 'INCELEMEDE',
+            'yeniDeger'   => $newStatus,
+            'tarih'       => $now,
+            'ipAdresi'    => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+        ]);
+
+        $this->dataStore->commit();
+
+        return [
+            'success' => true,
+            'message' => "✓ '{$item['adSoyadUnvan']}' mesleki yeterlilik ve lisans dosyası {$actionText}.",
+        ];
+    }
 }

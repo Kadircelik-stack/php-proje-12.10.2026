@@ -15,6 +15,7 @@ $auditLogs = $db['auditLogs'] ?? [];
 $bids = $db['bids'] ?? [];
 $wallets = $db['wallets'] ?? [];
 $products = $db['products'] ?? [];
+$expertAccreditations = $db['expertAccreditations'] ?? [];
 $activeTab = $_GET['tab'] ?? 'konsol';
 
 $lotMap = [];
@@ -65,6 +66,12 @@ foreach ($products as $p) {
           <button type="button" data-tab="ekspertiz" onclick="switchAdminTab('ekspertiz', this)" style="display:flex; align-items:center; gap:6px; font-weight:600; color:#c5a059;">
             <span>🔍</span>
             <span>Ekspertiz atama</span>
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'akreditasyon' ? 'active' : '' ?>">
+          <button type="button" data-tab="akreditasyon" onclick="switchAdminTab('akreditasyon', this)" style="display:flex; align-items:center; gap:6px; font-weight:600; color:#a78bfa;">
+            <span>🎖️</span>
+            <span>Eksper & Kurum Akreditasyonu</span>
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
@@ -233,6 +240,9 @@ foreach ($products as $p) {
             </button>
             <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('heyet_inceleme', document.querySelector('[data-tab=\'heyet_inceleme\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(56,189,248,0.5); color:#7dd3fc;">
               📑 Heyet İncelemesi →
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('akreditasyon', document.querySelector('[data-tab=\'akreditasyon\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(167,139,250,0.5); color:#c4b5fd;">
+              🎖️ Akreditasyon Masası →
             </button>
             <button type="button" class="btn-outline-gold btn-sm" onclick="switchAdminTab('ekspertiz', document.querySelector('[data-tab=\'ekspertiz\']'))" style="padding:8px 16px; cursor:pointer;">
               Ekspertiz Atamaya Git →
@@ -981,6 +991,27 @@ function selectInspectionDossier(reportId, btn) {
   }
 }
 
+
+function filterAccreditation(filter, btn) {
+  document.querySelectorAll('.accreditation-filter-btn').forEach(b => {
+    b.classList.remove('btn-gold-pill');
+    b.classList.add('btn-dark-pill');
+  });
+  if (btn) {
+    btn.classList.remove('btn-dark-pill');
+    btn.classList.add('btn-gold-pill');
+  }
+  document.querySelectorAll('.accreditation-card').forEach(card => {
+    const type = card.getAttribute('data-type');
+    const status = card.getAttribute('data-status');
+    if (filter === 'all' || type === filter || status === filter) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
 </script>
 
     <!-- 2. TAB: RAPORLAMA VE EKSPERTİZ ONAY / RED MASASI (YUKARI TAŞINDI) -->
@@ -1535,6 +1566,297 @@ function selectInspectionDossier(reportId, btn) {
         </table>
       </div>
     </div>
+
+        <!-- ====================================================================
+         6. TAB: EKSPER VE KURUMSAL HEYET AKREDİTASYON MASASI
+         (SRS: Sistemde yer alacak eksperlerin ve kurumların mesleki yeterlilik
+          belgelerinin, lisanslarının ve sertifikasyonlarının incelenip akredite edilmesidir.)
+         ==================================================================== -->
+    <div id="admTab_akreditasyon" class="tab-content <?= $activeTab === 'akreditasyon' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / EKSPER & KURUM AKREDİTASYONU</div>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <h1 class="page-heading" style="margin-bottom:6px;">
+            🎖️ Eksper ve Kurumsal Heyet Akreditasyon Masası
+          </h1>
+          <p class="page-subheading" style="margin:0; line-height:1.5;">
+            Sistemde yer alacak eksperlerin ve kurumların mesleki yeterlilik belgelerinin, lisanslarının ve sertifikasyonlarının incelenip akredite edilmesidir.
+          </p>
+        </div>
+        <div style="background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.3); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.4rem;">📜</span>
+          <div>
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#c4b5fd; font-weight:700;">Akreditasyon Kurulu</div>
+            <div style="font-size:0.8rem; color:#e2e8f0;">MYK Seviye 6/7 • Bakanlık Lisansı • ISO 17025 Tescilli</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Temel Metrik / KPI Kartları -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:16px; margin-bottom:24px;">
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #a78bfa;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Başvuran Eksper & Kurum</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#c4b5fd; font-family:'Cinzel', serif;">
+            <?= count($expertAccreditations) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Dosya</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Bireysel uzman & kurumsal laboratuvar</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #10b981;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Akredite Edilen (Aktif)</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#10b981; font-family:'Cinzel', serif;">
+            <?= count(array_filter($expertAccreditations, static fn($e) => ($e['durum'] ?? '') === 'AKREDITE_EDILDI')) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Uzman / Kurum</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Resmi lisans ve mühür yetkisi verildi</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #f59e0b;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">İnceleme & Vize Bekleyen</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#fbbf24; font-family:'Cinzel', serif;">
+            <?= count(array_filter($expertAccreditations, static fn($e) => in_array($e['durum'] ?? '', ['INCELEMEDE', 'REVIZYON_ISTENDI'], true))) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Başvuru</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Evrak ve yeterlilik inceleme masasında</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #38bdf8;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Mesleki Güvence Standardı</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#38bdf8; font-family:'Cinzel', serif;">
+            %100 <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Akredite</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">€5.000.000 Sorumluluk Sigortalı</div>
+        </div>
+      </div>
+
+      <!-- Hızlı Filtre Butonları -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; border-bottom:1px solid #1f2733; padding-bottom:14px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" onclick="filterAccreditation('all', this)" class="accreditation-filter-btn btn-gold-pill" style="font-size:0.82rem; padding:7px 16px; font-weight:600; cursor:pointer;">
+            Tümü (<?= count($expertAccreditations) ?>)
+          </button>
+          <button type="button" onclick="filterAccreditation('BIREYSEL', this)" class="accreditation-filter-btn btn-dark-pill" style="font-size:0.82rem; padding:7px 16px; font-weight:600; cursor:pointer;">
+            👤 Bireysel Eksperler
+          </button>
+          <button type="button" onclick="filterAccreditation('KURUMSAL', this)" class="accreditation-filter-btn btn-dark-pill" style="font-size:0.82rem; padding:7px 16px; font-weight:600; cursor:pointer;">
+            🏛️ Kurumsal Kuruluş & Laboratuvarlar
+          </button>
+          <button type="button" onclick="filterAccreditation('AKREDITE_EDILDI', this)" class="accreditation-filter-btn btn-dark-pill" style="font-size:0.82rem; padding:7px 16px; font-weight:600; cursor:pointer;">
+            ✓ Akredite Edilenler
+          </button>
+          <button type="button" onclick="filterAccreditation('INCELEMEDE', this)" class="accreditation-filter-btn btn-dark-pill" style="font-size:0.82rem; padding:7px 16px; font-weight:600; cursor:pointer;">
+            ⏳ İncelemede Bekleyenler
+          </button>
+        </div>
+        <div style="font-size:0.8rem; color:#848d9a;">
+          Akreditasyon Otoritesi: <strong>Yönetici Heyet Kurulu (Admin ID #1)</strong>
+        </div>
+      </div>
+
+      <!-- Eksper & Kurum Akreditasyon Dosyaları Listesi -->
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <?php foreach ($expertAccreditations as $acc): 
+          $accId = (int)$acc['id'];
+          $accName = htmlspecialchars((string)$acc['adSoyadUnvan']);
+          $accTitle = htmlspecialchars((string)($acc['unvan'] ?? 'Ekspertiz Yetkilisi'));
+          $accType = (string)($acc['tur'] ?? 'BIREYSEL');
+          $accStatus = (string)($acc['durum'] ?? 'INCELEMEDE');
+          $accLevel = (string)($acc['yetkiSeviyesi'] ?? 'A_SEVIYESI_BAS_EKSPER');
+          $accAreas = (array)($acc['uzmanlikAlanlari'] ?? []);
+          $myk = (array)($acc['meslekiYeterlilik'] ?? []);
+          $lisans = (array)($acc['lisanslar'] ?? []);
+          $sertifikalar = (array)($acc['sertifikasyonlar'] ?? []);
+          $adminNote = htmlspecialchars((string)($acc['adminNotu'] ?? ''));
+          $vizeDate = htmlspecialchars((string)($acc['vizeBitisTarihi'] ?? '2028-01-01'));
+        ?>
+          <div class="panel-card accreditation-card" 
+               data-type="<?= $accType ?>" 
+               data-status="<?= $accStatus ?>" 
+               style="margin-bottom:0; background:#0b0f17; border:1px solid <?= ($accStatus === 'AKREDITE_EDILDI') ? '#1e3827' : (($accStatus === 'REDDEDILDI') ? '#4a1d25' : '#1f2736') ?>; border-radius:10px; padding:20px;">
+            
+            <!-- Üst Başlık & Rozetler -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                  <h2 style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'Cinzel', serif; margin:0;">
+                    <?= $accName ?>
+                  </h2>
+
+                  <?php if ($accType === 'KURUMSAL'): ?>
+                    <span class="badge" style="background:#1e1b4b; color:#a78bfa; border:1px solid rgba(167,139,250,0.4); font-size:0.75rem; padding:4px 10px;">
+                      🏛️ KURUMSAL HEYET / LAB
+                    </span>
+                  <?php else: ?>
+                    <span class="badge" style="background:#0c2538; color:#38bdf8; border:1px solid rgba(56,189,248,0.4); font-size:0.75rem; padding:4px 10px;">
+                      👤 BİREYSEL EKSPER
+                    </span>
+                  <?php endif; ?>
+
+                  <span class="badge badge-gold" style="font-size:0.75rem; padding:4px 10px;">
+                    DOSYA: #AKR-<?= $accId ?>
+                  </span>
+
+                  <?php if ($accStatus === 'AKREDITE_EDILDI'): ?>
+                    <span class="badge badge-success" style="font-size:0.75rem; padding:4px 10px;">✓ AKREDİTE EDİLDİ</span>
+                  <?php elseif ($accStatus === 'INCELEMEDE'): ?>
+                    <span class="badge badge-warning" style="font-size:0.75rem; padding:4px 10px;">⏳ İNCELEMEDE</span>
+                  <?php elseif ($accStatus === 'REVIZYON_ISTENDI'): ?>
+                    <span class="badge" style="background:#854d0e; color:#fef08a; font-size:0.75rem; padding:4px 10px;">⚠️ REVİZYON İSTENDİ</span>
+                  <?php elseif ($accStatus === 'ASKIYA_ALINDI'): ?>
+                    <span class="badge" style="background:#581c87; color:#e9d5ff; font-size:0.75rem; padding:4px 10px;">⏸️ ASKIYA ALINDI</span>
+                  <?php else: ?>
+                    <span class="badge badge-danger" style="font-size:0.75rem; padding:4px 10px;">✕ REDDEDİLDİ</span>
+                  <?php endif; ?>
+                </div>
+
+                <div style="font-size:0.85rem; color:#c5a059; margin-top:4px; font-weight:500;">
+                  <?= $accTitle ?>
+                </div>
+
+                <!-- Uzmanlık Alanları Rozetleri -->
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+                  <span style="font-size:0.72rem; color:#848d9a; display:inline-flex; align-items:center;">Uzmanlık:</span>
+                  <?php foreach ($accAreas as $area): ?>
+                    <span style="background:#131822; border:1px solid #232b3b; color:#cbd5e1; font-size:0.72rem; padding:2px 8px; border-radius:4px;">
+                      <?= htmlspecialchars((string)$area) ?>
+                    </span>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+
+              <div style="text-align:right;">
+                <div style="font-size:0.7rem; color:#848d9a; text-transform:uppercase;">Akreditasyon Vize Bitiş</div>
+                <div style="font-size:1rem; font-weight:700; color:#e2e8f0; margin-top:2px;">
+                  📅 <?= $vizeDate ?>
+                </div>
+                <div style="font-size:0.72rem; color:#10b981; margin-top:2px;">
+                  ✓ E-İmza & Ruhsat Geçerli
+                </div>
+              </div>
+            </div>
+
+            <!-- 3 KUTULU BELGE & LİSANS İNCELEME MASASI -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:16px;">
+              
+              <!-- 1. KUTU: MESLEKİ YETERLİLİK BELGELERİ -->
+              <div style="background:#070a10; border:1px solid #1a222e; border-radius:8px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #161e2b; padding-bottom:6px;">
+                  <div style="font-size:0.8rem; font-weight:700; color:#38bdf8; display:flex; align-items:center; gap:6px;">
+                    📜 1. Mesleki Yeterlilik Belgesi
+                  </div>
+                  <span style="font-size:0.68rem; color:#10b981; background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px;">ASLI DOĞRULANDI</span>
+                </div>
+                <div style="font-size:0.82rem; font-weight:600; color:#fff; line-height:1.4;">
+                  <?= htmlspecialchars((string)($myk['belgeAdi'] ?? 'Mesleki Yeterlilik Belgesi')) ?>
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+                  <strong>Belge No:</strong> <code style="color:#c5a059;"><?= htmlspecialchars((string)($myk['belgeNo'] ?? '-')) ?></code>
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">
+                  <strong>Onay Mercii:</strong> <?= htmlspecialchars((string)($myk['kurum'] ?? '-')) ?>
+                </div>
+                <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">
+                  Geçerlilik: <?= htmlspecialchars((string)($myk['gecerlilikYili'] ?? '-')) ?>
+                </div>
+              </div>
+
+              <!-- 2. KUTU: RESMİ LİSANSLAR & ODA RUHSATLARI -->
+              <div style="background:#070a10; border:1px solid #1a222e; border-radius:8px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #161e2b; padding-bottom:6px;">
+                  <div style="font-size:0.8rem; font-weight:700; color:#c5a059; display:flex; align-items:center; gap:6px;">
+                    🏛️ 2. Resmi Bakanlık Lisansı & Sicil
+                  </div>
+                  <span style="font-size:0.68rem; color:#c5a059; background:rgba(197,160,89,0.1); padding:2px 6px; border-radius:4px;">LİSANSLI</span>
+                </div>
+                <div style="font-size:0.82rem; font-weight:600; color:#fff; line-height:1.4;">
+                  <?= htmlspecialchars((string)($lisans['lisansAdi'] ?? 'Ekspertiz Yetki Lisansı')) ?>
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+                  <strong>Lisans / Ruhsat No:</strong> <code style="color:#10b981;"><?= htmlspecialchars((string)($lisans['lisansNo'] ?? '-')) ?></code>
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">
+                  <strong>Sicil & Oda:</strong> <?= htmlspecialchars((string)($lisans['sicilOdasi'] ?? '-')) ?>
+                </div>
+                <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">
+                  Vize Durumu: <span style="color:#10b981; font-weight:600;"><?= htmlspecialchars((string)($lisans['vizeDurumu'] ?? 'GÜNCEL')) ?></span>
+                </div>
+              </div>
+
+              <!-- 3. KUTU: SERTİFİKASYONLAR & LABORATUVAR AKREDİTASYONU -->
+              <div style="background:#070a10; border:1px solid #1a222e; border-radius:8px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #161e2b; padding-bottom:6px;">
+                  <div style="font-size:0.8rem; font-weight:700; color:#10b981; display:flex; align-items:center; gap:6px;">
+                    🏅 3. Sertifikasyonlar & Güvence
+                  </div>
+                  <span style="font-size:0.68rem; color:#38bdf8; background:rgba(56,189,248,0.1); padding:2px 6px; border-radius:4px;">AKREDİTE</span>
+                </div>
+                <ul style="margin:0; padding-left:16px; font-size:0.75rem; color:#cbd5e1; line-height:1.6;">
+                  <?php foreach ($sertifikalar as $sert): ?>
+                    <li>
+                      <strong><?= htmlspecialchars((string)($sert['ad'] ?? '')) ?></strong> 
+                      <span style="color:#64748b;">(<?= htmlspecialchars((string)($sert['kod'] ?? '')) ?>)</span> • 
+                      <span style="color:#10b981; font-weight:600;">✓ <?= htmlspecialchars((string)($sert['dogrulama'] ?? 'Onaylı')) ?></span>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+              </div>
+
+            </div>
+
+            <!-- ADMİN VE HEYET AKREDİTASYON KARAR FORMU -->
+            <div style="background:#080c12; border:1px solid #161e2b; border-radius:8px; padding:14px 18px;">
+              <form method="POST" style="margin:0;">
+                <input type="hidden" name="action" value="manage_expert_accreditation">
+                <input type="hidden" name="accreditation_id" value="<?= $accId ?>">
+                <input type="hidden" name="tab" value="akreditasyon">
+
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                  <!-- Yetki Seviyesi Seçimi -->
+                  <div style="min-width:240px;">
+                    <label style="font-size:0.75rem; color:#848d9a; display:block; margin-bottom:4px; font-weight:600;">Yetki ve Akreditasyon Kademesi:</label>
+                    <select name="level" class="martello-select" style="font-size:0.8rem; padding:6px 10px; width:100%; background:#05070a;">
+                      <option value="A_SEVIYESI_BAS_EKSPER" <?= $accLevel === 'A_SEVIYESI_BAS_EKSPER' ? 'selected' : '' ?>>A Seviyesi Başeksper (Müze & Yüksek Değerli Eser)</option>
+                      <option value="B_SEVIYESI_UZMAN" <?= $accLevel === 'B_SEVIYESI_UZMAN' ? 'selected' : '' ?>>B Seviyesi Uzman (Standart Kategori Tescili)</option>
+                      <option value="KURUMSAL_AKREDITE_HEYET" <?= $accLevel === 'KURUMSAL_AKREDITE_HEYET' ? 'selected' : '' ?>>Kurumsal Akredite Heyet (Grup Muayenesi)</option>
+                      <option value="AKREDITE_TEST_LABORATUVARI" <?= $accLevel === 'AKREDITE_TEST_LABORATUVARI' ? 'selected' : '' ?>>Akredite Test & Analiz Laboratuvarı</option>
+                    </select>
+                  </div>
+
+                  <!-- İnceleme Şerhi / Karar Notu -->
+                  <div style="flex:1; min-width:260px;">
+                    <label style="font-size:0.75rem; color:#848d9a; display:block; margin-bottom:4px; font-weight:600;">Kurul İnceleme Notu / Şerhi:</label>
+                    <input type="text" 
+                           name="admin_note" 
+                           value="<?= $adminNote ?>" 
+                           placeholder="Mesleki yeterlilik teyidi, vize notu veya revizyon gerekçesini giriniz..." 
+                           class="martello-input" 
+                           style="width:100%; font-size:0.82rem; background:#05070a;">
+                  </div>
+
+                  <!-- Karar Butonları -->
+                  <div style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
+                    <button type="submit" name="decision" value="APPROVE" class="btn-gold" style="padding:8px 14px; font-size:0.8rem; font-weight:700; cursor:pointer;" title="Mesleki yeterlilik ve lisansı onayla">
+                      ✓ Akredite Et & Lisansla
+                    </button>
+                    <button type="submit" name="decision" value="REVISE" class="btn-outline-gold" style="padding:8px 12px; font-size:0.8rem; cursor:pointer;" title="Eksik evrak/vize yenileme talep et">
+                      ⚠️ Revize İste
+                    </button>
+                    <button type="submit" name="decision" value="SUSPEND" class="btn-dark-pill" style="padding:8px 12px; font-size:0.8rem; border-color:#f59e0b; color:#fbbf24; cursor:pointer;" title="Soruşturma nedeniyle askıya al">
+                      ⏸️ Askıya Al
+                    </button>
+                    <button type="submit" name="decision" value="REJECT" class="btn-dark-pill" style="padding:8px 12px; font-size:0.8rem; background:#450a0a; border-color:#dc2626; color:#fca5a5; cursor:pointer;" onclick="return confirm('Bu eksper veya kurumun akreditasyon dosyasını reddetmek istediğinize emin misiniz?');" title="Akreditasyonu reddet">
+                      ✕ Reddet
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+
+
 
     <!-- 2. TAB: KATEGORİ YÖNETİMİ (SADE: EKLE & SİL) -->
     <div id="admTab_kategoriler" class="tab-content <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">

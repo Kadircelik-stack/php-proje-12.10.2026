@@ -375,6 +375,17 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'manage_expert_accreditation':
+                $id = (int)($post['accreditation_id'] ?? 0);
+                $decision = $post['decision'] ?? 'APPROVE';
+                $level = $post['level'] ?? 'A_SEVIYESI_BAS_EKSPER';
+                $notes = trim($post['admin_note'] ?? '');
+                $res = $this->workflowService->manageAccreditationDossier($id, $decision, $level, $notes, 1);
+                return [
+                    'type' => $res['success'] ? ($decision === 'APPROVE' ? 'success' : 'warning') : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'accredit_expert':
                 $expertId = (int)($post['expert_id'] ?? 4);
                 $approve = ($post['decision'] ?? 'approve') === 'approve';
