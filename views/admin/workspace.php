@@ -17,6 +17,8 @@ $wallets = $db['wallets'] ?? [];
 $products = $db['products'] ?? [];
 $expertAccreditations = $db['expertAccreditations'] ?? [];
 $commissionDefinitions = $controller->getCommissionDefinitions();
+$escrowTransactions = $controller->getEscrowTransactions();
+$escrowSummary = $controller->getEscrowSummary();
 $activeTab = $_GET['tab'] ?? 'konsol';
 
 $lotMap = [];
@@ -53,10 +55,16 @@ foreach ($products as $p) {
             <span>İhtilaf & Tahkim Masası</span>
           </button>
         </li>
-<li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
+        <li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
           <button type="button" data-tab="komisyon" onclick="switchAdminTab('komisyon', this)" style="display:flex; align-items:center; gap:6px; font-weight:600; color:#eab308;">
             <span>💰</span>
             <span>Komisyon & Hizmet Bedelleri</span>
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'escrow' ? 'active' : '' ?>">
+          <button type="button" data-tab="escrow" onclick="switchAdminTab('escrow', this)" style="display:flex; align-items:center; gap:6px; font-weight:600; color:#34d399;">
+            <span>🛡️</span>
+            <span>Emanet & Teminat Bloke</span>
           </button>
         </li>
 
@@ -264,6 +272,9 @@ foreach ($products as $p) {
             </button>
             <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('komisyon', document.querySelector('[data-tab=\'komisyon\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(234,179,8,0.5); color:#facc15;">
               💰 Komisyon Tanımları →
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('escrow', document.querySelector('[data-tab=\'escrow\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(52,211,153,0.5); color:#6ee7b7;">
+              🛡️ Emanet & Bloke Masası →
             </button>
           </div>
         </div>
@@ -1508,7 +1519,321 @@ foreach ($products as $p) {
       });
     </script>
 
-    <!-- 2. TAB: MÜZAYEDE & CANLI İHALE YÖNETİMİ (YUKARI TAŞINDI - BAŞLAT / DURAKLAT / SONLANDIR / PLANLA) -->
+
+    <!-- ====================================================================
+         TAB: EMANET (ESCROW) VE TEMİNAT BLOKE YÖNETİM MASASI (SRS GEREKSİNİMİ)
+         "Teklif verme anında pey teminatının veya satış tutarının emanet hesapta
+          bloke edilmesi, işlem başarıyla tamamlandığında satıcıya aktarılmasıdır."
+         ==================================================================== -->
+    <div id="admTab_escrow" class="tab-content <?= $activeTab === 'escrow' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / EMANET (ESCROW) VE TEMİNAT BLOKE YÖNETİMİ</div>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <h1 class="page-heading" style="margin-bottom:6px;">
+            🛡️ Emanet (Escrow) & Teminat Bloke Yönetim Masası
+          </h1>
+          <p class="page-subheading" style="margin:0; line-height:1.5;">
+            ⚡ "Teklif verme anında pey teminatının veya satış tutarının emanet hesapta bloke edilmesi, işlem başarıyla tamamlandığında satıcıya aktarılmasıdır."
+          </p>
+        </div>
+        <div style="background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.5rem;">🔒</span>
+          <div>
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#34d399; font-weight:700;">%100 ESCROW GÜVENCE MEKANİZMASI</div>
+            <div style="font-size:0.8rem; color:#e2e8f0;">Pey ve satış bedelleri bağımsız emanet havuzunda rehin tutulur.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 KPI Kartı -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:24px;">
+        <div class="kpi-card" style="border-left: 4px solid #facc15; background:linear-gradient(135deg, #182232 0%, #0e1520 100%);">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>💰</span>
+            <span>TOPLAM EMANET HAVUZU (BLOKE)</span>
+          </div>
+          <div class="kpi-value" style="color:#facc15; font-size:1.6rem;">
+            <?= $formatPrice($escrowSummary['totalActiveBlocked']) ?>
+          </div>
+          <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+            <?= $escrowSummary['activeHoldsCount'] ?> aktif işlem güvence altında
+          </div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #38bdf8; background:linear-gradient(135deg, #182232 0%, #0e1520 100%);">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>🔨</span>
+            <span>PEY TEMİNATI BLOKELERİ</span>
+          </div>
+          <div class="kpi-value" style="color:#38bdf8; font-size:1.6rem;">
+            <?= $escrowSummary['bidCollateralsCount'] ?> Adet
+          </div>
+          <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+            Teklif anında kilitlenen teminatlar
+          </div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #fb923c; background:linear-gradient(135deg, #182232 0%, #0e1520 100%);">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>📦</span>
+            <span>SATIŞ TUTARI BLOKELERİ</span>
+          </div>
+          <div class="kpi-value" style="color:#fb923c; font-size:1.6rem;">
+            <?= $escrowSummary['salesEscrowCount'] ?> Adet
+          </div>
+          <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+            Teslimat onayı bekleyen siparişler
+          </div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid #34d399; background:linear-gradient(135deg, #182232 0%, #0e1520 100%);">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>✅</span>
+            <span>SATICIYA AKTARILAN HAKEDİŞ</span>
+          </div>
+          <div class="kpi-value" style="color:#34d399; font-size:1.6rem;">
+            <?= $formatPrice($escrowSummary['totalPaidToSellers']) ?>
+          </div>
+          <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+            <?= $escrowSummary['completedCount'] ?> başarılı teslimat neticesinde
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Adımlı Yaşam Döngüsü Kartı -->
+      <div class="panel-card" style="margin-bottom:24px; border:1px solid #1e293b; background:#0f172a; padding:18px 24px; border-radius:10px;">
+        <div style="font-size:0.88rem; font-weight:700; color:#e2e8f0; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+          <span>📋</span>
+          <span>SRS Emanet (Escrow) Güvence Protokolü ve Otomasyon Yaşam Döngüsü</span>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+          <div style="background:#090e17; border:1px solid #1e293b; border-radius:8px; padding:14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="background:rgba(56,189,248,0.2); color:#38bdf8; font-weight:700; font-size:0.75rem; padding:2px 8px; border-radius:4px;">AŞAMA 1</span>
+              <strong style="font-size:0.85rem; color:#fff;">Pey Teminatı Blokesi</strong>
+            </div>
+            <p style="font-size:0.78rem; color:#94a3b8; margin:0; line-height:1.45;">
+              Alıcı canlı veya VIP pey sürdüğü anda pey teminatı alıcı cüzdanında kilitlenir. Başka bir alıcı daha yüksek pey verirse önceki alıcının blokesi <strong>anında çözülerek iade edilir</strong>.
+            </p>
+          </div>
+
+          <div style="background:#090e17; border:1px solid #1e293b; border-radius:8px; padding:14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="background:rgba(250,204,21,0.2); color:#facc15; font-weight:700; font-size:0.75rem; padding:2px 8px; border-radius:4px;">AŞAMA 2</span>
+              <strong style="font-size:0.85rem; color:#fff;">Satış Bedeli Rehin</strong>
+            </div>
+            <p style="font-size:0.78rem; color:#94a3b8; margin:0; line-height:1.45;">
+              Müzayede kapandığında alıcının ödediği genel toplam satış tutarı <strong>bağımsız emanet havuzunda bloke edilir</strong>. Ürün kargolanıp alıcıya ulaşana kadar satıcıya aktarılmaz.
+            </p>
+          </div>
+
+          <div style="background:#090e17; border:1px solid #1e293b; border-radius:8px; padding:14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="background:rgba(52,211,153,0.2); color:#34d399; font-weight:700; font-size:0.75rem; padding:2px 8px; border-radius:4px;">AŞAMA 3</span>
+              <strong style="font-size:0.85rem; color:#fff;">Satıcıya Aktarım</strong>
+            </div>
+            <p style="font-size:0.78rem; color:#94a3b8; margin:0; line-height:1.45;">
+              Eser ekspertiz ve kargo ile teslim alınıp alıcı veya admin tarafından onaylandığında, platform komisyonu kesilir ve <strong>net hakediş anında satıcı hesabına aktarılır</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtre Sekmeleri & Tablo -->
+      <div class="panel-card" style="padding:0; overflow:hidden;">
+        <div style="padding:16px 20px; border-bottom:1px solid #1f2736; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h3 style="font-size:1.05rem; font-weight:700; color:#fff; margin:0 0 4px 0;">
+              Emanet & Teminat Bloke Hareket Kütüğü
+            </h3>
+            <p style="font-size:0.8rem; color:#848d9a; margin:0;">
+              Tüm pey teminatları ve satış bedelleri denetim iziyle eşzamanlı izlenmektedir.
+            </p>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn-dark-pill btn-sm escrow-filter-btn active" onclick="filterEscrowRows('all', this)" style="padding:6px 14px; font-size:0.78rem;">
+              Tümü (<?= count($escrowTransactions) ?>)
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm escrow-filter-btn" onclick="filterEscrowRows('EMANETTE_BLOKE', this)" style="padding:6px 14px; font-size:0.78rem; color:#facc15;">
+              🔒 Aktif Blokeler (<?= $escrowSummary['activeHoldsCount'] ?>)
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm escrow-filter-btn" onclick="filterEscrowRows('ISLEM_BASARILI_SATICIYA_AKTARILDI', this)" style="padding:6px 14px; font-size:0.78rem; color:#34d399;">
+              💰 Satıcıya Aktarılanlar (<?= $escrowSummary['completedCount'] ?>)
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm escrow-filter-btn" onclick="filterEscrowRows('BLOKE_IADE_EDILDI', this)" style="padding:6px 14px; font-size:0.78rem; color:#94a3b8;">
+              ↩ İade Edilenler (<?= $escrowSummary['refundedCount'] ?>)
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="width:100%; border-collapse:collapse; margin:0;" id="escrowTable">
+            <thead>
+              <tr style="background:#090d14; border-bottom:1px solid #1f2736; color:#94a3b8; font-size:0.78rem; text-transform:uppercase;">
+                <th style="padding:12px 16px;">Emanet No & Ref</th>
+                <th style="padding:12px 16px;">Tür</th>
+                <th style="padding:12px 16px;">Eser / Lot</th>
+                <th style="padding:12px 16px;">Alıcı ➔ Satıcı</th>
+                <th style="padding:12px 16px; text-align:right;">Bloke Tutarı</th>
+                <th style="padding:12px 16px; text-align:right;">Platform Kesintisi</th>
+                <th style="padding:12px 16px; text-align:right;">Satıcı Hakedişi</th>
+                <th style="padding:12px 16px; text-align:center;">Durum</th>
+                <th style="padding:12px 16px; text-align:center;">İşlem & Aktarım</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($escrowTransactions as $esc): 
+                $durum = $esc['durum'] ?? '';
+                $tur = $esc['tur'] ?? '';
+                $isBlocked = ($durum === 'EMANETTE_BLOKE');
+              ?>
+                <tr class="escrow-row" data-status="<?= htmlspecialchars($durum) ?>" style="border-bottom:1px solid #161e2c; font-size:0.83rem;">
+                  <td style="padding:14px 16px;">
+                    <div style="font-weight:700; color:#fff; font-family:'Cinzel', serif;">
+                      <?= htmlspecialchars($esc['emanetNo'] ?? ('ESC-' . $esc['id'])) ?>
+                    </div>
+                    <div style="font-size:0.72rem; color:#64748b; font-family:monospace; margin-top:2px;">
+                      <?= htmlspecialchars($esc['islemKaniti'] ?? '') ?>
+                    </div>
+                    <div style="font-size:0.7rem; color:#8b949e; margin-top:2px;">
+                      <?= substr($esc['blokeZamani'] ?? '', 0, 16) ?>
+                    </div>
+                  </td>
+
+                  <td style="padding:14px 16px;">
+                    <?php if ($tur === 'PEY_TEMINATI'): ?>
+                      <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.72rem; padding:4px 8px;">
+                        🔨 Pey Teminatı
+                      </span>
+                    <?php else: ?>
+                      <span class="badge" style="background:rgba(251,146,60,0.15); color:#fb923c; border:1px solid rgba(251,146,60,0.3); font-size:0.72rem; padding:4px 8px;">
+                        📦 Satış Tutarı
+                      </span>
+                    <?php endif; ?>
+                  </td>
+
+                  <td style="padding:14px 16px;">
+                    <div style="font-weight:600; color:#fff;">
+                      <?= htmlspecialchars($esc['urunBaslik'] ?? 'Müzayede Eseri') ?>
+                    </div>
+                    <div style="font-size:0.73rem; color:#d4af37;">
+                      Lot: <?= htmlspecialchars($esc['lotKodu'] ?? ('AUC-' . ($esc['lotId'] ?? ''))) ?>
+                    </div>
+                  </td>
+
+                  <td style="padding:14px 16px;">
+                    <div style="color:#cbd5e1; font-size:0.8rem;">
+                      <span style="color:#94a3b8;">Alıcı:</span> <?= htmlspecialchars($esc['aliciAd'] ?? ('Kullanıcı #' . ($esc['aliciId'] ?? ''))) ?>
+                    </div>
+                    <div style="color:#34d399; font-size:0.8rem; margin-top:3px;">
+                      <span style="color:#94a3b8;">Satıcı:</span> <?= htmlspecialchars($esc['saticiAd'] ?? ('Satıcı #' . ($esc['saticiId'] ?? ''))) ?>
+                    </div>
+                  </td>
+
+                  <td style="padding:14px 16px; text-align:right; font-family:'Cinzel', serif; font-weight:700; color:#facc15; font-size:0.95rem;">
+                    <?= $formatPrice((float)($esc['blokeTutari'] ?? 0)) ?>
+                  </td>
+
+                  <td style="padding:14px 16px; text-align:right; font-size:0.8rem; color:#94a3b8;">
+                    <div>%<?= (float)($esc['kesintiOrani'] ?? 8) ?> (<?= $formatPrice((float)($esc['kesintiTutari'] ?? 0)) ?>)</div>
+                    <div style="font-size:0.72rem; color:#64748b;">+ <?= $formatPrice((float)($esc['sabitHarc'] ?? 750)) ?> Sabit</div>
+                  </td>
+
+                  <td style="padding:14px 16px; text-align:right; font-family:'Cinzel', serif; font-weight:700; color:#34d399; font-size:0.95rem;">
+                    <?= $formatPrice((float)($esc['netSaticiHakedis'] ?? 0)) ?>
+                  </td>
+
+                  <td style="padding:14px 16px; text-align:center;">
+                    <?php if ($durum === 'EMANETTE_BLOKE'): ?>
+                      <span class="badge" style="background:#854d0e; color:#fef08a; padding:5px 10px; font-size:0.72rem; border:1px solid #ca8a04;">
+                        🔒 Emanette Bloke
+                      </span>
+                    <?php elseif ($durum === 'ISLEM_BASARILI_SATICIYA_AKTARILDI'): ?>
+                      <span class="badge" style="background:#14532d; color:#86efac; padding:5px 10px; font-size:0.72rem; border:1px solid #16a34a;">
+                        ✓ Satıcıya Aktarıldı
+                      </span>
+                    <?php else: ?>
+                      <span class="badge" style="background:#1e293b; color:#94a3b8; padding:5px 10px; font-size:0.72rem; border:1px solid #334155;">
+                        ↩ İade Edildi
+                      </span>
+                    <?php endif; ?>
+                  </td>
+
+                  <td style="padding:14px 16px; text-align:center;">
+                    <?php if ($isBlocked): ?>
+                      <div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+                        <!-- Satıcıya Aktar Butonu -->
+                        <form method="POST" style="margin:0;" onsubmit="return confirm('DİKKAT: İşlem başarıyla tamamlandı olarak onaylanacaktır.\n\nBloke edilen emanet bedelinden platform komisyonu kesilerek net <?= $formatPrice((float)$esc['netSaticiHakedis']) ?> satıcı cüzdanına aktarılacaktır.\n\nOnaylıyor musunuz?');">
+                          <input type="hidden" name="action" value="complete_escrow_payout">
+                          <input type="hidden" name="escrow_id" value="<?= (int)$esc['id'] ?>">
+                          <input type="hidden" name="actor_id" value="1">
+                          <input type="hidden" name="actor_role" value="ADMIN">
+                          <button type="submit" class="btn-sm btn-gold" style="font-weight:700; padding:6px 14px; font-size:0.78rem; background:#10b981; border-color:#059669; color:#fff; cursor:pointer;">
+                            ✓ Satıcıya Aktar
+                          </button>
+                        </form>
+
+                        <!-- Blokeyi İade Et Butonu -->
+                        <form method="POST" style="margin:0;" onsubmit="return confirm('Emanet blokesi çözülecek ve <?= $formatPrice((float)$esc['blokeTutari']) ?> alıcı hesabına iade edilecektir. Onaylıyor musunuz?');">
+                          <input type="hidden" name="action" value="refund_escrow_hold">
+                          <input type="hidden" name="escrow_id" value="<?= (int)$esc['id'] ?>">
+                          <input type="hidden" name="actor_id" value="1">
+                          <input type="hidden" name="reason" value="Admin denetimiyle emanet blokesi çözüldü ve alıcıya iade edildi">
+                          <button type="submit" class="btn-sm" style="background:#1e293b; border:1px solid #334155; color:#94a3b8; padding:4px 10px; font-size:0.72rem; cursor:pointer;">
+                            ↩ Blokeyi İade Et
+                          </button>
+                        </form>
+                      </div>
+                    <?php elseif ($durum === 'ISLEM_BASARILI_SATICIYA_AKTARILDI'): ?>
+                      <div style="color:#34d399; font-size:0.75rem; font-weight:600;">
+                        ✓ Hakediş Ödendi
+                      </div>
+                      <div style="font-size:0.68rem; color:#64748b;">
+                        <?= substr($esc['aktarimZamani'] ?? '', 0, 16) ?>
+                      </div>
+                    <?php else: ?>
+                      <div style="color:#94a3b8; font-size:0.75rem;">
+                        ↩ Alıcıya İade Edildi
+                      </div>
+                      <div style="font-size:0.68rem; color:#64748b;">
+                        <?= substr($esc['iadeZamani'] ?? '', 0, 16) ?>
+                      </div>
+                    <?php endif; ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function filterEscrowRows(status, btn) {
+        document.querySelectorAll('.escrow-filter-btn').forEach(function(b) {
+          b.classList.remove('active');
+          b.style.borderColor = '';
+        });
+        if (btn) {
+          btn.classList.add('active');
+          btn.style.borderColor = 'var(--gold-primary)';
+        }
+
+        const rows = document.querySelectorAll('.escrow-row');
+        rows.forEach(function(row) {
+          if (status === 'all' || row.getAttribute('data-status') === status) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+    </script>
+
+
+        <!-- 2. TAB: MÜZAYEDE & CANLI İHALE YÖNETİMİ (YUKARI TAŞINDI - BAŞLAT / DURAKLAT / SONLANDIR / PLANLA) -->
     <div id="admTab_moderasyon" class="tab-content <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / MÜZAYEDE & CANLI İHALE KONTROLÜ</div>
       

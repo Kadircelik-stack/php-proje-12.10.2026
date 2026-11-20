@@ -506,6 +506,27 @@ class WebAndApiController
                     'text' => "3D Secure Sanal POS onayı alındı (≤3sn). Sipariş başarıyla ödendi.",
                 ];
 
+            case 'complete_escrow_payout':
+                $escrowId = (int)($post['escrow_id'] ?? 0);
+                $actorId = (int)($post['actor_id'] ?? 1);
+                $actorRole = trim($post['actor_role'] ?? 'ADMIN');
+                $note = trim($post['release_note'] ?? 'İşlem başarıyla tamamlandı. Emanet bloke çözüldü ve satıcıya aktarıldı.');
+                $res = $this->workflowService->completeEscrowTransactionAndPayout($escrowId, $actorId, $actorRole, $note);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'refund_escrow_hold':
+                $escrowId = (int)($post['escrow_id'] ?? 0);
+                $actorId = (int)($post['actor_id'] ?? 1);
+                $reason = trim($post['reason'] ?? 'İptal / İade kararı');
+                $res = $this->workflowService->refundEscrowHold($escrowId, $actorId, $reason);
+                return [
+                    'type' => $res['success'] ? 'warning' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'cancel_listing':
                 $listingId = (int)($post['listing_id'] ?? 0);
                 $sellerId = (int)($post['seller_id'] ?? 2);
@@ -643,5 +664,21 @@ class WebAndApiController
     public function getCommissionDefinitions(): array
     {
         return $this->workflowService->getCommissionDefinitions();
+    }
+
+    /**
+     * Emanet & Teminat Bloke İşlemlerini Döner
+     */
+    public function getEscrowTransactions(?string $status = null, ?string $type = null): array
+    {
+        return $this->workflowService->getEscrowTransactions($status, $type);
+    }
+
+    /**
+     * Emanet & Teminat Bloke Özet İstatistiklerini Döner
+     */
+    public function getEscrowSummary(): array
+    {
+        return $this->workflowService->getEscrowSummary();
     }
 }

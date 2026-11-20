@@ -369,7 +369,21 @@ $activeTab = $_GET['tab'] ?? 'genel';
     <div id="sellerTab_bakiye" class="tab-content <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
       <div class="page-breadcrumb">SATICI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Bakiye ve Komisyon</h1>
-      <p class="page-subheading">Kategori bazlı komisyon kesintileri ve hakedişleriniz</p>
+      <p class="page-subheading">Kategori bazlı komisyon kesintileri, emanet blokajları ve hakedişleriniz</p>
+
+      <!-- SRS Escrow & Hakediş Güvence Protokolü -->
+      <div style="background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.25); border-radius:8px; padding:12px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.4rem;">🛡️</span>
+          <div>
+            <strong style="color:#34d399; font-size:0.85rem;">SRS Emanet (Escrow) & Güvenli Tahsilat Mekanizması:</strong>
+            <span style="color:#94a3b8; font-size:0.8rem; display:block;">
+              ⚡ Teklif verme anında pey teminatının veya satış tutarının emanet hesapta bloke edilmesi, işlem başarıyla tamamlandığında satıcıya aktarılmasıdır.
+            </span>
+          </div>
+        </div>
+        <span class="badge" style="background:#064e3b; color:#6ee7b7; border:1px solid #059669; font-size:0.75rem; padding:4px 10px;">%100 Tahsilat Koruması</span>
+      </div>
 
       <!-- Yan Yana 2 Sütunlu Yerleşim: Bakiye Özeti ve Hakediş Transfer Formu -->
       <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:24px; align-items:start;">
@@ -382,8 +396,8 @@ $activeTab = $_GET['tab'] ?? 'genel';
             Antika & Sanat kategorisi komisyon oranı: <strong>%8</strong> • Sabit Ekspertiz Bedeli: <strong><?= $formatPrice(1500) ?></strong>
           </div>
           <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border-color); font-size:0.82rem; color:#8b949e;">
-            Bloke Edilen Ekspertiz Bedeli: <strong><?= $formatPrice(1500) ?></strong><br>
-            Net Çekilebilir Tutar: <strong style="color:#3fb950;"><?= $formatPrice(141300) ?></strong>
+            Emanette Bloke Bekleyen Satış: <strong style="color:#facc15;"><?= $formatPrice(64250) ?></strong><br>
+            Net Çekilebilir Bakiye: <strong style="color:#3fb950;"><?= $formatPrice(141300) ?></strong>
           </div>
         </div>
 
@@ -406,6 +420,80 @@ $activeTab = $_GET['tab'] ?? 'genel';
             </button>
           </form>
         </div>
+      </div>
+
+      <!-- Emanetteki Satışlarım ve Hakediş Durumu Tablosu -->
+      <div class="panel-card" style="margin-top:24px; padding:0; overflow:hidden;">
+        <div style="padding:14px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-weight:600; color:#fff; font-size:0.95rem;">Emanetteki Satışlarım & Hakediş Durumu</div>
+          <span class="badge badge-gold" style="font-size:0.72rem;">Emanet Takip Kütüğü</span>
+        </div>
+        <table class="data-table" style="margin:0;">
+          <thead>
+            <tr>
+              <th style="padding-left:20px;">Eser / Lot</th>
+              <th>Alıcı</th>
+              <th>Brüt Satış</th>
+              <th>Komisyon & Harç</th>
+              <th>Net Hakedişiniz</th>
+              <th>Emanet Durumu</th>
+              <th style="padding-right:20px;">İşlem Durumu</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding-left:20px; font-weight:600; color:#fff;">
+                1920'ler Osmanlı Halı Levhası <span style="color:#d4af37; font-size:0.75rem;">(AUC-1001)</span>
+              </td>
+              <td>Emre Kaya (#3)</td>
+              <td style="font-family:var(--font-serif); font-weight:700; color:#facc15;"><?= $formatPrice(70200) ?></td>
+              <td style="color:#94a3b8; font-size:0.8rem;">-%8 (<?= $formatPrice(5200) ?>) + <?= $formatPrice(750) ?></td>
+              <td style="font-family:var(--font-serif); font-weight:700; color:#34d399;"><?= $formatPrice(64250) ?></td>
+              <td>
+                <span class="badge" style="background:#854d0e; color:#fef08a; border:1px solid #ca8a04; font-size:0.72rem; padding:3px 8px;">
+                  🔒 Emanette Bloke
+                </span>
+              </td>
+              <td style="padding-right:20px; color:#94a3b8; font-size:0.8rem;">
+                Kargo Dağıtımda (Alıcı onayı bekleniyor)
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; font-weight:600; color:#fff;">
+                Antika Seramik Vazo <span style="color:#d4af37; font-size:0.75rem;">(AUC-0991)</span>
+              </td>
+              <td>Emre Karahan (#6)</td>
+              <td style="font-family:var(--font-serif); font-weight:700; color:#facc15;"><?= $formatPrice(13824) ?></td>
+              <td style="color:#94a3b8; font-size:0.8rem;">-%8 (<?= $formatPrice(1024) ?>) + <?= $formatPrice(500) ?></td>
+              <td style="font-family:var(--font-serif); font-weight:700; color:#34d399;"><?= $formatPrice(12300) ?></td>
+              <td>
+                <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
+                  ✓ Satıcıya Aktarıldı
+                </span>
+              </td>
+              <td style="padding-right:20px; color:#34d399; font-size:0.8rem; font-weight:600;">
+                ✓ Hesaba Aktarıldı
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; font-weight:600; color:#fff;">
+                Nadir Kitap Koleksiyonu <span style="color:#d4af37; font-size:0.75rem;">(AUC-0984)</span>
+              </td>
+              <td>Emre Karahan (#6)</td>
+              <td style="font-family:var(--font-serif); font-weight:700; color:#facc15;"><?= $formatPrice(9752) ?></td>
+              <td style="color:#94a3b8; font-size:0.8rem;">-%6 (<?= $formatPrice(552) ?>) + <?= $formatPrice(500) ?></td>
+              <td style="font-family:var(--font-serif); font-weight:700; color:#34d399;"><?= $formatPrice(8700) ?></td>
+              <td>
+                <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
+                  ✓ Satıcıya Aktarıldı
+                </span>
+              </td>
+              <td style="padding-right:20px; color:#34d399; font-size:0.8rem; font-weight:600;">
+                ✓ Hesaba Aktarıldı
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

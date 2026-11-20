@@ -2027,6 +2027,18 @@ class PlatformWorkflowService
                     'sonGuncelleme' => date('c'),
                 ]);
             }
+
+            // Bağlı emanet/teminat blokesini de iade durumuna getir
+            $activeEscrows = $this->dataStore->getCollection('escrowTransactions');
+            foreach ($activeEscrows as $ae) {
+                if ((int)($ae['lotId'] ?? 0) === $lotId && (int)($ae['aliciId'] ?? 0) === $bidderUserId && ($ae['durum'] ?? '') === 'EMANETTE_BLOKE') {
+                    $this->dataStore->updateItem('escrowTransactions', 'id', $ae['id'], [
+                        'durum'          => 'BLOKE_IADE_EDILDI',
+                        'iadeZamani'     => date('c'),
+                        'islemGerekcesi' => "Kural dışı/hatalı pey iptali (#{$bidId}) nedeniyle emanet bloke çözüldü ve iade edildi. Gerekçe: {$reason}",
+                    ]);
+                }
+            }
         }
 
         // 4. Denetim İzi (Audit Log) Tescili
@@ -2264,6 +2276,179 @@ class PlatformWorkflowService
         return [
             'success' => true,
             'message' => "✓ '{$item['adSoyadUnvan']}' mesleki yeterlilik ve lisans dosyası {$actionText}.",
+        ];
+    }
+
+    /**
+     * SRS: Teklif verme anında pey teminatının veya satış tutarının emanet hesapta bloke edilmesi,
+     * işlem başarıyla tamamlandığında satıcıya aktarılmasıdır.
+     */
+    public function getEscrowTransactions(?string $status = null, ?string $type = null): array
+    {
+        $items = $this->dataStore->getCollection('escrowTransactions');
+        if ($status !== null && $status !== '') {
+            $items = array_filter($items, static fn($i) => ($i['durum'] ?? '') === $status);
+        }
+        if ($type !== null && $type !== '') {
+            $items = array_filter($items, static fn($i) => ($i['tur'] ?? '') === $type);
+        }
+        usort($items, static fn($a, $b) => strcmp($b['blokeZamani'] ?? '', $a['blokeZamani'] ?? ''));
+        return array_values($items);
+    }
+
+    public function getEscrowSummary(): array
+    {
+        $all = $this->dataStore->getCollection('escrowTransactions');
+        $activeHolds = array_filter($all, static fn($i) => ($i['durum'] ?? '') === 'EMANETTE_BLOKE');
+        $completed = array_filter($all, static fn($i) => ($i['durum'] ?? '') === 'ISLEM_BASARILI_SATICIYA_AKTARILDI');
+        $refunded = array_filter($all, static fn($i) => ($i['durum'] ?? '') === 'BLOKE_IADE_EDILDI');
+
+        $totalActiveBlocked = array_sum(array_map(static fn($i) => (float)($i['blokeTutari'] ?? 0), $activeHolds));
+        $totalPaidToSellers = array_sum(array_map(static fn($i) => (float)($i['netSaticiHakedis'] ?? 0), $completed));
+        $bidCollateralsCount = count(array_filter($activeHolds, static fn($i) => ($i['tur'] ?? '') === 'PEY_TEMINATI'));
+        $salesEscrowCount = count(array_filter($activeHolds, static fn($i) => ($i['tur'] ?? '') === 'SATIS_TUTARI'));
+
+        return [
+            'totalActiveBlocked'   => $totalActiveBlocked,
+            'totalPaidToSellers'   => $totalPaidToSellers,
+            'activeHoldsCount'     => count($activeHolds),
+            'bidCollateralsCount'  => $bidCollateralsCount,
+            'salesEscrowCount'     => $salesEscrowCount,
+            'completedCount'       => count($completed),
+            'refundedCount'        => count($refunded),
+        ];
+    }
+
+    /**
+     * İşlem başarıyla tamamlandığında emanet blokesinin çözülüp satıcıya aktarılmasıdır.
+     */
+    public function completeEscrowTransactionAndPayout(int $escrowId, int $actorId = 1, string $actorRole = 'ADMIN', string $releaseNote = ''): array
+    {
+        $escrow = $this->dataStore->getItem('escrowTransactions', 'id', $escrowId);
+        if (!$escrow) {
+            return ['success' => false, 'message' => "Emanet/bloke işlemi (#{$escrowId}) bulunamadı."];
+        }
+
+        if (($escrow['durum'] ?? '') !== 'EMANETTE_BLOKE') {
+            return ['success' => false, 'message' => "Bu işlem zaten sonuçlandırılmış (Mevcut Durum: {$escrow['durum']})."];
+        }
+
+        $now = date('c');
+        $blockedAmount = (float)($escrow['blokeTutari'] ?? 0);
+        $commissionFee = (float)($escrow['kesintiTutari'] ?? 0);
+        $fixedFee = (float)($escrow['sabitHarc'] ?? 0);
+        $netPayout = (float)($escrow['netSaticiHakedis'] ?? max(0.0, $blockedAmount - $commissionFee - $fixedFee));
+
+        $sellerId = (int)($escrow['saticiId'] ?? 2);
+        $buyerId = (int)($escrow['aliciId'] ?? 3);
+
+        // 1. Satıcı cüzdanına net hakedişi aktar
+        $sellerWallet = $this->dataStore->getItem('wallets', 'kullaniciId', $sellerId);
+        if ($sellerWallet) {
+            $curSellerBal = (float)($sellerWallet['bakiye'] ?? 0);
+            $this->dataStore->updateItem('wallets', 'id', $sellerWallet['id'], [
+                'bakiye'        => $curSellerBal + $netPayout,
+                'sonGuncelleme' => $now,
+            ]);
+        }
+
+        // 2. Alıcı cüzdanındaki bloke bakiyeyi düş
+        $buyerWallet = $this->dataStore->getItem('wallets', 'kullaniciId', $buyerId);
+        if ($buyerWallet) {
+            $curBuyerBlk = (float)($buyerWallet['blokeBakiye'] ?? 0);
+            $this->dataStore->updateItem('wallets', 'id', $buyerWallet['id'], [
+                'blokeBakiye'   => max(0.0, $curBuyerBlk - $blockedAmount),
+                'sonGuncelleme' => $now,
+            ]);
+        }
+
+        // 3. Emanet işlemini güncelle
+        $this->dataStore->updateItem('escrowTransactions', 'id', $escrowId, [
+            'durum'              => 'ISLEM_BASARILI_SATICIYA_AKTARILDI',
+            'aktarimZamani'      => $now,
+            'aktaranKullaniciId' => $actorId,
+            'aktaranRol'         => $actorRole,
+            'aktarimNotu'        => $releaseNote ?: 'İşlem başarıyla tamamlandı. Emanet bloke çözüldü ve net hakediş satıcıya aktarıldı.',
+        ]);
+
+        // 4. Bağlı sipariş varsa güncelle
+        if (!empty($escrow['siparisNo'])) {
+            $order = $this->dataStore->getItem('orders', 'siparisNo', $escrow['siparisNo']);
+            if ($order) {
+                $this->dataStore->updateItem('orders', 'id', $order['id'], [
+                    'siparisDurumu' => 'Teslim Edildi & Satıcıya Aktarıldı',
+                    'emanetDurumu'  => 'SATICIYA_AKTARILDI',
+                ]);
+            }
+        }
+
+        // 5. Noter onaylı denetim kütüğü (Audit Log)
+        $this->dataStore->insertItem('auditLogs', [
+            'islemTuru'   => 'ESCROW_SATICIYA_HAKEDIS_AKTARIMI',
+            'kullaniciId' => $actorId,
+            'hedefTur'    => 'ESCROW_TRANSACTION',
+            'hedefId'     => $escrowId,
+            'aciklama'    => "İşlem başarıyla tamamlandı: #{$escrow['emanetNo']} nolu emanet hesaptaki ₺" . number_format($blockedAmount, 2, ',', '.') . " tutarındaki bloke serbest bırakıldı. Platform komisyonu (₺" . number_format($commissionFee + $fixedFee, 2, ',', '.') . ") kesilerek net ₺" . number_format($netPayout, 2, ',', '.') . " satıcı #{$sellerId} ({$escrow['saticiAd']}) cüzdanına aktarıldı. Aktaran: {$actorRole} (#{$actorId}).",
+            'tarih'       => $now,
+            'ipAdresi'    => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+        ]);
+
+        $this->dataStore->commit();
+
+        return [
+            'success' => true,
+            'message' => "✓ İşlem başarıyla tamamlandı! ₺" . number_format($blockedAmount, 2, ',', '.') . " emanet blokesi çözüldü ve net ₺" . number_format($netPayout, 2, ',', '.') . " satıcı hesabına aktarıldı.",
+        ];
+    }
+
+    /**
+     * Uyuşmazlık veya iptal durumunda emanet blokesinin alıcıya iadesi.
+     */
+    public function refundEscrowHold(int $escrowId, int $actorId = 1, string $reason = ''): array
+    {
+        $escrow = $this->dataStore->getItem('escrowTransactions', 'id', $escrowId);
+        if (!$escrow) {
+            return ['success' => false, 'message' => "Emanet/bloke işlemi (#{$escrowId}) bulunamadı."];
+        }
+
+        if (($escrow['durum'] ?? '') !== 'EMANETTE_BLOKE') {
+            return ['success' => false, 'message' => "Bu işlem zaten aktif emanet blokesinde değil."];
+        }
+
+        $now = date('c');
+        $blockedAmount = (float)($escrow['blokeTutari'] ?? 0);
+        $buyerId = (int)($escrow['aliciId'] ?? 3);
+
+        $buyerWallet = $this->dataStore->getItem('wallets', 'kullaniciId', $buyerId);
+        if ($buyerWallet) {
+            $curBuyerBlk = (float)($buyerWallet['blokeBakiye'] ?? 0);
+            $this->dataStore->updateItem('wallets', 'id', $buyerWallet['id'], [
+                'blokeBakiye'   => max(0.0, $curBuyerBlk - $blockedAmount),
+                'sonGuncelleme' => $now,
+            ]);
+        }
+
+        $this->dataStore->updateItem('escrowTransactions', 'id', $escrowId, [
+            'durum'         => 'BLOKE_IADE_EDILDI',
+            'iadeZamani'    => $now,
+            'iadeGerekcesi' => $reason ?: 'İşlem iptali/iadesi nedeniyle bloke çözüldü ve alıcıya iade edildi.',
+        ]);
+
+        $this->dataStore->insertItem('auditLogs', [
+            'islemTuru'   => 'ESCROW_BLOKE_IADESI',
+            'kullaniciId' => $actorId,
+            'hedefTur'    => 'ESCROW_TRANSACTION',
+            'hedefId'     => $escrowId,
+            'aciklama'    => "Emanet bloke iadesi: #{$escrow['emanetNo']} nolu ₺" . number_format($blockedAmount, 2, ',', '.') . " tutarındaki bloke çözülerek alıcı #{$buyerId} hesabına iade edildi. Gerekçe: {$reason}",
+            'tarih'       => $now,
+            'ipAdresi'    => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+        ]);
+
+        $this->dataStore->commit();
+
+        return [
+            'success' => true,
+            'message' => "✓ ₺" . number_format($blockedAmount, 2, ',', '.') . " tutarındaki emanet blokesi çözülerek alıcıya iade edildi.",
         ];
     }
 }

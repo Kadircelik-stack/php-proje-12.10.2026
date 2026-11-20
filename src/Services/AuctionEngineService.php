@@ -139,7 +139,7 @@ class AuctionEngineService
                 'teklifTutari' => $lot['mevcutEnYuksekTeklif'] ?? 0.0,
             ];
 
-            // Önceki liderin cüzdan blokesini çöz (FR-23)
+            // Önceki liderin cüzdan blokesini çöz (FR-23) ve emanet kaydını güncelle
             if (!empty($prevLeader['aliciId']) && (int)$prevLeader['aliciId'] !== $userId) {
                 $prevWallet = $this->dataStore->getItem('wallets', 'kullaniciId', $prevLeader['aliciId']);
                 if ($prevWallet) {
@@ -149,6 +149,17 @@ class AuctionEngineService
                         'blokeBakiye'   => $newBlocked,
                         'sonGuncelleme' => date('c'),
                     ]);
+                }
+
+                $activeEscrows = $this->dataStore->getCollection('escrowTransactions');
+                foreach ($activeEscrows as $ae) {
+                    if ((int)($ae['lotId'] ?? 0) === $lotId && (int)($ae['aliciId'] ?? 0) === (int)$prevLeader['aliciId'] && ($ae['durum'] ?? '') === 'EMANETTE_BLOKE' && ($ae['tur'] ?? '') === 'PEY_TEMINATI') {
+                        $this->dataStore->updateItem('escrowTransactions', 'id', $ae['id'], [
+                            'durum'          => 'BLOKE_IADE_EDILDI',
+                            'iadeZamani'     => date('c'),
+                            'islemGerekcesi' => 'Yeni daha yüksek pey verilmesi nedeniyle teminat blokesi çözüldü ve alıcıya iade edildi.',
+                        ]);
+                    }
                 }
             }
 
@@ -160,6 +171,39 @@ class AuctionEngineService
                     'sonGuncelleme' => date('c'),
                 ]);
             }
+
+            // SRS: Teklif verme anında pey teminatının emanet hesapta bloke edilmesi
+            $buyerName = trim(($user['ad'] ?? '') . ' ' . ($user['soyad'] ?? ''));
+            $sellerId = (int)($lot['saticiId'] ?? 2);
+            $seller = $this->dataStore->getItem('users', 'id', $sellerId);
+            $sellerName = $seller ? trim(($seller['ad'] ?? '') . ' ' . ($seller['soyad'] ?? '')) : 'Mehmet Kaya';
+            $commissionRate = 8.0;
+            $commAmount = $amount * ($commissionRate / 100);
+            $escrowFixedFee = 750.0;
+            $netSeller = max(0.0, $amount - $commAmount - $escrowFixedFee);
+
+            $this->dataStore->insertItem('escrowTransactions', [
+                'emanetNo'       => 'ESC-PEY-' . $lotId . '-' . time(),
+                'tur'            => 'PEY_TEMINATI',
+                'lotId'          => $lotId,
+                'lotKodu'        => $lot['kod'] ?? ('AUC-' . $lotId),
+                'urunBaslik'     => $lot['baslik'] ?? 'Müzayede Eseri',
+                'aliciId'        => $userId,
+                'aliciAd'        => $buyerName ?: 'Alıcı Koleksiyoner',
+                'saticiId'       => $sellerId,
+                'saticiAd'       => $sellerName,
+                'blokeTutari'    => $amount,
+                'paraBirimi'     => $lot['paraBirimi'] ?? 'TRY',
+                'kesintiOrani'   => $commissionRate,
+                'kesintiTutari'  => $commAmount,
+                'sabitHarc'      => $escrowFixedFee,
+                'netSaticiHakedis' => $netSeller,
+                'durum'          => 'EMANETTE_BLOKE',
+                'blokeZamani'    => date('c'),
+                'aktarimZamani'  => null,
+                'islemKaniti'    => $payResult['transactionId'] ?? ('TX-ESCROW-' . strtoupper(bin2hex(random_bytes(5)))),
+                'islemGerekcesi' => 'Teklif verme anında pey teminatı emanet hesapta bloke edildi.',
+            ]);
 
             // Teklif nesnesi oluştur
             $anonKod = $user['anonimKod'] ?? ('Anonim-' . substr(md5((string)$userId), 0, 4));

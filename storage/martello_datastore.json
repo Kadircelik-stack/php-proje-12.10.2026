@@ -314,17 +314,17 @@
             "id": 102,
             "kullaniciId": 2,
             "paraBirimi": "TRY",
-            "bakiye": 25000,
+            "bakiye": 89250,
             "blokeBakiye": 0,
             "aktifBlokeler": [],
-            "sonGuncelleme": "2026-11-18T13:01:12+00:00"
+            "sonGuncelleme": "2026-11-20T19:47:02+00:00"
         },
         {
             "id": 103,
             "kullaniciId": 3,
             "paraBirimi": "TRY",
             "bakiye": 2665000,
-            "blokeBakiye": 16383500,
+            "blokeBakiye": 16313300,
             "aktifBlokeler": [
                 {
                     "blokeId": "BLK-2026-9001",
@@ -336,7 +336,7 @@
                     "olusturmaZamani": "2026-10-12T21:15:30+03:00"
                 }
             ],
-            "sonGuncelleme": "2026-11-20T17:55:13+00:00"
+            "sonGuncelleme": "2026-11-20T19:47:02+00:00"
         },
         {
             "id": 104,
@@ -3195,8 +3195,9 @@
             "komisyonTutari": 5200,
             "genelToplamTutar": 70200,
             "paraBirimi": "TRY",
-            "siparisDurumu": "Ödendi",
-            "kargoTakipNo": "KRG-99887766"
+            "siparisDurumu": "Teslim Edildi & Satıcıya Aktarıldı",
+            "kargoTakipNo": "KRG-99887766",
+            "emanetDurumu": "SATICIYA_AKTARILDI"
         },
         {
             "id": 5002,
@@ -3702,6 +3703,16 @@
             "ipAdresi": "127.0.0.1",
             "tarih": "2026-11-20T18:26:50+00:00",
             "id": 9
+        },
+        {
+            "islemTuru": "ESCROW_SATICIYA_HAKEDIS_AKTARIMI",
+            "kullaniciId": 1,
+            "hedefTur": "ESCROW_TRANSACTION",
+            "hedefId": 7001,
+            "aciklama": "İşlem başarıyla tamamlandı: #ESC-2026-001 nolu emanet hesaptaki ₺70.200,00 tutarındaki bloke serbest bırakıldı. Platform komisyonu (₺5.950,00) kesilerek net ₺64.250,00 satıcı #2 (Mehmet Kaya) cüzdanına aktarıldı. Aktaran: ADMIN (#1).",
+            "tarih": "2026-11-20T19:47:02+00:00",
+            "ipAdresi": "127.0.0.1",
+            "id": 10
         }
     ],
     "pastSales": [
@@ -4108,5 +4119,130 @@
                 "sabitEkspertizBedeli": 1200
             }
         ]
-    }
+    },
+    "escrowTransactions": [
+        {
+            "id": 7001,
+            "emanetNo": "ESC-2026-001",
+            "tur": "SATIS_TUTARI",
+            "siparisNo": "ORD-2026-1001",
+            "lotId": 1001,
+            "lotKodu": "AUC-1001",
+            "urunBaslik": "1920'ler Osmanlı Halı Levhası",
+            "aliciId": 3,
+            "aliciAd": "Emre Kaya",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 70200,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 5200,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 64250,
+            "durum": "ISLEM_BASARILI_SATICIYA_AKTARILDI",
+            "blokeZamani": "2026-10-12T20:15:00+03:00",
+            "aktarimZamani": "2026-11-20T19:47:02+00:00",
+            "islemKaniti": "TX-ESCROW-89C4F1A2",
+            "islemGerekcesi": "Satış anında genel toplam satış tutarı emanet hesapta bloke edildi. Kargo teslimatı ve alıcı onayı bekleniyor.",
+            "aktaranKullaniciId": 1,
+            "aktaranRol": "ADMIN",
+            "aktarimNotu": "Test onay: İşlem başarıyla tamamlandı, satıcıya aktarıldı."
+        },
+        {
+            "id": 7002,
+            "emanetNo": "ESC-2026-002",
+            "tur": "PEY_TEMINATI",
+            "lotId": 1002,
+            "lotKodu": "AUC-1002",
+            "urunBaslik": "1968 İsviçre Vintage Saat",
+            "aliciId": 3,
+            "aliciAd": "Emre Kaya",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 71400,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 5712,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 64938,
+            "durum": "EMANETTE_BLOKE",
+            "blokeZamani": "2026-10-12T21:40:00+03:00",
+            "aktarimZamani": null,
+            "islemKaniti": "TX-ESCROW-2B9D43E7",
+            "islemGerekcesi": "Teklif verme anında pey teminatı alıcı cüzdanından emanet havuzunda bloke edildi."
+        },
+        {
+            "id": 7003,
+            "emanetNo": "ESC-2026-003",
+            "tur": "SATIS_TUTARI",
+            "siparisNo": "ORD-2026-0991",
+            "lotId": 1003,
+            "lotKodu": "AUC-0991",
+            "urunBaslik": "Antika Seramik Vazo",
+            "aliciId": 6,
+            "aliciAd": "Emre Karahan",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 13824,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 1024,
+            "sabitHarc": 500,
+            "netSaticiHakedis": 12300,
+            "durum": "ISLEM_BASARILI_SATICIYA_AKTARILDI",
+            "blokeZamani": "2026-10-10T14:20:00+03:00",
+            "aktarimZamani": "2026-10-12T16:00:00+03:00",
+            "aktaranRol": "ADMIN",
+            "islemKaniti": "TX-ESCROW-71A094EE",
+            "islemGerekcesi": "Kargo teslimatı ve orijinallik kontrolü tamamlandı. Emanet bloke çözüldü, net hakediş satıcıya aktarıldı."
+        },
+        {
+            "id": 7004,
+            "emanetNo": "ESC-2026-004",
+            "tur": "PEY_TEMINATI",
+            "lotId": 1001,
+            "lotKodu": "AUC-1001",
+            "urunBaslik": "1920'ler Osmanlı Halı Levhası",
+            "aliciId": 6,
+            "aliciAd": "Emre Karahan",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 12000,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 960,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 10290,
+            "durum": "BLOKE_IADE_EDILDI",
+            "blokeZamani": "2026-10-12T18:10:00+03:00",
+            "iadeZamani": "2026-10-12T18:45:00+03:00",
+            "islemKaniti": "TX-ESCROW-F53381B9",
+            "islemGerekcesi": "Daha yüksek karşı pey (outbid) verilmesi sebebiyle teminat blokesi çözülerek alıcı cüzdanına iade edildi."
+        },
+        {
+            "id": 7005,
+            "emanetNo": "ESC-2026-005",
+            "tur": "SATIS_TUTARI",
+            "siparisNo": "ORD-2026-0984",
+            "lotId": 1004,
+            "lotKodu": "AUC-0984",
+            "urunBaslik": "Nadir Kitap Koleksiyonu",
+            "aliciId": 6,
+            "aliciAd": "Emre Karahan",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 9752,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 6,
+            "kesintiTutari": 552,
+            "sabitHarc": 500,
+            "netSaticiHakedis": 8700,
+            "durum": "ISLEM_BASARILI_SATICIYA_AKTARILDI",
+            "blokeZamani": "2026-10-10T12:00:00+03:00",
+            "aktarimZamani": "2026-10-12T15:30:00+03:00",
+            "aktaranRol": "ALICI",
+            "islemKaniti": "TX-ESCROW-33D810BC",
+            "islemGerekcesi": "Alıcı eseri teslim aldığını doğruladı. Satış bedeli emanet blokesinden satıcı hesabına aktarıldı."
+        }
+    ]
 }

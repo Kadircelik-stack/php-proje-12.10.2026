@@ -1549,9 +1549,23 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
         
         <!-- Sol Sütun: Kazanılan Lotlar Tablosu (Ana Çalışma Alanı) -->
         <div class="panel-card" style="padding:0; overflow:hidden; margin-bottom:0;">
-          <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <!-- 100% Martello Escrow Koruması Bannerı -->
+          <div style="background:rgba(52,211,153,0.08); border-bottom:1px solid rgba(52,211,153,0.25); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:1.25rem;">🛡️</span>
+              <div>
+                <strong style="color:#34d399; font-size:0.83rem;">%100 Martello Escrow & Emanet Koruması:</strong>
+                <span style="color:#94a3b8; font-size:0.77rem; display:block;">
+                  Teklif pey teminatınız ve nihai satış tutarı emanet hesapta bloke edilir. Eseri sağlam teslim alıp onaylayana kadar bedel satıcıya aktarılmaz.
+                </span>
+              </div>
+            </div>
+            <span class="badge" style="background:#064e3b; color:#6ee7b7; border:1px solid #059669; font-size:0.72rem; padding:3px 8px;">Emanet Havuzu Aktif</span>
+          </div>
+
+          <div style="padding:14px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
             <div style="font-weight:600; color:#fff; font-size:0.95rem;">Kazanılan Lotlar Listesi</div>
-            <span class="badge badge-success">2 Lot Ödendi</span>
+            <span class="badge badge-success">Emanet Korumalı Satışlar</span>
           </div>
 
           <table class="data-table" style="margin:0;">
@@ -1562,11 +1576,42 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <th>Kategori</th>
                 <th>Son Tarih</th>
                 <th>Son Fiyat</th>
-                <th>Ödeme</th>
+                <th>Emanet / Ödeme</th>
                 <th style="padding-right:20px;">İşlemler</th>
               </tr>
             </thead>
             <tbody>
+              <tr>
+                <td style="padding-left:20px;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="public/assets/images/carpet.jpg" alt="Halı" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;" onerror="this.src='public/assets/images/vase.jpg'">
+                    <span style="font-weight:600; color:#fff;">AUC-1001</span>
+                  </div>
+                </td>
+                <td style="font-weight:600; color:#fff;">1920'ler Osmanlı Halı Levhası</td>
+                <td style="color:var(--text-muted);">Antika & Sanat</td>
+                <td>12-Ekim-2026</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(70200) ?></td>
+                <td>
+                  <span class="badge" style="background:#854d0e; color:#fef08a; border:1px solid #ca8a04; font-size:0.72rem; padding:3px 8px;">
+                    🔒 Emanette Bloke
+                  </span>
+                </td>
+                <td style="padding-right:20px;">
+                  <form method="POST" style="margin:0;" onsubmit="return confirm('Eseri eksiksiz teslim aldığınızı onaylıyor musunuz?\\n\\nEmanet hesaptaki satış bedeli satıcı hesabına aktarılacaktır.');">
+                    <input type="hidden" name="action" value="complete_escrow_payout">
+                    <input type="hidden" name="escrow_id" value="7001">
+                    <input type="hidden" name="actor_id" value="<?= $buyerId ?>">
+                    <input type="hidden" name="actor_role" value="ALICI">
+                    <input type="hidden" name="release_note" value="Alıcı kargoyu teslim aldı ve satıcıya hakediş aktarımını onayladı.">
+                    <button type="submit" class="btn-sm btn-gold" style="font-size:0.75rem; padding:5px 10px; cursor:pointer; background:#10b981; border-color:#059669; color:#fff;">
+                      ✓ Teslim Aldım (Satıcıya Aktar)
+                    </button>
+                  </form>
+                  <a href="javascript:void(0)" onclick="alert('Kargo: KRG-99887766 (Dağıtımda)')" style="color:#d1b179; font-size:0.75rem; display:block; margin-top:4px; text-decoration:none;">Kargoyu Takip Et</a>
+                </td>
+              </tr>
+
               <tr>
                 <td style="padding-left:20px;">
                   <div style="display:flex; align-items:center; gap:10px;">
@@ -1578,10 +1623,14 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <td style="color:var(--text-muted);">Sanat</td>
                 <td>12-Ekim-2026</td>
                 <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(43500) ?></td>
-                <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
+                <td>
+                  <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
+                    ✓ Satıcıya Aktarıldı
+                  </span>
+                </td>
                 <td style="padding-right:20px;">
-                  <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0991 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.8rem; display:block; text-decoration:none;">Faturayı İndir</a>
-                  <a href="javascript:void(0)" onclick="alert('Kargo: MTR-98213840 (Teslim Edildi)')" style="color:#d1b179; font-size:0.8rem; display:block; margin-top:2px; text-decoration:none;">Kargoyu Takip Et</a>
+                  <span style="color:#4ade80; font-size:0.75rem; font-weight:600; display:block;">İşlem Tamamlandı</span>
+                  <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0991 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.75rem; display:block; margin-top:2px; text-decoration:none;">Faturayı İndir</a>
                 </td>
               </tr>
 
@@ -1596,10 +1645,14 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <td style="color:var(--text-muted);">Sanat</td>
                 <td>12-Ekim-2026</td>
                 <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(3200) ?></td>
-                <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
+                <td>
+                  <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
+                    ✓ Satıcıya Aktarıldı
+                  </span>
+                </td>
                 <td style="padding-right:20px;">
-                  <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0984 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.8rem; display:block; text-decoration:none;">Faturayı İndir</a>
-                  <a href="javascript:void(0)" onclick="alert('Kargo: MTR-87321044 (Teslim Edildi)')" style="color:#d1b179; font-size:0.8rem; display:block; margin-top:2px; text-decoration:none;">Kargoyu Takip Et</a>
+                  <span style="color:#4ade80; font-size:0.75rem; font-weight:600; display:block;">İşlem Tamamlandı</span>
+                  <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0984 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.75rem; display:block; margin-top:2px; text-decoration:none;">Faturayı İndir</a>
                 </td>
               </tr>
             </tbody>
