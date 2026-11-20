@@ -217,9 +217,17 @@
             "aliciProfili": {
                 "teklifLimiti": 150000,
                 "dogrulandiMi": true,
-                "vipSeviyesi": "GOLD",
+                "vipSeviyesi": "PLATINUM",
                 "toplamKazanilanLot": 2
-            }
+            },
+            "yetkiSeviyesi": "PLATINUM",
+            "erisimIzinleri": [
+                "BID_LIVE",
+                "WALLET_ESCROW",
+                "ORDER_TRACK",
+                "VIP_SALON"
+            ],
+            "yetkiGuncellemeZamani": "2026-11-20T11:39:34+00:00"
         },
         {
             "ad": "esra",

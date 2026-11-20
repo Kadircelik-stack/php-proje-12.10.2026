@@ -204,9 +204,34 @@ class PlatformWorkflowService
         }
 
         $allowedRoles = ['ALICI', 'SATICI', 'EKSPERTIZ', 'ADMIN', 'CANLI_DESTEK'];
+        if (str_contains($newRole, ':')) {
+            [$parsedRole, $parsedTier] = explode(':', $newRole, 2);
+            $newRole = $parsedRole;
+            if (empty($authTier) || $authTier === 'STANDART') {
+                $authTier = $parsedTier;
+            }
+        }
         $newRole = strtoupper(trim($newRole));
         if (!in_array($newRole, $allowedRoles, true)) {
             return ['success' => false, 'message' => "Geçersiz kullanıcı rolü ({$newRole})."];
+        }
+
+        // Otomatik varsayılan izin presetleri
+        if (empty($permissions)) {
+            if ($newRole === 'ALICI') {
+                $permissions = ['BID_LIVE', 'WALLET_ESCROW', 'ORDER_TRACK'];
+                if (in_array($authTier, ['GOLD', 'PLATINUM', 'DIAMOND'], true)) {
+                    $permissions[] = 'VIP_SALON';
+                }
+            } elseif ($newRole === 'SATICI') {
+                $permissions = ['LISTING_CREATE', 'APPRAISAL_REQUEST', 'PAYOUT_REQUEST'];
+            } elseif ($newRole === 'EKSPERTIZ') {
+                $permissions = ['APPRAISAL_INSPECT', 'REPORT_CREATE', 'CERTIFICATE_SIGN'];
+            } elseif ($newRole === 'ADMIN') {
+                $permissions = ['ALL_ACCESS', 'KYC_APPROVE', 'ROLE_MANAGE', 'LOT_CLOSE', 'AUDIT_LOG'];
+            } else {
+                $permissions = ['SUPPORT_CHAT'];
+            }
         }
 
         // Rol ve Yetki Seviyesi Yapılandırması
