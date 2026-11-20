@@ -555,4 +555,28 @@ class WebAndApiController
     {
         return $this->workflowService->getFilterOptions();
     }
+
+    /**
+     * Tamamlanan / Geçmiş Müzayedeleri Döner
+     */
+    public function getPastAuctions(): array
+    {
+        return $this->workflowService->getPastAuctions();
+    }
+
+    /**
+     * Geçmişte Satılan Ürünleri ve Çekiç Fiyatlarını Döner
+     */
+    public function getPastSales(?string $category = null, ?string $q = null): array
+    {
+        return $this->workflowService->getPastSales($category, $q);
+    }
+
+    /**
+     * Müzayede ve Satış Arşivi İstatistiklerini Döner
+     */
+    public function getHistoryStatistics(): array
+    {
+        return $this->workflowService->getHistoryStatistics();
+    }
 }

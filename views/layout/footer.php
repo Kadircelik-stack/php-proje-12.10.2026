@@ -15,7 +15,9 @@ declare(strict_types=1);
     <ul class="footer-links-list" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:6px;">
       <li><a href="javascript:void(0)" style="color:#848d9a; font-size:0.82rem; text-decoration:none;">Hakkımızda</a></li>
       <li><a href="?role=buyer&tab=canli" style="color:#848d9a; font-size:0.82rem; text-decoration:none;">Canlı Müzayedeler</a></li>
-      <li><a href="?role=vitrin" style="color:#848d9a; font-size:0.82rem; text-decoration:none;">Ürün Kategorileri</a></li>
+      <li><a href="?role=buyer&tab=kesfet" style="color:#848d9a; font-size:0.82rem; text-decoration:none;">Müzayede Keşfet (Canlı & Gelecek)</a></li>
+      <li><a href="?role=buyer&tab=gecmis" style="color:#d4af37; font-size:0.82rem; font-weight:600; text-decoration:none;">📜 Müzayede & Satış Geçmişi</a></li>
+      <li><a href="?role=vitrin" style="color:#848d9a; font-size:0.82rem; text-decoration:none;">Ürün Kategorileri & Arama</a></li>
       <li><a href="javascript:void(0)" style="color:#848d9a; font-size:0.82rem; text-decoration:none;">Şartlar ve Koşullar</a></li>
     </ul>
   </div>

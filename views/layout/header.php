@@ -57,6 +57,14 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
     </form>
   </div>
 
+  <!-- Müzayede & Satış Geçmişi Kısayolu -->
+  <div style="display:flex; align-items:center; margin-right:12px;">
+    <a href="index.php?role=buyer&tab=gecmis" style="color:#d4af37; font-size:0.78rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.3); border-radius:18px; white-space:nowrap; transition:all 0.2s;" onmouseover="this.style.background='rgba(212,175,55,0.18)'; this.style.borderColor='#d4af37';" onmouseout="this.style.background='rgba(212,175,55,0.08)'; this.style.borderColor='rgba(212,175,55,0.3)';">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+      <span>Müzayede & Satış Geçmişi</span>
+    </a>
+  </div>
+
   <div class="topbar-nav">
     <?php if ($activeRole === 'buyer'): ?>
       <div class="topbar-balance" style="font-size:0.85rem; color:#f0f3f6; font-weight:500;">

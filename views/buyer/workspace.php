@@ -32,10 +32,16 @@ foreach ($allAuctions as $auc) {
     $durum = strtoupper((string)($auc['durum'] ?? ''));
     if (in_array($durum, ['CANLI', 'AKTIF'], true)) {
         $liveAuctions[] = $auc;
-    } else {
+    } elseif (in_array($durum, ['PLANLANDI', 'ONAYLANDI'], true)) {
         $upcomingAuctions[] = $auc;
     }
 }
+
+$pastAuctions = $controller->getPastAuctions();
+$historyStats = $controller->getHistoryStatistics();
+$pastSalesQuery = trim((string)($_GET['sales_q'] ?? ''));
+$pastSalesCat = trim((string)($_GET['sales_cat'] ?? ''));
+$pastSales = $controller->getPastSales($pastSalesCat, $pastSalesQuery);
 
 $buyerId = 3; // Emre K. / Zeynep D. (Alıcı)
 $lots = $db['lots'] ?? [];
@@ -127,6 +133,12 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             Müzayede keşfet
           </button>
         </li>
+        <li class="nav-menu-item <?= $activeTab === 'gecmis' ? 'active' : '' ?>">
+          <button type="button" data-tab="gecmis" onclick="switchBuyerTab('gecmis', this)">
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></span>
+            Müzayede & Satış Geçmişi
+          </button>
+        </li>
         <li class="nav-menu-item <?= $activeTab === 'arama' ? 'active' : '' ?>">
           <button type="button" data-tab="arama" onclick="switchBuyerTab('arama', this)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
@@ -206,6 +218,12 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
               Canlı Müzayedeler
             </a>
+          </li>
+          <li class="nav-menu-item <?= $activeTab === 'gecmis' ? 'active' : '' ?>">
+            <button type="button" data-tab="gecmis" onclick="switchBuyerTab('gecmis', this)">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></span>
+              Satış & Çekiç Fiyatı Arşivi
+            </button>
           </li>
           <li class="nav-menu-item">
             <button type="button" onclick="openInfoModal('categories')">
@@ -509,6 +527,9 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
         <button type="button" onclick="filterAuctionSection('upcoming', this)" class="btn-dark-pill auction-filter-btn" style="padding:7px 18px; font-size:0.82rem;">
           🕒 Gelecek Oturumlar (<?= count($upcomingAuctions) ?>)
         </button>
+        <button type="button" onclick="switchBuyerTab('gecmis', this)" class="btn-dark-pill auction-filter-btn" style="padding:7px 18px; font-size:0.82rem; border-color:rgba(212,175,55,0.4);">
+          📜 Müzayede & Satış Geçmişi (Arşiv)
+        </button>
       </div>
 
       <!-- 1. BÖLÜM: CANLI MÜZAYEDELER -->
@@ -657,6 +678,269 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             </div>
           <?php endforeach; ?>
         </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         MÜZAYEDE VE SATIŞ GEÇMİŞİ ARŞİVİ (YAPILAN MÜZAYEDELER & SATILAN ÜRÜNLER)
+         ==================================================================== -->
+    <div id="buyerTab_gecmis" class="tab-content <?= $activeTab === 'gecmis' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ARŞİV & İSTATİSTİK / GEÇMİŞ MÜZAYEDELER VE SATIŞLAR</div>
+      <h1 class="page-heading" style="font-size:1.85rem; margin-bottom:6px;">
+        📜 Müzayede ve Satış Geçmişi Arşivi
+      </h1>
+      <p class="page-subheading" style="margin-bottom:24px;">
+        Sitemizde geçmişte gerçekleştirilen tüm açık artırma oturumları, nihai çekiç fiyatları, tescilli satış istatistikleri ve satılan koleksiyonluk eserler.
+      </p>
+
+      <!-- 4 Temel Metrik / KPI Kartları -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:28px;">
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #c5a059;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:6px;">Tamamlanan Müzayedeler</div>
+          <div style="font-size:1.65rem; font-weight:700; color:#fff; font-family:'Cinzel', serif;">
+            <?= (int)($historyStats['totalCompletedAuctions'] ?? count($pastAuctions)) ?> <span style="font-size:0.95rem; font-family:sans-serif; color:#c5a059; font-weight:normal;">Oturum</span>
+          </div>
+          <div style="font-size:0.78rem; color:#10b981; margin-top:4px;">✓ Başarıyla Sonuçlandı</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #10b981;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:6px;">Toplam Satılan Eser</div>
+          <div style="font-size:1.65rem; font-weight:700; color:#fff; font-family:'Cinzel', serif;">
+            <?= (int)($historyStats['totalSoldLots'] ?? 0) ?> <span style="font-size:0.95rem; font-family:sans-serif; color:#10b981; font-weight:normal;">Lot Alıcı Buldu</span>
+          </div>
+          <div style="font-size:0.78rem; color:#848d9a; margin-top:4px;">Koleksiyonculara Teslim Edildi</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #d4af37;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:6px;">Toplam Satış Hacmi</div>
+          <div style="font-size:1.65rem; font-weight:700; color:#c5a059; font-family:'Cinzel', serif;">
+            <?= htmlspecialchars((string)($historyStats['totalVolumeFormatted'] ?? '₺60.000.000+')) ?>
+          </div>
+          <div style="font-size:0.78rem; color:#848d9a; margin-top:4px;">Gerçekleşen Çekiç Toplamı</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #60a5fa;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:6px;">Ortalama Satış Başarısı</div>
+          <div style="font-size:1.65rem; font-weight:700; color:#60a5fa; font-family:'Cinzel', serif;">
+            %<?= (float)($historyStats['averageSuccessRate'] ?? 91) ?>
+          </div>
+          <div style="font-size:0.78rem; color:#848d9a; margin-top:4px;">Katalog Eser Satış Oranı</div>
+        </div>
+      </div>
+
+      <!-- Alt Görünüm Seçim Sekmeleri (Müzayedeler vs Satılan Ürünler) -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; border-bottom:1px solid #1f2733; padding-bottom:14px;">
+        <div style="display:flex; gap:10px;">
+          <button type="button" id="btn_history_auctions" onclick="toggleHistoryView('auctions')" class="btn-gold-pill" style="font-weight:600; font-size:0.85rem; padding:8px 18px;">
+            📜 Yapılan Müzayedeler (<?= count($pastAuctions) ?>)
+          </button>
+          <button type="button" id="btn_history_sales" onclick="toggleHistoryView('sales')" class="btn-dark-pill" style="font-weight:600; font-size:0.85rem; padding:8px 18px;">
+            🏷 Satılan Ürünler & Çekiç Fiyatları (<?= count($pastSales) ?>)
+          </button>
+        </div>
+        <div style="font-size:0.8rem; color:#848d9a;">
+          Arşiv Verileri • Martello Sotheby's & Christie's Standartlarında Tescillidir
+        </div>
+      </div>
+
+      <!-- 1. ALT GÖRÜNÜM: YAPILAN MÜZAYEDELER (AUCTIONS) -->
+      <div id="history_auctions_view" style="display:block;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:22px;">
+          <?php foreach ($pastAuctions as $pAuc): ?>
+            <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border:1px solid #232d3d; transition:transform 0.2s, border-color 0.2s;" onmouseover="this.style.borderColor='#c5a059'" onmouseout="this.style.borderColor='#232d3d'">
+              <div>
+                <!-- Başlık ve Durum Rozeti -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                  <div>
+                    <span style="font-size:0.75rem; color:#c5a059; font-weight:600; letter-spacing:0.5px;">NO: <?= htmlspecialchars((string)($pAuc['kod'] ?? ('AUC-' . $pAuc['id']))) ?></span>
+                    <h3 style="font-size:1.15rem; color:#fff; font-family:'Cinzel', serif; margin:4px 0 0 0; line-height:1.3;">
+                      <?= htmlspecialchars((string)($pAuc['baslik'] ?? 'Müzayede Oturumu')) ?>
+                    </h3>
+                  </div>
+                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); font-size:0.72rem; padding:4px 10px; border-radius:20px; font-weight:600;">
+                    ✓ SONLANDI
+                  </span>
+                </div>
+
+                <p style="font-size:0.83rem; color:#94a3b8; line-height:1.5; margin-bottom:16px;">
+                  <?= htmlspecialchars((string)($pAuc['aciklama'] ?? 'Özel koleksiyon satışı başarıyla tamamlandı.')) ?>
+                </p>
+
+                <!-- Detay Kutuları -->
+                <div style="background:#0b0e14; border:1px solid #1a222e; border-radius:8px; padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                  <div>
+                    <div style="font-size:0.72rem; color:#6b7280; text-transform:uppercase;">Kapanış Tarihi</div>
+                    <div style="font-size:0.85rem; color:#e2e8f0; font-weight:600; margin-top:2px;">
+                      📅 <?= htmlspecialchars((string)($pAuc['tamamlanmaTarihi'] ?? ($pAuc['bitisZamani'] ?? '15.10.2026'))) ?>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.72rem; color:#6b7280; text-transform:uppercase;">Katılımcı Sayısı</div>
+                    <div style="font-size:0.85rem; color:#e2e8f0; font-weight:600; margin-top:2px;">
+                      👥 <?= htmlspecialchars((string)($pAuc['katilimciSayisi'] ?? 120)) ?> Alıcı
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.72rem; color:#6b7280; text-transform:uppercase;">Satılan / Toplam Lot</div>
+                    <div style="font-size:0.85rem; color:#10b981; font-weight:600; margin-top:2px;">
+                      🎯 <?= htmlspecialchars((string)($pAuc['satilanLotSayisi'] ?? 45)) ?> / <?= htmlspecialchars((string)($pAuc['toplamLotSayisi'] ?? 50)) ?> Lot
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.72rem; color:#6b7280; text-transform:uppercase;">Satış Başarısı</div>
+                    <div style="font-size:0.85rem; color:#c5a059; font-weight:600; margin-top:2px;">
+                      📈 %<?= htmlspecialchars((string)($pAuc['basariOrani'] ?? 90)) ?>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Rekor Lot ve Satış Hacmi -->
+                <div style="border-top:1px dashed #232d3d; padding-top:12px; margin-bottom:14px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-size:0.75rem; color:#848d9a;">Günün Rekor Eseri:</span>
+                    <span style="font-size:0.8rem; color:#f1f5f9; font-weight:600;"><?= htmlspecialchars((string)($pAuc['rekorLot'] ?? 'Özel Eser')) ?></span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.78rem; color:#848d9a; font-weight:600;">Oturum Satış Hacmi:</span>
+                    <span style="font-size:1.15rem; color:#c5a059; font-weight:700; font-family:'Cinzel', serif;"><?= htmlspecialchars((string)($pAuc['toplamSatisTutari'] ?? '₺15.000.000')) ?></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aksiyon Butonları -->
+              <div style="display:flex; gap:8px; margin-top:10px;">
+                <button type="button" onclick="alert('📜 [<?= addslashes((string)$pAuc['baslik']) ?>] müzayedesinin resmi sonuç kataloğu ve noter tasdikli satış cetveli görüntülendi.');" class="btn-outline-gold" style="flex:1; justify-content:center; padding:8px; font-size:0.82rem;">
+                  Noter Cetveli &rarr;
+                </button>
+                <button type="button" onclick="toggleHistoryView('sales');" class="btn-dark-pill" style="padding:8px 14px; font-size:0.82rem;">
+                  Satılan Eserler
+                </button>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- 2. ALT GÖRÜNÜM: SATILAN ÜRÜNLER & ÇEKİÇ FİYATLARI (SALES) -->
+      <div id="history_sales_view" style="display:none;">
+        <!-- Filtre ve Arama Çubuğu -->
+        <div class="panel-card" style="background:#0f141c; border:1px solid #1f2733; padding:18px; margin-bottom:24px;">
+          <form method="GET" action="index.php" style="display:grid; grid-template-columns:1fr auto auto auto; gap:12px; align-items:center;">
+            <input type="hidden" name="role" value="buyer">
+            <input type="hidden" name="tab" value="gecmis">
+
+            <div>
+              <input type="text" name="sales_q" value="<?= htmlspecialchars((string)$pastSalesQuery) ?>" placeholder="Satılan eser adı, marka veya lot kodu ara (Örn: Chronograph, Osman Hamdi, Rolex)..." class="martello-input" style="width:100%; font-size:0.88rem; background:#0b0e14;">
+            </div>
+
+            <div style="min-width:180px;">
+              <select name="sales_cat" class="martello-select" style="width:100%; font-size:0.88rem; background:#0b0e14;">
+                <option value="">Tüm Kategoriler</option>
+                <option value="Saat" <?= $pastSalesCat === 'Saat' ? 'selected' : '' ?>>Lüks Saatler</option>
+                <option value="Tablo" <?= $pastSalesCat === 'Tablo' ? 'selected' : '' ?>>Klasik & Çağdaş Tablo</option>
+                <option value="Heykel" <?= $pastSalesCat === 'Heykel' ? 'selected' : '' ?>>Heykel & Bronz</option>
+                <option value="El Yazması" <?= $pastSalesCat === 'El Yazması' ? 'selected' : '' ?>>Nadir El Yazması</option>
+                <option value="Seramik" <?= $pastSalesCat === 'Seramik' ? 'selected' : '' ?>>Antika Seramik</option>
+              </select>
+            </div>
+
+            <div>
+              <button type="submit" class="btn-gold" style="padding:9px 20px; font-weight:600; font-size:0.88rem; display:flex; align-items:center; gap:6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Filtrele
+              </button>
+            </div>
+
+            <?php if (!empty($pastSalesQuery) || !empty($pastSalesCat)): ?>
+              <div>
+                <a href="index.php?role=buyer&tab=gecmis" class="btn-dark-pill" style="padding:9px 14px; text-decoration:none; font-size:0.82rem; display:inline-block;">
+                  Temizle
+                </a>
+              </div>
+            <?php endif; ?>
+          </form>
+        </div>
+
+        <!-- Satılan Ürünler Listesi / Grid -->
+        <?php if (empty($pastSales)): ?>
+          <div class="panel-card" style="text-align:center; padding:40px;">
+            <div style="font-size:2rem; margin-bottom:8px;">🔍</div>
+            <div style="color:#fff; font-size:1.1rem; font-weight:600;">Aradığınız Kriterlere Uygun Satılmış Eser Bulunamadı</div>
+            <p style="color:#848d9a; font-size:0.85rem; margin-top:4px;">Arama filtrelerini temizleyerek tüm geçmiş satışları listeleyebilirsiniz.</p>
+            <a href="index.php?role=buyer&tab=gecmis" class="btn-outline-gold" style="display:inline-block; margin-top:12px; padding:7px 18px;">Tüm Arşivi Göster</a>
+          </div>
+        <?php else: ?>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:22px;">
+            <?php foreach ($pastSales as $sale): 
+              $sTitle = (string)($sale['urunBaslik'] ?? ($sale['baslik'] ?? 'Eser'));
+              $sImg = (string)($sale['gorselUrl'] ?? ($sale['gorsel'] ?? 'public/assets/images/watch.jpg'));
+              $sCat = (string)($sale['kategoriAdi'] ?? ($sale['kategori'] ?? 'Koleksiyon'));
+              $sAuc = (string)($sale['muzayedeBaslik'] ?? ($sale['muzayedeAdi'] ?? 'Geçmiş Müzayede'));
+              $sDate = (string)($sale['satisTarihi'] ?? ($sale['kapanisTarihi'] ?? ''));
+              $sHammer = is_numeric($sale['cekiçFiyati']) ? '₺' . number_format($sale['cekiçFiyati'], 0, ',', '.') : (string)$sale['cekiçFiyati'];
+              $sOpen = is_numeric($sale['acilisFiyati']) ? '₺' . number_format($sale['acilisFiyati'], 0, ',', '.') : (string)$sale['acilisFiyati'];
+            ?>
+              <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; border:1px solid #1f2733; padding:0;">
+                <!-- Üst: Görsel ve Rozetler -->
+                <div style="position:relative; height:200px; background:#0b0e14; overflow:hidden;">
+                  <img src="<?= htmlspecialchars($sImg) ?>" alt="<?= htmlspecialchars($sTitle) ?>" style="width:100%; height:100%; object-fit:cover; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                  <div style="position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); color:#c5a059; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:4px; border:1px solid rgba(197,160,89,0.3);">
+                    LOT <?= htmlspecialchars((string)($sale['lotKodu'] ?? 'LOT-00')) ?>
+                  </div>
+                  <div style="position:absolute; top:12px; right:12px; background:#10b981; color:#fff; font-size:0.72rem; font-weight:700; padding:4px 10px; border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,0.5);">
+                    🔨 SATILDI
+                  </div>
+                  <div style="position:absolute; bottom:10px; left:12px; background:rgba(15,20,28,0.85); color:#94a3b8; font-size:0.72rem; padding:3px 8px; border-radius:4px;">
+                    🏷 <?= htmlspecialchars($sCat) ?>
+                  </div>
+                </div>
+
+                <!-- Gövde: Fiyat ve Eser Bilgisi -->
+                <div style="padding:18px; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+                  <div>
+                    <h3 style="font-size:1.1rem; color:#fff; font-family:'Cinzel', serif; margin:0 0 10px 0; line-height:1.35;">
+                      <?= htmlspecialchars($sTitle) ?>
+                    </h3>
+
+                    <!-- Çekiç Fiyatı ve Değer Artışı Kutusu -->
+                    <div style="background:#0b0e14; border:1px solid #1a222e; border-radius:8px; padding:12px; margin-bottom:12px;">
+                      <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <span style="font-size:0.72rem; color:#848d9a; text-transform:uppercase;">Nihai Çekiç Fiyatı:</span>
+                        <span style="font-size:1.3rem; font-weight:700; color:#c5a059; font-family:'Cinzel', serif;">
+                          <?= htmlspecialchars($sHammer) ?>
+                        </span>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:0.75rem; border-top:1px solid #171f2b; pt-2; padding-top:6px;">
+                        <span style="color:#64748b;">Açılış: <?= htmlspecialchars($sOpen) ?></span>
+                        <span style="color:#10b981; font-weight:600; background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px;">
+                          ▲ <?= htmlspecialchars((string)($sale['artisOrani'] ?? '')) ?>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Müzayede ve Kazanan Alıcı Bilgisi -->
+                    <div style="font-size:0.78rem; color:#94a3b8; margin-bottom:10px; display:flex; flex-direction:column; gap:4px;">
+                      <div>🏛 <strong>Müzayede:</strong> <?= htmlspecialchars($sAuc) ?></div>
+                      <div>📅 <strong>Kapanış:</strong> <?= htmlspecialchars($sDate) ?></div>
+                      <div>👤 <strong>Kazanan Alıcı:</strong> <span style="color:#f1f5f9; font-weight:600;"><?= htmlspecialchars((string)($sale['kazananAliciAnonim'] ?? 'Koleksiyoner')) ?></span></div>
+                    </div>
+                  </div>
+
+                  <!-- Sertifika ve Aksiyon -->
+                  <div style="border-top:1px solid #1a222e; padding-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.72rem; color:#10b981; display:flex; align-items:center; gap:4px;">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      Orijinallik Tescilli
+                    </span>
+                    <button type="button" onclick="alert('🏛 [<?= addslashes($sTitle) ?>]\n\nNihai Çekiç Fiyatı: <?= addslashes($sHammer) ?>\nAçılış Fiyatı: <?= addslashes($sOpen) ?> (<?= addslashes((string)($sale['artisOrani'] ?? '')) ?>)\nMüzayede: <?= addslashes($sAuc) ?>\nKazanan: <?= addslashes((string)($sale['kazananAliciAnonim'] ?? '')) ?>\nEkspertiz Durumu: <?= addslashes((string)($sale['ekspertizNotu'] ?? '')) ?>\n\nBu eser Martello Arşivi ve Noter Satış Cetvelinde resmen tescil edilmiştir.');" class="btn-outline-gold" style="padding:6px 14px; font-size:0.78rem;">
+                      Detay Cetveli &rarr;
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
 
@@ -1487,6 +1771,10 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
               Müzayede Keşfet (Canlı & Gelecek)
             </button>
+            <button type="button" onclick="switchBuyerTab('gecmis', this)" class="btn-outline-gold" style="width:100%; justify-content:center; padding:10px; display:flex; align-items:center; gap:8px; font-weight:600; border-color:rgba(197,160,89,0.5);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              📜 Müzayede & Satış Geçmişi Arşivi
+            </button>
             <button type="button" onclick="switchBuyerTab('canli', this)" class="btn-gold" style="width:100%; justify-content:center; padding:10px;">
               Canlı Müzayedeye Katıl
             </button>
@@ -1836,6 +2124,37 @@ function filterAuctionSection(type, btn) {
   } else {
     if (liveSec) liveSec.style.display = 'block';
     if (upSec) upSec.style.display = 'block';
+  }
+}
+
+function toggleHistoryView(view) {
+  const aucView = document.getElementById('history_auctions_view');
+  const salesView = document.getElementById('history_sales_view');
+  const btnAuc = document.getElementById('btn_history_auctions');
+  const btnSales = document.getElementById('btn_history_sales');
+
+  if (view === 'sales') {
+    if (aucView) aucView.style.display = 'none';
+    if (salesView) salesView.style.display = 'block';
+    if (btnAuc) {
+      btnAuc.classList.remove('btn-gold-pill');
+      btnAuc.classList.add('btn-dark-pill');
+    }
+    if (btnSales) {
+      btnSales.classList.remove('btn-dark-pill');
+      btnSales.classList.add('btn-gold-pill');
+    }
+  } else {
+    if (aucView) aucView.style.display = 'block';
+    if (salesView) salesView.style.display = 'none';
+    if (btnAuc) {
+      btnAuc.classList.remove('btn-dark-pill');
+      btnAuc.classList.add('btn-gold-pill');
+    }
+    if (btnSales) {
+      btnSales.classList.remove('btn-gold-pill');
+      btnSales.classList.add('btn-dark-pill');
+    }
   }
 }
 </script>
