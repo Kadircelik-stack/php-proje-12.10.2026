@@ -345,6 +345,17 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'control_auction_state':
+                $auctionId = (int)($post['auction_id'] ?? 801);
+                $auctionAction = trim($post['auction_action'] ?? 'start');
+                $scheduledStart = !empty($post['scheduled_start']) ? trim($post['scheduled_start']) : null;
+                $scheduledEnd = !empty($post['scheduled_end']) ? trim($post['scheduled_end']) : null;
+                $res = $this->workflowService->controlAuctionState($auctionId, $auctionAction, $scheduledStart, $scheduledEnd);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'assign_expert':
                 $reqId = (int)($post['request_id'] ?? 0);
                 $expertId = (int)($post['expert_id'] ?? 4);

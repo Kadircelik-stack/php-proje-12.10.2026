@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 $users = $db['users'] ?? [];
 $lots = $db['lots'] ?? [];
+$auctions = $db['auctions'] ?? [];
 $reports = $db['appraisalReports'] ?? [];
 $disputes = $db['disputes'] ?? [];
 $listings = $db['listings'] ?? [];
@@ -23,6 +24,11 @@ $activeTab = $_GET['tab'] ?? 'konsol';
         <li class="nav-menu-item <?= $activeTab === 'konsol' ? 'active' : '' ?>">
           <button type="button" data-tab="konsol" onclick="switchAdminTab('konsol', this)">
             Yönetim konsolu
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
+          <button type="button" data-tab="moderasyon" onclick="switchAdminTab('moderasyon', this)">
+            Müzayede & Canlı İhale
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
@@ -43,11 +49,6 @@ $activeTab = $_GET['tab'] ?? 'konsol';
         <li class="nav-menu-item <?= $activeTab === 'yetkiler' ? 'active' : '' ?>">
           <button type="button" data-tab="yetkiler" onclick="switchAdminTab('yetkiler', this)">
             Rol & Yetki Yönetimi (RBAC)
-          </button>
-        </li>
-        <li class="nav-menu-item <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
-          <button type="button" data-tab="moderasyon" onclick="switchAdminTab('moderasyon', this)">
-            Müzayede & Lot Düzenleme
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
@@ -199,16 +200,286 @@ $activeTab = $_GET['tab'] ?? 'konsol';
             </p>
           </div>
           <div style="display:flex; gap:8px;">
-            <button type="button" class="btn-gold btn-sm" onclick="switchAdminTab('raporlar', document.querySelector('[data-tab=\'raporlar\']'))" style="padding:8px 16px; cursor:pointer;">
-              Ekspertiz Raporlarına Git →
+            <button type="button" class="btn-gold btn-sm" onclick="switchAdminTab('moderasyon', document.querySelector('[data-tab=\'moderasyon\']'))" style="padding:8px 16px; cursor:pointer;">
+              Müzayede İdaresine Git →
             </button>
-            <button type="button" class="btn-outline-gold btn-sm" onclick="switchAdminTab('kategoriler', document.querySelector('[data-tab=\'kategoriler\']'))" style="padding:8px 16px; cursor:pointer;">
-              Kategorilere Git →
+            <button type="button" class="btn-outline-gold btn-sm" onclick="switchAdminTab('raporlar', document.querySelector('[data-tab=\'raporlar\']'))" style="padding:8px 16px; cursor:pointer;">
+              Raporlara Git →
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 2. TAB: MÜZAYEDE & CANLI İHALE YÖNETİMİ (YUKARI TAŞINDI - BAŞLAT / DURAKLAT / SONLANDIR / PLANLA) -->
+    <div id="admTab_moderasyon" class="tab-content <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / MÜZAYEDE & CANLI İHALE KONTROLÜ</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h1 class="page-heading">Müzayede ve Canlı İhale Yönetimi</h1>
+          <p class="page-subheading" style="color:var(--gold-primary); font-weight:500; font-size:0.92rem;">
+            ⚡ "Onaylanmış bir müzayedenin belirlenen tarih/saatte otomatik ya da admin tarafından manuel olarak başlatılması, duraklatılması veya sonlandırılmasıdır."
+          </p>
+        </div>
+        <span class="badge badge-gold" style="font-size:0.78rem; padding:6px 14px;">SRS Müzayede İdaresi</span>
+      </div>
+
+      <!-- Müzayedeler Yaşam Döngüsü Kontrol Kartları (BAŞLAT / DURAKLAT / SONLANDIR / ZAMANLA) -->
+      <div class="panel-card" style="margin-bottom:24px; border:1px solid rgba(212,175,55,0.25); background:linear-gradient(180deg, #111622 0%, #0a0e16 100%); border-radius:10px; padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #1f2736; padding-bottom:12px;">
+          <div>
+            <h2 style="font-size:1.05rem; font-weight:700; color:#fff; margin:0;">Müzayede Otomasyon ve Manuel Kontrol Masası</h2>
+            <p style="font-size:0.78rem; color:#8b949e; margin:4px 0 0 0;">
+              Müzayedeyi canlı yayına alabilir (Başlat), teklif alımını dondurabilir (Duraklat) veya resmi olarak kapatabilirsiniz (Sonlandır).
+            </p>
+          </div>
+          <span class="badge" style="background:#161f30; color:#d4af37; border:1px solid #2d3e5e;"><?= count($auctions) ?> Müzayede Salonu</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:16px;">
+          <?php foreach ($auctions as $auc): 
+            $aId = (int)($auc['id'] ?? 0);
+            $aTitle = htmlspecialchars($auc['baslik'] ?? "Müzayede #{$aId}");
+            $aType = strtoupper($auc['tur'] ?? 'CANLI');
+            $aStatus = strtoupper($auc['durum'] ?? 'ONAYLANDI');
+            $isLive = in_array($aStatus, ['CANLI', 'AKTIF'], true);
+            $isPaused = ($aStatus === 'DURAKLATILDI');
+            $isEnded = in_array($aStatus, ['SONLANDI', 'KAPANDI'], true);
+            $startStr = !empty($auc['baslangicZamani']) ? date('d.m.Y H:i', strtotime($auc['baslangicZamani'])) : 'Belirtilmedi';
+            $endStr = !empty($auc['bitisZamani']) ? date('d.m.Y H:i', strtotime($auc['bitisZamani'])) : 'Belirtilmedi';
+            $defaultDatetimeLocal = !empty($auc['baslangicZamani']) ? date('Y-m-d\TH:i', strtotime($auc['baslangicZamani'])) : date('Y-m-d\TH:i', strtotime('+1 hour'));
+          ?>
+            <div style="background:#090d14; border:1px solid <?= $isLive ? '#1a5c38' : ($isPaused ? '#8a6218' : ($isEnded ? '#4d1e27' : '#232b3b')) ?>; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                  <div>
+                    <span class="badge <?= $aType === 'VIP' ? 'badge-gold' : 'badge-info' ?>" style="font-size:0.68rem;">
+                      <?= $aType === 'VIP' ? '👑 VIP ÖZEL SALON' : '🏛️ GENEL CANLI MÜZAYEDE' ?>
+                    </span>
+                    <span style="font-size:0.7rem; color:#8b949e; margin-left:4px;">#<?= $aId ?></span>
+                  </div>
+                  <div>
+                    <?php if ($isLive): ?>
+                      <span class="badge badge-success" style="font-size:0.72rem; padding:3px 8px;">🟢 CANLI YAYINDA</span>
+                    <?php elseif ($isPaused): ?>
+                      <span class="badge badge-warning" style="font-size:0.72rem; padding:3px 8px;">⏸ DURAKLATILDI</span>
+                    <?php elseif ($isEnded): ?>
+                      <span class="badge badge-danger" style="font-size:0.72rem; padding:3px 8px;">⏹ SONLANDI</span>
+                    <?php else: ?>
+                      <span class="badge badge-gold" style="font-size:0.72rem; padding:3px 8px;">⏳ ZAMANLANDI</span>
+                    <?php endif; ?>
+                  </div>
+                </div>
+
+                <div style="font-size:1rem; font-weight:700; color:#fff; margin-bottom:8px;">
+                  <?= $aTitle ?>
+                </div>
+
+                <div style="font-size:0.75rem; color:#8b949e; line-height:1.5; margin-bottom:12px; background:#05070a; border:1px solid #161b24; border-radius:6px; padding:8px 10px;">
+                  <div>🕒 <strong>Başlangıç:</strong> <?= $startStr ?></div>
+                  <div>🏁 <strong>Bitiş:</strong> <?= $endStr ?></div>
+                  <div>👥 <strong>Kayıtlı Katılımcı:</strong> <?= (int)($auc['katilimciSayisi'] ?? 0) ?> kişi</div>
+                </div>
+              </div>
+
+              <!-- Kontrol Butonları & Zamanlama Formu -->
+              <div>
+                <!-- Manuel İşlem Butonları: BAŞLAT / DURAKLAT / SONLANDIR -->
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+                  <!-- Başlat Tuşu -->
+                  <form method="POST" style="margin:0;">
+                    <input type="hidden" name="action" value="control_auction_state">
+                    <input type="hidden" name="auction_id" value="<?= $aId ?>">
+                    <input type="hidden" name="auction_action" value="start">
+                    <button type="submit" class="btn-sm" style="width:100%; background:<?= $isLive ? '#103822' : '#0c2217' ?>; border:1px solid <?= $isLive ? '#3fb950' : '#1a5c38' ?>; color:#3fb950; font-weight:700; padding:6px 0; border-radius:4px; cursor:pointer;" title="Manuel Başlat">
+                      ▶ Başlat
+                    </button>
+                  </form>
+
+                  <!-- Duraklat Tuşu -->
+                  <form method="POST" style="margin:0;">
+                    <input type="hidden" name="action" value="control_auction_state">
+                    <input type="hidden" name="auction_id" value="<?= $aId ?>">
+                    <input type="hidden" name="auction_action" value="pause">
+                    <button type="submit" class="btn-sm" style="width:100%; background:<?= $isPaused ? '#3b2a0c' : '#231a08' ?>; border:1px solid <?= $isPaused ? '#e3b341' : '#6b4f12' ?>; color:#e3b341; font-weight:700; padding:6px 0; border-radius:4px; cursor:pointer;" title="Geçici Duraklat">
+                      ⏸ Duraklat
+                    </button>
+                  </form>
+
+                  <!-- Sonlandır Tuşu -->
+                  <form method="POST" style="margin:0;" onsubmit="return confirm('<?= addslashes($aTitle) ?> müzayedesini sonlandırmak istediğinizden emin misiniz? Açık lotlar kapanacak ve sayaçlar sıfırlanacaktır.');">
+                    <input type="hidden" name="action" value="control_auction_state">
+                    <input type="hidden" name="auction_id" value="<?= $aId ?>">
+                    <input type="hidden" name="auction_action" value="end">
+                    <button type="submit" class="btn-sm" style="width:100%; background:<?= $isEnded ? '#401319' : '#260e13' ?>; border:1px solid <?= $isEnded ? '#f87171' : '#6b1d28' ?>; color:#f87171; font-weight:700; padding:6px 0; border-radius:4px; cursor:pointer;" title="Müzayedeyi Kapat ve Sonlandır">
+                      ⏹ Sonlandır
+                    </button>
+                  </form>
+                </div>
+
+                <!-- Otomatik Zamanlama Formu (Belirlenen Tarih/Saatte Başlatma) -->
+                <form method="POST" style="margin:0; background:#05070a; border:1px solid #1a2230; border-radius:6px; padding:8px 10px; display:flex; align-items:center; gap:6px;">
+                  <input type="hidden" name="action" value="control_auction_state">
+                  <input type="hidden" name="auction_id" value="<?= $aId ?>">
+                  <input type="hidden" name="auction_action" value="schedule">
+                  <label style="font-size:0.72rem; color:#8b949e; white-space:nowrap; margin:0;">Tarih/Saat:</label>
+                  <input type="datetime-local" name="scheduled_start" value="<?= $defaultDatetimeLocal ?>" style="background:#0b0f17; border:1px solid #232b3b; color:#fff; font-size:0.72rem; padding:3px 6px; border-radius:4px; flex:1;">
+                  <button type="submit" class="btn-outline-gold btn-sm" style="font-size:0.72rem; padding:4px 8px; white-space:nowrap; cursor:pointer;" title="Otomatik Başlama Zamanını Ayarla">
+                    Planla
+                  </button>
+                </form>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- Bölüm 2: Katalogdaki Müzayede Lotları ve Düzenleme Masası -->
+      <div class="panel-card" style="margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div>
+            <h3 class="panel-title" style="margin-bottom:2px;">Katalogdaki Müzayede Lotları ve Fiyat Düzenleme</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+              Canlı lotların başlangıç/rezerv fiyatını, artırım adımını ve sürelerini düzenleyin ya da kural dışı teklifleri iptal edin.
+            </p>
+          </div>
+          <span class="badge badge-gold"><?= count($lots) ?> Adet Eser</span>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="font-size:0.84rem;">
+            <thead>
+              <tr>
+                <th>Lot Kodu</th>
+                <th>Eser Adı</th>
+                <th>Kategori</th>
+                <th>Başlangıç</th>
+                <th>Rezerv Fiyat</th>
+                <th>Pey Adımı</th>
+                <th>Güncel Teklif</th>
+                <th>Kalan Süre</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($lots as $lot): ?>
+                <tr>
+                  <td><span class="badge badge-gold"><?= htmlspecialchars($lot['lotKodu'] ?? "AUC-{$lot['id']}") ?></span></td>
+                  <td style="font-weight:600; color:#fff; max-width:200px;"><?= htmlspecialchars($lot['baslik']) ?></td>
+                  <td style="color:var(--text-muted); font-size:0.82rem;"><?= htmlspecialchars($lot['kategoriAdi'] ?? 'Antika & Sanat') ?></td>
+                  <td><?= $formatPrice((float)$lot['baslangicFiyati']) ?></td>
+                  <td><?= $formatPrice((float)$lot['rezervFiyat']) ?></td>
+                  <td>+<?= $formatPrice((float)$lot['minimumArtisTutari']) ?></td>
+                  <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$lot['mevcutEnYuksekTeklif']) ?></td>
+                  <td style="font-size:0.8rem; color:var(--text-muted);"><?= htmlspecialchars($lot['kalanSureMetni'] ?? '5 saat') ?></td>
+                  <td>
+                    <span class="badge <?= ($lot['durum'] ?? '') === 'ACIK_ARTIRMADA' ? 'badge-success' : 'badge-warning' ?>">
+                      <?= htmlspecialchars($lot['durum'] ?? 'ACIK_ARTIRMADA') ?>
+                    </span>
+                  </td>
+                  <td>
+                    <button type="button" class="btn-gold btn-sm" style="padding:4px 10px; font-size:0.78rem; cursor:pointer;" onclick='openEditLotModal(<?= json_encode($lot, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
+                      Düzenle
+                    </button>
+                    <form method="POST" style="display:inline; margin-left:4px;" onsubmit="return confirm('Son verilen peyi kural ihlali gerekçesiyle iptal edip önceki peye dönmek istediğinize emin misiniz?');">
+                      <input type="hidden" name="action" value="cancel_bid">
+                      <input type="hidden" name="lot_id" value="<?= $lot['id'] ?>">
+                      <input type="hidden" name="reason" value="Admin kural dışı teklif iptali">
+                      <button type="submit" class="btn-outline-gold btn-sm" style="padding:4px 8px; font-size:0.75rem; color:#f87171; border-color:rgba(239,68,68,0.35); cursor:pointer;" title="Son peyi iptal et ve önceki fiyata dön">Pey İptal</button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Müzayede / Lot Düzenleme Modalı -->
+    <div id="editLotModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+      <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:540px; width:92%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.8); position:relative;">
+        <button type="button" onclick="closeEditLotModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+        
+        <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:4px;">
+          Müzayede Lotu Düzenle (<span id="editLotKoduModal"></span>)
+        </div>
+        <div style="color:#888; font-size:0.8rem; margin-bottom:16px;">
+          Fiyat, pey adımı, süre ve müzayede durumunu güncelleyin. Değişiklikler anında canlı kataloğa yansır.
+        </div>
+
+        <form method="POST">
+          <input type="hidden" name="action" value="edit_lot">
+          <input type="hidden" name="lot_id" id="editLotId">
+
+          <div class="form-group" style="margin-bottom:10px;">
+            <label class="form-label">Eser / Lot Başlığı</label>
+            <input type="text" name="baslik" id="editLotBaslik" class="form-control" required>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <div class="form-group">
+              <label class="form-label">Kategori</label>
+              <input type="text" name="kategoriAdi" id="editLotKategori" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Müzayede Durumu</label>
+              <select name="durum" id="editLotDurum" class="form-control">
+                <option value="ACIK_ARTIRMADA">Açık Artırmada (Aktif)</option>
+                <option value="DURAKLATILDI">Duraklatıldı</option>
+                <option value="SATILDI">Satıldı / Kapanmış</option>
+                <option value="IPTAL_EDILDI">İptal Edildi</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
+            <div class="form-group">
+              <label class="form-label">Başlangıç (TRY)</label>
+              <input type="number" step="500" name="baslangicFiyati" id="editLotBaslangic" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rezerv Fiyat (TRY)</label>
+              <input type="number" step="500" name="rezervFiyat" id="editLotRezerv" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pey Adımı (TRY)</label>
+              <input type="number" step="100" name="minimumArtisTutari" id="editLotArtis" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:18px;">
+            <label class="form-label">Kalan Süre Metni (Örn: 5 saat 23 dakika)</label>
+            <input type="text" name="kalanSureMetni" id="editLotSure" class="form-control" required>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" onclick="closeEditLotModal()" class="btn-outline-gold" style="padding:10px 18px; cursor:pointer;">Vazgeç</button>
+            <button type="submit" class="btn-register-glow" style="padding:10px 24px; cursor:pointer;">Değişiklikleri Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+    function openEditLotModal(lot) {
+      document.getElementById('editLotId').value = lot.id;
+      document.getElementById('editLotKoduModal').textContent = lot.lotKodu || ('AUC-' + lot.id);
+      document.getElementById('editLotBaslik').value = lot.baslik;
+      document.getElementById('editLotKategori').value = lot.kategoriAdi || 'Antika & Sanat';
+      document.getElementById('editLotBaslangic').value = lot.baslangicFiyati;
+      document.getElementById('editLotRezerv').value = lot.rezervFiyat;
+      document.getElementById('editLotArtis').value = lot.minimumArtisTutari;
+      document.getElementById('editLotSure').value = lot.kalanSureMetni || '5 saat 23 dakika';
+      document.getElementById('editLotDurum').value = lot.durum || 'ACIK_ARTIRMADA';
+      document.getElementById('editLotModal').style.display = 'flex';
+    }
+    function closeEditLotModal() {
+      document.getElementById('editLotModal').style.display = 'none';
+    }
+    </script>
 
     <!-- 2. TAB: RAPORLAMA VE EKSPERTİZ ONAY / RED MASASI (YUKARI TAŞINDI) -->
     <div id="admTab_raporlar" class="tab-content <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
@@ -921,188 +1192,6 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       }
     </script>
     </div>
-
-    <!-- 3. TAB: MÜZAYEDE & LOT DÜZENLEME (ADMİN DÜZENLEME YETKİSİ) -->
-    <div id="admTab_moderasyon" class="tab-content <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Müzayede ve Lot Düzenleme</h1>
-      <p class="page-subheading">Açık artırmadaki lotların fiyatlarını, pey adımlarını, sürelerini ve durumlarını yönetin</p>
-
-      <!-- Aktif Lotlar Düzenleme Tablosu -->
-      <div class="panel-card" style="margin-bottom:24px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <div>
-            <h3 class="panel-title" style="margin-bottom:2px;">Katalogdaki Müzayede Lotları</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted);">Tüm canlı lotların başlangıç/rezerv fiyatını, artırım adımını ve durumunu buradan düzenleyebilirsiniz.</p>
-          </div>
-          <span class="badge badge-gold"><?= count($lots) ?> Adet Eser</span>
-        </div>
-
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Lot Kodu</th>
-              <th>Eser Adı</th>
-              <th>Kategori</th>
-              <th>Başlangıç</th>
-              <th>Rezerv Fiyat</th>
-              <th>Pey Adımı</th>
-              <th>Güncel Teklif</th>
-              <th>Kalan Süre</th>
-              <th>Durum</th>
-              <th>İşlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($lots as $lot): ?>
-              <tr>
-                <td><span class="badge badge-gold"><?= htmlspecialchars($lot['lotKodu'] ?? "AUC-{$lot['id']}") ?></span></td>
-                <td style="font-weight:600; color:#fff; max-width:200px;"><?= htmlspecialchars($lot['baslik']) ?></td>
-                <td style="color:var(--text-muted); font-size:0.82rem;"><?= htmlspecialchars($lot['kategoriAdi'] ?? 'Antika & Sanat') ?></td>
-                <td><?= $formatPrice((float)$lot['baslangicFiyati']) ?></td>
-                <td><?= $formatPrice((float)$lot['rezervFiyat']) ?></td>
-                <td>+<?= $formatPrice((float)$lot['minimumArtisTutari']) ?></td>
-                <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$lot['mevcutEnYuksekTeklif']) ?></td>
-                <td style="font-size:0.8rem; color:var(--text-muted);"><?= htmlspecialchars($lot['kalanSureMetni'] ?? '5 saat') ?></td>
-                <td>
-                  <span class="badge <?= ($lot['durum'] ?? '') === 'ACIK_ARTIRMADA' ? 'badge-success' : 'badge-warning' ?>">
-                    <?= htmlspecialchars($lot['durum'] ?? 'ACIK_ARTIRMADA') ?>
-                  </span>
-                </td>
-                <td>
-                  <button type="button" class="btn-gold btn-sm" style="padding:4px 10px; font-size:0.78rem; cursor:pointer;" onclick='openEditLotModal(<?= json_encode($lot, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
-                    Düzenle
-                  </button>
-                  <form method="POST" style="display:inline; margin-left:4px;" onsubmit="return confirm('Son verilen peyi kural ihlali gerekçesiyle iptal edip önceki peye dönmek istediğinize emin misiniz?');">
-                    <input type="hidden" name="action" value="cancel_bid">
-                    <input type="hidden" name="lot_id" value="<?= $lot['id'] ?>">
-                    <input type="hidden" name="reason" value="Admin kural dışı teklif iptali">
-                    <button type="submit" class="btn-outline-gold btn-sm" style="padding:4px 8px; font-size:0.75rem; color:#f87171; border-color:rgba(239,68,68,0.35);" title="Son peyi iptal et ve önceki fiyata dön">Pey İptal</button>
-                  </form>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Onay Bekleyen Taslak İlanlar -->
-      <div class="panel-card">
-        <h3 class="panel-title" style="margin-bottom:12px;">Yeni Taslak İlanlar (Onay ve Yayına Alma)</h3>
-        <table class="data-table">
-          <thead>
-            <tr><th>İlan Kodu</th><th>Ürün Bilgisi</th><th>Satıcı</th><th>Statü</th><th>Müzayede Başlat</th></tr>
-          </thead>
-          <tbody>
-            <?php foreach ($listings as $l): ?>
-              <tr>
-                <td><span class="badge badge-gold"><?= htmlspecialchars($l['ilanKodu']) ?></span></td>
-                <td style="font-weight:600; color:#fff;">Koleksiyonluk Eser (ID: <?= $l['urunId'] ?>)</td>
-                <td>Satıcı #<?= $l['saticiId'] ?></td>
-                <td><span class="badge badge-success"><?= htmlspecialchars($l['durum']) ?></span></td>
-                <td>
-                  <?php if ($l['durum'] !== 'YAYINDA'): ?>
-                    <form method="POST" style="display:inline-flex; gap:6px; margin:0;">
-                      <input type="hidden" name="action" value="approve_listing">
-                      <input type="hidden" name="listing_id" value="<?= $l['id'] ?>">
-                      <input type="hidden" name="start_price" value="32000">
-                      <input type="hidden" name="reserve_price" value="40000">
-                      <input type="hidden" name="min_step" value="1500">
-                      <button type="submit" class="btn-gold btn-sm">Müzayedeye Başlat</button>
-                    </form>
-                  <?php else: ?>
-                    <span style="color:#3fb950; font-weight:600;">✓ Yayında</span>
-                  <?php endif; ?>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Müzayede / Lot Düzenleme Modalı -->
-    <div id="editLotModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
-      <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:540px; width:92%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.8); position:relative;">
-        <button type="button" onclick="closeEditLotModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
-        
-        <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:4px;">
-          Müzayede Lotu Düzenle (<span id="editLotKoduModal"></span>)
-        </div>
-        <div style="color:#888; font-size:0.8rem; margin-bottom:16px;">
-          Fiyat, pey adımı, süre ve müzayede durumunu güncelleyin. Değişiklikler anında canlı kataloğa yansır.
-        </div>
-
-        <form method="POST">
-          <input type="hidden" name="action" value="edit_lot">
-          <input type="hidden" name="lot_id" id="editLotId">
-
-          <div class="form-group" style="margin-bottom:10px;">
-            <label class="form-label">Eser / Lot Başlığı</label>
-            <input type="text" name="baslik" id="editLotBaslik" class="form-control" required>
-          </div>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-            <div class="form-group">
-              <label class="form-label">Kategori</label>
-              <input type="text" name="kategoriAdi" id="editLotKategori" class="form-control" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Müzayede Durumu</label>
-              <select name="durum" id="editLotDurum" class="form-control">
-                <option value="ACIK_ARTIRMADA">Açık Artırmada (Aktif)</option>
-                <option value="DURAKLATILDI">Duraklatıldı</option>
-                <option value="SATILDI">Satıldı / Kapanmış</option>
-                <option value="IPTAL_EDILDI">İptal Edildi</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
-            <div class="form-group">
-              <label class="form-label">Başlangıç (TRY)</label>
-              <input type="number" step="500" name="baslangicFiyati" id="editLotBaslangic" class="form-control" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Rezerv Fiyat (TRY)</label>
-              <input type="number" step="500" name="rezervFiyat" id="editLotRezerv" class="form-control" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Pey Adımı (TRY)</label>
-              <input type="number" step="100" name="minimumArtisTutari" id="editLotArtis" class="form-control" required>
-            </div>
-          </div>
-
-          <div class="form-group" style="margin-bottom:18px;">
-            <label class="form-label">Kalan Süre Metni (Örn: 5 saat 23 dakika)</label>
-            <input type="text" name="kalanSureMetni" id="editLotSure" class="form-control" required>
-          </div>
-
-          <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <button type="button" onclick="closeEditLotModal()" class="btn-outline-gold" style="padding:10px 18px; cursor:pointer;">Vazgeç</button>
-            <button type="submit" class="btn-register-glow" style="padding:10px 24px; cursor:pointer;">Değişiklikleri Kaydet</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <script>
-    function openEditLotModal(lot) {
-      document.getElementById('editLotId').value = lot.id;
-      document.getElementById('editLotKoduModal').textContent = lot.lotKodu || ('AUC-' + lot.id);
-      document.getElementById('editLotBaslik').value = lot.baslik;
-      document.getElementById('editLotKategori').value = lot.kategoriAdi || 'Antika & Sanat';
-      document.getElementById('editLotBaslangic').value = lot.baslangicFiyati;
-      document.getElementById('editLotRezerv').value = lot.rezervFiyat;
-      document.getElementById('editLotArtis').value = lot.minimumArtisTutari;
-      document.getElementById('editLotSure').value = lot.kalanSureMetni || '5 saat 23 dakika';
-      document.getElementById('editLotDurum').value = lot.durum || 'ACIK_ARTIRMADA';
-      document.getElementById('editLotModal').style.display = 'flex';
-    }
-    function closeEditLotModal() {
-      document.getElementById('editLotModal').style.display = 'none';
-    }
-    </script>
 
     <!-- 4. TAB: EKSPERTİZ ATAMA (media_1795014776298_9cbae966.jpg ile Birebir) -->
     <div id="admTab_ekspertiz" class="tab-content <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">

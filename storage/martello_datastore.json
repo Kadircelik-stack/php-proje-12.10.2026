@@ -754,8 +754,8 @@
             ],
             "denetimDurumu": "KABUL_EDILDI",
             "raporTarihi": "2026-10-09T15:30:00+03:00",
-            "adminOnayZamani": "2026-11-20T12:40:33+00:00",
-            "adminNotu": "Ekspertiz kabul edildi."
+            "adminOnayZamani": "2026-11-20T12:41:31+00:00",
+            "adminNotu": "Rapor yönetici tarafından incelendi, kabul edildi."
         },
         {
             "raporNo": "REP-2026-412",
@@ -908,12 +908,15 @@
             "id": 801,
             "baslik": "Güz Klasik Sanat ve Horoloji Müzayedesi",
             "tur": "CANLI",
-            "durum": "AKTIF",
+            "durum": "CANLI",
             "paraBirimi": "TRY",
-            "baslangicZamani": "2026-10-12T20:00:00+03:00",
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
             "bitisZamani": "2026-11-15T23:00:00+03:00",
             "katilimciSayisi": 1420,
-            "maksimumKatilimci": 50000
+            "maksimumKatilimci": 50000,
+            "duraklatilmaZamani": "2026-11-20T12:56:26+00:00",
+            "manuelBaslatildiMi": true,
+            "gerceklesenBaslangic": "2026-11-20T12:56:32+00:00"
         },
         {
             "id": 802,
@@ -946,7 +949,7 @@
             "minimumArtisTutari": 1500,
             "liderAliciId": 3,
             "liderAnonimKod": "yortunen...",
-            "durum": "SATILDI",
+            "durum": "ACIK_ARTIRMADA",
             "kalanSureMetni": "Tamamlandı",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
@@ -971,7 +974,7 @@
             "minimumArtisTutari": 2500,
             "liderAliciId": 3,
             "liderAnonimKod": "yortunen...",
-            "durum": "SATILDI",
+            "durum": "ACIK_ARTIRMADA",
             "kalanSureMetni": "Tamamlandı",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
@@ -996,7 +999,7 @@
             "minimumArtisTutari": 500,
             "liderAliciId": 6,
             "liderAnonimKod": "damror0ki",
-            "durum": "SATILDI",
+            "durum": "ACIK_ARTIRMADA",
             "kalanSureMetni": "Tamamlandı",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 1,
@@ -1021,7 +1024,7 @@
             "minimumArtisTutari": 400,
             "liderAliciId": 6,
             "liderAnonimKod": "damror0ki",
-            "durum": "SATILDI",
+            "durum": "ACIK_ARTIRMADA",
             "kalanSureMetni": "Tamamlandı",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,

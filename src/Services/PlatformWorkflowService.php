@@ -830,6 +830,165 @@ class PlatformWorkflowService
     }
 
     /**
+     * SRS: Onaylanmış bir müzayedenin belirlenen tarih/saatte otomatik ya da admin tarafından
+     * manuel olarak başlatılması, duraklatılması veya sonlandırılmasıdır.
+     */
+    public function controlAuctionState(int $auctionId, string $action, ?string $scheduledStart = null, ?string $scheduledEnd = null): array
+    {
+        $auction = $this->dataStore->getItem('auctions', 'id', $auctionId);
+        if (!$auction) {
+            return ['success' => false, 'message' => "Müzayede (#{$auctionId}) bulunamadı."];
+        }
+
+        $title = $auction['baslik'] ?? "Müzayede #{$auctionId}";
+        $action = strtolower(trim($action));
+
+        switch ($action) {
+            case 'start':
+            case 'baslat':
+                $this->dataStore->updateItem('auctions', 'id', $auctionId, [
+                    'durum'              => 'CANLI',
+                    'manuelBaslatildiMi' => true,
+                    'gerceklesenBaslangic' => date('c'),
+                ]);
+
+                // Bağlı lotları canlı pey kabulüne aç
+                $lots = $this->dataStore->getCollection('lots');
+                foreach ($lots as &$lot) {
+                    if ((int)($lot['muzayedeId'] ?? 801) === $auctionId || empty($lot['muzayedeId'])) {
+                        $lot['durum'] = 'ACIK_ARTIRMADA';
+                    }
+                }
+                unset($lot);
+                $this->dataStore->saveCollection('lots', $lots);
+
+                $this->auctionSubject->notifyObservers('AUCTION_STARTED', [
+                    'type'      => 'AUCTION_STARTED',
+                    'auctionId' => $auctionId,
+                    'title'     => $title,
+                    'timestamp' => date('c'),
+                ]);
+
+                $this->dataStore->commit();
+                return [
+                    'success' => true,
+                    'message' => "'{$title}' müzayedesi admin tarafından MANUEL BAŞLATILDI. Canlı teklif alımı aktifleşti.",
+                ];
+
+            case 'pause':
+            case 'duraklat':
+                $this->dataStore->updateItem('auctions', 'id', $auctionId, [
+                    'durum'              => 'DURAKLATILDI',
+                    'duraklatilmaZamani' => date('c'),
+                ]);
+
+                $lots = $this->dataStore->getCollection('lots');
+                foreach ($lots as &$lot) {
+                    if ((int)($lot['muzayedeId'] ?? 801) === $auctionId || empty($lot['muzayedeId'])) {
+                        $lot['durum'] = 'DURAKLATILDI';
+                    }
+                }
+                unset($lot);
+                $this->dataStore->saveCollection('lots', $lots);
+
+                $this->auctionSubject->notifyObservers('AUCTION_PAUSED', [
+                    'type'      => 'AUCTION_PAUSED',
+                    'auctionId' => $auctionId,
+                    'title'     => $title,
+                    'timestamp' => date('c'),
+                ]);
+
+                $this->dataStore->commit();
+                return [
+                    'success' => true,
+                    'message' => "'{$title}' müzayedesi geçici olarak DURAKLATILDI. Canlı teklif alımı donduruldu.",
+                ];
+
+            case 'terminate':
+            case 'end':
+            case 'sonlandir':
+                $this->dataStore->updateItem('auctions', 'id', $auctionId, [
+                    'durum'         => 'SONLANDI',
+                    'kapanisZamani' => date('c'),
+                ]);
+
+                $lots = $this->dataStore->getCollection('lots');
+                foreach ($lots as &$lot) {
+                    if ((int)($lot['muzayedeId'] ?? 801) === $auctionId || empty($lot['muzayedeId'])) {
+                        $lot['durum'] = 'KAPANDI';
+                        $lot['kalanSureSaniye'] = 0;
+                        $lot['peySayisi'] = 0; // Pey verme sayısını sıfırla
+                    }
+                }
+                unset($lot);
+                $this->dataStore->saveCollection('lots', $lots);
+
+                $this->auctionSubject->notifyObservers('AUCTION_TERMINATED', [
+                    'type'      => 'AUCTION_TERMINATED',
+                    'auctionId' => $auctionId,
+                    'title'     => $title,
+                    'timestamp' => date('c'),
+                ]);
+
+                $this->dataStore->commit();
+                return [
+                    'success' => true,
+                    'message' => "'{$title}' müzayedesi resmi olarak SONLANDIRILDI. Tüm lotlar kapatıldı ve pey sayaçları sıfırlandı.",
+                ];
+
+            case 'schedule':
+            case 'zamanla':
+                $updates = ['durum' => 'ONAYLANDI'];
+                if (!empty($scheduledStart)) {
+                    $updates['baslangicZamani'] = date('c', strtotime($scheduledStart));
+                }
+                if (!empty($scheduledEnd)) {
+                    $updates['bitisZamani'] = date('c', strtotime($scheduledEnd));
+                }
+                $this->dataStore->updateItem('auctions', 'id', $auctionId, $updates);
+                $this->dataStore->commit();
+
+                $timeStr = !empty($scheduledStart) ? date('d.m.Y H:i', strtotime($scheduledStart)) : 'belirlenen saatte';
+                return [
+                    'success' => true,
+                    'message' => "'{$title}' müzayedesi {$timeStr} için zamanlandı. Otomatik ya da manuel olarak başlatılabilir.",
+                ];
+
+            default:
+                return ['success' => false, 'message' => "Geçersiz müzayede işlemi: {$action}"];
+        }
+    }
+
+    /**
+     * Zamanı gelmiş müzayedeleri otomatik başlatma
+     */
+    public function checkAndAutoStartScheduledAuctions(): int
+    {
+        $now = time();
+        $auctions = $this->dataStore->getCollection('auctions');
+        $startedCount = 0;
+
+        foreach ($auctions as &$auc) {
+            if (in_array($auc['durum'] ?? '', ['ONAYLANDI', 'PLANLANDI'], true)) {
+                $startTime = !empty($auc['baslangicZamani']) ? strtotime($auc['baslangicZamani']) : 0;
+                if ($startTime > 0 && $startTime <= $now) {
+                    $auc['durum'] = 'CANLI';
+                    $auc['otomatikBaslatildiMi'] = true;
+                    $auc['gerceklesenBaslangic'] = date('c');
+                    $startedCount++;
+                }
+            }
+        }
+        unset($auc);
+
+        if ($startedCount > 0) {
+            $this->dataStore->saveCollection('auctions', $auctions);
+        }
+
+        return $startedCount;
+    }
+
+    /**
      * Admin: İlan Onaylama / Reddetme ve Müzayedeye Lot Olarak Ekleme
      */
     public function approveListingAndPublish(int $listingId, float $startPrice, float $reservePrice, float $minStep): array
