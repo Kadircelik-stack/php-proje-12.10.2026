@@ -25,6 +25,18 @@ $hasActiveBuyerFilters = (
 );
 $searchResults = $controller->searchCatalog($buyerFilterParams);
 
+$allAuctions = $db['auctions'] ?? [];
+$liveAuctions = [];
+$upcomingAuctions = [];
+foreach ($allAuctions as $auc) {
+    $durum = strtoupper((string)($auc['durum'] ?? ''));
+    if (in_array($durum, ['CANLI', 'AKTIF'], true)) {
+        $liveAuctions[] = $auc;
+    } else {
+        $upcomingAuctions[] = $auc;
+    }
+}
+
 $buyerId = 3; // Emre K. / Zeynep D. (Alıcı)
 $lots = $db['lots'] ?? [];
 $selectedLotId = (int)($_GET['lot_id'] ?? 1002);
@@ -109,11 +121,11 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             Genel bakış
           </button>
         </li>
-        <li class="nav-menu-item">
-          <a href="?role=vitrin">
+        <li class="nav-menu-item <?= $activeTab === 'kesfet' ? 'active' : '' ?>">
+          <button type="button" data-tab="kesfet" onclick="switchBuyerTab('kesfet', this)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
             Müzayede keşfet
-          </a>
+          </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'arama' ? 'active' : '' ?>">
           <button type="button" data-tab="arama" onclick="switchBuyerTab('arama', this)">
@@ -460,6 +472,192 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
+    </div>
+
+    <!-- ====================================================================
+         MÜZAYEDE KEŞFET TAB: CANLI VE GELECEKTE YAPILAN MÜZAYEDELER
+         ==================================================================== -->
+    <div id="buyerTab_kesfet" class="tab-content <?= $activeTab === 'kesfet' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI / MÜZAYEDE KEŞFET</div>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h1 class="page-heading">Müzayede Keşif Salonu</h1>
+          <p class="page-subheading" style="color:var(--gold-primary); font-weight:500; font-size:0.92rem;">
+            ⚡ Aktif canlı açık artırmalar ve takvimlendirilmiş gelecek müzayede oturumları
+          </p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <span class="badge badge-success" style="padding:6px 14px; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:#2ecc71; display:inline-block; box-shadow:0 0 8px #2ecc71;"></span>
+            <?= count($liveAuctions) ?> Canlı Müzayede
+          </span>
+          <span class="badge badge-gold" style="padding:6px 14px; font-size:0.8rem;">
+            🕒 <?= count($upcomingAuctions) ?> Gelecek Oturum
+          </span>
+        </div>
+      </div>
+
+      <!-- Kategori / Oturum Filtre Düğmeleri -->
+      <div style="display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap;">
+        <button type="button" onclick="filterAuctionSection('all', this)" class="btn-gold-pill auction-filter-btn" style="padding:7px 18px; font-size:0.82rem;">
+          Tüm Müzayedeler (<?= count($allAuctions) ?>)
+        </button>
+        <button type="button" onclick="filterAuctionSection('live', this)" class="btn-dark-pill auction-filter-btn" style="padding:7px 18px; font-size:0.82rem;">
+          🔴 Canlı Yayında (<?= count($liveAuctions) ?>)
+        </button>
+        <button type="button" onclick="filterAuctionSection('upcoming', this)" class="btn-dark-pill auction-filter-btn" style="padding:7px 18px; font-size:0.82rem;">
+          🕒 Gelecek Oturumlar (<?= count($upcomingAuctions) ?>)
+        </button>
+      </div>
+
+      <!-- 1. BÖLÜM: CANLI MÜZAYEDELER -->
+      <div id="section_live_auctions" style="margin-bottom:36px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#2ecc71; display:inline-block; box-shadow:0 0 10px #2ecc71;"></span>
+          <h2 style="font-family:var(--font-serif); font-size:1.45rem; color:#fff; margin:0;">
+            Canlı Müzayedeler (Devam Eden Açık Artırmalar)
+          </h2>
+          <span class="badge badge-success" style="font-size:0.7rem; padding:2px 8px;">Anlık Pey Kabulü Aktif</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:20px;">
+          <?php foreach ($liveAuctions as $lAuc): ?>
+            <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #0e121a 0%, #171d29 100%); border:1px solid rgba(46,204,113,0.35); box-shadow:0 8px 30px rgba(0,0,0,0.7); display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <span class="badge badge-success" style="display:inline-flex; align-items:center; gap:6px; font-size:0.75rem; padding:3px 10px;">
+                    <span style="width:6px; height:6px; border-radius:50%; background:#2ecc71; display:inline-block;"></span>
+                    CANLI YAYINDA
+                  </span>
+                  <span class="badge badge-gold" style="font-size:0.72rem;">
+                    <?= htmlspecialchars((string)($lAuc['tur'] ?? 'CANLI')) ?> OTURUMU
+                  </span>
+                </div>
+
+                <?php $aucImg = !empty($lAuc['gorselUrl']) ? $lAuc['gorselUrl'] : 'public/assets/images/watch.jpg'; ?>
+                <div style="height:150px; border-radius:8px; overflow:hidden; margin-bottom:14px; background:#070a0f; border:1px solid #222b3a; position:relative;">
+                  <img src="<?= htmlspecialchars($aucImg) ?>" alt="<?= htmlspecialchars((string)($lAuc['baslik'] ?? '')) ?>" style="width:100%; height:100%; object-fit:cover; opacity:0.85;">
+                  <div style="position:absolute; bottom:8px; left:10px; background:rgba(0,0,0,0.7); padding:3px 8px; border-radius:4px; font-size:0.72rem; color:#d4af37; font-weight:600;">
+                    <?= htmlspecialchars((string)($lAuc['kategori'] ?? 'Sanat & Horoloji')) ?>
+                  </div>
+                </div>
+
+                <h3 style="font-family:var(--font-serif); font-size:1.25rem; color:#fff; margin-bottom:8px; line-height:1.3;">
+                  <?= htmlspecialchars((string)($lAuc['baslik'] ?? '')) ?>
+                </h3>
+                <p style="font-size:0.84rem; color:#94a3b8; line-height:1.5; margin-bottom:16px;">
+                  <?= htmlspecialchars((string)($lAuc['aciklama'] ?? 'Canlı salon açık artırması devam etmektedir.')) ?>
+                </p>
+
+                <!-- Metrikler -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 12px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); border-radius:8px; margin-bottom:16px; font-size:0.8rem;">
+                  <div>
+                    <div style="color:#848d9a; font-size:0.7rem;">Canlı Katılımcı</div>
+                    <div style="color:#2ecc71; font-weight:700;">👥 <?= number_format((int)($lAuc['katilimciSayisi'] ?? 1420)) ?> Kişi</div>
+                  </div>
+                  <div>
+                    <div style="color:#848d9a; font-size:0.7rem;">Açık Lot Sayısı</div>
+                    <div style="color:#f0f3f6; font-weight:700;">🏷 <?= (int)($lAuc['lotSayisi'] ?? 12) ?> Eser</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border-top:1px solid var(--border-color); padding-top:14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:0.7rem; color:#848d9a;">Tahmini Hacim</div>
+                  <div style="font-family:var(--font-serif); font-size:1.15rem; font-weight:700; color:#d4af37;">
+                    <?= $formatPrice((float)($lAuc['tahminiHacim'] ?? 2450000)) ?>
+                  </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <?php if ((int)($lAuc['id'] ?? 0) === 802): ?>
+                    <button type="button" onclick="switchBuyerTab('vip', this)" class="btn-register-glow" style="padding:8px 16px; font-size:0.82rem; font-weight:600;">
+                      👑 VIP Salona Katıl &rarr;
+                    </button>
+                  <?php else: ?>
+                    <button type="button" onclick="switchBuyerTab('canli', this)" class="btn-gold" style="padding:8px 16px; font-size:0.82rem; font-weight:600;">
+                      ▶ Salona Katıl &rarr;
+                    </button>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- 2. BÖLÜM: GELECEKTE YAPILAN MÜZAYEDELER -->
+      <div id="section_upcoming_auctions">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#d4af37; display:inline-block; box-shadow:0 0 10px #d4af37;"></span>
+          <h2 style="font-family:var(--font-serif); font-size:1.45rem; color:#fff; margin:0;">
+            Gelecekte Yapılan Müzayedeler (Planlanan Oturumlar)
+          </h2>
+          <span class="badge badge-gold" style="font-size:0.7rem; padding:2px 8px;">Katalog Ön İncelemede</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:20px;">
+          <?php foreach ($upcomingAuctions as $uAuc): ?>
+            <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #0d1017 0%, #151a24 100%); border:1px solid #2a3449; display:flex; flex-direction:column; justify-content:space-between; transition:all 0.25s ease;" onmouseover="this.style.borderColor='rgba(212,175,55,0.4)';" onmouseout="this.style.borderColor='#2a3449';">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <span class="badge badge-gold" style="font-size:0.75rem; padding:3px 10px;">
+                    🕒 PLANLANDI
+                  </span>
+                  <span style="font-size:0.75rem; color:#d4af37; font-weight:600;">
+                    📅 <?= !empty($uAuc['baslangicZamani']) ? date('d M Y • H:i', strtotime((string)$uAuc['baslangicZamani'])) : 'Çok Yakında' ?>
+                  </span>
+                </div>
+
+                <?php $uImg = !empty($uAuc['gorselUrl']) ? $uAuc['gorselUrl'] : 'public/assets/images/cat_osmanli.jpg'; ?>
+                <div style="height:150px; border-radius:8px; overflow:hidden; margin-bottom:14px; background:#070a0f; border:1px solid #222b3a; position:relative;">
+                  <img src="<?= htmlspecialchars($uImg) ?>" alt="<?= htmlspecialchars((string)($uAuc['baslik'] ?? '')) ?>" style="width:100%; height:100%; object-fit:cover; opacity:0.8;">
+                  <div style="position:absolute; bottom:8px; left:10px; background:rgba(0,0,0,0.7); padding:3px 8px; border-radius:4px; font-size:0.72rem; color:#f0f3f6;">
+                    <?= htmlspecialchars((string)($uAuc['kategori'] ?? 'Koleksiyon')) ?>
+                  </div>
+                </div>
+
+                <h3 style="font-family:var(--font-serif); font-size:1.25rem; color:#fff; margin-bottom:8px; line-height:1.3;">
+                  <?= htmlspecialchars((string)($uAuc['baslik'] ?? '')) ?>
+                </h3>
+                <p style="font-size:0.84rem; color:#94a3b8; line-height:1.5; margin-bottom:16px;">
+                  <?= htmlspecialchars((string)($uAuc['aciklama'] ?? 'Planlanan müzayede oturumu.')) ?>
+                </p>
+
+                <!-- Metrikler -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 12px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); border-radius:8px; margin-bottom:16px; font-size:0.8rem;">
+                  <div>
+                    <div style="color:#848d9a; font-size:0.7rem;">Ön Kayıtlı Koleksiyoner</div>
+                    <div style="color:#d4af37; font-weight:700;">👥 <?= number_format((int)($uAuc['katilimciSayisi'] ?? 250)) ?> Kişi</div>
+                  </div>
+                  <div>
+                    <div style="color:#848d9a; font-size:0.7rem;">Katalog Lot Sayısı</div>
+                    <div style="color:#f0f3f6; font-weight:700;">🏷 <?= (int)($uAuc['lotSayisi'] ?? 30) ?> Eser</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border-top:1px solid var(--border-color); padding-top:14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:0.7rem; color:#848d9a;">Tahmini Toplam Değer</div>
+                  <div style="font-family:var(--font-serif); font-size:1.15rem; font-weight:700; color:#d4af37;">
+                    <?= $formatPrice((float)($uAuc['tahminiHacim'] ?? 3500000)) ?>
+                  </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button type="button" onclick="alert('✓ \'<?= addslashes((string)$uAuc['baslik']) ?>\' müzayedesi için takvim hatırlatmanız oluşturuldu. Başlangıçtan 1 saat önce bildirim alacaksınız.');" class="btn-dark-pill" style="padding:7px 12px; font-size:0.78rem;">
+                    🔔 Hatırlat
+                  </button>
+                  <button type="button" onclick="switchBuyerTab('arama', this)" class="btn-outline-gold" style="padding:7px 14px; font-size:0.78rem;">
+                    🔍 Ön Katalog
+                  </button>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
     </div>
 
     <!-- ====================================================================
@@ -1228,6 +1426,25 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
         </div>
       </div>
 
+      <!-- Müzayede Keşfet Banner Kartı -->
+      <div class="panel-card" style="margin-bottom:24px; background:linear-gradient(135deg, #090d14 0%, #161e2b 100%); border:1px solid rgba(212,175,55,0.45); box-shadow:0 10px 30px rgba(0,0,0,0.7); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; padding:22px 28px;">
+        <div style="max-width:680px;">
+          <div style="color:var(--gold-primary); font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            <span>MARTELLO • SALON REHBERİ</span>
+          </div>
+          <h3 style="font-family:var(--font-serif); font-size:1.45rem; color:#f0f3f6; margin-bottom:6px; font-weight:500;">
+            Canlı ve Gelecekte Yapılan Müzayedeler
+          </h3>
+          <p style="font-size:0.88rem; color:#94a3b8; margin:0; line-height:1.5;">
+            Şu an devam eden <strong><?= count($liveAuctions) ?> canlı açık artırma</strong> ve takvimlendirilmiş <strong><?= count($upcomingAuctions) ?> gelecek müzayede oturumunu</strong> keşfedin, katalogları inceleyin veya canlı yayına katılın.
+          </p>
+        </div>
+        <button type="button" onclick="switchBuyerTab('kesfet', this)" class="btn-register-glow" style="padding:11px 26px; font-weight:600; font-size:0.9rem; display:inline-flex; align-items:center; gap:8px;">
+          Müzayedeleri Keşfet &rarr;
+        </button>
+      </div>
+
       <!-- Yan Yana Çalışma Alanı ve Seçenekler Grid -->
       <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px; align-items:start;">
         <!-- Sol: Son Kazanılan Eserler Hızlı Görünüm -->
@@ -1266,8 +1483,15 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <h3 class="panel-title">Hızlı İşlemler</h3>
           </div>
           <div style="display:flex; flex-direction:column; gap:10px;">
+            <button type="button" onclick="switchBuyerTab('kesfet', this)" class="btn-register-glow" style="width:100%; justify-content:center; padding:11px; font-weight:600; display:flex; align-items:center; gap:8px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              Müzayede Keşfet (Canlı & Gelecek)
+            </button>
             <button type="button" onclick="switchBuyerTab('canli', this)" class="btn-gold" style="width:100%; justify-content:center; padding:10px;">
               Canlı Müzayedeye Katıl
+            </button>
+            <button type="button" onclick="switchBuyerTab('arama', this)" class="btn-outline-gold" style="width:100%; justify-content:center; padding:9px;">
+              Eser Arama & Çok Kriterli Filtre
             </button>
             <button type="button" onclick="switchBuyerTab('bakiye', this)" class="btn-outline-gold" style="width:100%; justify-content:center; padding:9px;">
               Bakiye & Teminat Yükle
@@ -1589,6 +1813,29 @@ function switchBuyerTab(tabId, btn) {
       url.searchParams.set('tab', tabId);
       window.history.replaceState({}, '', url);
     } catch(e) {}
+  }
+}
+
+function filterAuctionSection(type, btn) {
+  document.querySelectorAll('.auction-filter-btn').forEach(b => {
+    b.classList.remove('btn-gold-pill');
+    b.classList.add('btn-dark-pill');
+  });
+  if (btn) {
+    btn.classList.remove('btn-dark-pill');
+    btn.classList.add('btn-gold-pill');
+  }
+  const liveSec = document.getElementById('section_live_auctions');
+  const upSec = document.getElementById('section_upcoming_auctions');
+  if (type === 'live') {
+    if (liveSec) liveSec.style.display = 'block';
+    if (upSec) upSec.style.display = 'none';
+  } else if (type === 'upcoming') {
+    if (liveSec) liveSec.style.display = 'none';
+    if (upSec) upSec.style.display = 'block';
+  } else {
+    if (liveSec) liveSec.style.display = 'block';
+    if (upSec) upSec.style.display = 'block';
   }
 }
 </script>

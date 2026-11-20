@@ -931,7 +931,12 @@
       "maksimumKatilimci": 50000,
       "duraklatilmaZamani": "2026-11-20T12:56:26+00:00",
       "manuelBaslatildiMi": true,
-      "gerceklesenBaslangic": "2026-11-20T12:56:32+00:00"
+      "gerceklesenBaslangic": "2026-11-20T12:56:32+00:00",
+      "lotSayisi": 12,
+      "tahminiHacim": 2450000,
+      "aciklama": "1968 İsviçre vintage kronografları, mekanik saatler ve nadir koleksiyon mobilyaları.",
+      "gorselUrl": "public/assets/images/watch.jpg",
+      "kategori": "Horoloji & Klasik Eserler"
     },
     {
       "id": 802,
@@ -943,7 +948,60 @@
       "bitisZamani": "2026-11-20T23:59:00+03:00",
       "katilimciSayisi": 48,
       "maksimumKatilimci": 100,
-      "girisKosulu": "GOLD, PLATINUM veya DIAMOND VIP Statüsü"
+      "girisKosulu": "GOLD, PLATINUM veya DIAMOND VIP Statüsü",
+      "lotSayisi": 8,
+      "tahminiHacim": 18500000,
+      "aciklama": "16. Yüzyıl Osmanlı pirinç usturlapları, Fabergé imparatorluk emaye saatleri ve Helenistik altın kolyeler.",
+      "gorselUrl": "public/assets/images/astrolabe_clean.jpg",
+      "kategori": "Özel Koleksiyon / Salon d’Honneur"
+    },
+    {
+      "id": 803,
+      "baslik": "Osmanlı Saray Sanatları ve Efemera Koleksiyonu",
+      "tur": "KLASIK",
+      "durum": "PLANLANDI",
+      "paraBirimi": "TRY",
+      "baslangicZamani": "2026-11-28T19:30:00+03:00",
+      "bitisZamani": "2026-11-28T22:30:00+03:00",
+      "katilimciSayisi": 312,
+      "maksimumKatilimci": 5000,
+      "lotSayisi": 42,
+      "tahminiHacim": 4800000,
+      "aciklama": "Saray hattatları beratları, tuğralı gümüş evraklar, fermanlar ve 19. yüzyıl Osmanlı mühürleri.",
+      "gorselUrl": "public/assets/images/cat_osmanli.jpg",
+      "kategori": "Osmanlı Eserleri & Efemera"
+    },
+    {
+      "id": 804,
+      "baslik": "Kış Nümismatik ve Antik Sikkeler Özel Müzayedesi",
+      "tur": "TEMATIK",
+      "durum": "PLANLANDI",
+      "paraBirimi": "TRY",
+      "baslangicZamani": "2026-12-05T20:00:00+03:00",
+      "bitisZamani": "2026-12-05T23:00:00+03:00",
+      "katilimciSayisi": 185,
+      "maksimumKatilimci": 3000,
+      "lotSayisi": 65,
+      "tahminiHacim": 3200000,
+      "aciklama": "Lidya elektrum staterlerinden Roma ve Bizans altın soliduslarına uzanan müze kalitesinde sikke seçkisi.",
+      "gorselUrl": "public/assets/images/cat_numismatik.jpg",
+      "kategori": "Nümismatik & Antik Sikkeler"
+    },
+    {
+      "id": 805,
+      "baslik": "Modern & Çağdaş Türk Sanatı Akşam Müzayedesi",
+      "tur": "CANLI",
+      "durum": "PLANLANDI",
+      "paraBirimi": "TRY",
+      "baslangicZamani": "2026-12-12T19:00:00+03:00",
+      "bitisZamani": "2026-12-12T22:00:00+03:00",
+      "katilimciSayisi": 540,
+      "maksimumKatilimci": 10000,
+      "lotSayisi": 38,
+      "tahminiHacim": 14500000,
+      "aciklama": "20. yüzyıl Türk resim sanatının usta fırçaları, tuval üzeri yağlıboyalar ve bronz heykeller.",
+      "gorselUrl": "public/assets/images/cat_efemera.jpg",
+      "kategori": "Çağdaş Sanat & Heykel"
     }
   ],
   "lots": [
