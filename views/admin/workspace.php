@@ -25,6 +25,11 @@ $activeTab = $_GET['tab'] ?? 'konsol';
             Yönetim konsolu
           </button>
         </li>
+        <li class="nav-menu-item <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
+          <button type="button" data-tab="kategoriler" onclick="switchAdminTab('kategoriler', this)">
+            Kategoriler & Nitelikler
+          </button>
+        </li>
         <li class="nav-menu-item <?= $activeTab === 'kullanicilar' ? 'active' : '' ?>">
           <button type="button" data-tab="kullanicilar" onclick="switchAdminTab('kullanicilar', this)">
             Kullanıcılar
@@ -43,11 +48,6 @@ $activeTab = $_GET['tab'] ?? 'konsol';
         <li class="nav-menu-item <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
           <button type="button" data-tab="ekspertiz" onclick="switchAdminTab('ekspertiz', this)">
             Ekspertiz atama
-          </button>
-        </li>
-        <li class="nav-menu-item <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
-          <button type="button" data-tab="kategoriler" onclick="switchAdminTab('kategoriler', this)">
-            Kategoriler
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
@@ -169,19 +169,19 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       <h1 class="page-heading">Yönetim konsolu</h1>
       <p class="page-subheading" style="margin-bottom:24px;">Seçkin müzayede deneyiminizi yönetin</p>
 
-      <!-- 4 Adet KPI Kartı -->
+      <!-- KPI Grid: Kategoriler ve Temel Sayaçlar -->
       <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">KULLANICILAR</div>
-          <div class="kpi-value">3</div>
+        <div class="kpi-card" style="cursor:pointer;" onclick="switchAdminTab('kategoriler', document.querySelector('[data-tab=\'kategoriler\']'))">
+          <div class="kpi-label">KATEGORİLER</div>
+          <div class="kpi-value" style="color:var(--gold-primary);"><?= count($categories) ?></div>
         </div>
         <div class="kpi-card highlight">
           <div class="kpi-label">AKTİF LOTLAR</div>
           <div class="kpi-value">6</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">RAPORLAR</div>
-          <div class="kpi-value">1</div>
+          <div class="kpi-label">KULLANICILAR</div>
+          <div class="kpi-value"><?= count($users) ?></div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">AÇIK İHTİLAFLAR</div>
@@ -189,14 +189,354 @@ $activeTab = $_GET['tab'] ?? 'konsol';
         </div>
       </div>
 
-      <!-- Yönetim Konsolu Kartı -->
-      <div class="panel-card">
-        <h2 class="panel-title" style="margin-bottom:6px;">Yönetim konsolu</h2>
-        <p style="font-size:0.88rem; color:var(--text-muted);">
-          Moderasyon, ekspertiz ve rapor akışlarını soldaki menüden yönetin.
-        </p>
+      <!-- Yönetim Konsolu Kartı & Kategori Hızlı Geçiş -->
+      <div class="panel-card" style="margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h2 class="panel-title" style="margin-bottom:4px;">Yönetim Konsolu ve Katalog Mimarisi</h2>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
+              Ürün kategorileri, alt kategoriler ve nitelik şablonlarını yukarı taşınan kategori masasından yönetebilirsiniz.
+            </p>
+          </div>
+          <button type="button" class="btn-gold btn-sm" onclick="switchAdminTab('kategoriler', document.querySelector('[data-tab=\'kategoriler\']'))" style="padding:8px 16px; cursor:pointer;">
+            Kategoriler & Şablonlar Masasına Git →
+          </button>
+        </div>
       </div>
     </div>
+
+    <!-- 2. TAB: ÜRÜN KATEGORİLERİ, ALT KATEGORİLER VE NİTELİK ŞABLONLARI (YUKARI TAŞINDI) -->
+    <div id="admTab_kategoriler" class="tab-content <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / KATEGORİ & NİTELİK ŞABLONLARI</div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h1 class="page-heading">Ürün Kategorileri ve Nitelik Şablonları</h1>
+          <p class="page-subheading" style="color:var(--gold-primary); font-weight:500; font-size:0.92rem;">
+            ⚡ "Admin tarafından ürün kategorilerinin, alt kategorilerinin ve her kategoriye özgü zorunlu/seçimli nitelik şablonlarının tanımlanmasıdır."
+          </p>
+        </div>
+        <span class="badge badge-gold" style="font-size:0.78rem; padding:6px 14px;">SRS Kategori Mimarisi</span>
+      </div>
+
+      <!-- Kategori İstatistik Kartları -->
+      <?php
+        $mainCategories = array_values(array_filter($categories, fn($c) => empty($c['ustKategoriId'])));
+        $subCategories = array_values(array_filter($categories, fn($c) => !empty($c['ustKategoriId'])));
+      ?>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:24px;">
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid var(--gold-primary); border-radius:8px; padding:12px 14px;">
+          <div style="font-size:0.75rem; color:#8b949e; text-transform:uppercase;">Toplam Kategori</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#fff;"><?= count($categories) ?></div>
+        </div>
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #3fb950; border-radius:8px; padding:12px 14px;">
+          <div style="font-size:0.75rem; color:#8b949e; text-transform:uppercase;">Ana Kategoriler</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#3fb950;"><?= count($mainCategories) ?></div>
+        </div>
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #60a5fa; border-radius:8px; padding:12px 14px;">
+          <div style="font-size:0.75rem; color:#8b949e; text-transform:uppercase;">Alt Kategoriler</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#60a5fa;"><?= count($subCategories) ?></div>
+        </div>
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #e3b341; border-radius:8px; padding:12px 14px;">
+          <div style="font-size:0.75rem; color:#8b949e; text-transform:uppercase;">Nitelik Şablon Alanları</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#e3b341;">Zorunlu + Seçimli</div>
+        </div>
+      </div>
+
+      <!-- BÖLÜM 1: YENİ KATEGORİ / ALT KATEGORİ VE NİTELİK ŞABLONU TANIMLAMA FORMU -->
+      <div class="panel-card" style="margin-bottom:28px; border:1px solid rgba(212,175,55,0.25); background:linear-gradient(180deg, #111622 0%, #0a0e16 100%); border-radius:10px; padding:22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #1f2736; padding-bottom:12px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="display:inline-block; width:10px; height:10px; background:var(--gold-primary); border-radius:50%;"></span>
+              <h2 style="font-size:1.1rem; font-weight:700; color:#fff; margin:0;">Yeni Kategori / Alt Kategori & Nitelik Şablonu Tanımla</h2>
+            </div>
+            <p style="font-size:0.8rem; color:#8b949e; margin:4px 0 0 18px;">
+              Ürün sınıflandırmasını belirleyin; ana kategori veya alt kategori oluşturun, zorunlu ve seçimli alan şablonlarını atayın.
+            </p>
+          </div>
+          <span class="badge" style="background:#161f30; color:#d4af37; border:1px solid #2d3e5e;">Tanımlama Formu</span>
+        </div>
+
+        <form method="POST" style="margin:0;">
+          <input type="hidden" name="action" value="add_category">
+          
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:14px;">
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:6px;">
+                Kategori Adı *
+              </label>
+              <input type="text" name="kategori_adi" id="formCatName" class="form-control" placeholder="Örn: Klasik Heykel & Bronz Eserler" required style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;">
+            </div>
+
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:6px;">
+                Kategori Kodu (Slug / Sistem Kodu)
+              </label>
+              <input type="text" name="kategori_kodu" id="formCatCode" class="form-control" placeholder="Örn: heykel-bronz (Boş ise otomatik üretilir)" style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;">
+            </div>
+
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:6px;">
+                Hiyerarşi / Üst Kategori (Alt Kategori Belirleme)
+              </label>
+              <select name="ust_kategori_id" id="formCatParentSelect" class="form-control" style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;" onchange="updateCatTypeIndicator(this.value)">
+                <option value="0">⭐ Ana Kategori (Üst Kategori Yok)</option>
+                <?php foreach ($mainCategories as $mc): ?>
+                  <option value="<?= (int)$mc['id'] ?>">
+                    ↳ <?= htmlspecialchars($mc['ad'] ?? $mc['kategoriAdi']) ?> Alt Kategorisi Olarak Tanımla
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:16px;">
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:6px;">
+                Kategori Açıklaması
+              </label>
+              <input type="text" name="aciklama" class="form-control" placeholder="Örn: 19. ve 20. Yüzyıl Avrupa ve Osmanlı Bronz Döküm Sanatı" style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div>
+                <label style="display:block; font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:6px;">
+                  Komisyon Oranı (%)
+                </label>
+                <input type="number" step="0.1" name="komisyon_orani" value="8.0" class="form-control" style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:6px;">
+                  Ekspertiz Ücreti (₺)
+                </label>
+                <input type="number" step="50" name="ekspertiz_ucreti" value="1500" class="form-control" style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;">
+              </div>
+            </div>
+          </div>
+
+          <!-- NİTELİK ŞABLONLARI: ZORUNLU VE SEÇİMLİ ALANLAR -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; margin-bottom:18px;">
+            <!-- Zorunlu Nitelikler Şablonu -->
+            <div style="background:#080b11; border:1px solid #2e1c22; border-left:3px solid #f87171; border-radius:6px; padding:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <label style="font-size:0.84rem; font-weight:700; color:#f87171; margin:0;">
+                  🔒 Zorunlu Nitelikler Şablonu (Required Attributes)
+                </label>
+                <span style="font-size:0.7rem; color:#f87171; background:#2a1116; padding:2px 6px; border-radius:4px;">Girişi Mecburi</span>
+              </div>
+              <p style="font-size:0.73rem; color:#8b949e; margin:0 0 8px 0; line-height:1.4;">
+                Satıcı eser yüklerken ve eksper rapor düzenlerken bu alanları doldurmak ZORUNDADIR. (Virgülle ayırın).
+              </p>
+              <input type="text" name="zorunlu_nitelikler" class="form-control" value="Dönem / Yıl, Sanatçı / İmalatçı, Kondisyon Derecesi, Materyal / Teknik" style="background:#05070a; border:1px solid #3d1e26; color:#fff; padding:9px 12px; font-size:0.84rem; width:100%; border-radius:6px;">
+            </div>
+
+            <!-- Seçimli Nitelikler Şablonu -->
+            <div style="background:#080b11; border:1px solid #1c2738; border-left:3px solid #60a5fa; border-radius:6px; padding:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <label style="font-size:0.84rem; font-weight:700; color:#60a5fa; margin:0;">
+                  ✨ Seçimli (Opsiyonel) Nitelikler Şablonu (Optional Attributes)
+                </label>
+                <span style="font-size:0.7rem; color:#60a5fa; background:#122138; padding:2px 6px; border-radius:4px;">İsteğe Bağlı</span>
+              </div>
+              <p style="font-size:0.73rem; color:#8b949e; margin:0 0 8px 0; line-height:1.4;">
+                Satıcı veya eksperin eserin değerini artırmak için isteğe bağlı girebileceği ek alanlardır. (Virgülle ayırın).
+              </p>
+              <input type="text" name="secimli_nitelikler" class="form-control" value="Islak İmzalı / Damgalı, Provenans (Koleksiyon Geçmişi), Eser Ebatları, Çerçeve / Kutu, Sertifika No" style="background:#05070a; border:1px solid #203554; color:#fff; padding:9px 12px; font-size:0.84rem; width:100%; border-radius:6px;">
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:#080b11; border:1px solid #1a2333; border-radius:6px; padding:12px 16px;">
+            <div id="catTypeIndicator" style="font-size:0.8rem; color:#8b949e;">
+              ⚡ <strong>Durum:</strong> Bağımsız Ana Kategori tanımlanıyor.
+            </div>
+            <button type="submit" class="btn-gold" style="padding:9px 24px; font-weight:700; font-size:0.88rem; border-radius:6px; cursor:pointer;">
+              Kategori ve Şablonu Tanımla
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- BÖLÜM 2: TANIMLI KATEGORİLER, ALT KATEGORİLER VE NİTELİK ŞABLONLARI KATALOĞU (SIFIR TABLO) -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div>
+            <h2 style="font-size:1.05rem; font-weight:700; color:#fff; margin:0;">Tanımlı Ürün Kategorileri ve Nitelik Şablonları</h2>
+            <p style="font-size:0.78rem; color:#8b949e; margin:2px 0 0 0;">
+              Sistemde aktif tüm ana kategoriler, alt kategorileri ve her birine özgü tanımlanmış nitelik şablonları.
+            </p>
+          </div>
+          <span class="badge" style="background:#161b22; border:1px solid #30363d; color:#c5cbd3;"><?= count($categories) ?> Kategori</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr; gap:18px;">
+          <?php foreach ($mainCategories as $mc): 
+            $mcId = (int)($mc['id'] ?? 0);
+            $mcName = htmlspecialchars($mc['ad'] ?? $mc['kategoriAdi'] ?? 'Kategori');
+            $mcCode = htmlspecialchars($mc['kod'] ?? $mc['kategoriKodu'] ?? '');
+            $mcDesc = htmlspecialchars($mc['aciklama'] ?? '');
+            $mcReq = (array)($mc['zorunluNitelikler'] ?? ['Dönem', 'Kondisyon']);
+            $mcOpt = (array)($mc['secimliNitelikler'] ?? ['Provenans', 'İmza']);
+            $mcComm = (float)($mc['komisyonOraniYuzde'] ?? 8.0);
+            $mcFee = (float)($mc['sabitEkspertizUcreti'] ?? 1500.0);
+
+            // Bu ana kategoriye bağlı alt kategorileri bul
+            $attachedSubs = array_values(array_filter($categories, fn($sub) => (int)($sub['ustKategoriId'] ?? 0) === $mcId));
+          ?>
+            <div class="panel-card" style="border:1px solid #1f2736; background:#0b0f17; border-radius:10px; padding:20px;">
+              <!-- Ana Kategori Başlığı -->
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="badge badge-success" style="font-size:0.72rem; padding:3px 8px;">🟢 ANA KATEGORİ</span>
+                    <span class="badge" style="background:#131822; border:1px solid #232b3b; color:#8b949e; font-size:0.7rem;">#<?= $mcId ?> • <?= $mcCode ?></span>
+                    <h3 style="font-size:1.15rem; font-weight:700; color:#fff; margin:0;"><?= $mcName ?></h3>
+                  </div>
+                  <?php if ($mcDesc): ?>
+                    <p style="font-size:0.8rem; color:#8b949e; margin:6px 0 0 0;"><?= $mcDesc ?></p>
+                  <?php endif; ?>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="badge badge-gold" style="font-size:0.72rem;">%<?= $mcComm ?> Komisyon</span>
+                  <span class="badge badge-info" style="font-size:0.72rem;">₺<?= number_format($mcFee, 0, ',', '.') ?> Ekspertiz</span>
+                  <button type="button" class="btn-outline-gold btn-sm" style="font-size:0.72rem; padding:4px 10px;" onclick="setFormParentCategory(<?= $mcId ?>, '<?= addslashes($mcName) ?>')">
+                    + Alt Kategori Ekle
+                  </button>
+                  <form method="POST" style="margin:0;" onsubmit="return confirm('Bu kategoriyi silmek istediğinizden emin misiniz?');">
+                    <input type="hidden" name="action" value="delete_category">
+                    <input type="hidden" name="category_id" value="<?= $mcId ?>">
+                    <button type="submit" class="btn-sm" style="background:#2a1116; border:1px solid #6b1d28; color:#f87171; font-size:0.72rem; padding:4px 8px; border-radius:4px; cursor:pointer;" title="Kategoriyi Sil">
+                      ✕ Sil
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Ana Kategori Nitelik Şablonları Şeridi -->
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; background:#07090e; border:1px solid #1a2333; border-radius:8px; padding:12px; margin-bottom:14px;">
+                <div>
+                  <div style="font-size:0.72rem; font-weight:700; color:#f87171; text-transform:uppercase; margin-bottom:6px;">
+                    🔒 Zorunlu Nitelik Şablonu:
+                  </div>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                    <?php foreach ($mcReq as $req): ?>
+                      <span style="font-size:0.72rem; background:#241217; border:1px solid #4d1c25; color:#fca5a5; padding:2px 8px; border-radius:4px;">
+                        <?= htmlspecialchars((string)$req) ?>
+                      </span>
+                    <?php endforeach; ?>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="font-size:0.72rem; font-weight:700; color:#60a5fa; text-transform:uppercase; margin-bottom:6px;">
+                    ✨ Seçimli (Opsiyonel) Nitelik Şablonu:
+                  </div>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                    <?php if (!empty($mcOpt)): ?>
+                      <?php foreach ($mcOpt as $opt): ?>
+                        <span style="font-size:0.72rem; background:#101a2c; border:1px solid #1d3356; color:#93c5fd; padding:2px 8px; border-radius:4px;">
+                          <?= htmlspecialchars((string)$opt) ?>
+                        </span>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <span style="font-size:0.72rem; color:#5c6b7d;">Özel opsiyonel nitelik girilmedi.</span>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alt Kategoriler Bölümü (Eğer varsa) -->
+              <?php if (!empty($attachedSubs)): ?>
+                <div style="margin-top:14px; border-top:1px dashed #1f2736; padding-top:14px;">
+                  <div style="font-size:0.8rem; font-weight:600; color:#c5cbd3; margin-bottom:10px;">
+                    ↳ <?= $mcName ?> Altındaki Alt Kategoriler (<?= count($attachedSubs) ?>)
+                  </div>
+                  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px;">
+                    <?php foreach ($attachedSubs as $sub): 
+                      $subId = (int)($sub['id'] ?? 0);
+                      $subName = htmlspecialchars($sub['ad'] ?? $sub['kategoriAdi'] ?? 'Alt Kategori');
+                      $subCode = htmlspecialchars($sub['kod'] ?? $sub['kategoriKodu'] ?? '');
+                      $subDesc = htmlspecialchars($sub['aciklama'] ?? '');
+                      $subReq = (array)($sub['zorunluNitelikler'] ?? []);
+                      $subOpt = (array)($sub['secimliNitelikler'] ?? []);
+                    ?>
+                      <div style="background:#080b11; border:1px solid #192233; border-left:3px solid #60a5fa; border-radius:6px; padding:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                          <div>
+                            <div style="font-weight:700; font-size:0.88rem; color:#fff;">
+                              <?= $subName ?>
+                            </div>
+                            <div style="font-size:0.7rem; color:#8b949e;"><?= $subCode ?></div>
+                          </div>
+                          <form method="POST" style="margin:0;" onsubmit="return confirm('Bu alt kategoriyi silmek istediğinizden emin misiniz?');">
+                            <input type="hidden" name="action" value="delete_category">
+                            <input type="hidden" name="category_id" value="<?= $subId ?>">
+                            <button type="submit" style="background:none; border:none; color:#f87171; font-size:0.72rem; cursor:pointer;" title="Alt Kategoriyi Sil">
+                              ✕ Sil
+                            </button>
+                          </form>
+                        </div>
+                        <?php if ($subDesc): ?>
+                          <p style="font-size:0.73rem; color:#8b949e; margin:0 0 6px 0;"><?= $subDesc ?></p>
+                        <?php endif; ?>
+
+                        <!-- Alt Kategori Nitelikleri -->
+                        <div style="font-size:0.68rem; color:#f87171; font-weight:600; margin-bottom:2px;">Özel Zorunlu Şablon:</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:6px;">
+                          <?php foreach ($subReq as $sr): ?>
+                            <span style="font-size:0.68rem; background:#241217; color:#fca5a5; padding:1px 5px; border-radius:3px;">
+                              <?= htmlspecialchars((string)$sr) ?>
+                            </span>
+                          <?php endforeach; ?>
+                        </div>
+                        <?php if (!empty($subOpt)): ?>
+                          <div style="font-size:0.68rem; color:#60a5fa; font-weight:600; margin-bottom:2px;">Özel Seçimli Şablon:</div>
+                          <div style="display:flex; flex-wrap:wrap; gap:3px;">
+                            <?php foreach ($subOpt as $so): ?>
+                              <span style="font-size:0.68rem; background:#101a2c; color:#93c5fd; padding:1px 5px; border-radius:3px;">
+                                <?= htmlspecialchars((string)$so) ?>
+                              </span>
+                            <?php endforeach; ?>
+                          </div>
+                        <?php endif; ?>
+                      </div>
+                    <?php endforeach; ?>
+                  </div>
+                </div>
+              <?php else: ?>
+                <div style="font-size:0.75rem; color:#5c6b7d; margin-top:8px;">
+                  Bu ana kategoriye henüz özel bir alt kategori tanımlanmamış. Yukarıdaki "+ Alt Kategori Ekle" butonuna basarak alt kategori tanımlayabilirsiniz.
+                </div>
+              <?php endif; ?>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function updateCatTypeIndicator(val) {
+        const ind = document.getElementById('catTypeIndicator');
+        if (!ind) return;
+        if (parseInt(val) > 0) {
+          ind.innerHTML = '⚡ <strong>Durum:</strong> Seçilen üst kategoriye bağlı <span style=\"color:#60a5fa; font-weight:700;\">ALT KATEGORİ</span> tanımlanıyor.';
+        } else {
+          ind.innerHTML = '⚡ <strong>Durum:</strong> Bağımsız <span style=\"color:#3fb950; font-weight:700;\">ANA KATEGORİ</span> tanımlanıyor.';
+        }
+      }
+
+      function setFormParentCategory(parentId, parentName) {
+        const sel = document.getElementById('formCatParentSelect');
+        if (sel) {
+          sel.value = parentId;
+          updateCatTypeIndicator(parentId);
+        }
+        const nameInput = document.getElementById('formCatName');
+        if (nameInput) {
+          nameInput.focus();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    </script>
 
     <!-- 2. TAB: KULLANICILAR -->
     <div id="admTab_kullanicilar" class="tab-content <?= $activeTab === 'kullanicilar' ? 'active' : '' ?>">
@@ -931,35 +1271,6 @@ $activeTab = $_GET['tab'] ?? 'konsol';
             </tr>
           </tbody>
         </table>
-      </div>
-    </div>
-
-    <!-- 5. TAB: KATEGORİLER (media_1795014776291_4276223f.jpg ile Birebir) -->
-    <div id="admTab_kategoriler" class="tab-content <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Kategoriler</h1>
-      <p class="page-subheading" style="margin-bottom:24px;">Seçkin müzayede deneyiminizi yönetin</p>
-
-      <div class="panel-card">
-        <h3 class="panel-title" style="margin-bottom:12px;">Kategoriler</h3>
-        <p style="font-size:0.95rem; color:#848d9a; margin-bottom:24px;">
-          Saat • Kamera • Sanat • Otomobil • Nümismatik • Efemera
-        </p>
-
-        <form method="POST" style="max-width:400px;">
-          <input type="hidden" name="action" value="add_category">
-          <input type="hidden" name="kategori_kodu" value="GENEL">
-          <input type="hidden" name="nitelikler" value="Dönem, Kondisyon, Menşei">
-          
-          <div class="form-group" style="margin-bottom:14px;">
-            <label class="form-label" style="font-size:0.85rem; color:#f0f3f6;">Yeni kategori *</label>
-            <input type="text" name="kategori_adi" class="form-control" style="background:#0e1118; border:1px solid #283244; border-radius:8px; padding:10px 14px;" required>
-          </div>
-
-          <button type="submit" class="btn-gold-pill" style="padding:8px 24px; cursor:pointer;">
-            Ekle
-          </button>
-        </form>
       </div>
     </div>
 

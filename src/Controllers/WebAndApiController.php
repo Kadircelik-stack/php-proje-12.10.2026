@@ -397,12 +397,17 @@ class WebAndApiController
                 ];
 
             case 'add_category':
-                $name = $post['kategori_adi'] ?? 'Yeni Kategori';
-                $code = $post['kategori_kodu'] ?? 'CAT-' . mt_rand(10, 99);
-                $attrs = array_filter(array_map('trim', explode(',', $post['nitelikler'] ?? 'Dönem, Menşei, Kondisyon')));
-                $res = $this->workflowService->addCategoryAttribute($name, $code, $attrs);
+                $res = $this->workflowService->saveCategoryDefinition($post);
                 return [
                     'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'delete_category':
+                $catId = (int)($post['category_id'] ?? 0);
+                $res = $this->workflowService->deleteCategory($catId);
+                return [
+                    'type' => $res['success'] ? 'info' : 'danger',
                     'text' => $res['message'],
                 ];
 

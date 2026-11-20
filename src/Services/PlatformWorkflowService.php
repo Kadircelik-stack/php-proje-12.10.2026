@@ -510,23 +510,115 @@ class PlatformWorkflowService
     }
 
     /**
-     * Kategori ve Dinamik Nitelik Şablonu Ekleme
+     * Admin tarafından ürün kategorilerinin, alt kategorilerinin ve her kategoriye özgü
+     * zorunlu/seçimli nitelik şablonlarının tanımlanması (SRS Kategori ve Nitelik Yönetimi)
      */
-    public function addCategoryAttribute(string $name, string $code, array $attributes): array
+    public function saveCategoryDefinition(array $data): array
     {
-        $newCat = $this->dataStore->insertItem('categories', [
-            'kategoriAdi'        => $name,
-            'kategoriKodu'       => $code,
-            'aktifMi'            => true,
-            'zorunluNitelikler' => $attributes,
-            'olusturmaTarihi'    => date('c'),
-        ]);
+        $id = !empty($data['category_id']) ? (int)$data['category_id'] : 0;
+        $name = trim($data['kategori_adi'] ?? $data['ad'] ?? '');
+        if (empty($name)) {
+            return ['success' => false, 'message' => "Kategori adı belirtilmelidir."];
+        }
+
+        $code = trim($data['kategori_kodu'] ?? $data['kod'] ?? '');
+        if (empty($code)) {
+            $code = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $name));
+        }
+
+        $parentCatId = (!empty($data['ust_kategori_id']) && (int)$data['ust_kategori_id'] > 0) ? (int)$data['ust_kategori_id'] : null;
+        $description = trim($data['aciklama'] ?? '');
+        $commissionRate = isset($data['komisyon_orani']) ? (float)$data['komisyon_orani'] : 8.0;
+        $appraisalFee = isset($data['ekspertiz_ucreti']) ? (float)$data['ekspertiz_ucreti'] : 1500.0;
+
+        // Zorunlu Nitelikler Ayrıştırma
+        $reqInput = $data['zorunlu_nitelikler'] ?? $data['nitelikler'] ?? [];
+        if (is_string($reqInput)) {
+            $requiredAttrs = array_values(array_filter(array_map('trim', explode(',', $reqInput))));
+        } else {
+            $requiredAttrs = (array)$reqInput;
+        }
+        if (empty($requiredAttrs)) {
+            $requiredAttrs = ['Dönem / Yıl', 'Sanatçı / İmalatçı', 'Kondisyon'];
+        }
+
+        // Seçimli (Opsiyonel) Nitelikler Ayrıştırma
+        $optInput = $data['secimli_nitelikler'] ?? [];
+        if (is_string($optInput)) {
+            $optionalAttrs = array_values(array_filter(array_map('trim', explode(',', $optInput))));
+        } else {
+            $optionalAttrs = (array)$optInput;
+        }
+
+        $payload = [
+            'ad'                    => $name,
+            'kategoriAdi'           => $name,
+            'kod'                   => $code,
+            'kategoriKodu'          => $code,
+            'aciklama'              => $description,
+            'ustKategoriId'         => $parentCatId,
+            'komisyonOraniYuzde'    => $commissionRate,
+            'sabitEkspertizUcreti'  => $appraisalFee,
+            'zorunluNitelikler'     => $requiredAttrs,
+            'secimliNitelikler'     => $optionalAttrs,
+            'aktifMi'               => true,
+            'guncellemeZamani'      => date('c'),
+        ];
+
+        if ($id > 0) {
+            $existing = $this->dataStore->getItem('categories', 'id', $id);
+            if ($existing) {
+                $this->dataStore->updateItem('categories', 'id', $id, $payload);
+                $this->dataStore->commit();
+                return [
+                    'success' => true,
+                    'message' => "'{$name}' kategorisi ve nitelik şablonları başarıyla güncellendi.",
+                ];
+            }
+        }
+
+        $payload['olusturmaTarihi'] = date('c');
+        $newCat = $this->dataStore->insertItem('categories', $payload);
+        $this->dataStore->commit();
+
+        $catType = $parentCatId ? 'Alt kategori' : 'Ana kategori';
+        return [
+            'success' => true,
+            'message' => "Yeni {$catType} '{$name}' ve zorunlu/seçimli nitelik şablonları başarıyla tanımlandı.",
+            'category' => $newCat,
+        ];
+    }
+
+    /**
+     * Kategori Silme
+     */
+    public function deleteCategory(int $categoryId): array
+    {
+        $cat = $this->dataStore->getItem('categories', 'id', $categoryId);
+        if (!$cat) {
+            return ['success' => false, 'message' => "Silinecek kategori bulunamadı."];
+        }
+
+        $catName = $cat['ad'] ?? $cat['kategoriAdi'] ?? "#{$categoryId}";
+        $this->dataStore->deleteItem('categories', 'id', $categoryId);
+        $this->dataStore->commit();
 
         return [
             'success' => true,
-            'message' => "'{$name}' kategorisi ve özellik şablonu başarıyla tanımlandı.",
-            'category' => $newCat,
+            'message' => "'{$catName}' kategorisi sistemden başarıyla kaldırıldı.",
         ];
+    }
+
+    /**
+     * Kategori ve Dinamik Nitelik Şablonu Ekleme (Geriye Uyumluluk)
+     */
+    public function addCategoryAttribute(string $name, string $code, array $attributes): array
+    {
+        return $this->saveCategoryDefinition([
+            'kategori_adi'        => $name,
+            'kategori_kodu'       => $code,
+            'zorunlu_nitelikler' => $attributes,
+        ]);
     }
 
     /**
