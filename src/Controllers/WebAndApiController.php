@@ -700,4 +700,20 @@ class WebAndApiController
     {
         return $this->workflowService->getEscrowRefundSummary();
     }
+
+    /**
+     * Zaman Damgalı Kritik İşlem Kayıtlarını (Audit Logs) Döner
+     */
+    public function getAuditLogs(array $filters = []): array
+    {
+        return $this->workflowService->getAuditLogs($filters);
+    }
+
+    /**
+     * Kritik İşlem Kayıtları İstatistik ve Dağılımını Döner
+     */
+    public function getAuditLogStatistics(): array
+    {
+        return $this->workflowService->getAuditLogStatistics();
+    }
 }
