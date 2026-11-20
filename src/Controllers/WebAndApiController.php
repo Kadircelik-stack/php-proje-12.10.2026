@@ -309,6 +309,21 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'update_user_role_and_permissions':
+                $userId = (int)($post['user_id'] ?? 0);
+                $newRole = trim($post['new_role'] ?? 'ALICI');
+                $authTier = trim($post['auth_tier'] ?? 'STANDART');
+                $permissions = $post['permissions'] ?? [];
+                if (!is_array($permissions)) {
+                    $permissions = array_filter(array_map('trim', explode(',', (string)$permissions)));
+                }
+
+                $res = $this->workflowService->updateUserRoleAndPermissions($userId, $newRole, $authTier, $permissions);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'assign_expert':
                 $reqId = (int)($post['request_id'] ?? 0);
                 $expertId = (int)($post['expert_id'] ?? 4);

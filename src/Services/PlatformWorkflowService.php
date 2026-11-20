@@ -193,6 +193,62 @@ class PlatformWorkflowService
     }
 
     /**
+     * Doğrulanan kullanıcıların rolüne göre (Alıcı, Satıcı, Eksper, Admin)
+     * sistem içi erişim izinlerinin ve yetki seviyelerinin belirlenmesi (SRS RBAC)
+     */
+    public function updateUserRoleAndPermissions(int $userId, string $newRole, string $authTier, array $permissions): array
+    {
+        $user = $this->dataStore->getItem('users', 'id', $userId);
+        if (!$user) {
+            return ['success' => false, 'message' => "Kullanıcı bulunamadı."];
+        }
+
+        $allowedRoles = ['ALICI', 'SATICI', 'EKSPERTIZ', 'ADMIN', 'CANLI_DESTEK'];
+        $newRole = strtoupper(trim($newRole));
+        if (!in_array($newRole, $allowedRoles, true)) {
+            return ['success' => false, 'message' => "Geçersiz kullanıcı rolü ({$newRole})."];
+        }
+
+        // Rol ve Yetki Seviyesi Yapılandırması
+        $updates = [
+            'rol' => $newRole,
+            'yetkiSeviyesi' => $authTier,
+            'erisimIzinleri' => $permissions,
+            'yetkiGuncellemeZamani' => date('c'),
+        ];
+
+        // Role göre ilgili alt profilleri de senkronize et
+        if ($newRole === 'ALICI') {
+            $aliciProfili = $user['aliciProfili'] ?? [];
+            $aliciProfili['vipSeviyesi'] = in_array($authTier, ['GOLD', 'PLATINUM', 'DIAMOND'], true) ? $authTier : 'STANDARD';
+            $aliciProfili['dogrulandiMi'] = true;
+            $updates['aliciProfili'] = $aliciProfili;
+        } elseif ($newRole === 'SATICI') {
+            $saticiProfili = $user['saticiProfili'] ?? [];
+            $saticiProfili['saticiTipi'] = $authTier; // BIREYSEL / KURUMSAL / PREMIUM
+            $updates['saticiProfili'] = $saticiProfili;
+        } elseif ($newRole === 'EKSPERTIZ') {
+            $ekspertizProfili = $user['ekspertizProfili'] ?? [];
+            $ekspertizProfili['yetkiSeviyesi'] = $authTier; // SAHA_EKSPERI / KIDEMLI / BAS_EKSPER
+            $ekspertizProfili['yetkiDurumu'] = 'ONAYLI';
+            $updates['ekspertizProfili'] = $ekspertizProfili;
+        } elseif ($newRole === 'ADMIN') {
+            $adminProfili = $user['adminProfili'] ?? [];
+            $adminProfili['yetkiDerecesi'] = ($authTier === 'SUPER_ADMIN') ? 3 : (($authTier === 'DENETCI') ? 2 : 1);
+            $updates['adminProfili'] = $adminProfili;
+        }
+
+        $this->dataStore->updateItem('users', 'id', $userId, $updates);
+        $this->dataStore->commit();
+
+        return [
+            'success' => true,
+            'message' => "Kullanıcı (#{$userId} " . ($user['ad'] ?? '') . ") rolü '{$newRole}', yetki seviyesi '{$authTier}' olarak güncellendi ve erişim izinleri tanımlandı.",
+            'user' => array_merge($user, $updates)
+        ];
+    }
+
+    /**
      * Şifremi Unuttum Kurtarma Akışı
      */
     public function requestPasswordReset(string $email): array

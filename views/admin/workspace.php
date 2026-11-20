@@ -30,6 +30,11 @@ $activeTab = $_GET['tab'] ?? 'konsol';
             Kullanıcılar
           </button>
         </li>
+        <li class="nav-menu-item <?= $activeTab === 'yetkiler' ? 'active' : '' ?>">
+          <button type="button" data-tab="yetkiler" onclick="switchAdminTab('yetkiler', this)">
+            Rol & Yetki Yönetimi (RBAC)
+          </button>
+        </li>
         <li class="nav-menu-item <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
           <button type="button" data-tab="moderasyon" onclick="switchAdminTab('moderasyon', this)">
             Müzayede & Lot Düzenleme
@@ -257,6 +262,347 @@ $activeTab = $_GET['tab'] ?? 'konsol';
             <?php endforeach; ?>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ROL & YETKİ YÖNETİMİ (RBAC) TABI -->
+    <div id="admTab_yetkiler" class="tab-content <?= $activeTab === 'yetkiler' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / ROL VE YETKİ YÖNETİMİ</div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+        <div>
+          <h1 class="page-heading">Rol ve Yetki Seviyeleri Yönetimi (RBAC)</h1>
+          <p class="page-subheading" style="color:var(--gold-primary); font-weight:500;">
+            ⚡ "Doğrulanan kullanıcıların rolüne göre (Alıcı, Satıcı, Eksper, Admin) sistem içi erişim izinlerinin ve yetki seviyelerinin belirlenmesidir."
+          </p>
+        </div>
+        <span class="badge badge-gold" style="font-size:0.8rem; padding:6px 12px;">SRS Güvenlik & Yetkilendirme Standardı</span>
+      </div>
+
+      <!-- Bilgilendirme Kartı -->
+      <div style="background:rgba(212,175,55,0.06); border:1px solid rgba(212,175,55,0.25); border-radius:8px; padding:12px 16px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div style="font-size:0.83rem; color:#c5cbd3; line-height:1.45;">
+          Platformda kimliği doğrulanan (KYC onaylı) her kullanıcı, üstlendiği role (<strong style="color:#fff;">Alıcı, Satıcı, Eksper, Admin</strong>) göre katı bir <strong>Rol Tabanlı Erişim Kontrolü (RBAC)</strong> politikasına tabi tutulur. Çıkar çatışmasını önlemek (Shill Bidding engeli) ve işlem güvenliğini sağlamak için her rolün yetki sınırları ve izin matrisi aşağıda dinamik olarak yönetilmektedir.
+        </div>
+      </div>
+
+      <!-- 4 Temel Rol Yetki Seviyeleri Kartları (Grid) -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:28px;">
+        <!-- 1. ALICI KARTI -->
+        <div class="panel-card" style="border-top:3px solid #3fb950; background:#0b0f17;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="color:#3fb950; margin:0; font-size:1.05rem;">Alıcı (Buyer)</h3>
+            <span class="badge" style="background:rgba(63,185,80,0.15); color:#3fb950;">Pey & Koleksiyon</span>
+          </div>
+          <p style="font-size:0.78rem; color:#8b949e; margin-bottom:12px;">Açık artırmalarda pey sürme, emanet teminat ve eser kazanımı.</p>
+          <div style="font-size:0.76rem; color:#ddd; line-height:1.6;">
+            <div><strong>Yetki Kademeleri:</strong></div>
+            <ul style="margin:4px 0 10px 16px; padding:0; color:#8b949e;">
+              <li><strong style="color:#c5cbd3;">Standart (Lv1):</strong> Temel açık artırma katılımı</li>
+              <li><strong style="color:#c5cbd3;">Onaylı (Lv2 - KYC):</strong> Otomatik teklif, limitsiz teminat</li>
+              <li><strong style="color:#d4af37;">VIP / Gold (Lv3):</strong> VIP Özel Salon & Telefon Masası</li>
+            </ul>
+            <div><strong>İzinler:</strong> Canlı Pey, Proxy Bid, Bloke Cüzdan, Sipariş Takibi</div>
+            <div style="color:#f87171; margin-top:4px;"><strong>Kısıt:</strong> İlan açamaz, ekspertiz yapamaz.</div>
+          </div>
+        </div>
+
+        <!-- 2. SATICI KARTI -->
+        <div class="panel-card" style="border-top:3px solid #60a5fa; background:#0b0f17;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="color:#60a5fa; margin:0; font-size:1.05rem;">Satıcı (Seller)</h3>
+            <span class="badge" style="background:rgba(96,165,250,0.15); color:#60a5fa;">Eser & Konsinye</span>
+          </div>
+          <p style="font-size:0.78rem; color:#8b949e; margin-bottom:12px;">Eser listeleme, ekspertiz başvurusu ve satış geliri tahsilatı.</p>
+          <div style="font-size:0.76rem; color:#ddd; line-height:1.6;">
+            <div><strong>Yetki Kademeleri:</strong></div>
+            <ul style="margin:4px 0 10px 16px; padding:0; color:#8b949e;">
+              <li><strong style="color:#c5cbd3;">Bireysel (Lv1):</strong> 3 aktif eser ilanı sınırı</li>
+              <li><strong style="color:#c5cbd3;">Kurumsal (Lv2):</strong> Sınırsız ilan, %6 komisyon</li>
+              <li><strong style="color:#60a5fa;">Premium Galeri (Lv3):</strong> Öncelikli katalog yerleşimi</li>
+            </ul>
+            <div><strong>İzinler:</strong> İlan Taslağı, Ekspertiz Talebi, Hakediş Çekme</div>
+            <div style="color:#f87171; margin-top:4px;"><strong>Kısıt:</strong> Kendi lotuna pey veremez (Shill Bidding engeli).</div>
+          </div>
+        </div>
+
+        <!-- 3. EKSPERTİZ KARTI -->
+        <div class="panel-card" style="border-top:3px solid #e3b341; background:#0b0f17;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="color:#e3b341; margin:0; font-size:1.05rem;">Ekspertiz (Appraiser)</h3>
+            <span class="badge" style="background:rgba(227,179,65,0.15); color:#e3b341;">Orijinallik & Değerleme</span>
+          </div>
+          <p style="font-size:0.78rem; color:#8b949e; margin-bottom:12px;">Eser orijinalliği, 8 kriterli kondisyon incelemesi ve değer takdiri.</p>
+          <div style="font-size:0.76rem; color:#ddd; line-height:1.6;">
+            <div><strong>Yetki Kademeleri:</strong></div>
+            <ul style="margin:4px 0 10px 16px; padding:0; color:#8b949e;">
+              <li><strong style="color:#c5cbd3;">Saha Eksperi (Lv1):</strong> Ön kondisyon ve fiziksel tespit</li>
+              <li><strong style="color:#c5cbd3;">Kıdemli Uzman (Lv2):</strong> Spektrometre, sertifika onayı</li>
+              <li><strong style="color:#e3b341;">Baş Eksper (Lv3):</strong> İtiraz tahkimi, heyet başkanlığı</li>
+            </ul>
+            <div><strong>İzinler:</strong> Rapor Hazırlama, Değer Takdiri, Tahkim Görüşü</div>
+            <div style="color:#f87171; margin-top:4px;"><strong>Kısıt:</strong> Eser alım-satımı yapamaz (Çıkar çatışması yasağı).</div>
+          </div>
+        </div>
+
+        <!-- 4. ADMIN KARTI -->
+        <div class="panel-card" style="border-top:3px solid #d4af37; background:#0b0f17;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="color:#d4af37; margin:0; font-size:1.05rem;">Yönetici (Admin)</h3>
+            <span class="badge badge-gold">Platform Otoritesi</span>
+          </div>
+          <p style="font-size:0.78rem; color:#8b949e; margin-bottom:12px;">Sistem yönetimi, doğrulama onayları, finansal ve hukuki denetim.</p>
+          <div style="font-size:0.76rem; color:#ddd; line-height:1.6;">
+            <div><strong>Yetki Kademeleri:</strong></div>
+            <ul style="margin:4px 0 10px 16px; padding:0; color:#8b949e;">
+              <li><strong style="color:#c5cbd3;">Operatör (Lv1):</strong> Destek ve müzayede izleme</li>
+              <li><strong style="color:#c5cbd3;">Denetçi (Lv2):</strong> KYC onayı, askıya alma, tahkim kararı</li>
+              <li><strong style="color:#d4af37;">Süper Admin (Lv3):</strong> Kök yetki, kur/komisyon, kilitler</li>
+            </ul>
+            <div><strong>İzinler:</strong> KYC Onayı, Rol/Yetki Atama, İhale Kapatma, Audit</div>
+            <div style="color:#3fb950; margin-top:4px;"><strong>Kısıt:</strong> Yok (Tüm işlemler Audit Log ile kriptolanır).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kullanıcıların Yetki Seviyelerini ve İzinlerini Yönetme Masası -->
+      <div class="panel-card" style="margin-bottom:28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div>
+            <h3 class="panel-title" style="margin-bottom:4px;">Doğrulanan Kullanıcı Yetki & Erişim İzni Masası</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+              Sistemdeki kayıtlı kullanıcıların rolleri, KYC doğrulama durumları ve rollere özel yetki seviyeleri doğrudan buradan güncellenir.
+            </p>
+          </div>
+          <span class="badge" style="background:#161b22; border:1px solid #30363d; color:#c5cbd3;"><?= count($users) ?> Kayıtlı Kullanıcı</span>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Kullanıcı / E-posta</th>
+                <th>KYC Doğrulama</th>
+                <th>Mevcut Rol</th>
+                <th>Yetki Seviyesi</th>
+                <th>Özel İzinler</th>
+                <th style="text-align:right;">Yetkiyi Güncelle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($users as $u): 
+                $uid = (int)($u['id'] ?? 0);
+                $isKyc = !empty($u['kycDogrulama']['dogrulandiMi']);
+                $urole = strtoupper((string)($u['rol'] ?? 'ALICI'));
+                $tier = htmlspecialchars($u['yetkiSeviyesi'] ?? ($u['aliciProfili']['vipSeviyesi'] ?? ($u['adminProfili']['yetkiDerecesi'] ? 'LV-' . $u['adminProfili']['yetkiDerecesi'] : 'STANDART')));
+              ?>
+                <tr>
+                  <td><strong style="color:#8b949e;">#<?= $uid ?></strong></td>
+                  <td>
+                    <div style="font-weight:600; color:#fff;"><?= htmlspecialchars(($u['ad'] ?? '') . ' ' . ($u['soyad'] ?? '')) ?></div>
+                    <div style="font-size:0.75rem; color:#8b949e;"><?= htmlspecialchars($u['email'] ?? '') ?></div>
+                  </td>
+                  <td>
+                    <?php if ($isKyc): ?>
+                      <span class="badge badge-success" style="font-size:0.72rem;">✓ DOĞRULANDI</span>
+                    <?php else: ?>
+                      <span class="badge badge-warning" style="font-size:0.72rem;">BEKLEMEDE</span>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <span class="badge <?php 
+                      echo match($urole) {
+                        'ADMIN' => 'badge-gold',
+                        'EKSPERTIZ' => 'badge-info',
+                        'SATICI' => 'badge-primary',
+                        default => 'badge-success'
+                      };
+                    ?>">
+                      <?= $urole ?>
+                    </span>
+                  </td>
+                  <td>
+                    <span style="font-weight:700; font-size:0.8rem; color:<?= in_array($tier, ['GOLD', 'PLATINUM', 'DIAMOND', 'SUPER_ADMIN', 'BAS_EKSPER', 'LV-3'], true) ? '#d4af37' : '#c5cbd3' ?>;">
+                      <?= $tier ?>
+                    </span>
+                  </td>
+                  <td style="font-size:0.75rem; color:#8b949e;">
+                    <?php 
+                      if ($urole === 'ADMIN') {
+                        echo '<span style="color:#d4af37;">✓ Tam Kök Yetki (All Access)</span>';
+                      } elseif ($urole === 'ALICI') {
+                        echo '<span>Canlı Pey' . (in_array($tier, ['GOLD', 'PLATINUM'], true) ? ', <strong style="color:#d4af37;">VIP Özel Salon</strong>' : '') . ', Proxy Bid</span>';
+                      } elseif ($urole === 'SATICI') {
+                        echo '<span>İlan Açma, Ekspertiz Talebi, Hakediş</span>';
+                      } elseif ($urole === 'EKSPERTIZ') {
+                        echo '<span>Rapor Düzenleme, Kondisyon, Sertifika</span>';
+                      } else {
+                        echo '<span>Standart Destek</span>';
+                      }
+                    ?>
+                  </td>
+                  <td style="text-align:right;">
+                    <!-- Yetki Düzenleme Açılır Butonu -->
+                    <button type="button" class="btn-outline-gold btn-sm" onclick="toggleRbacForm(<?= $uid ?>)" style="padding:3px 10px; font-size:0.75rem;">
+                      ⚙ Yetki Ata
+                    </button>
+                  </td>
+                </tr>
+                <!-- Hızlı Düzenleme Satırı (Gizli/Açılır) -->
+                <tr id="rbac_row_<?= $uid ?>" style="display:none; background:rgba(212,175,55,0.03);">
+                  <td colspan="7" style="padding:14px 20px; border-left:3px solid var(--gold-primary);">
+                    <form method="POST" style="margin:0; display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;">
+                      <input type="hidden" name="action" value="update_user_role_and_permissions">
+                      <input type="hidden" name="user_id" value="<?= $uid ?>">
+
+                      <div style="flex:1; min-width:140px;">
+                        <label style="display:block; font-size:0.72rem; color:#8b949e; margin-bottom:4px; font-weight:600;">SİSTEM ROLÜ</label>
+                        <select name="new_role" class="form-control" style="font-size:0.8rem; padding:6px 10px; height:auto;" onchange="updateTierOptions(<?= $uid ?>, this.value)">
+                          <option value="ALICI" <?= $urole === 'ALICI' ? 'selected' : '' ?>>ALICI (Buyer)</option>
+                          <option value="SATICI" <?= $urole === 'SATICI' ? 'selected' : '' ?>>SATICI (Seller)</option>
+                          <option value="EKSPERTIZ" <?= $urole === 'EKSPERTIZ' ? 'selected' : '' ?>>EKSPERTİZ (Appraiser)</option>
+                          <option value="ADMIN" <?= $urole === 'ADMIN' ? 'selected' : '' ?>>ADMIN (Sistem Yöneticisi)</option>
+                          <option value="CANLI_DESTEK" <?= $urole === 'CANLI_DESTEK' ? 'selected' : '' ?>>CANLI DESTEK (Support)</option>
+                        </select>
+                      </div>
+
+                      <div style="flex:1; min-width:160px;">
+                        <label style="display:block; font-size:0.72rem; color:#8b949e; margin-bottom:4px; font-weight:600;">YETKİ SEVİYESİ (TIER)</label>
+                        <select name="auth_tier" id="tier_select_<?= $uid ?>" class="form-control" style="font-size:0.8rem; padding:6px 10px; height:auto;">
+                          <?php if ($urole === 'ADMIN'): ?>
+                            <option value="OPERATOR">OPERATOR (Seviye 1)</option>
+                            <option value="DENETCI">DENETCI (Seviye 2)</option>
+                            <option value="SUPER_ADMIN" selected>SUPER_ADMIN (Seviye 3 - Kök)</option>
+                          <?php elseif ($urole === 'SATICI'): ?>
+                            <option value="BIREYSEL">BIREYSEL (Standart Satıcı)</option>
+                            <option value="KURUMSAL" <?= $tier === 'KURUMSAL' ? 'selected' : '' ?>>KURUMSAL (Antikacı / Galeri)</option>
+                            <option value="PREMIUM" <?= $tier === 'PREMIUM' ? 'selected' : '' ?>>PREMIUM (Konsinye Ortağı)</option>
+                          <?php elseif ($urole === 'EKSPERTIZ'): ?>
+                            <option value="SAHA_EKSPERI">SAHA_EKSPERI (Fiziksel İnceleme)</option>
+                            <option value="KIDEMLI_EKSPER">KIDEMLI_EKSPER (Laboratuvar & Sertifika)</option>
+                            <option value="BAS_EKSPER" selected>BAS_EKSPER (Kurul Başkanı / Tahkim)</option>
+                          <?php else: ?>
+                            <option value="STANDART">STANDART (Genel Alıcı)</option>
+                            <option value="GOLD" <?= $tier === 'GOLD' ? 'selected' : '' ?>>GOLD (VIP Salon & ₺150K Limit)</option>
+                            <option value="PLATINUM" <?= $tier === 'PLATINUM' ? 'selected' : '' ?>>PLATINUM (VIP Yüksek Portföy)</option>
+                            <option value="DIAMOND" <?= $tier === 'DIAMOND' ? 'selected' : '' ?>>DIAMOND (Müze / Vakıf)</option>
+                          <?php endif; ?>
+                        </select>
+                      </div>
+
+                      <div style="flex:2; min-width:240px;">
+                        <label style="display:block; font-size:0.72rem; color:#8b949e; margin-bottom:4px; font-weight:600;">ERİŞİM VE İŞLEM İZİNLERİ</label>
+                        <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.75rem; color:#c5cbd3;">
+                          <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" name="permissions[]" value="BID_LIVE" checked> Canlı Pey
+                          </label>
+                          <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" name="permissions[]" value="VIP_SALON" <?= in_array($tier, ['GOLD', 'PLATINUM', 'DIAMOND', 'SUPER_ADMIN'], true) ? 'checked' : '' ?>> VIP Salon
+                          </label>
+                          <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" name="permissions[]" value="LISTING_CREATE" <?= in_array($urole, ['SATICI', 'ADMIN'], true) ? 'checked' : '' ?>> İlan Yükleme
+                          </label>
+                          <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" name="permissions[]" value="APPRAISAL_APPROVE" <?= in_array($urole, ['EKSPERTIZ', 'ADMIN'], true) ? 'checked' : '' ?>> Ekspertiz Onay
+                          </label>
+                        </div>
+                      </div>
+
+                      <div style="display:flex; gap:8px;">
+                        <button type="submit" class="btn-register-glow" style="padding:6px 14px; font-size:0.78rem; font-weight:600;">Kaydet ve Uygula</button>
+                        <button type="button" class="btn-outline-gold" style="padding:6px 10px; font-size:0.78rem;" onclick="toggleRbacForm(<?= $uid ?>)">İptal</button>
+                      </div>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Rol Bazlı Sistem İçi Erişim İzinleri Matrisi (RBAC Matrix) -->
+      <div class="panel-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div>
+            <h3 class="panel-title" style="margin-bottom:2px;">Sistem İçi Erişim İzinleri Matrisi (RBAC Policy)</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">Modüller ve eylemler bazında rollerin erişim hakları tablosu</p>
+          </div>
+          <span class="badge badge-gold">Aktif Politika v2026.4</span>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="font-size:0.82rem;">
+            <thead>
+              <tr>
+                <th>Platform Modülü / İşlem Yetkisi</th>
+                <th style="text-align:center; color:#3fb950;">Alıcı (Buyer)</th>
+                <th style="text-align:center; color:#60a5fa;">Satıcı (Seller)</th>
+                <th style="text-align:center; color:#e3b341;">Eksper (Appraiser)</th>
+                <th style="text-align:center; color:#d4af37;">Yönetici (Admin)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Canlı Açık Artırma & Normal Pey Sürme</strong></td>
+                <td style="text-align:center; color:#3fb950;">✓ İzinli (Onaylı)</td>
+                <td style="text-align:center; color:#f87171;">✕ Yasak (Kendi lotu)</td>
+                <td style="text-align:center; color:#f87171;">✕ Yasak (Çıkar Çatışması)</td>
+                <td style="text-align:center; color:#3fb950;">✓ İdari İzleme</td>
+              </tr>
+              <tr>
+                <td><strong>VIP Özel Salon Katılımı & Telefon Masası</strong></td>
+                <td style="text-align:center; color:#d4af37;">⚡ Yalnızca GOLD/PLATINUM</td>
+                <td style="text-align:center; color:#8b949e;">— İzleme</td>
+                <td style="text-align:center; color:#8b949e;">— Rapor Kaydı</td>
+                <td style="text-align:center; color:#3fb950;">✓ Tam Yetki</td>
+              </tr>
+              <tr>
+                <td><strong>Eser Listeleme ve İlan Yükleme</strong></td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#3fb950;">✓ İzinli (Taslak)</td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#3fb950;">✓ Doğrudan Düzenleme</td>
+              </tr>
+              <tr>
+                <td><strong>Ekspertiz Raporu Hazırlama ve Değerleme</strong></td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#8b949e;">Talep Edebilir</td>
+                <td style="text-align:center; color:#3fb950;">✓ Resmi İmza & Onay</td>
+                <td style="text-align:center; color:#3fb950;">✓ Denetim & İptal</td>
+              </tr>
+              <tr>
+                <td><strong>Emanet Kasa (Escrow) Bloke ve Bakiye</strong></td>
+                <td style="text-align:center; color:#3fb950;">✓ Kendi Cüzdanı</td>
+                <td style="text-align:center; color:#3fb950;">✓ Hakediş Tahsilatı</td>
+                <td style="text-align:center; color:#8b949e;">Ücret Hakedişi</td>
+                <td style="text-align:center; color:#3fb950;">✓ Kasa Denetimi / Çözme</td>
+              </tr>
+              <tr>
+                <td><strong>İhtilaf ve Tahkim Kararı Verme</strong></td>
+                <td style="text-align:center; color:#8b949e;">Şikayet Açabilir</td>
+                <td style="text-align:center; color:#8b949e;">Savunma Sunabilir</td>
+                <td style="text-align:center; color:#e3b341;">Bilirkişi Görüşü</td>
+                <td style="text-align:center; color:#3fb950;">✓ Nihai Bağlayıcı Karar</td>
+              </tr>
+              <tr>
+                <td><strong>Kullanıcı Doğrulama (KYC) ve Banlama</strong></td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#3fb950;">✓ Tam Yetkili</td>
+              </tr>
+              <tr>
+                <td><strong>Denetim İzi (Audit Log) & Güvenlik İzleme</strong></td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#f87171;">✕ Yetkisiz</td>
+                <td style="text-align:center; color:#3fb950;">✓ Kriptografik Loglar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -803,5 +1149,50 @@ function openDemoSupportModal() {
 
 function closeDemoSupportModal() {
   document.getElementById('demoSupportModal').style.display = 'none';
+}
+
+function toggleRbacForm(userId) {
+  const row = document.getElementById('rbac_row_' + userId);
+  if (row) {
+    row.style.display = (row.style.display === 'none' || row.style.display === '') ? 'table-row' : 'none';
+  }
+}
+
+function updateTierOptions(userId, role) {
+  const sel = document.getElementById('tier_select_' + userId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  
+  if (role === 'ADMIN') {
+    sel.innerHTML = `
+      <option value="OPERATOR">OPERATOR (Seviye 1)</option>
+      <option value="DENETCI">DENETCI (Seviye 2)</option>
+      <option value="SUPER_ADMIN" selected>SUPER_ADMIN (Seviye 3 - Kök)</option>
+    `;
+  } else if (role === 'SATICI') {
+    sel.innerHTML = `
+      <option value="BIREYSEL">BIREYSEL (Standart Satıcı)</option>
+      <option value="KURUMSAL" selected>KURUMSAL (Antikacı / Galeri)</option>
+      <option value="PREMIUM">PREMIUM (Konsinye Ortağı)</option>
+    `;
+  } else if (role === 'EKSPERTIZ') {
+    sel.innerHTML = `
+      <option value="SAHA_EKSPERI">SAHA_EKSPERI (Fiziksel İnceleme)</option>
+      <option value="KIDEMLI_EKSPER" selected>KIDEMLI_EKSPER (Laboratuvar & Sertifika)</option>
+      <option value="BAS_EKSPER">BAS_EKSPER (Kurul Başkanı / Tahkim)</option>
+    `;
+  } else if (role === 'ALICI') {
+    sel.innerHTML = `
+      <option value="STANDART">STANDART (Genel Alıcı)</option>
+      <option value="GOLD" selected>GOLD (VIP Salon & ₺150K Limit)</option>
+      <option value="PLATINUM">PLATINUM (VIP Yüksek Portföy)</option>
+      <option value="DIAMOND">DIAMOND (Müze / Vakıf)</option>
+    `;
+  } else {
+    sel.innerHTML = `
+      <option value="STANDART_DESTEK" selected>STANDART_DESTEK</option>
+      <option value="KIDEMLI_DESTEK">KIDEMLI_DESTEK</option>
+    `;
+  }
 }
 </script>
