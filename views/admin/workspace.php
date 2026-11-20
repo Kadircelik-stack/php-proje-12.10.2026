@@ -399,7 +399,7 @@ foreach ($products as $p) {
                   </td>
                   <td style="text-align:right;">
                     <div style="font-size:1.05rem; font-weight:700; color:#c5a059; font-family:'Cinzel', serif;">
-                      ₺<?= number_format((float)($bid['teklifTutari'] ?? 0), 0, ',', '.') ?>
+                      <?= $formatPrice((float)($bid['teklifTutari'] ?? 0)) ?>
                     </div>
                     <div style="font-size:0.72rem; color:#848d9a;">
                       <?= htmlspecialchars((string)($bid['teklifTipi'] ?? 'MANUEL')) ?>
@@ -510,11 +510,11 @@ foreach ($products as $p) {
                   </div>
                   <div>
                     <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Açılış Fiyatı</div>
-                    <div style="color:#94a3b8;">₺<?= number_format((float)($lotItem['baslangicFiyati'] ?? 0), 0, ',', '.') ?></div>
+                    <div style="color:#94a3b8;"><?= $formatPrice((float)($lotItem['baslangicFiyati'] ?? 0)) ?></div>
                   </div>
                   <div>
                     <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Mevcut En Yüksek</div>
-                    <div style="color:#c5a059; font-weight:700;">₺<?= number_format((float)($lotItem['mevcutEnYuksekTeklif'] ?? 0), 0, ',', '.') ?></div>
+                    <div style="color:#c5a059; font-weight:700;"><?= $formatPrice((float)($lotItem['mevcutEnYuksekTeklif'] ?? 0)) ?></div>
                   </div>
                 </div>
 
@@ -1057,7 +1057,7 @@ foreach ($products as $p) {
                         Restorasyon masrafı veya değer kaybı tazminatı oranında alıcıya kısmi iade yapılıp satış onaylanır.
                       </div>
                       <div style="display:flex; gap:6px; margin-bottom:8px;">
-                        <input type="number" step="100" min="0" max="<?= $emanetTutari ?>" name="refund_amount" value="<?= (int)($emanetTutari * 0.20) ?>" placeholder="İade Tutarı (₺)" style="width:50%; box-sizing:border-box; background:#161f2c; border:1px solid #2d3b4e; border-radius:4px; padding:6px 10px; color:#fff; font-size:0.78rem;">
+                        <input type="number" step="100" min="0" max="<?= $emanetTutari ?>" name="refund_amount" value="<?= (int)($emanetTutari * 0.20) ?>" placeholder="İade Tutarı (<?= $currencyStrategy->getSymbol() ?>)" style="width:50%; box-sizing:border-box; background:#161f2c; border:1px solid #2d3b4e; border-radius:4px; padding:6px 10px; color:#fff; font-size:0.78rem;">
                         <input type="text" name="admin_note" placeholder="Uzlaşma şerhi..." style="width:50%; box-sizing:border-box; background:#161f2c; border:1px solid #2d3b4e; border-radius:4px; padding:6px 10px; color:#fff; font-size:0.78rem;">
                       </div>
                     </div>
@@ -2474,7 +2474,7 @@ function filterAccreditation(filter, btn) {
               <select name="new_role" class="form-control" style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;">
                 <optgroup label="Alıcı Rolleri">
                   <option value="ALICI:STANDART">🟢 Alıcı — Standart Müzayede Katılımı</option>
-                  <option value="ALICI:GOLD">👑 Alıcı — VIP Gold (VIP Salon + ₺150K Limit)</option>
+                  <option value="ALICI:GOLD">👑 Alıcı — VIP Gold (VIP Salon + <?= $formatPrice(150000) ?> Limit)</option>
                   <option value="ALICI:PLATINUM">💎 Alıcı — VIP Platinum (Yüksek Portföy & Özel Temsil)</option>
                 </optgroup>
                 <optgroup label="Satıcı Rolleri">
@@ -2822,7 +2822,7 @@ function filterAccreditation(filter, btn) {
           <div>
             <div style="font-weight:700; color:var(--gold-primary); margin-bottom:8px;">Sanat & Antika Komisyon Stratejisi (ArtAntiqueCommission)</div>
             <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
-              Kapanış tutarı üzerinden <strong>%8 Alıcı / Satıcı Hizmet Payı</strong> + <strong>₺1.500 Sabit Kurul Bedeli</strong> tahsil edilerek teminat emanet hesabına yansıtılır.
+              Kapanış tutarı üzerinden <strong>%8 Alıcı / Satıcı Hizmet Payı</strong> + <strong><?= $formatPrice(1500) ?> Sabit Kurul Bedeli</strong> tahsil edilerek teminat emanet hesabına yansıtılır.
             </p>
           </div>
           <div>

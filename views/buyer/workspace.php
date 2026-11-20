@@ -336,10 +336,10 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 
           <!-- 3. Fiyat Aralığı -->
           <div>
-            <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Fiyat Aralığı (₺ Min - Max)</label>
+            <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Fiyat Aralığı (<?= $currencyStrategy->getSymbol() ?> Min - Max)</label>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-              <input type="number" name="min_price" class="form-control" placeholder="Min ₺" value="<?= htmlspecialchars($buyerFilterParams['min_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
-              <input type="number" name="max_price" class="form-control" placeholder="Max ₺" value="<?= htmlspecialchars($buyerFilterParams['max_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
+              <input type="number" name="min_price" class="form-control" placeholder="Min <?= $currencyStrategy->getSymbol() ?>" value="<?= htmlspecialchars($buyerFilterParams['min_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
+              <input type="number" name="max_price" class="form-control" placeholder="Max <?= $currencyStrategy->getSymbol() ?>" value="<?= htmlspecialchars($buyerFilterParams['max_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
             </div>
           </div>
 
@@ -391,7 +391,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               <?php endif; ?>
               <?php if (!empty($buyerFilterParams['min_price']) || !empty($buyerFilterParams['max_price'])): ?>
                 <span class="badge badge-gold">
-                  Fiyat: <?= !empty($buyerFilterParams['min_price']) ? '₺' . number_format((float)$buyerFilterParams['min_price']) : '0' ?> - <?= !empty($buyerFilterParams['max_price']) ? '₺' . number_format((float)$buyerFilterParams['max_price']) : '∞' ?>
+                  Fiyat: <?= !empty($buyerFilterParams['min_price']) ? $currencyStrategy->getSymbol() . number_format((float)$buyerFilterParams['min_price']) : '0' ?> - <?= !empty($buyerFilterParams['max_price']) ? $currencyStrategy->getSymbol() . number_format((float)$buyerFilterParams['max_price']) : '∞' ?>
                 </span>
               <?php endif; ?>
               <?php if (!empty($buyerFilterParams['brand'])): ?>
@@ -714,7 +714,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
         <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #d4af37;">
           <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:6px;">Toplam Satış Hacmi</div>
           <div style="font-size:1.65rem; font-weight:700; color:#c5a059; font-family:'Cinzel', serif;">
-            <?= htmlspecialchars((string)($historyStats['totalVolumeFormatted'] ?? '₺60.000.000+')) ?>
+            <?= $formatPrice((float)($historyStats['totalVolume'] ?? 60000000.0)) ?>+
           </div>
           <div style="font-size:0.78rem; color:#848d9a; margin-top:4px;">Gerçekleşen Çekiç Toplamı</div>
         </div>
@@ -802,7 +802,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                   </div>
                   <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:0.78rem; color:#848d9a; font-weight:600;">Oturum Satış Hacmi:</span>
-                    <span style="font-size:1.15rem; color:#c5a059; font-weight:700; font-family:'Cinzel', serif;"><?= htmlspecialchars((string)($pAuc['toplamSatisTutari'] ?? '₺15.000.000')) ?></span>
+                    <span style="font-size:1.15rem; color:#c5a059; font-weight:700; font-family:'Cinzel', serif;"><?= $formatPrice((float)($pAuc['toplamSatisTutari'] ?? 15000000)) ?></span>
                   </div>
                 </div>
               </div>
@@ -877,8 +877,8 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               $sCat = (string)($sale['kategoriAdi'] ?? ($sale['kategori'] ?? 'Koleksiyon'));
               $sAuc = (string)($sale['muzayedeBaslik'] ?? ($sale['muzayedeAdi'] ?? 'Geçmiş Müzayede'));
               $sDate = (string)($sale['satisTarihi'] ?? ($sale['kapanisTarihi'] ?? ''));
-              $sHammer = is_numeric($sale['cekiçFiyati']) ? '₺' . number_format($sale['cekiçFiyati'], 0, ',', '.') : (string)$sale['cekiçFiyati'];
-              $sOpen = is_numeric($sale['acilisFiyati']) ? '₺' . number_format($sale['acilisFiyati'], 0, ',', '.') : (string)$sale['acilisFiyati'];
+              $sHammer = is_numeric($sale['cekiçFiyati']) ? $formatPrice((float)$sale['cekiçFiyati']) : (string)$sale['cekiçFiyati'];
+              $sOpen = is_numeric($sale['acilisFiyati']) ? $formatPrice((float)$sale['acilisFiyati']) : (string)$sale['acilisFiyati'];
             ?>
               <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; border:1px solid #1f2733; padding:0;">
                 <!-- Üst: Görsel ve Rozetler -->
@@ -1071,8 +1071,8 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
               </div>
 
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
-                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="1500" onclick="const bi=document.getElementById('bidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+1500;">+1.500</button>
-                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="3000" onclick="const bi=document.getElementById('bidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+3000;">+3.000</button>
+                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="1500" onclick="const bi=document.getElementById('bidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+1500;">+<?= $formatPrice(1500) ?></button>
+                <button type="button" class="btn-outline-gold btn-sm btn-quick-bid" data-add="3000" onclick="const bi=document.getElementById('bidAmountInput'); if(bi) bi.value=parseFloat(bi.value||0)+3000;">+<?= $formatPrice(3000) ?></button>
               </div>
 
               <button type="submit" id="standardBidSubmitBtn" class="btn-register-glow">
@@ -1577,7 +1577,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <td style="font-weight:600; color:#fff;">Antika Seramik Vazo</td>
                 <td style="color:var(--text-muted);">Sanat</td>
                 <td>12-Ekim-2026</td>
-                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">₺43.500</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(43500) ?></td>
                 <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
                 <td style="padding-right:20px;">
                   <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0991 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.8rem; display:block; text-decoration:none;">Faturayı İndir</a>
@@ -1595,7 +1595,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <td style="font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</td>
                 <td style="color:var(--text-muted);">Sanat</td>
                 <td>12-Ekim-2026</td>
-                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">₺3.200</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(3200) ?></td>
                 <td><span style="color:#4ade80; font-weight:600;">Ödendi</span></td>
                 <td style="padding-right:20px;">
                   <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0984 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.8rem; display:block; text-decoration:none;">Faturayı İndir</a>
@@ -1623,12 +1623,12 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 
             <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
               <span style="color:var(--text-muted);">Son Fiyat</span>
-              <span style="color:#fff; font-weight:500;">₺43.500</span>
+              <span style="color:#fff; font-weight:500;"><?= $formatPrice(43500) ?></span>
             </div>
 
             <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
               <span style="color:var(--text-muted);">Ödeme Durumu</span>
-              <span style="color:#4ade80; font-weight:600;">₺9.200 (Ödendi)</span>
+              <span style="color:#4ade80; font-weight:600;"><?= $formatPrice(9200) ?> (Ödendi)</span>
             </div>
 
             <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.85rem;">
@@ -1638,7 +1638,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 
             <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px solid var(--border-color); font-size:0.9rem;">
               <span style="color:var(--text-muted);">Ödeme Detayları</span>
-              <span style="color:var(--gold-bright); font-weight:700;">₺12.800</span>
+              <span style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice(12800) ?></span>
             </div>
           </div>
 
@@ -1743,7 +1743,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:40px; height:40px; border-radius:6px; object-fit:cover;">
                 <div>
                   <div style="font-weight:600; color:#fff; font-size:0.9rem;">Antika Seramik Vazo</div>
-                  <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0991 • Son Fiyat: ₺43.500</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0991 • Son Fiyat: <?= $formatPrice(43500) ?></div>
                 </div>
               </div>
               <span class="badge badge-success">ÖDENDİ</span>
@@ -1753,7 +1753,7 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
                 <img src="public/assets/images/books.jpg" alt="Kitap" style="width:40px; height:40px; border-radius:6px; object-fit:cover;">
                 <div>
                   <div style="font-weight:600; color:#fff; font-size:0.9rem;">Nadir Kitap Koleksiyonu</div>
-                  <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0984 • Son Fiyat: ₺3.200</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">AUC-0984 • Son Fiyat: <?= $formatPrice(3200) ?></div>
                 </div>
               </div>
               <span class="badge badge-success">ÖDENDİ</span>
@@ -2013,12 +2013,12 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
       <input type="hidden" name="action" value="vip_request_limit">
       <input type="hidden" name="user_id" value="<?= $buyerId ?>">
       <div class="form-group" style="margin-bottom:16px;">
-        <label class="form-label">Talep Edilen VIP Teklif Limiti (TRY)</label>
+        <label class="form-label">Talep Edilen VIP Teklif Limiti (<?= $currencyStrategy->getCode() ?>)</label>
         <select name="target_limit" class="form-control" style="font-size:1rem; font-weight:600; color:#d4af37;">
-          <option value="2000000" <?= $userLimit == 2000000 ? 'selected' : '' ?>>₺ 2.000.000 (Standart VIP Limit)</option>
-          <option value="3500000" <?= $userLimit == 3500000 ? 'selected' : '' ?>>₺ 3.500.000 (Platinum Seviye)</option>
-          <option value="5000000" <?= $userLimit == 5000000 ? 'selected' : '' ?>>₺ 5.000.000 (Diamond Seviye)</option>
-          <option value="10000000" <?= $userLimit == 10000000 ? 'selected' : '' ?>>₺ 10.000.000 (Özel Konsorsiyum Limiti)</option>
+          <option value="2000000" <?= $userLimit == 2000000 ? 'selected' : '' ?>><?= $formatPrice(2000000) ?> (Standart VIP Limit)</option>
+          <option value="3500000" <?= $userLimit == 3500000 ? 'selected' : '' ?>><?= $formatPrice(3500000) ?> (Platinum Seviye)</option>
+          <option value="5000000" <?= $userLimit == 5000000 ? 'selected' : '' ?>><?= $formatPrice(5000000) ?> (Diamond Seviye)</option>
+          <option value="10000000" <?= $userLimit == 10000000 ? 'selected' : '' ?>><?= $formatPrice(10000000) ?> (Özel Konsorsiyum Limiti)</option>
         </select>
       </div>
       <button type="submit" class="btn-register-glow" style="width:100%;">

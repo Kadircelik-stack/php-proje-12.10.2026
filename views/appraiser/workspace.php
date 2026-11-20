@@ -334,9 +334,9 @@ $activeTab = $_GET['tab'] ?? 'gorev';
         <div style="margin-bottom:18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:#0a0d14; padding:12px 18px; border-radius:8px; border:1px solid #232b3c;">
           <span style="font-size:0.84rem; color:var(--gold-primary); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">İncelenecek Eseri Seçin:</span>
           <select id="requestSelector" class="form-control" style="max-width:420px; font-size:0.85rem; font-weight:600;" onchange="onSelectRequest(this.value)">
-            <option value="202" data-lot="AUC-1042" data-title="1968 İsviçre Vintage Saat" data-val="65000" data-notes="Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.&#10;Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.&#10;Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır.">AUC-1042 — 1968 İsviçre Vintage Saat (Tahmini: ₺65.000)</option>
-            <option value="203" data-lot="AUC-1043" data-title="Koleksiyon Analog Kamera" data-val="25000" data-notes="Kamera aksamı oldukça iyi durumda gerekli incelemeler neticesinde satışa uygun bulunmuştur.&#10;Optik lens ve perde mekanizması kalibre edilmiştir.">AUC-1043 — Koleksiyon Analog Kamera (Tahmini: ₺25.000)</option>
-            <option value="204" data-lot="AUC-1044" data-title="Çağdaş Sanat Baskısı" data-val="18000" data-notes="Kağıt ve baskı kalitesi laboratuvar ortamında spektral testlerle incelenmiş ve doğrulanmıştır.&#10;Edisyon no ve ıslak imza arşiv ile uyumludur.">AUC-1044 — Çağdaş Sanat Baskısı (Tahmini: ₺18.000)</option>
+            <option value="202" data-lot="AUC-1042" data-title="1968 İsviçre Vintage Saat" data-val="65000" data-notes="Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.&#10;Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.&#10;Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır.">AUC-1042 — 1968 İsviçre Vintage Saat (Tahmini: <?= $formatPrice(65000) ?>)</option>
+            <option value="203" data-lot="AUC-1043" data-title="Koleksiyon Analog Kamera" data-val="25000" data-notes="Kamera aksamı oldukça iyi durumda gerekli incelemeler neticesinde satışa uygun bulunmuştur.&#10;Optik lens ve perde mekanizması kalibre edilmiştir.">AUC-1043 — Koleksiyon Analog Kamera (Tahmini: <?= $formatPrice(25000) ?>)</option>
+            <option value="204" data-lot="AUC-1044" data-title="Çağdaş Sanat Baskısı" data-val="18000" data-notes="Kağıt ve baskı kalitesi laboratuvar ortamında spektral testlerle incelenmiş ve doğrulanmıştır.&#10;Edisyon no ve ıslak imza arşiv ile uyumludur.">AUC-1044 — Çağdaş Sanat Baskısı (Tahmini: <?= $formatPrice(18000) ?>)</option>
             <?php foreach ($pendingRequests as $pr): if (in_array((int)$pr['id'], [202, 203, 204], true)) continue; ?>
               <option value="<?= $pr['id'] ?>" data-lot="<?= htmlspecialchars($pr['lotKodu'] ?? 'AUC-YENİ') ?>" data-title="<?= htmlspecialchars($pr['not'] ?? 'Yeni Eser') ?>" data-val="30000" data-notes="Fiziksel kondisyon kontrolü tamamlandı.">
                 <?= htmlspecialchars($pr['lotKodu'] ?? 'AUC-YENİ') ?> — <?= htmlspecialchars($pr['not'] ?? 'Yeni Eser') ?>
@@ -465,7 +465,7 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
                 <td style="padding-left:24px; font-weight:700; color:var(--gold-primary);">REP-2026-112</td>
                 <td style="color:#fff; font-weight:600;">AUC-1042 — 1968 İsviçre Vintage Saat</td>
                 <td style="color:#cbd5e1;">Orijinal - Ekspertiz Seçki Damgalı</td>
-                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">₺65.000</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(65000) ?></td>
                 <td><span class="badge badge-success">✓ ONAYLANDI</span></td>
                 <td style="color:#848d9a; font-size:0.8rem;"><?= date('d.m.Y') ?></td>
                 <td style="padding-right:24px; text-align:right;">
@@ -840,7 +840,7 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
       <ul class="expert-card-list">
         <li>Mekanizma kalibresi, kadran ve kasa optik mikroskop altında incelenmiştir.</li>
         <li>Eser %100 dönem fabrikasyon orijinali olup revizyon görmemiştir.</li>
-        <li>Önerilen Piyasa Değeri: <strong id="certValue" style="color:#b45309;">₺65.000</strong></li>
+        <li>Önerilen Piyasa Değeri: <strong id="certValue" style="color:#b45309;"><?= $formatPrice(65000) ?></strong></li>
         <li id="certNote">Orijinal - Ekspertiz Seçki Damgalı</li>
       </ul>
 
@@ -982,7 +982,7 @@ function openCertificateModal(raporNo, lotKodu, title, value, note, date) {
   document.getElementById('certReportNo').innerText = raporNo || 'REP';
   document.getElementById('certTitle').innerText = title || '';
   document.getElementById('certLot').innerText = 'Lot Kodu: ' + (lotKodu || '');
-  document.getElementById('certValue').innerText = '₺' + parseFloat(value || 0).toLocaleString('tr-TR');
+  document.getElementById('certValue').innerText = window.formatPriceJs ? window.formatPriceJs(value || 0) : ('₺' + parseFloat(value || 0).toLocaleString('tr-TR'));
   document.getElementById('certNote').innerText = note || 'Orijinal - Ekspertiz Seçki Damgalı';
   if (date) {
     document.getElementById('certDate').innerText = 'Onay: ' + date;

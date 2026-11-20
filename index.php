@@ -70,8 +70,27 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $flashMessage = $controller->handlePostAction($_POST);
 }
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (isset($_GET['currency'])) {
+    $activeCurrency = strtoupper(trim((string)$_GET['currency']));
+    $_SESSION['active_currency'] = $activeCurrency;
+    @setcookie('active_currency', $activeCurrency, time() + 86400 * 30, '/');
+} elseif (isset($_SESSION['active_currency'])) {
+    $activeCurrency = $_SESSION['active_currency'];
+} elseif (isset($_COOKIE['active_currency'])) {
+    $activeCurrency = $_COOKIE['active_currency'];
+} else {
+    $activeCurrency = 'TRY';
+}
+
+if (!in_array($activeCurrency, ['TRY', 'USD', 'EUR'], true)) {
+    $activeCurrency = 'TRY';
+}
+
 $activeRole       = $_GET['role'] ?? 'buyer';
-$activeCurrency   = $_GET['currency'] ?? 'TRY';
 $currencyStrategy = $controller->resolveCurrencyStrategy($activeCurrency);
 $db               = $dataStore->getAllData();
 $rates            = $db['systemParameters']['exchangeRates']['rates'] ?? ['TRY' => 1.0, 'USD' => 34.50, 'EUR' => 37.80];

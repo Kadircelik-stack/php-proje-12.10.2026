@@ -23,6 +23,19 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MARTELLO — Çevrimiçi Müzayede ve Ekspertiz Platformu (ZeroDay)</title>
   <link rel="stylesheet" href="public/assets/css/martello.css">
+  <script>
+    window.MARTELLO_CURRENCY = {
+      code: <?= json_encode($activeCurrency) ?>,
+      symbol: <?= json_encode($currencyStrategy->getSymbol()) ?>,
+      rate: <?= (float)($rates[$activeCurrency] ?? 1.0) ?>,
+      rates: <?= json_encode($rates) ?>
+    };
+    window.formatPriceJs = function(amountInTry) {
+      var rate = window.MARTELLO_CURRENCY.rate || 1.0;
+      var converted = parseFloat(amountInTry || 0) / rate;
+      return window.MARTELLO_CURRENCY.symbol + converted.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    };
+  </script>
 </head>
 <body>
 
@@ -59,7 +72,7 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
 
   <!-- Müzayede & Satış Geçmişi Kısayolu -->
   <div style="display:flex; align-items:center; margin-right:12px;">
-    <a href="index.php?role=buyer&tab=gecmis" style="color:#d4af37; font-size:0.78rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.3); border-radius:18px; white-space:nowrap; transition:all 0.2s;" onmouseover="this.style.background='rgba(212,175,55,0.18)'; this.style.borderColor='#d4af37';" onmouseout="this.style.background='rgba(212,175,55,0.08)'; this.style.borderColor='rgba(212,175,55,0.3)';">
+    <a href="index.php?role=buyer&tab=gecmis&currency=<?= htmlspecialchars($activeCurrency) ?>" style="color:#d4af37; font-size:0.78rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.3); border-radius:18px; white-space:nowrap; transition:all 0.2s;" onmouseover="this.style.background='rgba(212,175,55,0.18)'; this.style.borderColor='#d4af37';" onmouseout="this.style.background='rgba(212,175,55,0.08)'; this.style.borderColor='rgba(212,175,55,0.3)';">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
       <span>Müzayede & Satış Geçmişi</span>
     </a>
@@ -68,7 +81,7 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
   <div class="topbar-nav">
     <?php if ($activeRole === 'buyer'): ?>
       <div class="topbar-balance" style="font-size:0.85rem; color:#f0f3f6; font-weight:500;">
-        Bakiye: <strong style="color:#d4af37; font-weight:700;">₺ 2.012.100</strong>
+        Bakiye: <strong style="color:#d4af37; font-weight:700;"><?= $formatPrice(2012100) ?></strong>
       </div>
       <div class="topbar-messages" style="font-size:0.85rem; color:#848d9a;">
         Mesajlar: <strong style="color:#f0f3f6;">0</strong>
@@ -89,9 +102,14 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
       <button type="button" onclick="openAuthModal('login')" class="btn-gold-pill" style="padding:8px 22px; font-size:0.84rem; font-weight:600; cursor:pointer; background:linear-gradient(135deg, #c89e58 0%, #a47937 100%); color:#0c0f14; border:1px solid #d4af37; border-radius:20px; box-shadow:0 2px 10px rgba(197, 160, 89, 0.25);">
         Kayıt Ol / Giriş Yap
       </button>
-      <button type="button" onclick="openRoleModal()" class="btn-dark-pill" style="padding:6px 10px; font-size:0.75rem; opacity:0.3; border:1px dashed #555; border-radius:16px;" title="Rol Değiştir (Demo)">
-        Rol
+      <button type="button" onclick="openRoleModal()" class="btn-dark-pill" style="padding:7px 16px; font-size:0.82rem; cursor:pointer;" title="Rol Değiştir (Demo)">
+        Rol değiştir
       </button>
+      <select id="currencySelector" class="currency-select" title="Para Birimi Değiştir">
+        <option value="TRY" <?= $activeCurrency === 'TRY' ? 'selected' : '' ?>>₺ TRY</option>
+        <option value="USD" <?= $activeCurrency === 'USD' ? 'selected' : '' ?>>$ USD</option>
+        <option value="EUR" <?= $activeCurrency === 'EUR' ? 'selected' : '' ?>>€ EUR</option>
+      </select>
     <?php else: ?>
       <button type="button" onclick="openAuthModal('login')" class="btn-gold-pill" style="padding:7px 18px; font-size:0.82rem; font-weight:600; cursor:pointer;">
         Kayıt Ol / Giriş Yap

@@ -226,7 +226,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
           <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
             <div style="padding:10px 12px; background:#0e1218; border-radius:6px; border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
               <span>Net Çekilebilir Bakiye</span>
-              <strong style="color:var(--gold-bright);">₺ 142.800</strong>
+              <strong style="color:var(--gold-bright);"><?= $formatPrice(142800) ?></strong>
             </div>
             <button type="button" onclick="switchSellerTab('bakiye', this)" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center; padding:8px;">
               Banka Hesabına Para Çek &rarr;
@@ -379,11 +379,11 @@ $activeTab = $_GET['tab'] ?? 'genel';
             <?= $formatPrice(142800) ?>
           </div>
           <div style="color:var(--text-muted); font-size:0.85rem; margin-top:8px;">
-            Antika & Sanat kategorisi komisyon oranı: <strong>%8</strong> • Sabit Ekspertiz Bedeli: <strong>1.500 TL</strong>
+            Antika & Sanat kategorisi komisyon oranı: <strong>%8</strong> • Sabit Ekspertiz Bedeli: <strong><?= $formatPrice(1500) ?></strong>
           </div>
           <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border-color); font-size:0.82rem; color:#8b949e;">
-            Bloke Edilen Ekspertiz Bedeli: <strong>₺ 1.500</strong><br>
-            Net Çekilebilir Tutar: <strong style="color:#3fb950;">₺ 141.300</strong>
+            Bloke Edilen Ekspertiz Bedeli: <strong><?= $formatPrice(1500) ?></strong><br>
+            Net Çekilebilir Tutar: <strong style="color:#3fb950;"><?= $formatPrice(141300) ?></strong>
           </div>
         </div>
 

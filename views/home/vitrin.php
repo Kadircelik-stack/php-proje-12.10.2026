@@ -200,10 +200,10 @@ $categories = $filterOptions['categories'] ?? ($db['categories'] ?? []);
 
       <!-- 3. Fiyat Aralığı -->
       <div>
-        <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Fiyat Aralığı (₺ Min - Max)</label>
+        <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Fiyat Aralığı (<?= $currencyStrategy->getSymbol() ?> Min - Max)</label>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-          <input type="number" name="min_price" class="form-control" placeholder="Min ₺" value="<?= htmlspecialchars($filterParams['min_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
-          <input type="number" name="max_price" class="form-control" placeholder="Max ₺" value="<?= htmlspecialchars($filterParams['max_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
+          <input type="number" name="min_price" class="form-control" placeholder="Min <?= $currencyStrategy->getSymbol() ?>" value="<?= htmlspecialchars($filterParams['min_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
+          <input type="number" name="max_price" class="form-control" placeholder="Max <?= $currencyStrategy->getSymbol() ?>" value="<?= htmlspecialchars($filterParams['max_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
         </div>
       </div>
 
@@ -255,7 +255,7 @@ $categories = $filterOptions['categories'] ?? ($db['categories'] ?? []);
           <?php endif; ?>
           <?php if (!empty($filterParams['min_price']) || !empty($filterParams['max_price'])): ?>
             <span class="badge badge-gold">
-              Fiyat: <?= !empty($filterParams['min_price']) ? '₺' . number_format((float)$filterParams['min_price']) : '0' ?> - <?= !empty($filterParams['max_price']) ? '₺' . number_format((float)$filterParams['max_price']) : '∞' ?>
+              Fiyat: <?= !empty($filterParams['min_price']) ? $currencyStrategy->getSymbol() . number_format((float)$filterParams['min_price']) : '0' ?> - <?= !empty($filterParams['max_price']) ? $currencyStrategy->getSymbol() . number_format((float)$filterParams['max_price']) : '∞' ?>
             </span>
           <?php endif; ?>
           <?php if (!empty($filterParams['brand'])): ?>

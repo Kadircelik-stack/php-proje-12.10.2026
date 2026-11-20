@@ -168,12 +168,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Otomatik Kur Değişimi Yönlendirmesi
-  const currencySelect = document.getElementById("currencySelector");
-  if (currencySelect) {
-    currencySelect.addEventListener("change", function () {
+  document.querySelectorAll(".currency-select, #currencySelector").forEach(function (sel) {
+    sel.addEventListener("change", function () {
       const url = new URL(window.location.href);
       url.searchParams.set("currency", this.value);
       window.location.href = url.toString();
     });
-  }
+  });
 });

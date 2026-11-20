@@ -90,7 +90,7 @@ $disputes = $db['disputes'] ?? [];
             <?= htmlspecialchars($activeSession['kullaniciAd'] ?? 'Zeynep Demir') ?> (#3)
           </div>
           <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
-            VIP Seviyesi: <strong style="color:#d4af37;">PLATINUM</strong> • Bakiye: <strong>₺120.000</strong><br>
+            VIP Seviyesi: <strong style="color:#d4af37;">PLATINUM</strong> • Bakiye: <strong><?= $formatPrice(120000) ?></strong><br>
             Kayıtlı E-Posta: zeynep.demir@ornek.com<br>
             Kayıtlı Telefon: +90 532 999 8877
           </div>
