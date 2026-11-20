@@ -33,6 +33,12 @@ foreach ($lots as $l) {
             Yönetim konsolu
           </button>
         </li>
+        <li class="nav-menu-item <?= ($activeTab === 'iptal_yonetimi' || $activeTab === 'ihtilaflar') ? 'active' : '' ?>">
+          <button type="button" data-tab="iptal_yonetimi" onclick="switchAdminTab('iptal_yonetimi', this)" style="display:flex; align-items:center; gap:6px; color:#fca5a5; font-weight:600;">
+            <span>⚖️</span>
+            <span>Pey & İlan İptal Masası</span>
+          </button>
+        </li>
         <li class="nav-menu-item <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
           <button type="button" data-tab="moderasyon" onclick="switchAdminTab('moderasyon', this)">
             Müzayede & Canlı İhale
@@ -66,12 +72,6 @@ foreach ($lots as $l) {
         <li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
           <button type="button" data-tab="komisyon" onclick="switchAdminTab('komisyon', this)">
             Komisyon oranları
-          </button>
-        </li>
-        <li class="nav-menu-item <?= ($activeTab === 'iptal_yonetimi' || $activeTab === 'ihtilaflar') ? 'active' : '' ?>">
-          <button type="button" data-tab="iptal_yonetimi" onclick="switchAdminTab('iptal_yonetimi', this)" style="display:flex; align-items:center; gap:6px;">
-            <span>⚖️</span>
-            <span>Pey & İlan İptal Masası</span>
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'denetim' ? 'active' : '' ?>">
@@ -222,6 +222,459 @@ foreach ($lots as $l) {
               ⚖️ İptal Masası →
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         2. TAB: KURAL DIŞI PEY & HASAR/İHTİLAF İLAN İPTAL MASASI (YUKARI TAŞINDI)
+         ==================================================================== -->
+    <div id="admTab_iptal_yonetimi" class="tab-content <?= ($activeTab === 'iptal_yonetimi' || $activeTab === 'ihtilaflar') ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / DENETİM, TAHKİM VE İPTAL MASASI</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <h1 class="page-heading" style="margin-bottom:6px;">
+            ⚖️ Kural Dışı Pey & Hasar/İhtilaf İlan İptal Masası
+          </h1>
+          <p class="page-subheading" style="margin:0; line-height:1.5;">
+            Kural dışı, hatalı veya kötü niyetli peylerin iptal edilip sürecin bir önceki geçerli peye döndürülmesi; hasar, sahtelik veya hukuki ihtilaf oluşan ürün ilanlarının yetkili admin tarafından yayından kaldırılması, peylerin feshi ve teminat iadesi.
+          </p>
+        </div>
+        <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.4rem;">🛡️</span>
+          <div>
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#fca5a5; font-weight:700;">Yetkili İdari Müdahale</div>
+            <div style="font-size:0.8rem; color:#e2e8f0;">Tüm iptaller noter & denetim kütüğüne tescillenir.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Temel Metrik / KPI Kartları -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:16px; margin-bottom:24px;">
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #ef4444;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">İptal Edilen Peyler</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#f87171; font-family:'Cinzel', serif;">
+            <?= count(array_filter($bids, static fn($b) => ($b['durum'] ?? '') === 'IPTAL_EDILDI')) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Adet Teklif</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Önceki peye rücu edildi, bloke çözüldü</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #f59e0b;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Yayından Kaldırılan İlanlar</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#fbbf24; font-family:'Cinzel', serif;">
+            <?= count(array_filter($lots, static fn($l) => ($l['durum'] ?? '') === 'IPTAL_EDILDI')) + count(array_filter($listings, static fn($li) => ($li['durum'] ?? '') === 'IPTAL_EDILDI')) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Eser / İlan</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Hasar / ihtilaf nedeniyle çekildi</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #3b82f6;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Tahkim & İhtilaf Dosyaları</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#60a5fa; font-family:'Cinzel', serif;">
+            <?= count($disputes) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Dosya</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Eksper mütalaası & karar masasında</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #10b981;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Teminat Güvenliği</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#10b981; font-family:'Cinzel', serif;">
+            %100 <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Korumalı</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Otomatik bloke iade entegrasyonu</div>
+        </div>
+      </div>
+
+      <!-- Alt Sekmeler (Sub-Tabs) -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; border-bottom:1px solid #1f2733; padding-bottom:14px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" id="btn_cancel_subtab_peyler" onclick="switchCancellationSubTab('peyler')" class="cancel-subtab-btn btn-gold-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
+            🔨 Kural Dışı / Hatalı Pey İptali (<?= count($bids) ?>)
+          </button>
+          <button type="button" id="btn_cancel_subtab_ilanlar" onclick="switchCancellationSubTab('ilanlar')" class="cancel-subtab-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
+            📦 Hasar & İhtilaf Oluşan İlanlar (<?= count($lots) ?>)
+          </button>
+          <button type="button" id="btn_cancel_subtab_ihtilaflar" onclick="switchCancellationSubTab('ihtilaflar')" class="cancel-subtab-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
+            ⚖️ Alıcı/Satıcı İhtilaf Dosyaları (<?= count($disputes) ?>)
+          </button>
+          <button type="button" id="btn_cancel_subtab_kutuk" onclick="switchCancellationSubTab('kutuk')" class="cancel-subtab-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
+            📜 İptal Denetim Kütüğü (Audit)
+          </button>
+        </div>
+        <div style="font-size:0.8rem; color:#848d9a;">
+          Yetkili Admin: <strong>Yönetici (ID #1)</strong> • IP Tescilli
+        </div>
+      </div>
+
+      <!-- 1. ALT GÖRÜNÜM: KURAL DIŞI / HATALI / KÖTÜ NİYETLİ PEY İPTALİ -->
+      <div id="cancel_pane_peyler" class="cancel-subtab-pane" style="display:block;">
+        <div class="panel-card" style="margin-bottom:16px; background:#0b0e14; border:1px solid #1a222e; padding:14px 18px;">
+          <div style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:0.84rem;">
+            <span style="font-size:1.1rem; color:#f59e0b;">💡</span>
+            <div>
+              <strong>Pey İptali Prosedürü:</strong> Kural dışı, hatalı veya kötü niyetli bir pey iptal edildiğinde, sistem otomatik olarak eserin en yüksek teklifini <strong>bir önceki geçerli teklife</strong> döndürür, teklif verenin <strong>teminat blokesini cüzdanına iade eder</strong> ve işlemi noter tasdikli <strong>denetim izine</strong> kaydeder.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card" style="padding:0; overflow:hidden;">
+          <table class="data-table" style="margin:0; width:100%;">
+            <thead>
+              <tr>
+                <th style="width:75px;">Teklif No</th>
+                <th>Hedef Lot & Eser</th>
+                <th>Teklif Veren</th>
+                <th style="text-align:right;">Pey Tutarı</th>
+                <th style="text-align:center;">Durum</th>
+                <th>Teklif Zamanı</th>
+                <th style="min-width:320px; text-align:center;">Yetkili İptal Aksiyonu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php 
+              // Son 25 peyi göster (en yeni en üstte)
+              $displayBids = array_reverse(array_slice($bids, -25, 25));
+              foreach ($displayBids as $bid): 
+                $bLot = $lotMap[(int)($bid['lotId'] ?? 0)] ?? null;
+                $isCancelled = ($bid['durum'] ?? '') === 'IPTAL_EDILDI';
+                $isLeading = ($bLot && (float)($bLot['mevcutEnYuksekTeklif'] ?? 0) === (float)($bid['teklifTutari'] ?? 0) && !$isCancelled);
+              ?>
+                <tr style="<?= $isCancelled ? 'opacity:0.6; background:rgba(239,68,68,0.03);' : '' ?>">
+                  <td>
+                    <code>#<?= htmlspecialchars((string)($bid['id'] ?? 0)) ?></code>
+                  </td>
+                  <td>
+                    <div style="font-weight:600; color:#fff; font-size:0.88rem;">
+                      <?= htmlspecialchars($bLot['baslik'] ?? ('Lot #' . ($bid['lotId'] ?? ''))) ?>
+                    </div>
+                    <div style="font-size:0.75rem; color:#c5a059;">
+                      <?= htmlspecialchars($bLot['lotKodu'] ?? 'LOT-DETAY') ?>
+                    </div>
+                  </td>
+                  <td>
+                    <div style="font-size:0.85rem; color:#e2e8f0; font-weight:600;">
+                      <?= htmlspecialchars((string)($bid['aliciAnonimKod'] ?? 'Anonim')) ?>
+                    </div>
+                    <div style="font-size:0.72rem; color:#848d9a;">
+                      Alıcı ID: #<?= (int)($bid['aliciId'] ?? 0) ?>
+                    </div>
+                  </td>
+                  <td style="text-align:right;">
+                    <div style="font-size:1.05rem; font-weight:700; color:#c5a059; font-family:'Cinzel', serif;">
+                      ₺<?= number_format((float)($bid['teklifTutari'] ?? 0), 0, ',', '.') ?>
+                    </div>
+                    <div style="font-size:0.72rem; color:#848d9a;">
+                      <?= htmlspecialchars((string)($bid['teklifTipi'] ?? 'MANUEL')) ?>
+                    </div>
+                  </td>
+                  <td style="text-align:center;">
+                    <?php if ($isCancelled): ?>
+                      <span class="badge" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.4); padding:4px 8px; font-size:0.72rem; border-radius:12px;">
+                        🚫 İPTAL EDİLDİ
+                      </span>
+                    <?php elseif ($isLeading): ?>
+                      <span class="badge badge-gold" style="font-size:0.72rem; padding:4px 8px;">
+                        👑 LİDER PEY
+                      </span>
+                    <?php else: ?>
+                      <span class="badge" style="background:#1e293b; color:#94a3b8; font-size:0.72rem; padding:4px 8px; border-radius:12px;">
+                        GEÇİLDİ
+                      </span>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <div style="font-size:0.8rem; color:#cbd5e1;">
+                      <?= htmlspecialchars((string)($bid['saatEtiketi'] ?? substr((string)($bid['teklifZamani'] ?? ''), 11, 8))) ?>
+                    </div>
+                    <div style="font-size:0.7rem; color:#64748b;">
+                      <?= htmlspecialchars(substr((string)($bid['teklifZamani'] ?? ''), 0, 10)) ?>
+                    </div>
+                  </td>
+                  <td>
+                    <?php if ($isCancelled): ?>
+                      <div style="font-size:0.78rem; color:#fca5a5; line-height:1.4; background:rgba(0,0,0,0.3); padding:6px 10px; border-radius:6px; border:1px dashed rgba(239,68,68,0.3);">
+                        <strong>Gerekçe:</strong> <?= htmlspecialchars((string)($bid['iptalSebebi'] ?? 'Kural dışı teklif')) ?><br>
+                        <span style="font-size:0.7rem; color:#848d9a;">İptal Zamanı: <?= htmlspecialchars(substr((string)($bid['iptalZamani'] ?? ''), 0, 19)) ?></span>
+                      </div>
+                    <?php else: ?>
+                      <form method="POST" style="margin:0; display:flex; flex-direction:column; gap:6px;" onsubmit="return confirm('UYARI: #<?= (int)$bid['id'] ?> nolu pey iptal edilecek, alıcının teminat blokesi çözülecek ve liderlik bir önceki geçerli peye döndürülecektir. Onaylıyor musunuz?');">
+                        <input type="hidden" name="action" value="admin_cancel_bid">
+                        <input type="hidden" name="bid_id" value="<?= (int)$bid['id'] ?>">
+                        <input type="hidden" name="tab" value="iptal_yonetimi">
+                        
+                        <div style="display:flex; gap:6px;">
+                          <select name="reason" class="martello-select" style="font-size:0.78rem; padding:5px 8px; flex:1; background:#0e131b; height:34px;">
+                            <option value="Kural Dışı / Yetkisiz Teklif Verme">Kural Dışı / Yetkisiz Teklif</option>
+                            <option value="Hatalı / Sehven Tutar Girişi (Kullanıcı Bildirimi)">Hatalı / Sehven Tutar Girişi</option>
+                            <option value="Kötü Niyetli / Yapay Fiyat Artırma / Bot Şüphesi">Kötü Niyetli / Bot Şüphesi</option>
+                            <option value="Teminat / Bloke Yetersizliği">Teminat / Bloke Yetersizliği</option>
+                            <option value="Yetkili Admin Tahkim Kararı">Admin Özel Tahkim Kararı</option>
+                          </select>
+                          <button type="submit" class="btn-dark-pill" style="background:#450a0a; border-color:#dc2626; color:#fca5a5; font-size:0.78rem; padding:5px 12px; font-weight:600; white-space:nowrap; cursor:pointer;" onmouseover="this.style.background='#7f1d1d'" onmouseout="this.style.background='#450a0a'">
+                            ❌ Peyi İptal Et
+                          </button>
+                        </div>
+                      </form>
+                    <?php endif; ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. ALT GÖRÜNÜM: HASAR & İHTİLAF OLUŞAN İLAN VE ESER İPTALİ -->
+      <div id="cancel_pane_ilanlar" class="cancel-subtab-pane" style="display:none;">
+        <div class="panel-card" style="margin-bottom:16px; background:#0b0e14; border:1px solid #1a222e; padding:14px 18px;">
+          <div style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:0.84rem;">
+            <span style="font-size:1.1rem; color:#ef4444;">🚨</span>
+            <div>
+              <strong>İlan Yayından Kaldırma & Fesih Prosedürü:</strong> Muhafaza veya nakliye sırasında hasar gören, sahtelik şüphesi doğan veya mülkiyet ihtilafı olan eser ilanları admin yetkisiyle iptal edilir. Bağlı <strong>tüm aktif peyler feshedilir</strong> ve alıcıların <strong>teminatları derhal serbest bırakılır</strong>.
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:20px;">
+          <?php foreach ($lots as $lotItem): 
+            $isLotCancelled = ($lotItem['durum'] ?? '') === 'IPTAL_EDILDI';
+          ?>
+            <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border:1px solid <?= $isLotCancelled ? '#7f1d1d' : '#1f2733' ?>; background:<?= $isLotCancelled ? 'rgba(30,15,15,0.7)' : '#0f141c' ?>;">
+              <div>
+                <!-- Üst Bilgi & Durum Rozeti -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                  <div>
+                    <span style="font-size:0.75rem; color:#c5a059; font-weight:600; letter-spacing:0.5px;">LOT: <?= htmlspecialchars((string)($lotItem['lotKodu'] ?? 'LOT')) ?></span>
+                    <h3 style="font-size:1.1rem; color:#fff; font-family:'Cinzel', serif; margin:4px 0 0 0; line-height:1.35;">
+                      <?= htmlspecialchars((string)($lotItem['baslik'] ?? 'Müzayede Eseri')) ?>
+                    </h3>
+                  </div>
+                  <?php if ($isLotCancelled): ?>
+                    <span class="badge" style="background:#7f1d1d; color:#fca5a5; font-size:0.72rem; padding:4px 8px; border-radius:12px; font-weight:700;">
+                      🚫 İPTAL EDİLDİ
+                    </span>
+                  <?php else: ?>
+                    <span class="badge badge-success" style="font-size:0.72rem; padding:4px 8px;">
+                      ✓ <?= htmlspecialchars((string)($lotItem['durum'] ?? 'AKTİF')) ?>
+                    </span>
+                  <?php endif; ?>
+                </div>
+
+                <!-- Detay Grid -->
+                <div style="background:#090d13; border:1px solid #1a222e; border-radius:8px; padding:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; font-size:0.8rem;">
+                  <div>
+                    <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Kategori</div>
+                    <div style="color:#e2e8f0; font-weight:600;"><?= htmlspecialchars((string)($lotItem['kategoriAdi'] ?? 'Antika & Sanat')) ?></div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Müzayede ID</div>
+                    <div style="color:#c5a059; font-weight:600;">AUC-<?= htmlspecialchars((string)($lotItem['muzayedeId'] ?? 801)) ?></div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Açılış Fiyatı</div>
+                    <div style="color:#94a3b8;">₺<?= number_format((float)($lotItem['baslangicFiyati'] ?? 0), 0, ',', '.') ?></div>
+                  </div>
+                  <div>
+                    <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Mevcut En Yüksek</div>
+                    <div style="color:#c5a059; font-weight:700;">₺<?= number_format((float)($lotItem['mevcutEnYuksekTeklif'] ?? 0), 0, ',', '.') ?></div>
+                  </div>
+                </div>
+
+                <?php if ($isLotCancelled): ?>
+                  <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:10px; font-size:0.8rem; color:#fca5a5; margin-bottom:14px;">
+                    <strong>İptal Gerekçesi:</strong> <?= htmlspecialchars((string)($lotItem['iptalSebebi'] ?? 'Hasar veya ihtilaf tespiti')) ?><br>
+                    <span style="font-size:0.72rem; color:#94a3b8;">İptal Tarihi: <?= htmlspecialchars(substr((string)($lotItem['iptalZamani'] ?? ''), 0, 19)) ?></span>
+                  </div>
+                <?php endif; ?>
+              </div>
+
+              <!-- İptal Aksiyon Formu -->
+              <?php if (!$isLotCancelled): ?>
+                <form method="POST" style="margin:0; border-top:1px dashed #232d3d; padding-top:12px;" onsubmit="return confirm('DİKKAT: \'<?= addslashes((string)$lotItem['baslik']) ?>\' ilanı iptal edilecek, yayından kaldırılacak ve verilmiş tüm peyler feshedilerek alıcı teminatları iade edilecektir. Onaylıyor musunuz?');">
+                  <input type="hidden" name="action" value="admin_cancel_lot">
+                  <input type="hidden" name="lot_id" value="<?= (int)$lotItem['id'] ?>">
+                  <input type="hidden" name="tab" value="iptal_yonetimi">
+                  
+                  <div style="margin-bottom:8px;">
+                    <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:4px;">İptal ve Yayından Kaldırma Gerekçesi:</label>
+                    <select name="reason" class="martello-select" style="font-size:0.8rem; padding:6px 10px; width:100%; background:#090d13;">
+                      <option value="Eser Hasarı / Nakliye veya Muhafaza Sırasında Kondisyon Bozulması">Eser Hasarı / Fiziksel Bozulma (Kondisyon Kaybı)</option>
+                      <option value="Hukuki İhtilaf / Mülkiyet & Çalıntı İddiası">Hukuki İhtilaf / Mülkiyet & Çalıntı Şüphesi</option>
+                      <option value="Sahtelik / Tahrifat / Orijinallik Şüphesi">Sahtelik / Tahrifat / Orijinallik Şüphesi</option>
+                      <option value="Satıcı Kural İhlali / Yanıltıcı Beyan">Satıcı Kural İhlali / Yanıltıcı Bilgi</option>
+                      <option value="Mücbir Sebep / İdari İptal Kararı">Mücbir Sebep / İdari İptal Kararı</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" class="btn-dark-pill" style="width:100%; justify-content:center; background:#450a0a; border-color:#dc2626; color:#fca5a5; font-size:0.82rem; padding:8px; font-weight:600; cursor:pointer;" onmouseover="this.style.background='#7f1d1d'" onmouseout="this.style.background='#450a0a'">
+                    🚫 İlanı Yayından Kaldır & İptal Et
+                  </button>
+                </form>
+              <?php else: ?>
+                <button type="button" disabled class="btn-dark-pill" style="width:100%; justify-content:center; opacity:0.6; font-size:0.8rem; padding:7px; cursor:not-allowed;">
+                  ✓ İlan İptal Edildi (Kayıt Arşivlendi)
+                </button>
+              <?php endif; ?>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- 3. ALT GÖRÜNÜM: ALICI/SATICI İHTİLAF DOSYALARI & TAHKİM KARARLARI -->
+      <div id="cancel_pane_ihtilaflar" class="cancel-subtab-pane" style="display:none;">
+        <div class="panel-card" style="margin-bottom:16px; background:#0b0e14; border:1px solid #1a222e; padding:14px 18px;">
+          <div style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:0.84rem;">
+            <span style="font-size:1.1rem; color:#3b82f6;">⚖️</span>
+            <div>
+              <strong>Tahkim & Hakem Heyeti Masası:</strong> Alıcı ve satıcı arasındaki kondisyon, teslimat veya ekspertiz uyuşmazlıklarında admin nihai hakem kararını verir. <strong>Alıcı Haklı</strong> kararı emanetteki tutarı alıcıya iade eder; <strong>Satıcı Haklı</strong> kararı blokeyi çözerek satıcıya transfer eder.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card" style="padding:0; overflow:hidden;">
+          <table class="data-table" style="margin:0; width:100%;">
+            <thead>
+              <tr>
+                <th>Talep No</th>
+                <th>Lot Kodu</th>
+                <th>Uyuşmazlık Konusu</th>
+                <th>Açıklama & Eksper Mütalaası</th>
+                <th>Durum</th>
+                <th style="min-width:280px; text-align:center;">Admin Tahkim Kararı</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($disputes as $disp): ?>
+                <tr>
+                  <td><code><?= htmlspecialchars((string)($disp['talepNo'] ?? 'DISP-00')) ?></code></td>
+                  <td><span class="badge badge-gold"><?= htmlspecialchars((string)($disp['lotKodu'] ?? 'AUC-00')) ?></span></td>
+                  <td>
+                    <div style="font-weight:600; color:#fff; font-size:0.85rem;">
+                      <?= htmlspecialchars((string)($disp['konuTipi'] ?? 'Uyuşmazlık')) ?>
+                    </div>
+                    <div style="font-size:0.72rem; color:#848d9a;">Tarih: <?= htmlspecialchars(substr((string)($disp['olusturmaTarihi'] ?? ''), 0, 10)) ?></div>
+                  </td>
+                  <td>
+                    <div style="font-size:0.83rem; color:#cbd5e1; margin-bottom:4px;">
+                      <?= htmlspecialchars((string)($disp['aciklama'] ?? 'Uyuşmazlık açıklaması.')) ?>
+                    </div>
+                    <?php if (!empty($disp['eksperGorus'])): ?>
+                      <div style="font-size:0.75rem; color:#10b981; background:rgba(16,185,129,0.08); padding:4px 8px; border-radius:4px; border-left:2px solid #10b981;">
+                        <strong>Eksper Mütalaası:</strong> <?= htmlspecialchars((string)$disp['eksperGorus']) ?>
+                      </div>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:0.72rem; padding:4px 8px; border-radius:12px;">
+                      <?= htmlspecialchars((string)($disp['durum'] ?? 'BEKLEMEDE')) ?>
+                    </span>
+                  </td>
+                  <td>
+                    <div style="display:flex; gap:8px; justify-content:center;">
+                      <form method="POST" style="margin:0;" onsubmit="return confirm('Alıcı lehine karar verilecek ve emanet bakiyesi alıcıya iade edilecektir. Onaylıyor musunuz?');">
+                        <input type="hidden" name="action" value="resolve_dispute">
+                        <input type="hidden" name="dispute_id" value="<?= (int)($disp['id'] ?? 1) ?>">
+                        <input type="hidden" name="decision" value="ALICI_HAKLI">
+                        <input type="hidden" name="tab" value="iptal_yonetimi">
+                        <button type="submit" class="btn-gold btn-sm" style="font-size:0.75rem; padding:6px 12px; cursor:pointer;">
+                          Alıcı Haklı (İade Et)
+                        </button>
+                      </form>
+                      <form method="POST" style="margin:0;" onsubmit="return confirm('Satıcı lehine karar verilecek ve emanet bakiyesi serbest bırakılacaktır. Onaylıyor musunuz?');">
+                        <input type="hidden" name="action" value="resolve_dispute">
+                        <input type="hidden" name="dispute_id" value="<?= (int)($disp['id'] ?? 1) ?>">
+                        <input type="hidden" name="decision" value="SATICI_HAKLI">
+                        <input type="hidden" name="tab" value="iptal_yonetimi">
+                        <button type="submit" class="btn-outline-gold btn-sm" style="font-size:0.75rem; padding:6px 12px; cursor:pointer;">
+                          Satıcı Haklı (Bloke Çöz)
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. ALT GÖRÜNÜM: RESMİ DENETİM İPTAL KÜTÜĞÜ (AUDIT LOGS) -->
+      <div id="cancel_pane_kutuk" class="cancel-subtab-pane" style="display:none;">
+        <div class="panel-card" style="margin-bottom:16px; background:#0b0e14; border:1px solid #1a222e; padding:14px 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:0.84rem;">
+              <span style="font-size:1.1rem; color:#10b981;">📜</span>
+              <div>
+                <strong>Resmi İptal ve Tahkim Kütüğü:</strong> Tüm kural dışı pey iptalleri, hasarlı ilan yayından kaldırmaları ve tahkim kararları 5651 sayılı kanun ve noter standartlarında SHA-256 zaman damgasıyla tescillenmektedir.
+              </div>
+            </div>
+            <span class="badge badge-gold" style="font-size:0.72rem;">DENETİM İZİ AKTİF</span>
+          </div>
+        </div>
+
+        <div class="panel-card" style="padding:0; overflow:hidden;">
+          <table class="data-table" style="margin:0; width:100%;">
+            <thead>
+              <tr>
+                <th style="width:140px;">İşlem Türü</th>
+                <th>Kullanıcı / Yetkili</th>
+                <th>Açıklama ve Karar Detayı</th>
+                <th>Önceki Durum</th>
+                <th>Yeni Durum</th>
+                <th>Zaman</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php 
+              $revAudit = array_reverse($auditLogs);
+              $hasAudit = false;
+              foreach ($revAudit as $log): 
+                $hasAudit = true;
+                $isCancelLog = in_array($log['islemTuru'] ?? '', ['KURAL_DISI_PEY_IPTALI', 'HASAR_IHTILAF_ILAN_IPTALI', 'BID_CANCELLED', 'DISPUTE_RESOLVED']);
+              ?>
+                <tr style="<?= $isCancelLog ? 'background:rgba(239,68,68,0.04);' : '' ?>">
+                  <td>
+                    <?php if ($isCancelLog): ?>
+                      <span class="badge" style="background:#7f1d1d; color:#fca5a5; font-size:0.7rem; padding:3px 8px; border-radius:10px;">
+                        <?= htmlspecialchars((string)($log['islemTuru'] ?? 'İPTAL')) ?>
+                      </span>
+                    <?php else: ?>
+                      <span class="badge" style="background:#1e293b; color:#94a3b8; font-size:0.7rem; padding:3px 8px; border-radius:10px;">
+                        <?= htmlspecialchars((string)($log['islemTuru'] ?? 'SİSTEM')) ?>
+                      </span>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <div style="font-weight:600; color:#e2e8f0; font-size:0.82rem;">
+                      Admin #<?= (int)($log['kullaniciId'] ?? 1) ?>
+                    </div>
+                    <div style="font-size:0.7rem; color:#64748b;">
+                      IP: <?= htmlspecialchars((string)($log['ipAdresi'] ?? '127.0.0.1')) ?>
+                    </div>
+                  </td>
+                  <td>
+                    <div style="font-size:0.82rem; color:#cbd5e1; line-height:1.4;">
+                      <?= htmlspecialchars((string)($log['aciklama'] ?? 'İşlem gerçekleştirildi.')) ?>
+                    </div>
+                  </td>
+                  <td>
+                    <code style="font-size:0.75rem; color:#94a3b8;"><?= htmlspecialchars((string)($log['oncekiDeger'] ?? '-')) ?></code>
+                  </td>
+                  <td>
+                    <code style="font-size:0.75rem; color:#f87171; font-weight:700;"><?= htmlspecialchars((string)($log['yeniDeger'] ?? 'TAMAMLANDI')) ?></code>
+                  </td>
+                  <td>
+                    <div style="font-size:0.78rem; color:#848d9a;">
+                      <?= htmlspecialchars(substr((string)($log['tarih'] ?? ''), 0, 19)) ?>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+              <?php if (!$hasAudit): ?>
+                <tr><td colspan="6" style="text-align:center; padding:20px; color:#848d9a;">Henüz kayıt bulunmamaktadır.</td></tr>
+              <?php endif; ?>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1305,458 +1758,7 @@ foreach ($lots as $l) {
       </div>
     </div>
 
-    <!-- ====================================================================
-         8. TAB: KURAL DIŞI PEY & HASAR/İHTİLAF İLAN İPTAL MASASI
-         ==================================================================== -->
-    <div id="admTab_iptal_yonetimi" class="tab-content <?= ($activeTab === 'iptal_yonetimi' || $activeTab === 'ihtilaflar') ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / DENETİM, TAHKİM VE İPTAL MASASI</div>
-      
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
-        <div>
-          <h1 class="page-heading" style="margin-bottom:6px;">
-            ⚖️ Kural Dışı Pey & Hasar/İhtilaf İlan İptal Masası
-          </h1>
-          <p class="page-subheading" style="margin:0; line-height:1.5;">
-            Kural dışı, hatalı veya kötü niyetli peylerin iptal edilip sürecin bir önceki geçerli peye döndürülmesi; hasar, sahtelik veya hukuki ihtilaf oluşan ürün ilanlarının yetkili admin tarafından yayından kaldırılması, peylerin feshi ve teminat iadesi.
-          </p>
-        </div>
-        <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
-          <span style="font-size:1.4rem;">🛡️</span>
-          <div>
-            <div style="font-size:0.75rem; text-transform:uppercase; color:#fca5a5; font-weight:700;">Yetkili İdari Müdahale</div>
-            <div style="font-size:0.8rem; color:#e2e8f0;">Tüm iptaller noter & denetim kütüğüne tescillenir.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4 Temel Metrik / KPI Kartları -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:16px; margin-bottom:24px;">
-        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #ef4444;">
-          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">İptal Edilen Peyler</div>
-          <div style="font-size:1.6rem; font-weight:700; color:#f87171; font-family:'Cinzel', serif;">
-            <?= count(array_filter($bids, static fn($b) => ($b['durum'] ?? '') === 'IPTAL_EDILDI')) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Adet Teklif</span>
-          </div>
-          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Önceki peye rücu edildi, bloke çözüldü</div>
-        </div>
-
-        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #f59e0b;">
-          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Yayından Kaldırılan İlanlar</div>
-          <div style="font-size:1.6rem; font-weight:700; color:#fbbf24; font-family:'Cinzel', serif;">
-            <?= count(array_filter($lots, static fn($l) => ($l['durum'] ?? '') === 'IPTAL_EDILDI')) + count(array_filter($listings, static fn($li) => ($li['durum'] ?? '') === 'IPTAL_EDILDI')) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Eser / İlan</span>
-          </div>
-          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Hasar / ihtilaf nedeniyle çekildi</div>
-        </div>
-
-        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #3b82f6;">
-          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Tahkim & İhtilaf Dosyaları</div>
-          <div style="font-size:1.6rem; font-weight:700; color:#60a5fa; font-family:'Cinzel', serif;">
-            <?= count($disputes) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Dosya</span>
-          </div>
-          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Eksper mütalaası & karar masasında</div>
-        </div>
-
-        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #10b981;">
-          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Teminat Güvenliği</div>
-          <div style="font-size:1.6rem; font-weight:700; color:#10b981; font-family:'Cinzel', serif;">
-            %100 <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Korumalı</span>
-          </div>
-          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Otomatik bloke iade entegrasyonu</div>
-        </div>
-      </div>
-
-      <!-- Alt Sekmeler (Sub-Tabs) -->
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; border-bottom:1px solid #1f2733; padding-bottom:14px;">
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button type="button" id="btn_cancel_subtab_peyler" onclick="switchCancellationSubTab('peyler')" class="cancel-subtab-btn btn-gold-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
-            🔨 Kural Dışı / Hatalı Pey İptali (<?= count($bids) ?>)
-          </button>
-          <button type="button" id="btn_cancel_subtab_ilanlar" onclick="switchCancellationSubTab('ilanlar')" class="cancel-subtab-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
-            📦 Hasar & İhtilaf Oluşan İlanlar (<?= count($lots) ?>)
-          </button>
-          <button type="button" id="btn_cancel_subtab_ihtilaflar" onclick="switchCancellationSubTab('ihtilaflar')" class="cancel-subtab-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
-            ⚖️ Alıcı/Satıcı İhtilaf Dosyaları (<?= count($disputes) ?>)
-          </button>
-          <button type="button" id="btn_cancel_subtab_kutuk" onclick="switchCancellationSubTab('kutuk')" class="cancel-subtab-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
-            📜 İptal Denetim Kütüğü (Audit)
-          </button>
-        </div>
-        <div style="font-size:0.8rem; color:#848d9a;">
-          Yetkili Admin: <strong>Yönetici (ID #1)</strong> • IP Tescilli
-        </div>
-      </div>
-
-      <!-- 1. ALT GÖRÜNÜM: KURAL DIŞI / HATALI / KÖTÜ NİYETLİ PEY İPTALİ -->
-      <div id="cancel_pane_peyler" class="cancel-subtab-pane" style="display:block;">
-        <div class="panel-card" style="margin-bottom:16px; background:#0b0e14; border:1px solid #1a222e; padding:14px 18px;">
-          <div style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:0.84rem;">
-            <span style="font-size:1.1rem; color:#f59e0b;">💡</span>
-            <div>
-              <strong>Pey İptali Prosedürü:</strong> Kural dışı, hatalı veya kötü niyetli bir pey iptal edildiğinde, sistem otomatik olarak eserin en yüksek teklifini <strong>bir önceki geçerli teklife</strong> döndürür, teklif verenin <strong>teminat blokesini cüzdanına iade eder</strong> ve işlemi noter tasdikli <strong>denetim izine</strong> kaydeder.
-            </div>
-          </div>
-        </div>
-
-        <div class="panel-card" style="padding:0; overflow:hidden;">
-          <table class="data-table" style="margin:0; width:100%;">
-            <thead>
-              <tr>
-                <th style="width:75px;">Teklif No</th>
-                <th>Hedef Lot & Eser</th>
-                <th>Teklif Veren</th>
-                <th style="text-align:right;">Pey Tutarı</th>
-                <th style="text-align:center;">Durum</th>
-                <th>Teklif Zamanı</th>
-                <th style="min-width:320px; text-align:center;">Yetkili İptal Aksiyonu</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php 
-              // Son 25 peyi göster (en yeni en üstte)
-              $displayBids = array_reverse(array_slice($bids, -25, 25));
-              foreach ($displayBids as $bid): 
-                $bLot = $lotMap[(int)($bid['lotId'] ?? 0)] ?? null;
-                $isCancelled = ($bid['durum'] ?? '') === 'IPTAL_EDILDI';
-                $isLeading = ($bLot && (float)($bLot['mevcutEnYuksekTeklif'] ?? 0) === (float)($bid['teklifTutari'] ?? 0) && !$isCancelled);
-              ?>
-                <tr style="<?= $isCancelled ? 'opacity:0.6; background:rgba(239,68,68,0.03);' : '' ?>">
-                  <td>
-                    <code>#<?= htmlspecialchars((string)($bid['id'] ?? 0)) ?></code>
-                  </td>
-                  <td>
-                    <div style="font-weight:600; color:#fff; font-size:0.88rem;">
-                      <?= htmlspecialchars($bLot['baslik'] ?? ('Lot #' . ($bid['lotId'] ?? ''))) ?>
-                    </div>
-                    <div style="font-size:0.75rem; color:#c5a059;">
-                      <?= htmlspecialchars($bLot['lotKodu'] ?? 'LOT-DETAY') ?>
-                    </div>
-                  </td>
-                  <td>
-                    <div style="font-size:0.85rem; color:#e2e8f0; font-weight:600;">
-                      <?= htmlspecialchars((string)($bid['aliciAnonimKod'] ?? 'Anonim')) ?>
-                    </div>
-                    <div style="font-size:0.72rem; color:#848d9a;">
-                      Alıcı ID: #<?= (int)($bid['aliciId'] ?? 0) ?>
-                    </div>
-                  </td>
-                  <td style="text-align:right;">
-                    <div style="font-size:1.05rem; font-weight:700; color:#c5a059; font-family:'Cinzel', serif;">
-                      ₺<?= number_format((float)($bid['teklifTutari'] ?? 0), 0, ',', '.') ?>
-                    </div>
-                    <div style="font-size:0.72rem; color:#848d9a;">
-                      <?= htmlspecialchars((string)($bid['teklifTipi'] ?? 'MANUEL')) ?>
-                    </div>
-                  </td>
-                  <td style="text-align:center;">
-                    <?php if ($isCancelled): ?>
-                      <span class="badge" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.4); padding:4px 8px; font-size:0.72rem; border-radius:12px;">
-                        🚫 İPTAL EDİLDİ
-                      </span>
-                    <?php elseif ($isLeading): ?>
-                      <span class="badge badge-gold" style="font-size:0.72rem; padding:4px 8px;">
-                        👑 LİDER PEY
-                      </span>
-                    <?php else: ?>
-                      <span class="badge" style="background:#1e293b; color:#94a3b8; font-size:0.72rem; padding:4px 8px; border-radius:12px;">
-                        GEÇİLDİ
-                      </span>
-                    <?php endif; ?>
-                  </td>
-                  <td>
-                    <div style="font-size:0.8rem; color:#cbd5e1;">
-                      <?= htmlspecialchars((string)($bid['saatEtiketi'] ?? substr((string)($bid['teklifZamani'] ?? ''), 11, 8))) ?>
-                    </div>
-                    <div style="font-size:0.7rem; color:#64748b;">
-                      <?= htmlspecialchars(substr((string)($bid['teklifZamani'] ?? ''), 0, 10)) ?>
-                    </div>
-                  </td>
-                  <td>
-                    <?php if ($isCancelled): ?>
-                      <div style="font-size:0.78rem; color:#fca5a5; line-height:1.4; background:rgba(0,0,0,0.3); padding:6px 10px; border-radius:6px; border:1px dashed rgba(239,68,68,0.3);">
-                        <strong>Gerekçe:</strong> <?= htmlspecialchars((string)($bid['iptalSebebi'] ?? 'Kural dışı teklif')) ?><br>
-                        <span style="font-size:0.7rem; color:#848d9a;">İptal Zamanı: <?= htmlspecialchars(substr((string)($bid['iptalZamani'] ?? ''), 0, 19)) ?></span>
-                      </div>
-                    <?php else: ?>
-                      <form method="POST" style="margin:0; display:flex; flex-direction:column; gap:6px;" onsubmit="return confirm('UYARI: #<?= (int)$bid['id'] ?> nolu pey iptal edilecek, alıcının teminat blokesi çözülecek ve liderlik bir önceki geçerli peye döndürülecektir. Onaylıyor musunuz?');">
-                        <input type="hidden" name="action" value="admin_cancel_bid">
-                        <input type="hidden" name="bid_id" value="<?= (int)$bid['id'] ?>">
-                        <input type="hidden" name="tab" value="iptal_yonetimi">
-                        
-                        <div style="display:flex; gap:6px;">
-                          <select name="reason" class="martello-select" style="font-size:0.78rem; padding:5px 8px; flex:1; background:#0e131b; height:34px;">
-                            <option value="Kural Dışı / Yetkisiz Teklif Verme">Kural Dışı / Yetkisiz Teklif</option>
-                            <option value="Hatalı / Sehven Tutar Girişi (Kullanıcı Bildirimi)">Hatalı / Sehven Tutar Girişi</option>
-                            <option value="Kötü Niyetli / Yapay Fiyat Artırma / Bot Şüphesi">Kötü Niyetli / Bot Şüphesi</option>
-                            <option value="Teminat / Bloke Yetersizliği">Teminat / Bloke Yetersizliği</option>
-                            <option value="Yetkili Admin Tahkim Kararı">Admin Özel Tahkim Kararı</option>
-                          </select>
-                          <button type="submit" class="btn-dark-pill" style="background:#450a0a; border-color:#dc2626; color:#fca5a5; font-size:0.78rem; padding:5px 12px; font-weight:600; white-space:nowrap; cursor:pointer;" onmouseover="this.style.background='#7f1d1d'" onmouseout="this.style.background='#450a0a'">
-                            ❌ Peyi İptal Et
-                          </button>
-                        </div>
-                      </form>
-                    <?php endif; ?>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 2. ALT GÖRÜNÜM: HASAR & İHTİLAF OLUŞAN İLAN VE ESER İPTALİ -->
-      <div id="cancel_pane_ilanlar" class="cancel-subtab-pane" style="display:none;">
-        <div class="panel-card" style="margin-bottom:16px; background:#0b0e14; border:1px solid #1a222e; padding:14px 18px;">
-          <div style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:0.84rem;">
-            <span style="font-size:1.1rem; color:#ef4444;">🚨</span>
-            <div>
-              <strong>İlan Yayından Kaldırma & Fesih Prosedürü:</strong> Muhafaza veya nakliye sırasında hasar gören, sahtelik şüphesi doğan veya mülkiyet ihtilafı olan eser ilanları admin yetkisiyle iptal edilir. Bağlı <strong>tüm aktif peyler feshedilir</strong> ve alıcıların <strong>teminatları derhal serbest bırakılır</strong>.
-            </div>
-          </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:20px;">
-          <?php foreach ($lots as $lotItem): 
-            $isLotCancelled = ($lotItem['durum'] ?? '') === 'IPTAL_EDILDI';
-          ?>
-            <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border:1px solid <?= $isLotCancelled ? '#7f1d1d' : '#1f2733' ?>; background:<?= $isLotCancelled ? 'rgba(30,15,15,0.7)' : '#0f141c' ?>;">
-              <div>
-                <!-- Üst Bilgi & Durum Rozeti -->
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                  <div>
-                    <span style="font-size:0.75rem; color:#c5a059; font-weight:600; letter-spacing:0.5px;">LOT: <?= htmlspecialchars((string)($lotItem['lotKodu'] ?? 'LOT')) ?></span>
-                    <h3 style="font-size:1.1rem; color:#fff; font-family:'Cinzel', serif; margin:4px 0 0 0; line-height:1.35;">
-                      <?= htmlspecialchars((string)($lotItem['baslik'] ?? 'Müzayede Eseri')) ?>
-                    </h3>
-                  </div>
-                  <?php if ($isLotCancelled): ?>
-                    <span class="badge" style="background:#7f1d1d; color:#fca5a5; font-size:0.72rem; padding:4px 8px; border-radius:12px; font-weight:700;">
-                      🚫 İPTAL EDİLDİ
-                    </span>
-                  <?php else: ?>
-                    <span class="badge badge-success" style="font-size:0.72rem; padding:4px 8px;">
-                      ✓ <?= htmlspecialchars((string)($lotItem['durum'] ?? 'AKTİF')) ?>
-                    </span>
-                  <?php endif; ?>
-                </div>
-
-                <!-- Detay Grid -->
-                <div style="background:#090d13; border:1px solid #1a222e; border-radius:8px; padding:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; font-size:0.8rem;">
-                  <div>
-                    <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Kategori</div>
-                    <div style="color:#e2e8f0; font-weight:600;"><?= htmlspecialchars((string)($lotItem['kategoriAdi'] ?? 'Antika & Sanat')) ?></div>
-                  </div>
-                  <div>
-                    <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Müzayede ID</div>
-                    <div style="color:#c5a059; font-weight:600;">AUC-<?= htmlspecialchars((string)($lotItem['muzayedeId'] ?? 801)) ?></div>
-                  </div>
-                  <div>
-                    <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Açılış Fiyatı</div>
-                    <div style="color:#94a3b8;">₺<?= number_format((float)($lotItem['baslangicFiyati'] ?? 0), 0, ',', '.') ?></div>
-                  </div>
-                  <div>
-                    <div style="font-size:0.7rem; color:#6b7280; text-transform:uppercase;">Mevcut En Yüksek</div>
-                    <div style="color:#c5a059; font-weight:700;">₺<?= number_format((float)($lotItem['mevcutEnYuksekTeklif'] ?? 0), 0, ',', '.') ?></div>
-                  </div>
-                </div>
-
-                <?php if ($isLotCancelled): ?>
-                  <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:10px; font-size:0.8rem; color:#fca5a5; margin-bottom:14px;">
-                    <strong>İptal Gerekçesi:</strong> <?= htmlspecialchars((string)($lotItem['iptalSebebi'] ?? 'Hasar veya ihtilaf tespiti')) ?><br>
-                    <span style="font-size:0.72rem; color:#94a3b8;">İptal Tarihi: <?= htmlspecialchars(substr((string)($lotItem['iptalZamani'] ?? ''), 0, 19)) ?></span>
-                  </div>
-                <?php endif; ?>
-              </div>
-
-              <!-- İptal Aksiyon Formu -->
-              <?php if (!$isLotCancelled): ?>
-                <form method="POST" style="margin:0; border-top:1px dashed #232d3d; padding-top:12px;" onsubmit="return confirm('DİKKAT: \'<?= addslashes((string)$lotItem['baslik']) ?>\' ilanı iptal edilecek, yayından kaldırılacak ve verilmiş tüm peyler feshedilerek alıcı teminatları iade edilecektir. Onaylıyor musunuz?');">
-                  <input type="hidden" name="action" value="admin_cancel_lot">
-                  <input type="hidden" name="lot_id" value="<?= (int)$lotItem['id'] ?>">
-                  <input type="hidden" name="tab" value="iptal_yonetimi">
-                  
-                  <div style="margin-bottom:8px;">
-                    <label style="font-size:0.75rem; color:#94a3b8; display:block; margin-bottom:4px;">İptal ve Yayından Kaldırma Gerekçesi:</label>
-                    <select name="reason" class="martello-select" style="font-size:0.8rem; padding:6px 10px; width:100%; background:#090d13;">
-                      <option value="Eser Hasarı / Nakliye veya Muhafaza Sırasında Kondisyon Bozulması">Eser Hasarı / Fiziksel Bozulma (Kondisyon Kaybı)</option>
-                      <option value="Hukuki İhtilaf / Mülkiyet & Çalıntı İddiası">Hukuki İhtilaf / Mülkiyet & Çalıntı Şüphesi</option>
-                      <option value="Sahtelik / Tahrifat / Orijinallik Şüphesi">Sahtelik / Tahrifat / Orijinallik Şüphesi</option>
-                      <option value="Satıcı Kural İhlali / Yanıltıcı Beyan">Satıcı Kural İhlali / Yanıltıcı Bilgi</option>
-                      <option value="Mücbir Sebep / İdari İptal Kararı">Mücbir Sebep / İdari İptal Kararı</option>
-                    </select>
-                  </div>
-
-                  <button type="submit" class="btn-dark-pill" style="width:100%; justify-content:center; background:#450a0a; border-color:#dc2626; color:#fca5a5; font-size:0.82rem; padding:8px; font-weight:600; cursor:pointer;" onmouseover="this.style.background='#7f1d1d'" onmouseout="this.style.background='#450a0a'">
-                    🚫 İlanı Yayından Kaldır & İptal Et
-                  </button>
-                </form>
-              <?php else: ?>
-                <button type="button" disabled class="btn-dark-pill" style="width:100%; justify-content:center; opacity:0.6; font-size:0.8rem; padding:7px; cursor:not-allowed;">
-                  ✓ İlan İptal Edildi (Kayıt Arşivlendi)
-                </button>
-              <?php endif; ?>
-            </div>
-          <?php endforeach; ?>
-        </div>
-      </div>
-
-      <!-- 3. ALT GÖRÜNÜM: ALICI/SATICI İHTİLAF DOSYALARI & TAHKİM KARARLARI -->
-      <div id="cancel_pane_ihtilaflar" class="cancel-subtab-pane" style="display:none;">
-        <div class="panel-card" style="margin-bottom:16px; background:#0b0e14; border:1px solid #1a222e; padding:14px 18px;">
-          <div style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:0.84rem;">
-            <span style="font-size:1.1rem; color:#3b82f6;">⚖️</span>
-            <div>
-              <strong>Tahkim & Hakem Heyeti Masası:</strong> Alıcı ve satıcı arasındaki kondisyon, teslimat veya ekspertiz uyuşmazlıklarında admin nihai hakem kararını verir. <strong>Alıcı Haklı</strong> kararı emanetteki tutarı alıcıya iade eder; <strong>Satıcı Haklı</strong> kararı blokeyi çözerek satıcıya transfer eder.
-            </div>
-          </div>
-        </div>
-
-        <div class="panel-card" style="padding:0; overflow:hidden;">
-          <table class="data-table" style="margin:0; width:100%;">
-            <thead>
-              <tr>
-                <th>Talep No</th>
-                <th>Lot Kodu</th>
-                <th>Uyuşmazlık Konusu</th>
-                <th>Açıklama & Eksper Mütalaası</th>
-                <th>Durum</th>
-                <th style="min-width:280px; text-align:center;">Admin Tahkim Kararı</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($disputes as $disp): ?>
-                <tr>
-                  <td><code><?= htmlspecialchars((string)($disp['talepNo'] ?? 'DISP-00')) ?></code></td>
-                  <td><span class="badge badge-gold"><?= htmlspecialchars((string)($disp['lotKodu'] ?? 'AUC-00')) ?></span></td>
-                  <td>
-                    <div style="font-weight:600; color:#fff; font-size:0.85rem;">
-                      <?= htmlspecialchars((string)($disp['konuTipi'] ?? 'Uyuşmazlık')) ?>
-                    </div>
-                    <div style="font-size:0.72rem; color:#848d9a;">Tarih: <?= htmlspecialchars(substr((string)($disp['olusturmaTarihi'] ?? ''), 0, 10)) ?></div>
-                  </td>
-                  <td>
-                    <div style="font-size:0.83rem; color:#cbd5e1; margin-bottom:4px;">
-                      <?= htmlspecialchars((string)($disp['aciklama'] ?? 'Uyuşmazlık açıklaması.')) ?>
-                    </div>
-                    <?php if (!empty($disp['eksperGorus'])): ?>
-                      <div style="font-size:0.75rem; color:#10b981; background:rgba(16,185,129,0.08); padding:4px 8px; border-radius:4px; border-left:2px solid #10b981;">
-                        <strong>Eksper Mütalaası:</strong> <?= htmlspecialchars((string)$disp['eksperGorus']) ?>
-                      </div>
-                    <?php endif; ?>
-                  </td>
-                  <td>
-                    <span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:0.72rem; padding:4px 8px; border-radius:12px;">
-                      <?= htmlspecialchars((string)($disp['durum'] ?? 'BEKLEMEDE')) ?>
-                    </span>
-                  </td>
-                  <td>
-                    <div style="display:flex; gap:8px; justify-content:center;">
-                      <form method="POST" style="margin:0;" onsubmit="return confirm('Alıcı lehine karar verilecek ve emanet bakiyesi alıcıya iade edilecektir. Onaylıyor musunuz?');">
-                        <input type="hidden" name="action" value="resolve_dispute">
-                        <input type="hidden" name="dispute_id" value="<?= (int)($disp['id'] ?? 1) ?>">
-                        <input type="hidden" name="decision" value="ALICI_HAKLI">
-                        <input type="hidden" name="tab" value="iptal_yonetimi">
-                        <button type="submit" class="btn-gold btn-sm" style="font-size:0.75rem; padding:6px 12px; cursor:pointer;">
-                          Alıcı Haklı (İade Et)
-                        </button>
-                      </form>
-                      <form method="POST" style="margin:0;" onsubmit="return confirm('Satıcı lehine karar verilecek ve emanet bakiyesi serbest bırakılacaktır. Onaylıyor musunuz?');">
-                        <input type="hidden" name="action" value="resolve_dispute">
-                        <input type="hidden" name="dispute_id" value="<?= (int)($disp['id'] ?? 1) ?>">
-                        <input type="hidden" name="decision" value="SATICI_HAKLI">
-                        <input type="hidden" name="tab" value="iptal_yonetimi">
-                        <button type="submit" class="btn-outline-gold btn-sm" style="font-size:0.75rem; padding:6px 12px; cursor:pointer;">
-                          Satıcı Haklı (Bloke Çöz)
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 4. ALT GÖRÜNÜM: RESMİ DENETİM İPTAL KÜTÜĞÜ (AUDIT LOGS) -->
-      <div id="cancel_pane_kutuk" class="cancel-subtab-pane" style="display:none;">
-        <div class="panel-card" style="margin-bottom:16px; background:#0b0e14; border:1px solid #1a222e; padding:14px 18px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:10px; color:#cbd5e1; font-size:0.84rem;">
-              <span style="font-size:1.1rem; color:#10b981;">📜</span>
-              <div>
-                <strong>Resmi İptal ve Tahkim Kütüğü:</strong> Tüm kural dışı pey iptalleri, hasarlı ilan yayından kaldırmaları ve tahkim kararları 5651 sayılı kanun ve noter standartlarında SHA-256 zaman damgasıyla tescillenmektedir.
-              </div>
-            </div>
-            <span class="badge badge-gold" style="font-size:0.72rem;">DENETİM İZİ AKTİF</span>
-          </div>
-        </div>
-
-        <div class="panel-card" style="padding:0; overflow:hidden;">
-          <table class="data-table" style="margin:0; width:100%;">
-            <thead>
-              <tr>
-                <th style="width:140px;">İşlem Türü</th>
-                <th>Kullanıcı / Yetkili</th>
-                <th>Açıklama ve Karar Detayı</th>
-                <th>Önceki Durum</th>
-                <th>Yeni Durum</th>
-                <th>Zaman</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php 
-              $revAudit = array_reverse($auditLogs);
-              $hasAudit = false;
-              foreach ($revAudit as $log): 
-                $hasAudit = true;
-                $isCancelLog = in_array($log['islemTuru'] ?? '', ['KURAL_DISI_PEY_IPTALI', 'HASAR_IHTILAF_ILAN_IPTALI', 'BID_CANCELLED', 'DISPUTE_RESOLVED']);
-              ?>
-                <tr style="<?= $isCancelLog ? 'background:rgba(239,68,68,0.04);' : '' ?>">
-                  <td>
-                    <?php if ($isCancelLog): ?>
-                      <span class="badge" style="background:#7f1d1d; color:#fca5a5; font-size:0.7rem; padding:3px 8px; border-radius:10px;">
-                        <?= htmlspecialchars((string)($log['islemTuru'] ?? 'İPTAL')) ?>
-                      </span>
-                    <?php else: ?>
-                      <span class="badge" style="background:#1e293b; color:#94a3b8; font-size:0.7rem; padding:3px 8px; border-radius:10px;">
-                        <?= htmlspecialchars((string)($log['islemTuru'] ?? 'SİSTEM')) ?>
-                      </span>
-                    <?php endif; ?>
-                  </td>
-                  <td>
-                    <div style="font-weight:600; color:#e2e8f0; font-size:0.82rem;">
-                      Admin #<?= (int)($log['kullaniciId'] ?? 1) ?>
-                    </div>
-                    <div style="font-size:0.7rem; color:#64748b;">
-                      IP: <?= htmlspecialchars((string)($log['ipAdresi'] ?? '127.0.0.1')) ?>
-                    </div>
-                  </td>
-                  <td>
-                    <div style="font-size:0.82rem; color:#cbd5e1; line-height:1.4;">
-                      <?= htmlspecialchars((string)($log['aciklama'] ?? 'İşlem gerçekleştirildi.')) ?>
-                    </div>
-                  </td>
-                  <td>
-                    <code style="font-size:0.75rem; color:#94a3b8;"><?= htmlspecialchars((string)($log['oncekiDeger'] ?? '-')) ?></code>
-                  </td>
-                  <td>
-                    <code style="font-size:0.75rem; color:#f87171; font-weight:700;"><?= htmlspecialchars((string)($log['yeniDeger'] ?? 'TAMAMLANDI')) ?></code>
-                  </td>
-                  <td>
-                    <div style="font-size:0.78rem; color:#848d9a;">
-                      <?= htmlspecialchars(substr((string)($log['tarih'] ?? ''), 0, 19)) ?>
-                    </div>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-              <?php if (!$hasAudit): ?>
-                <tr><td colspan="6" style="text-align:center; padding:20px; color:#848d9a;">Henüz kayıt bulunmamaktadır.</td></tr>
-              <?php endif; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    
 
     <!-- 9. TAB: DENETİM İZİ (media_1795014776304_85a3b2e7.jpg ile Birebir) -->
     <div id="admTab_denetim" class="tab-content <?= $activeTab === 'denetim' ? 'active' : '' ?>">
