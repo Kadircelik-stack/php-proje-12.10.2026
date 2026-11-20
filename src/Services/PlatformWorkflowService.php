@@ -399,9 +399,18 @@ class PlatformWorkflowService
     }
 
     /**
-     * İhtilaf Çözümü ve Tahkim Kararı
+     * İhtilaf Çözümü ve Tahkim Kararı (Geriye Dönük Uyumlu)
      */
     public function resolveDispute(int $disputeId, string $decision): array
+    {
+        return $this->resolveDisputeDetailed($disputeId, $decision, 0.0, '', 1);
+    }
+
+    /**
+     * İhtilaf Çözümü ve Tahkim Kararı (Genişletilmiş)
+     * Tanım: Alıcı ve satıcı arasında ürün durumu, teslimat veya ödeme konularında çıkan uyuşmazlıkların admin denetiminde incelenip karara bağlanmasıdır.
+     */
+    public function resolveDisputeDetailed(int $disputeId, string $decision, float $customRefund = 0.0, string $adminNote = '', int $adminId = 1): array
     {
         $dispute = $this->dataStore->getItem('disputes', 'id', $disputeId);
         if (!$dispute) {
@@ -409,42 +418,88 @@ class PlatformWorkflowService
         }
 
         $lotId = (int)($dispute['lotId'] ?? 0);
-        $buyerId = (int)($dispute['olusturanKullaniciId'] ?? 0);
+        $buyerId = (int)($dispute['aliciId'] ?? ($dispute['olusturanKullaniciId'] ?? 3));
+        $sellerId = (int)($dispute['saticiId'] ?? 2);
+        $escrowAmount = (float)($dispute['emanetTutari'] ?? 12800.0);
+        if ($escrowAmount <= 0) {
+            $escrowAmount = 12800.0;
+        }
+
+        $talepNo = $dispute['talepNo'] ?? "DISP-{$disputeId}";
+        $kararAciklama = '';
+        $durum = 'COZULDU';
+        $finalRefund = 0.0;
+        $finalSellerAmount = 0.0;
 
         if ($decision === 'ALICI_HAKLI') {
-            $this->dataStore->updateItem('disputes', 'id', $disputeId, [
-                'durum'       => 'COZULDU',
-                'karar'       => 'ALICI_HAKLI',
-                'kararTarihi' => date('c'),
-                'aciklama'    => 'Hakem heyeti alıcıyı haklı buldu. Emanet bloke çözülerek alıcı cüzdanına iade yapıldı.',
-            ]);
+            $finalRefund = $escrowAmount;
+            $kararAciklama = "Hakem Heyeti Kararı: Alıcı haklı bulundu. " . ($adminNote ? "Gerekçe: {$adminNote}. " : "") . "₺" . number_format($finalRefund, 2, ',', '.') . " emanet bloke bedeli alıcı cüzdanına iade edildi.";
 
-            // Para iadesi simülasyonu
+            // Alıcı cüzdanına iade
             $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $buyerId);
             if ($wallet) {
-                $refundAmount = 12800.0; // Lot bedeli
                 $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
-                    'bakiye'        => ((float)($wallet['bakiye'] ?? 0)) + $refundAmount,
+                    'bakiye'        => ((float)($wallet['bakiye'] ?? 0)) + $finalRefund,
                     'sonGuncelleme' => date('c'),
                 ]);
             }
+        } elseif ($decision === 'SATICI_HAKLI') {
+            $finalSellerAmount = $escrowAmount;
+            $kararAciklama = "Hakem Heyeti Kararı: Satıcı haklı bulundu. " . ($adminNote ? "Gerekçe: {$adminNote}. " : "") . "₺" . number_format($finalSellerAmount, 2, ',', '.') . " emanet bloke bedeli satıcı hesabına aktarıldı.";
 
-            return [
-                'success' => true,
-                'message' => "İhtilaf #{$disputeId} için ALICI HAKLI kararı verildi. Bedel alıcıya iade edildi.",
-            ];
+            // Satıcı cüzdanına aktarım
+            $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $sellerId);
+            if ($wallet) {
+                $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
+                    'bakiye'        => ((float)($wallet['bakiye'] ?? 0)) + $finalSellerAmount,
+                    'sonGuncelleme' => date('c'),
+                ]);
+            }
+        } elseif ($decision === 'KISMI_UZLASMA') {
+            $finalRefund = $customRefund > 0 ? $customRefund : ($escrowAmount * 0.50);
+            $finalSellerAmount = max(0.0, $escrowAmount - $finalRefund);
+            $kararAciklama = "Hakem Heyeti Kararı: Kısmi uzlaşma sağlandı. " . ($adminNote ? "Gerekçe: {$adminNote}. " : "") . "Alıcıya ₺" . number_format($finalRefund, 2, ',', '.') . " iade edildi, satıcıya ₺" . number_format($finalSellerAmount, 2, ',', '.') . " aktarıldı.";
+
+            $bWallet = $this->dataStore->getItem('wallets', 'kullaniciId', $buyerId);
+            if ($bWallet) {
+                $this->dataStore->updateItem('wallets', 'id', $bWallet['id'], [
+                    'bakiye'        => ((float)($bWallet['bakiye'] ?? 0)) + $finalRefund,
+                    'sonGuncelleme' => date('c'),
+                ]);
+            }
+            $sWallet = $this->dataStore->getItem('wallets', 'kullaniciId', $sellerId);
+            if ($sWallet) {
+                $this->dataStore->updateItem('wallets', 'id', $sWallet['id'], [
+                    'bakiye'        => ((float)($sWallet['bakiye'] ?? 0)) + $finalSellerAmount,
+                    'sonGuncelleme' => date('c'),
+                ]);
+            }
+        } else {
+            return ['success' => false, 'message' => "Geçersiz tahkim kararı seçimi."];
         }
 
         $this->dataStore->updateItem('disputes', 'id', $disputeId, [
-            'durum'       => 'COZULDU',
-            'karar'       => 'SATICI_HAKLI',
-            'kararTarihi' => date('c'),
-            'aciklama'    => 'Hakem heyeti satıcıyı haklı buldu. Emanet bloke bedeli satıcı hesabına aktarılacak.',
+            'durum'                  => $durum,
+            'karar'                  => $decision,
+            'kararTarihi'            => date('c'),
+            'kararNotu'              => $adminNote,
+            'kararAciklama'          => $kararAciklama,
+            'kararVerenAdminId'      => $adminId,
+            'iadeTutari'             => $finalRefund,
+            'saticiyaAktarilanTutar' => $finalSellerAmount,
+        ]);
+
+        $this->dataStore->insertItem('auditLogs', [
+            'kullaniciId' => $adminId,
+            'islemTuru'   => 'IHTILAF_TAHKIM_KARARI',
+            'detay'       => "İhtilaf Dosyası #{$talepNo} (Lot #{$lotId}) - Karar: {$decision}. {$kararAciklama}",
+            'ipAdresi'    => '127.0.0.1',
+            'tarih'       => date('c'),
         ]);
 
         return [
             'success' => true,
-            'message' => "İhtilaf #{$disputeId} için SATICI HAKLI kararı verildi. Satış süreci devam ettiriliyor.",
+            'message' => "✓ İhtilaf Dosyası #{$talepNo} için karar tescillendi: {$kararAciklama}",
         ];
     }
 

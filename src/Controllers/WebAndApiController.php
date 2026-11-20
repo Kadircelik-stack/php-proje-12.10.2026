@@ -415,7 +415,9 @@ class WebAndApiController
             case 'resolve_dispute':
                 $dispId = (int)($post['dispute_id'] ?? 0);
                 $decision = $post['decision'] ?? 'ALICI_HAKLI';
-                $res = $this->workflowService->resolveDispute($dispId, $decision);
+                $refundAmount = (float)($post['refund_amount'] ?? 0.0);
+                $adminNote = trim($post['admin_note'] ?? '');
+                $res = $this->workflowService->resolveDisputeDetailed($dispId, $decision, $refundAmount, $adminNote, 1);
                 return [
                     'type' => $res['success'] ? 'success' : 'danger',
                     'text' => $res['message'],

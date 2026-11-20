@@ -42,8 +42,14 @@ foreach ($products as $p) {
         </li>
         <li class="nav-menu-item <?= ($activeTab === 'iptal_yonetimi' || $activeTab === 'ihtilaflar') ? 'active' : '' ?>">
           <button type="button" data-tab="iptal_yonetimi" onclick="switchAdminTab('iptal_yonetimi', this)" style="display:flex; align-items:center; gap:6px; color:#fca5a5; font-weight:600;">
-            <span>⚖️</span>
+            <span>🔨</span>
             <span>Pey & İlan İptal Masası</span>
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'ihtilaf_cozumu' ? 'active' : '' ?>">
+          <button type="button" data-tab="ihtilaf_cozumu" onclick="switchAdminTab('ihtilaf_cozumu', this)" style="display:flex; align-items:center; gap:6px; color:#fb923c; font-weight:600;">
+            <span>⚖️</span>
+            <span>İhtilaf & Tahkim Masası</span>
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'moderasyon' ? 'active' : '' ?>">
@@ -248,7 +254,10 @@ foreach ($products as $p) {
               Ekspertiz Atamaya Git →
             </button>
             <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('iptal_yonetimi', document.querySelector('[data-tab=\'iptal_yonetimi\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(239,68,68,0.5); color:#fca5a5;">
-              ⚖️ İptal Masası →
+              🔨 İptal Masası →
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('ihtilaf_cozumu', document.querySelector('[data-tab=\'ihtilaf_cozumu\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(251,146,60,0.5); color:#fdba74;">
+              ⚖️ İhtilaf & Tahkim →
             </button>
           </div>
         </div>
@@ -706,6 +715,365 @@ foreach ($products as $p) {
           </table>
         </div>
       </div>
+    </div>
+
+    <!-- ====================================================================
+         3. TAB: ALICI VE SATICI İHTİLAF & TAHKİM MASASI (SRS UYUŞMAZLIK ÇÖZÜMÜ)
+         ==================================================================== -->
+    <div id="admTab_ihtilaf_cozumu" class="tab-content <?= $activeTab === 'ihtilaf_cozumu' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / İHTİLAF & TAHKİM MASASI</div>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <h1 class="page-heading" style="margin-bottom:6px;">
+            ⚖️ Alıcı - Satıcı İhtilaf & Tahkim Masası
+          </h1>
+          <p class="page-subheading" style="margin:0; line-height:1.5;">
+            Ürün durumu, teslimat veya ödeme konularında alıcı ve satıcı arasında doğan uyuşmazlıkların resmî hakem heyeti ve idari tahkim denetiminde incelenip kesin hükme bağlanması.
+          </p>
+        </div>
+        <div style="background:rgba(251,146,60,0.1); border:1px solid rgba(251,146,60,0.3); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.5rem;">🛡️</span>
+          <div>
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#fb923c; font-weight:700;">%100 ESCROW & TAHKİM KORUMASI</div>
+            <div style="font-size:0.8rem; color:#e2e8f0;">Kararlar noter onaylı denetim izine tescillenir.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESMİ SRS TANIM KUTUSU (BİREBİR) -->
+      <div style="background:linear-gradient(135deg, rgba(251,146,60,0.08) 0%, rgba(20,27,38,0.9) 100%); border-left:4px solid #f97316; border-top:1px solid rgba(251,146,60,0.25); border-right:1px solid rgba(251,146,60,0.25); border-bottom:1px solid rgba(251,146,60,0.25); border-radius:8px; padding:18px 22px; margin-bottom:24px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <span class="badge" style="background:#ea580c; color:#fff; font-size:0.72rem; padding:3px 8px; font-weight:700; letter-spacing:0.5px;">RESMİ SISTEM GEREKSİNİMİ</span>
+          <span style="font-size:0.8rem; color:#94a3b8;">Uyuşmazlık & Emanet Güvencesi Protokolü</span>
+        </div>
+        <div style="font-size:1.05rem; color:#f8fafc; font-weight:600; line-height:1.6; font-family:'Cinzel', serif;">
+          "Tanım: Alıcı ve satıcı arasında ürün durumu, teslimat veya ödeme konularında çıkan uyuşmazlıkların admin denetiminde incelenip karara bağlanmasıdır."
+        </div>
+        <div style="font-size:0.82rem; color:#94a3b8; margin-top:8px; line-height:1.5;">
+          Bu masada alıcı iddiaları, satıcı savunmaları, atanan bağımsız eksperlerin laboratuvar/kondisyon mütalaaları ve kargo/lojistik teslim tutanakları birlikte değerlendirilir. Verilen tahkim kararı sonucunda emanet (escrow) hesabındaki bedel hak sahibine aktarılır veya alıcıya iade edilir.
+        </div>
+      </div>
+
+      <!-- 4 Temel Metrik / KPI Kartları -->
+      <?php
+        $countUrunDurumu = count(array_filter($disputes, static fn($d) => ($d['kategori'] ?? '') === 'URUN_DURUMU' || stripos(($d['konuTipi'] ?? ''), 'kondisyon') !== false));
+        $countTeslimat = count(array_filter($disputes, static fn($d) => ($d['kategori'] ?? '') === 'TESLIMAT' || stripos(($d['konuTipi'] ?? ''), 'teslimat') !== false || stripos(($d['konuTipi'] ?? ''), 'kargo') !== false));
+        $countOdeme = count(array_filter($disputes, static fn($d) => ($d['kategori'] ?? '') === 'ODEME' || stripos(($d['konuTipi'] ?? ''), 'ödeme') !== false || stripos(($d['konuTipi'] ?? ''), 'emanet') !== false));
+        $countCozuldu = count(array_filter($disputes, static fn($d) => ($d['durum'] ?? '') === 'COZULDU'));
+        $countBekleyen = count($disputes) - $countCozuldu;
+        $totalEscrow = array_sum(array_map(static fn($d) => (float)($d['emanetTutari'] ?? 0), $disputes));
+      ?>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #f97316;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">Toplam İhtilaf Dosyası</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#fb923c; font-family:'Cinzel', serif;">
+            <?= count($disputes) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Dosya</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">
+            <span style="color:#f59e0b;"><?= $countBekleyen ?> Karar Aşamasında</span> • <span style="color:#10b981;"><?= $countCozuldu ?> Karara Bağlandı</span>
+          </div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #38bdf8;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">📦 Ürün Durumu İhtilafları</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#38bdf8; font-family:'Cinzel', serif;">
+            <?= $countUrunDurumu ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Dosya</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Kondisyon, hasar & provenans teyidi</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #a855f7;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">🚚 Teslimat & Lojistik</div>
+          <div style="font-size:1.6rem; font-weight:700; color:#c084fc; font-family:'Cinzel', serif;">
+            <?= $countTeslimat ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">Dosya</span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Zırhlı kurye gecikmesi & teslim tutanağı</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #10b981;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">💳 Emanet (Escrow) Bloke</div>
+          <div style="font-size:1.45rem; font-weight:700; color:#34d399; font-family:'Cinzel', serif;">
+            <?= $formatPrice($totalEscrow) ?>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;"><?= $countOdeme ?> Ödeme & mahsup ihtilafı dahil</div>
+        </div>
+      </div>
+
+      <!-- Kategori ve Durum Filtre Butonları (Pills) -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; border-bottom:1px solid #1f2733; padding-bottom:14px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" onclick="filterDisputeList('all', this)" class="dispute-filter-btn btn-gold-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
+            Tüm Uyuşmazlıklar (<?= count($disputes) ?>)
+          </button>
+          <button type="button" onclick="filterDisputeList('URUN_DURUMU', this)" class="dispute-filter-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
+            📦 Ürün Durumu (<?= $countUrunDurumu ?>)
+          </button>
+          <button type="button" onclick="filterDisputeList('TESLIMAT', this)" class="dispute-filter-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
+            🚚 Teslimat (<?= $countTeslimat ?>)
+          </button>
+          <button type="button" onclick="filterDisputeList('ODEME', this)" class="dispute-filter-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600;">
+            💳 Ödeme & Bloke (<?= $countOdeme ?>)
+          </button>
+          <button type="button" onclick="filterDisputeList('PENDING', this)" class="dispute-filter-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600; border-color:rgba(245,158,11,0.5); color:#fbbf24;">
+            ⏳ Karar Bekleyen (<?= $countBekleyen ?>)
+          </button>
+          <button type="button" onclick="filterDisputeList('RESOLVED', this)" class="dispute-filter-btn btn-dark-pill" style="font-size:0.85rem; padding:8px 18px; font-weight:600; border-color:rgba(16,185,129,0.5); color:#34d399;">
+            ✓ Karara Bağlananlar (<?= $countCozuldu ?>)
+          </button>
+        </div>
+        <div style="font-size:0.8rem; color:#848d9a;">
+          Tahkim Kurulu: <strong>Baş Yönetici (Admin ID #1)</strong> • 3 Aşamalı İnceleme
+        </div>
+      </div>
+
+      <!-- Boş Filtre Mesajı -->
+      <div id="disputeEmptyFilterMsg" style="display:none; padding:40px; text-align:center; background:#121820; border:1px dashed #243042; border-radius:8px; color:#94a3b8; margin-bottom:20px;">
+        Seçilen filtre kriterine uygun uyuşmazlık dosyası bulunamadı.
+      </div>
+
+      <!-- İhtilaf Dosyaları Kart Listesi -->
+      <div id="disputesContainer" style="display:flex; flex-direction:column; gap:20px; margin-bottom:30px;">
+        <?php foreach ($disputes as $disp): ?>
+          <?php
+            $dId = (int)($disp['id'] ?? 0);
+            $talepNo = (string)($disp['talepNo'] ?? "DISP-{$dId}");
+            $kat = (string)($disp['kategori'] ?? 'URUN_DURUMU');
+            $lotKodu = (string)($disp['lotKodu'] ?? 'AUC-000');
+            $eserBaslik = (string)($disp['eserBaslik'] ?? 'Müzayede Eseri');
+            $durum = (string)($disp['durum'] ?? 'INCELEMEDE');
+            $isResolved = ($durum === 'COZULDU');
+            $emanetTutari = (float)($disp['emanetTutari'] ?? 0);
+            $aliciText = (string)($disp['aliciAnonim'] ?? "Alıcı #{$disp['aliciId']}");
+            $saticiText = (string)($disp['saticiAnonim'] ?? "Satıcı #{$disp['saticiId']}");
+            $oncelik = (string)($disp['oncelik'] ?? 'NORMAL');
+          ?>
+          <div class="panel-card dispute-card-item" data-category="<?= htmlspecialchars($kat) ?>" data-status="<?= htmlspecialchars($durum) ?>" style="margin-bottom:0; background:#0e131b; border:1px solid #1e293b; border-radius:10px; padding:22px; position:relative; transition:border-color 0.2s;">
+            
+            <!-- Kart Üst Başlık & Rozetler -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid #1a2332; padding-bottom:14px;">
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span style="font-size:1.15rem; font-weight:700; color:#fb923c; font-family:monospace; background:rgba(251,146,60,0.1); padding:4px 10px; border-radius:6px; border:1px solid rgba(251,146,60,0.3);">
+                  <?= htmlspecialchars($talepNo) ?>
+                </span>
+                
+                <?php if ($kat === 'URUN_DURUMU'): ?>
+                  <span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); font-size:0.75rem; padding:4px 10px; font-weight:600;">
+                    📦 Ürün Durumu & Kondisyon
+                  </span>
+                <?php elseif ($kat === 'TESLIMAT'): ?>
+                  <span class="badge" style="background:rgba(192,132,252,0.12); color:#c084fc; border:1px solid rgba(192,132,252,0.35); font-size:0.75rem; padding:4px 10px; font-weight:600;">
+                    🚚 Teslimat & Zırhlı Kargo
+                  </span>
+                <?php else: ?>
+                  <span class="badge" style="background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.35); font-size:0.75rem; padding:4px 10px; font-weight:600;">
+                    💳 Ödeme & Emanet Bloke
+                  </span>
+                <?php endif; ?>
+
+                <span class="badge badge-gold" style="font-size:0.75rem; padding:4px 8px;">
+                  Lot: <?= htmlspecialchars($lotKodu) ?>
+                </span>
+
+                <span style="font-size:0.88rem; font-weight:600; color:#e2e8f0;">
+                  <?= htmlspecialchars($eserBaslik) ?>
+                </span>
+              </div>
+
+              <!-- Durum ve Emanet Bloke -->
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="text-align:right;">
+                  <div style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px;">Emanet Bloke Bedeli</div>
+                  <div style="font-size:1.15rem; font-weight:700; color:#34d399; font-family:'Cinzel', serif;">
+                    <?= $formatPrice($emanetTutari) ?>
+                  </div>
+                </div>
+
+                <?php if ($isResolved): ?>
+                  <span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981; font-size:0.8rem; padding:6px 12px; font-weight:700;">
+                    ✓ KARARA BAĞLANDI
+                  </span>
+                <?php elseif ($durum === 'EKSPER_MUTALAASI_ALINDI'): ?>
+                  <span class="badge" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid #3b82f6; font-size:0.8rem; padding:6px 12px; font-weight:700;">
+                    📑 EKSPER MÜTALAASI ALINDI
+                  </span>
+                <?php else: ?>
+                  <span class="badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; font-size:0.8rem; padding:6px 12px; font-weight:700;">
+                    ⏳ İNCELEMEDE (KARAR BEKLİYOR)
+                  </span>
+                <?php endif; ?>
+              </div>
+            </div>
+
+            <!-- Konu Başlığı -->
+            <div style="margin-bottom:14px;">
+              <div style="font-size:1.02rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                <span>⚖️</span>
+                <span><?= htmlspecialchars((string)($disp['konuTipi'] ?? 'Uyuşmazlık')) ?></span>
+              </div>
+              <div style="font-size:0.76rem; color:#848d9a; margin-top:2px;">
+                Dosya Açılış: <?= htmlspecialchars(substr((string)($disp['olusturmaTarihi'] ?? ''), 0, 16)) ?> • Öncelik: <strong style="color:<?= $oncelik === 'KRITIK' ? '#f87171' : ($oncelik === 'YUKSEK' ? '#fb923c' : '#94a3b8') ?>;"><?= htmlspecialchars($oncelik) ?></strong>
+              </div>
+            </div>
+
+            <!-- Taraflar ve Beyanlar Grid (Alıcı vs Satıcı) -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:16px;">
+              <!-- Alıcı Paneli -->
+              <div style="background:#131a24; border:1px solid #1f2c3d; border-radius:8px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span style="font-size:0.75rem; text-transform:uppercase; color:#60a5fa; font-weight:700; display:flex; align-items:center; gap:5px;">
+                    <span>👤</span> Alıcı Taraf & Talebi
+                  </span>
+                  <span style="font-size:0.75rem; color:#94a3b8; background:rgba(96,165,250,0.1); padding:2px 8px; border-radius:4px;">
+                    <?= htmlspecialchars($aliciText) ?>
+                  </span>
+                </div>
+                <div style="font-size:0.84rem; color:#cbd5e1; line-height:1.5;">
+                  <?= htmlspecialchars((string)($disp['aciklama'] ?? 'Alıcı açıklaması bulunmuyor.')) ?>
+                </div>
+              </div>
+
+              <!-- Satıcı Paneli -->
+              <div style="background:#131a24; border:1px solid #1f2c3d; border-radius:8px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span style="font-size:0.75rem; text-transform:uppercase; color:#f59e0b; font-weight:700; display:flex; align-items:center; gap:5px;">
+                    <span>🏛️</span> Satıcı Taraf & Savunması
+                  </span>
+                  <span style="font-size:0.75rem; color:#94a3b8; background:rgba(245,158,11,0.1); padding:2px 8px; border-radius:4px;">
+                    <?= htmlspecialchars($saticiText) ?>
+                  </span>
+                </div>
+                <div style="font-size:0.84rem; color:#cbd5e1; line-height:1.5;">
+                  <?= htmlspecialchars((string)($disp['saticiBeyani'] ?? 'Satıcı beyanı: Satış sözleşmesi ve müzayede kataloğu şartları uyarınca hareket edilmiştir.')) ?>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delil & Heyet Teknik Mütalaası Paneli -->
+            <?php if (!empty($disp['eksperGorus'])): ?>
+              <div style="background:linear-gradient(90deg, rgba(16,185,129,0.06) 0%, rgba(14,19,27,0.9) 100%); border-left:3px solid #10b981; border-top:1px solid rgba(16,185,129,0.2); border-right:1px solid rgba(16,185,129,0.2); border-bottom:1px solid rgba(16,185,129,0.2); border-radius:6px; padding:12px 16px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <span style="font-size:0.76rem; text-transform:uppercase; color:#34d399; font-weight:700; display:flex; align-items:center; gap:6px;">
+                    <span>🔬</span> Bağımsız Ekspertiz / Lojistik Teknik Mütalaası (Delil Tespiti)
+                  </span>
+                  <?php if (!empty($disp['gorusTarihi'])): ?>
+                    <span style="font-size:0.72rem; color:#848d9a;">
+                      Tarih: <?= htmlspecialchars(substr((string)$disp['gorusTarihi'], 0, 10)) ?>
+                    </span>
+                  <?php endif; ?>
+                </div>
+                <div style="font-size:0.84rem; color:#e2e8f0; line-height:1.5;">
+                  <?= htmlspecialchars((string)$disp['eksperGorus']) ?>
+                </div>
+              </div>
+            <?php endif; ?>
+
+            <!-- Karar & Hüküm Bölümü (Admin Tahkim) -->
+            <?php if ($isResolved): ?>
+              <!-- Çözümlenmiş Dosya Karar Özeti -->
+              <div style="background:#0c1613; border:1px solid #14532d; border-radius:8px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <span style="color:#10b981; font-weight:700; font-size:0.9rem;">
+                      ✓ KESİN TAHKİM HÜKMÜ: 
+                      <?php
+                        $karar = (string)($disp['karar'] ?? '');
+                        if ($karar === 'ALICI_HAKLI') echo 'ALICI LEHİNE İADE (ALICI HAKLI)';
+                        elseif ($karar === 'SATICI_HAKLI') echo 'SATICI LEHİNE BLOKE ÇÖZÜMÜ (SATICI HAKLI)';
+                        else echo 'KISMİ UZLAŞMA & TAZMİNAT İADESİ';
+                      ?>
+                    </span>
+                    <span class="badge" style="background:#064e3b; color:#6ee7b7; font-size:0.7rem;">NOTER DENETİM İZİNE TESCİLLİ</span>
+                  </div>
+                  <div style="font-size:0.84rem; color:#cbd5e1; line-height:1.5;">
+                    <?= htmlspecialchars((string)($disp['kararAciklama'] ?? ($disp['kararNotu'] ?? 'Karar tamamlandı.'))) ?>
+                  </div>
+                </div>
+                <div style="text-align:right; font-size:0.75rem; color:#6ee7b7;">
+                  Hüküm Tarihi: <?= htmlspecialchars(substr((string)($disp['kararTarihi'] ?? date('Y-m-d')), 0, 16)) ?><br>
+                  Yetkili: <strong>Admin Heyet Başkanı</strong>
+                </div>
+              </div>
+
+            <?php else: ?>
+              <!-- Karar Bekleyen Dosya: Admin Tahkim Aksiyonları -->
+              <div style="background:#131822; border:1px solid #243042; border-radius:8px; padding:16px;">
+                <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:#fb923c; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                  <span>⚖️</span> Admin Tahkim Masası Karar Yetkisi
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+                  
+                  <!-- Aksiyon 1: Alıcı Haklı -->
+                  <form method="POST" style="margin:0; background:#0b0f17; border:1px solid #1e293b; border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;" onsubmit="return confirm('Dosya #<?= htmlspecialchars($talepNo) ?> için ALICI LEHİNE karar verilecek ve <?= $formatPrice($emanetTutari) ?> emanet bloke bedeli alıcı cüzdanına iade edilecektir. Onaylıyor musunuz?');">
+                    <input type="hidden" name="action" value="resolve_dispute">
+                    <input type="hidden" name="dispute_id" value="<?= $dId ?>">
+                    <input type="hidden" name="decision" value="ALICI_HAKLI">
+                    <input type="hidden" name="tab" value="ihtilaf_cozumu">
+                    <div>
+                      <div style="font-weight:700; color:#60a5fa; font-size:0.85rem; margin-bottom:4px;">
+                        ✓ Alıcıyı Haklı Bul (Emanet Blokeyi İade Et)
+                      </div>
+                      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px;">
+                        Ürün hasarı, katalog tutarsızlığı veya teslim edilmeme gerekçesiyle bedelin tamamı alıcıya iade edilir.
+                      </div>
+                      <input type="text" name="admin_note" placeholder="Karar gerekçesi / heyet şerhi..." style="width:100%; box-sizing:border-box; background:#161f2c; border:1px solid #2d3b4e; border-radius:4px; padding:6px 10px; color:#fff; font-size:0.78rem; margin-bottom:8px;">
+                    </div>
+                    <button type="submit" class="btn-gold btn-sm" style="width:100%; font-size:0.8rem; padding:8px; cursor:pointer; background:linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border-color:#3b82f6; color:#fff;">
+                      Alıcı Haklı (İadeyi Gerçekleştir)
+                    </button>
+                  </form>
+
+                  <!-- Aksiyon 2: Satıcı Haklı -->
+                  <form method="POST" style="margin:0; background:#0b0f17; border:1px solid #1e293b; border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;" onsubmit="return confirm('Dosya #<?= htmlspecialchars($talepNo) ?> için SATICI LEHİNE karar verilecek ve emanet bloke serbest bırakılarak satıcı hesabına aktarılacaktır. Onaylıyor musunuz?');">
+                    <input type="hidden" name="action" value="resolve_dispute">
+                    <input type="hidden" name="dispute_id" value="<?= $dId ?>">
+                    <input type="hidden" name="decision" value="SATICI_HAKLI">
+                    <input type="hidden" name="tab" value="ihtilaf_cozumu">
+                    <div>
+                      <div style="font-weight:700; color:#fbbf24; font-size:0.85rem; margin-bottom:4px;">
+                        ✓ Satıcıyı Haklı Bul (Blokeyi Çöz & Satıcıya Aktar)
+                      </div>
+                      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px;">
+                        Eserin katalogla ve ekspertizle tam uyumlu olduğu, teslimatın kurallara uygun yapıldığı teyit edilir.
+                      </div>
+                      <input type="text" name="admin_note" placeholder="Karar gerekçesi / heyet şerhi..." style="width:100%; box-sizing:border-box; background:#161f2c; border:1px solid #2d3b4e; border-radius:4px; padding:6px 10px; color:#fff; font-size:0.78rem; margin-bottom:8px;">
+                    </div>
+                    <button type="submit" class="btn-gold btn-sm" style="width:100%; font-size:0.8rem; padding:8px; cursor:pointer; background:linear-gradient(135deg, #d97706 0%, #b45309 100%); border-color:#f59e0b; color:#fff;">
+                      Satıcı Haklı (Blokeyi Satıcıya Çöz)
+                    </button>
+                  </form>
+
+                  <!-- Aksiyon 3: Kısmi Uzlaşma / Tazminat -->
+                  <form method="POST" style="margin:0; background:#0b0f17; border:1px solid #1e293b; border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;" onsubmit="return confirm('Dosya #<?= htmlspecialchars($talepNo) ?> için KISMİ UZLAŞMA kararı verilecektir. Belirlenen tutar alıcıya iade edilecek, kalan kısım satıcıya ödenecektir. Onaylıyor musunuz?');">
+                    <input type="hidden" name="action" value="resolve_dispute">
+                    <input type="hidden" name="dispute_id" value="<?= $dId ?>">
+                    <input type="hidden" name="decision" value="KISMI_UZLASMA">
+                    <input type="hidden" name="tab" value="ihtilaf_cozumu">
+                    <div>
+                      <div style="font-weight:700; color:#34d399; font-size:0.85rem; margin-bottom:4px;">
+                        ⚖️ Kısmi Uzlaşma / Tazminat Kararı
+                      </div>
+                      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px;">
+                        Restorasyon masrafı veya değer kaybı tazminatı oranında alıcıya kısmi iade yapılıp satış onaylanır.
+                      </div>
+                      <div style="display:flex; gap:6px; margin-bottom:8px;">
+                        <input type="number" step="100" min="0" max="<?= $emanetTutari ?>" name="refund_amount" value="<?= (int)($emanetTutari * 0.20) ?>" placeholder="İade Tutarı (₺)" style="width:50%; box-sizing:border-box; background:#161f2c; border:1px solid #2d3b4e; border-radius:4px; padding:6px 10px; color:#fff; font-size:0.78rem;">
+                        <input type="text" name="admin_note" placeholder="Uzlaşma şerhi..." style="width:50%; box-sizing:border-box; background:#161f2c; border:1px solid #2d3b4e; border-radius:4px; padding:6px 10px; color:#fff; font-size:0.78rem;">
+                      </div>
+                    </div>
+                    <button type="submit" class="btn-gold btn-sm" style="width:100%; font-size:0.8rem; padding:8px; cursor:pointer; background:linear-gradient(135deg, #059669 0%, #047857 100%); border-color:#10b981; color:#fff;">
+                      Kısmi Uzlaşma Kararını Ver
+                    </button>
+                  </form>
+
+                </div>
+              </div>
+            <?php endif; ?>
+
+          </div>
+        <?php endforeach; ?>
+      </div>
+
     </div>
 
     <!-- 2. TAB: MÜZAYEDE & CANLI İHALE YÖNETİMİ (YUKARI TAŞINDI - BAŞLAT / DURAKLAT / SONLANDIR / PLANLA) -->
@@ -2650,6 +3018,43 @@ function switchCancellationSubTab(subTab) {
   if (targetBtn) {
     targetBtn.classList.remove('btn-dark-pill');
     targetBtn.classList.add('btn-gold-pill');
+  }
+}
+
+function filterDisputeList(cat, btn) {
+  document.querySelectorAll('.dispute-filter-btn').forEach(b => {
+    b.classList.remove('btn-gold-pill');
+    b.classList.add('btn-dark-pill');
+  });
+  if (btn) {
+    btn.classList.remove('btn-dark-pill');
+    btn.classList.add('btn-gold-pill');
+  }
+  const cards = document.querySelectorAll('.dispute-card-item');
+  let visibleCount = 0;
+  cards.forEach(card => {
+    const cardCat = card.getAttribute('data-category');
+    const cardStatus = card.getAttribute('data-status');
+    let match = false;
+    if (cat === 'all') {
+      match = true;
+    } else if (cat === 'PENDING') {
+      match = (cardStatus !== 'COZULDU');
+    } else if (cat === 'RESOLVED') {
+      match = (cardStatus === 'COZULDU');
+    } else if (cardCat === cat) {
+      match = true;
+    }
+    if (match) {
+      card.style.display = 'block';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  const emptyMsg = document.getElementById('disputeEmptyFilterMsg');
+  if (emptyMsg) {
+    emptyMsg.style.display = (visibleCount === 0) ? 'block' : 'none';
   }
 }
 
