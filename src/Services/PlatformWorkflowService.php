@@ -1674,4 +1674,236 @@ class PlatformWorkflowService
             'avgSuccessRate'  => '94.2%',
         ];
     }
+
+    /**
+     * Kural dışı, hatalı veya kötü niyetli peylerin yetkili admin tarafından iptali
+     */
+    public function adminCancelBid(int $bidId, string $reason, int $adminId = 1): array
+    {
+        $bid = $this->dataStore->getItem('bids', 'id', $bidId);
+        if (!$bid) {
+            return ['success' => false, 'message' => "Belirtilen pey kaydı (#{$bidId}) bulunamadı."];
+        }
+
+        if (($bid['durum'] ?? '') === 'IPTAL_EDILDI') {
+            return ['success' => false, 'message' => "Bu pey (#{$bidId}) zaten daha önce iptal edilmiştir."];
+        }
+
+        $lotId = (int)($bid['lotId'] ?? 0);
+        $lot = $this->dataStore->getItem('lots', 'id', $lotId);
+
+        // 1. Peyi iptal olarak işaretle
+        $this->dataStore->updateItem('bids', 'id', $bidId, [
+            'durum'             => 'IPTAL_EDILDI',
+            'iptalSebebi'       => $reason,
+            'iptalZamani'       => date('c'),
+            'iptalEdenAdminId'  => $adminId,
+        ]);
+
+        $priceRollbackNote = "Mevcut pey liderliği korundu.";
+
+        // 2. Eğer iptal edilen pey bu lotun lider / en yüksek peyi ise, önceki geçerli peye dön
+        if ($lot) {
+            $isLeadingBid = (float)($lot['mevcutEnYuksekTeklif'] ?? 0) === (float)($bid['teklifTutari'] ?? 0) ||
+                            (int)($lot['liderAliciId'] ?? 0) === (int)($bid['aliciId'] ?? 0);
+
+            if ($isLeadingBid) {
+                // Lotun diğer geçerli peylerini bul
+                $allBids = $this->dataStore->getCollection('bids');
+                $validBids = [];
+                foreach ($allBids as $b) {
+                    if ((int)($b['lotId'] ?? 0) === $lotId &&
+                        (int)($b['id'] ?? 0) !== $bidId &&
+                        ($b['durum'] ?? '') !== 'IPTAL_EDILDI') {
+                        $validBids[] = $b;
+                    }
+                }
+
+                if (!empty($validBids)) {
+                    // En yüksek tutara göre sırala
+                    usort($validBids, static fn($a, $b) => (float)($b['teklifTutari'] ?? 0) <=> (float)($a['teklifTutari'] ?? 0));
+                    $newTop = $validBids[0];
+
+                    $this->dataStore->updateItem('lots', 'id', $lotId, [
+                        'mevcutEnYuksekTeklif' => (float)$newTop['teklifTutari'],
+                        'liderAliciId'         => (int)$newTop['aliciId'],
+                        'liderAnonimKod'       => $newTop['aliciAnonimKod'] ?? 'Anonim',
+                    ]);
+                    $priceRollbackNote = "Lot liderliği #{$newTop['id']} nolu peye (₺" . number_format((float)$newTop['teklifTutari'], 0, ',', '.') . ") devredildi.";
+                } else {
+                    // Hiç geçerli teklif kalmadıysa başlangıç fiyatına dön
+                    $this->dataStore->updateItem('lots', 'id', $lotId, [
+                        'mevcutEnYuksekTeklif' => (float)($lot['baslangicFiyati'] ?? 0),
+                        'liderAliciId'         => null,
+                        'liderAnonimKod'       => 'Henüz Teklif Yok',
+                    ]);
+                    $priceRollbackNote = "Geçerli pey kalmadığı için lot başlangıç fiyatına (₺" . number_format((float)($lot['baslangicFiyati'] ?? 0), 0, ',', '.') . ") döndürüldü.";
+                }
+            }
+        }
+
+        // 3. Teklif sahibinin teminat / bloke bakiyesini iade et
+        $bidderUserId = (int)($bid['aliciId'] ?? 0);
+        $refundAmount = (float)($bid['teklifTutari'] ?? 0);
+        if ($bidderUserId > 0 && $refundAmount > 0) {
+            $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $bidderUserId);
+            if ($wallet) {
+                $curBlocked = (float)($wallet['blokeBakiye'] ?? 0);
+                $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
+                    'blokeBakiye'   => max(0.0, $curBlocked - $refundAmount),
+                    'sonGuncelleme' => date('c'),
+                ]);
+            }
+        }
+
+        // 4. Denetim İzi (Audit Log) Tescili
+        $this->dataStore->insertItem('auditLogs', [
+            'islemTuru'      => 'KURAL_DISI_PEY_IPTALI',
+            'kullaniciId'    => $adminId,
+            'hedefTur'       => 'BID',
+            'hedefId'        => $bidId,
+            'lotId'          => $lotId,
+            'aciklama'       => "Admin #{$adminId} tarafından #{$bidId} nolu kural dışı/hatalı pey iptal edildi. Tutar: ₺" . number_format((float)$bid['teklifTutari'], 0, ',', '.') . " | Gerekçe: {$reason}. Bloke iadesi tamamlandı. {$priceRollbackNote}",
+            'oncekiDeger'    => $bid['teklifTutari'],
+            'yeniDeger'      => 'IPTAL_EDILDI',
+            'tarih'          => date('c'),
+            'ipAdresi'       => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+        ]);
+
+        $this->dataStore->commit();
+
+        return [
+            'success' => true,
+            'message' => "✓ #{$bidId} nolu teklif (₺" . number_format((float)$bid['teklifTutari'], 0, ',', '.') . ") kural ihlali gerekçesiyle iptal edildi. {$priceRollbackNote} Alıcı teminat blokesi çözüldü.",
+        ];
+    }
+
+    /**
+     * Hasar, ihtilaf veya kural ihlali oluşan ürün ilanlarının yetkili admin tarafından iptali
+     */
+    public function adminCancelLotOrListing(int $targetId, string $targetType, string $reason, int $adminId = 1): array
+    {
+        $now = date('c');
+
+        if ($targetType === 'lot') {
+            $lot = $this->dataStore->getItem('lots', 'id', $targetId);
+            if (!$lot) {
+                return ['success' => false, 'message' => "Belirtilen lot (#{$targetId}) bulunamadı."];
+            }
+
+            if (($lot['durum'] ?? '') === 'IPTAL_EDILDI') {
+                return ['success' => false, 'message' => "Bu lot (#{$targetId}) zaten iptal edilmiştir."];
+            }
+
+            // Lot durumunu güncelle
+            $this->dataStore->updateItem('lots', 'id', $targetId, [
+                'durum'            => 'IPTAL_EDILDI',
+                'iptalSebebi'      => $reason,
+                'iptalZamani'      => $now,
+                'iptalEdenAdminId' => $adminId,
+            ]);
+
+            // Varsa bağlı ilanı da iptal et
+            $listingId = (int)($lot['ilanId'] ?? 0);
+            if ($listingId > 0) {
+                $this->dataStore->updateItem('listings', 'id', $listingId, [
+                    'durum'            => 'IPTAL_EDILDI',
+                    'iptalSebebi'      => $reason,
+                    'iptalZamani'      => $now,
+                    'iptalEdenAdminId' => $adminId,
+                ]);
+            }
+
+            // Bu lota verilmiş tüm aktif peyleri iptal et ve blokeleri çöz
+            $allBids = $this->dataStore->getCollection('bids');
+            $cancelledBidCount = 0;
+            foreach ($allBids as $b) {
+                if ((int)($b['lotId'] ?? 0) === $targetId && ($b['durum'] ?? '') !== 'IPTAL_EDILDI') {
+                    $this->dataStore->updateItem('bids', 'id', $b['id'], [
+                        'durum'       => 'IPTAL_EDILDI',
+                        'iptalSebebi' => "Eser ilanı hasar/ihtilaf nedeniyle iptal edildi ({$reason})",
+                        'iptalZamani' => $now,
+                    ]);
+                    $cancelledBidCount++;
+
+                    // Bloke iadesi
+                    $bidderId = (int)($b['aliciId'] ?? 0);
+                    $bidAmt = (float)($b['teklifTutari'] ?? 0);
+                    if ($bidderId > 0 && $bidAmt > 0) {
+                        $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $bidderId);
+                        if ($wallet) {
+                            $curBlk = (float)($wallet['blokeBakiye'] ?? 0);
+                            $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
+                                'blokeBakiye'   => max(0.0, $curBlk - $bidAmt),
+                                'sonGuncelleme' => $now,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // Denetim kaydı oluştur
+            $this->dataStore->insertItem('auditLogs', [
+                'islemTuru'   => 'HASAR_IHTILAF_ILAN_IPTALI',
+                'kullaniciId' => $adminId,
+                'hedefTur'    => 'LOT',
+                'hedefId'     => $targetId,
+                'aciklama'    => "Admin #{$adminId} tarafından '{$lot['baslik']}' (Lot: {$lot['lotKodu']}) ilanı yayından kaldırıldı ve iptal edildi. Gerekçe: {$reason}. {$cancelledBidCount} adet aktif pey feshedildi, teminatlar eksiksiz iade edildi.",
+                'tarih'       => $now,
+                'ipAdresi'    => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+            ]);
+
+            $this->dataStore->commit();
+
+            return [
+                'success' => true,
+                'message' => "✓ '{$lot['baslik']}' (Lot: {$lot['lotKodu']}) ilanı hasar/ihtilaf gerekçesiyle yayından kaldırıldı ve iptal edildi. {$cancelledBidCount} adet teklif feshedilerek teminatlar alıcılara iade edildi.",
+            ];
+        }
+
+        if ($targetType === 'listing') {
+            $listing = $this->dataStore->getItem('listings', 'id', $targetId);
+            if (!$listing) {
+                return ['success' => false, 'message' => "Belirtilen ilan (#{$targetId}) bulunamadı."];
+            }
+
+            $this->dataStore->updateItem('listings', 'id', $targetId, [
+                'durum'            => 'IPTAL_EDILDI',
+                'iptalSebebi'      => $reason,
+                'iptalZamani'      => $now,
+                'iptalEdenAdminId' => $adminId,
+            ]);
+
+            // Varsa eşleşen lotları iptal et
+            $lots = $this->dataStore->getCollection('lots');
+            foreach ($lots as $l) {
+                if ((int)($l['ilanId'] ?? 0) === $targetId) {
+                    $this->dataStore->updateItem('lots', 'id', $l['id'], [
+                        'durum'       => 'IPTAL_EDILDI',
+                        'iptalSebebi' => $reason,
+                        'iptalZamani' => $now,
+                    ]);
+                }
+            }
+
+            $this->dataStore->insertItem('auditLogs', [
+                'islemTuru'   => 'HASAR_IHTILAF_ILAN_IPTALI',
+                'kullaniciId' => $adminId,
+                'hedefTur'    => 'LISTING',
+                'hedefId'     => $targetId,
+                'aciklama'    => "Admin #{$adminId} tarafından #{$targetId} nolu ilan iptal edildi. Gerekçe: {$reason}.",
+                'tarih'       => $now,
+                'ipAdresi'    => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+            ]);
+
+            $this->dataStore->commit();
+
+            return [
+                'success' => true,
+                'message' => "✓ İlan (#{$targetId}) başarıyla yayından kaldırıldı ve iptal edildi.",
+            ];
+        }
+
+        return ['success' => false, 'message' => "Geçersiz hedef türü."];
+    }
 }

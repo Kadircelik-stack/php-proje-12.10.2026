@@ -400,6 +400,33 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'admin_cancel_bid':
+                $bidId = (int)($post['bid_id'] ?? 0);
+                $reason = trim($post['reason'] ?? 'Kural dışı / hatalı pey tespiti');
+                $res = $this->workflowService->adminCancelBid($bidId, $reason, 1);
+                return [
+                    'type' => $res['success'] ? 'warning' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'admin_cancel_lot':
+                $lotId = (int)($post['lot_id'] ?? 0);
+                $reason = trim($post['reason'] ?? 'Hasar / ihtilaf tespiti');
+                $res = $this->workflowService->adminCancelLotOrListing($lotId, 'lot', $reason, 1);
+                return [
+                    'type' => $res['success'] ? 'warning' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'admin_cancel_listing':
+                $listingId = (int)($post['listing_id'] ?? 0);
+                $reason = trim($post['reason'] ?? 'Hasar / ihtilaf tespiti');
+                $res = $this->workflowService->adminCancelLotOrListing($listingId, 'listing', $reason, 1);
+                return [
+                    'type' => $res['success'] ? 'warning' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'cancel_bid':
                 $lotId = (int)($post['lot_id'] ?? 1002);
                 $bidId = isset($post['bid_id']) ? (int)$post['bid_id'] : null;
