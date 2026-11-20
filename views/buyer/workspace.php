@@ -3,6 +3,27 @@ declare(strict_types=1);
 
 /** @var callable $formatPrice */
 /** @var array $db */
+/** @var \Martello\Controllers\WebAndApiController $controller */
+/** @var \Martello\Services\PlatformWorkflowService $workflowService */
+
+$filterOptions = $controller->getFilterOptions();
+$buyerFilterParams = [
+    'q'          => trim((string)($_GET['q'] ?? '')),
+    'cat'        => trim((string)($_GET['cat'] ?? '')),
+    'min_price'  => trim((string)($_GET['min_price'] ?? '')),
+    'max_price'  => trim((string)($_GET['max_price'] ?? '')),
+    'brand'      => trim((string)($_GET['brand'] ?? '')),
+    'exp_status' => trim((string)($_GET['exp_status'] ?? '')),
+];
+$hasActiveBuyerFilters = (
+    $buyerFilterParams['q'] !== '' ||
+    $buyerFilterParams['cat'] !== '' ||
+    $buyerFilterParams['min_price'] !== '' ||
+    $buyerFilterParams['max_price'] !== '' ||
+    $buyerFilterParams['brand'] !== '' ||
+    ($buyerFilterParams['exp_status'] !== '' && $buyerFilterParams['exp_status'] !== 'TUMU')
+);
+$searchResults = $controller->searchCatalog($buyerFilterParams);
 
 $buyerId = 3; // Emre K. / Zeynep D. (Alıcı)
 $lots = $db['lots'] ?? [];
@@ -93,6 +114,12 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
             Müzayede keşfet
           </a>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'arama' ? 'active' : '' ?>">
+          <button type="button" data-tab="arama" onclick="switchBuyerTab('arama', this)">
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            Eser Arama & Filtre
+          </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'vip' ? 'active' : '' ?>">
           <button type="button" data-tab="vip" onclick="switchBuyerTab('vip', this)" style="border-left: 2px solid #d4af37; background: linear-gradient(90deg, rgba(212,175,55,0.14) 0%, transparent 100%);">
@@ -234,6 +261,206 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
 
   <!-- Ana İçerik Alanı -->
   <main class="main-content">
+
+    <!-- ====================================================================
+         0. TAB: ESER ARAMA & ÇOK KRİTERLİ FİLTRELEME (SRS Filtreleme Gereksinimi)
+         ==================================================================== -->
+    <div id="buyerTab_arama" class="tab-content <?= $activeTab === 'arama' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI / ESER ARAMA & FİLTRELEME</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h1 class="page-heading">Eser Arama ve Çok Kriterli Filtreleme</h1>
+          <p class="page-subheading" style="color:var(--gold-primary); font-weight:500; font-size:0.92rem;">
+            ⚡ "Kullanıcıların kategori, fiyat aralığı, ekspertiz durumu, marka ve anahtar kelimelere göre ürün araması ve filtreleme yapabilmesidir."
+          </p>
+        </div>
+        <span class="badge badge-gold" style="font-size:0.78rem; padding:6px 14px;">SRS Arama & Keşif</span>
+      </div>
+
+      <!-- Filtreleme Kontrol Paneli -->
+      <div class="panel-card" style="margin-bottom:24px; background:rgba(18,22,31,0.95); border:1px solid #334155; box-shadow:0 12px 30px rgba(0,0,0,0.6);">
+        <form method="GET" action="index.php" style="display:grid; grid-template-columns:2fr 1.3fr 1.6fr 1.2fr 1.2fr auto; gap:12px; align-items:flex-end;">
+          <input type="hidden" name="role" value="buyer">
+          <input type="hidden" name="tab" value="arama">
+
+          <!-- 1. Anahtar Kelime -->
+          <div>
+            <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Anahtar Kelime</label>
+            <input type="text" name="q" class="form-control" placeholder="Eser adı, lot no, dönem..." value="<?= htmlspecialchars($buyerFilterParams['q']) ?>" style="background:#0b0e14; border-color:#2a3649;">
+          </div>
+
+          <!-- 2. Kategori -->
+          <div>
+            <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Kategori</label>
+            <select name="cat" class="form-control" style="background:#0b0e14; border-color:#2a3649;">
+              <option value="">Tüm Kategoriler</option>
+              <?php foreach ($filterOptions['categories'] ?? [] as $cat): ?>
+                <?php $catVal = (string)($cat['id'] ?? $cat['ad']); ?>
+                <option value="<?= htmlspecialchars((string)($cat['ad'] ?? $catVal)) ?>" <?= ($buyerFilterParams['cat'] === (string)($cat['ad'] ?? '') || $buyerFilterParams['cat'] === (string)($cat['id'] ?? '')) ? 'selected' : '' ?>>
+                  <?= htmlspecialchars((string)($cat['ad'] ?? '')) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+
+          <!-- 3. Fiyat Aralığı -->
+          <div>
+            <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Fiyat Aralığı (₺ Min - Max)</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <input type="number" name="min_price" class="form-control" placeholder="Min ₺" value="<?= htmlspecialchars($buyerFilterParams['min_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
+              <input type="number" name="max_price" class="form-control" placeholder="Max ₺" value="<?= htmlspecialchars($buyerFilterParams['max_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
+            </div>
+          </div>
+
+          <!-- 4. Marka / Atölye -->
+          <div>
+            <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Marka / Atölye</label>
+            <select name="brand" class="form-control" style="background:#0b0e14; border-color:#2a3649;">
+              <option value="">Tüm Markalar</option>
+              <?php foreach ($filterOptions['brands'] ?? [] as $br): ?>
+                <option value="<?= htmlspecialchars($br) ?>" <?= ($buyerFilterParams['brand'] === $br) ? 'selected' : '' ?>>
+                  <?= htmlspecialchars($br) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+
+          <!-- 5. Ekspertiz Durumu -->
+          <div>
+            <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Ekspertiz Durumu</label>
+            <select name="exp_status" class="form-control" style="background:#0b0e14; border-color:#2a3649;">
+              <option value="">Tümü</option>
+              <option value="ONAYLI" <?= ($buyerFilterParams['exp_status'] === 'ONAYLI') ? 'selected' : '' ?>>✓ Onaylı & Damgalı</option>
+              <option value="BEKLEMEDE" <?= ($buyerFilterParams['exp_status'] === 'BEKLEMEDE') ? 'selected' : '' ?>>İncelemede / Heyet</option>
+            </select>
+          </div>
+
+          <!-- Aksiyon Butonları -->
+          <div style="display:flex; gap:6px;">
+            <button type="submit" class="btn-register-glow" style="padding:9px 18px; font-size:0.85rem; font-weight:600; white-space:nowrap;">
+              Filtrele
+            </button>
+            <?php if ($hasActiveBuyerFilters): ?>
+              <a href="index.php?role=buyer&tab=arama" class="btn-outline-gold" style="padding:9px 14px; font-size:0.82rem; text-decoration:none; display:inline-flex; align-items:center; white-space:nowrap;" title="Filtreleri Sıfırla">
+                ✕ Temizle
+              </a>
+            <?php endif; ?>
+          </div>
+        </form>
+
+        <?php if ($hasActiveBuyerFilters): ?>
+          <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:0.8rem;">
+              <span style="color:#d4af37; font-weight:600;">Uygulanan Filtreler:</span>
+              <?php if (!empty($buyerFilterParams['q'])): ?>
+                <span class="badge badge-gold">Kelime: "<?= htmlspecialchars($buyerFilterParams['q']) ?>"</span>
+              <?php endif; ?>
+              <?php if (!empty($buyerFilterParams['cat'])): ?>
+                <span class="badge badge-gold">Kategori: <?= htmlspecialchars($buyerFilterParams['cat']) ?></span>
+              <?php endif; ?>
+              <?php if (!empty($buyerFilterParams['min_price']) || !empty($buyerFilterParams['max_price'])): ?>
+                <span class="badge badge-gold">
+                  Fiyat: <?= !empty($buyerFilterParams['min_price']) ? '₺' . number_format((float)$buyerFilterParams['min_price']) : '0' ?> - <?= !empty($buyerFilterParams['max_price']) ? '₺' . number_format((float)$buyerFilterParams['max_price']) : '∞' ?>
+                </span>
+              <?php endif; ?>
+              <?php if (!empty($buyerFilterParams['brand'])): ?>
+                <span class="badge badge-gold">Marka: <?= htmlspecialchars($buyerFilterParams['brand']) ?></span>
+              <?php endif; ?>
+              <?php if (!empty($buyerFilterParams['exp_status'])): ?>
+                <span class="badge badge-gold">Ekspertiz: <?= $buyerFilterParams['exp_status'] === 'ONAYLI' ? '✓ Onaylı' : 'İncelemede' ?></span>
+              <?php endif; ?>
+            </div>
+            <div style="font-size:0.82rem; color:#38ef7d; font-weight:600;">
+              <?= count($searchResults) ?> adet eşleşen eser listeleniyor
+            </div>
+          </div>
+        <?php endif; ?>
+      </div>
+
+      <!-- Arama Sonuçları Grid -->
+      <div class="panel-header" style="margin-bottom:16px;">
+        <div>
+          <h3 class="panel-title">Müzayede Lotları (<?= count($searchResults) ?> Eser)</h3>
+          <p class="panel-subtitle">Doğrulanmış açık artırma kataloğu</p>
+        </div>
+      </div>
+
+      <?php if (empty($searchResults)): ?>
+        <div class="panel-card" style="text-align:center; padding:50px 20px; background:#0e1218; border:1px dashed #334155;">
+          <div style="font-size:2.5rem; color:#d4af37; margin-bottom:12px;">🔍</div>
+          <h4 style="color:#f0f3f6; font-size:1.2rem; margin-bottom:8px;">Aradığınız Kriterlere Uygun Eser Bulunamadı</h4>
+          <p style="color:#848d9a; font-size:0.88rem; max-width:500px; margin:0 auto 20px auto;">
+            Belirttiğiniz kategori, fiyat aralığı, marka veya anahtar kelimelere uyan açık lot bulunmamaktadır. Kriterlerinizi genişleterek tekrar deneyebilirsiniz.
+          </p>
+          <a href="index.php?role=buyer&tab=arama" class="btn-gold" style="display:inline-flex; align-items:center; gap:6px;">
+            Tüm Kataloğu Göster
+          </a>
+        </div>
+      <?php else: ?>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-bottom:30px;">
+          <?php foreach ($searchResults as $sLot): ?>
+            <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; transition:all 0.25s ease;" onmouseover="this.style.borderColor='rgba(212,175,55,0.4)';" onmouseout="this.style.borderColor='var(--border-color)';">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <span class="badge badge-gold"><?= htmlspecialchars((string)($sLot['lotKodu'] ?? '')) ?></span>
+                  <div style="display:flex; gap:6px;">
+                    <?php if (!empty($sLot['ekspertizOnayli'])): ?>
+                      <span class="badge badge-success" style="font-size:0.68rem; padding:2px 8px;">✓ Ekspertiz Onaylı</span>
+                    <?php endif; ?>
+                    <span class="badge <?= ($sLot['durum'] ?? '') === 'ACIK_ARTIRMADA' ? 'badge-success' : 'badge-warning' ?>" style="font-size:0.68rem; padding:2px 8px;">
+                      <?= htmlspecialchars((string)($sLot['durum'] ?? '')) ?>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Eser Görseli -->
+                <?php $sImg = !empty($sLot['gorselUrl']) ? $sLot['gorselUrl'] : 'public/assets/images/watch.jpg'; ?>
+                <div style="height:160px; background:#070a0f; border-radius:8px; overflow:hidden; margin-bottom:12px; display:flex; align-items:center; justify-content:center; border:1px solid #1a2230;">
+                  <img src="<?= htmlspecialchars($sImg) ?>" alt="<?= htmlspecialchars((string)($sLot['baslik'] ?? '')) ?>" style="max-height:100%; max-width:100%; object-fit:contain;">
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+                  <span style="font-size:0.75rem; color:#d4af37; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
+                    <?= htmlspecialchars((string)($sLot['markaGosterim'] ?? ($sLot['marka'] ?? 'Özel Koleksiyon'))) ?>
+                  </span>
+                  <span style="font-size:0.75rem; color:#848d9a;">
+                    <?= htmlspecialchars((string)($sLot['kategoriAdi'] ?? 'Antika')) ?>
+                  </span>
+                </div>
+
+                <h4 style="font-family:var(--font-serif); font-size:1.15rem; color:#fff; margin-bottom:10px; line-height:1.35;">
+                  <?= htmlspecialchars((string)($sLot['baslik'] ?? '')) ?>
+                </h4>
+              </div>
+
+              <div style="border-top:1px solid var(--border-color); padding-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Güncel Teklif</div>
+                  <div style="font-family:var(--font-serif); font-size:1.3rem; font-weight:700; color:var(--gold-bright);">
+                    <?= $formatPrice((float)($sLot['mevcutEnYuksekTeklif'] ?: ($sLot['baslangicFiyati'] ?? 0))) ?>
+                  </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <form method="POST" action="index.php?role=buyer&tab=arama" style="display:inline;">
+                    <input type="hidden" name="action" value="toggle_watchlist">
+                    <input type="hidden" name="user_id" value="3">
+                    <input type="hidden" name="lot_id" value="<?= (int)$sLot['id'] ?>">
+                    <input type="hidden" name="auction_id" value="<?= (int)($sLot['muzayedeId'] ?? 801) ?>">
+                    <button type="submit" class="btn-dark-pill" style="padding:6px 10px; font-size:0.75rem;" title="Takibe Al / Çıkar">
+                      ★ Takip
+                    </button>
+                  </form>
+                  <a href="index.php?role=buyer&tab=canli&lot_id=<?= (int)$sLot['id'] ?>" class="btn-gold btn-sm" style="display:inline-flex; align-items:center; gap:4px; font-size:0.8rem; padding:6px 14px;">
+                    Pey Ver &rarr;
+                  </a>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
 
     <!-- ====================================================================
          1. TAB: CANLI MÜZAYEDE / LOT DETAYI (media_1794924544618_e29ceefd.jpg)

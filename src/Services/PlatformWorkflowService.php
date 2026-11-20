@@ -1369,4 +1369,207 @@ class PlatformWorkflowService
 
         return ['success' => false, 'message' => "Kargo kaydı bulunamadı."];
     }
+
+    /**
+     * SRS: Kullanıcıların kategori, fiyat aralığı, ekspertiz durumu, marka ve anahtar kelimelere
+     * göre ürün araması ve filtreleme yapabilmesidir.
+     *
+     * @param array<string, mixed> $filters
+     * @return array<int, array>
+     */
+    public function filterCatalog(array $filters): array
+    {
+        $lots = $this->dataStore->getCollection('lots');
+        $products = $this->dataStore->getCollection('products');
+        $reports = $this->dataStore->getCollection('appraisalReports');
+        $requests = $this->dataStore->getCollection('appraisalRequests');
+        $categories = $this->dataStore->getCollection('categories');
+
+        // Ürün ve Kategori sözlüğü oluştur
+        $productMap = [];
+        foreach ($products as $p) {
+            $productMap[(int)$p['id']] = $p;
+        }
+
+        $categoryMap = [];
+        foreach ($categories as $c) {
+            $categoryMap[(int)$c['id']] = $c['ad'] ?? '';
+        }
+
+        $reportMap = [];
+        foreach ($reports as $r) {
+            $reportMap[(int)$r['id']] = $r;
+            if (!empty($r['urunId'])) {
+                $reportMap['by_product_' . (int)$r['urunId']] = $r;
+            }
+        }
+
+        $q = mb_strtolower(trim((string)($filters['q'] ?? ($filters['keyword'] ?? ''))));
+        $catFilter = trim((string)($filters['cat'] ?? ($filters['category'] ?? '')));
+        $minPrice = isset($filters['min_price']) && is_numeric($filters['min_price']) && (float)$filters['min_price'] > 0
+            ? (float)$filters['min_price'] : null;
+        $maxPrice = isset($filters['max_price']) && is_numeric($filters['max_price']) && (float)$filters['max_price'] > 0
+            ? (float)$filters['max_price'] : null;
+        $brand = mb_strtolower(trim((string)($filters['brand'] ?? ($filters['marka'] ?? ''))));
+        $expStatus = strtoupper(trim((string)($filters['exp_status'] ?? ($filters['ekspertiz_durumu'] ?? ''))));
+
+        $results = [];
+
+        foreach ($lots as $lot) {
+            $urunId = (int)($lot['urunId'] ?? 0);
+            $urun = $productMap[$urunId] ?? null;
+
+            // Fiyat tespiti (mevcut en yüksek teklif veya başlangıç fiyatı)
+            $curPrice = (float)($lot['mevcutEnYuksekTeklif'] ?: ($lot['baslangicFiyati'] ?? 0));
+
+            // Ekspertiz rapor tespiti
+            $reportId = (int)($lot['ekspertizRaporId'] ?? 0);
+            $report = $reportMap[$reportId] ?? ($reportMap['by_product_' . $urunId] ?? null);
+
+            // Ekspertiz durumu normalize
+            $isApproved = false;
+            if ($report && ($report['denetimDurumu'] ?? '') === 'KABUL_EDILDI') {
+                $isApproved = true;
+            } elseif ($urun && ($urun['orijinallikDurumu'] ?? '') === 'Onaylı') {
+                $isApproved = true;
+            } elseif ($reportId > 0) {
+                $isApproved = true;
+            }
+
+            // 1. Anahtar Kelime Filtresi (q)
+            if ($q !== '') {
+                $searchableText = mb_strtolower(
+                    ($lot['baslik'] ?? '') . ' ' .
+                    ($lot['lotKodu'] ?? '') . ' ' .
+                    ($lot['kategoriAdi'] ?? '') . ' ' .
+                    ($lot['marka'] ?? '') . ' ' .
+                    ($urun['baslik'] ?? '') . ' ' .
+                    ($urun['aciklama'] ?? '') . ' ' .
+                    ($urun['marka'] ?? '') . ' ' .
+                    json_encode($urun['dinamikNitelikler'] ?? [], JSON_UNESCAPED_UNICODE)
+                );
+                if (mb_strpos($searchableText, $q) === false) {
+                    continue;
+                }
+            }
+
+            // 2. Kategori Filtresi (cat)
+            if ($catFilter !== '' && $catFilter !== 'ALL' && $catFilter !== '0') {
+                $lotCatName = mb_strtolower((string)($lot['kategoriAdi'] ?? ''));
+                $targetCatName = is_numeric($catFilter)
+                    ? mb_strtolower($categoryMap[(int)$catFilter] ?? '')
+                    : mb_strtolower($catFilter);
+
+                $catMatched = false;
+                if ($targetCatName !== '' && (mb_strpos($lotCatName, $targetCatName) !== false || mb_strpos($targetCatName, $lotCatName) !== false)) {
+                    $catMatched = true;
+                }
+                if ($urun && is_numeric($catFilter) && (int)($urun['kategoriId'] ?? 0) === (int)$catFilter) {
+                    $catMatched = true;
+                }
+                // Kısa eşleşme (örn: 'Horoloji', 'Sanat', 'Osmanlı')
+                if (!$catMatched && $targetCatName !== '' && mb_strpos($lotCatName, mb_substr($targetCatName, 0, 5)) !== false) {
+                    $catMatched = true;
+                }
+                if (!$catMatched) {
+                    continue;
+                }
+            }
+
+            // 3. Fiyat Aralığı Filtresi (min_price & max_price)
+            if ($minPrice !== null && $curPrice < $minPrice) {
+                continue;
+            }
+            if ($maxPrice !== null && $curPrice > $maxPrice) {
+                continue;
+            }
+
+            // 4. Marka / Atölye Filtresi (brand)
+            if ($brand !== '' && $brand !== 'ALL') {
+                $lotBrand = mb_strtolower((string)($lot['marka'] ?? ''));
+                $prodBrand = mb_strtolower((string)($urun['marka'] ?? ''));
+                $dynBrand = mb_strtolower((string)($urun['dinamikNitelikler']['marka'] ?? ($urun['dinamikNitelikler']['markaModel'] ?? '')));
+                $lotTitle = mb_strtolower((string)($lot['baslik'] ?? ''));
+
+                $brandMatched = (
+                    ($lotBrand !== '' && mb_strpos($lotBrand, $brand) !== false) ||
+                    ($prodBrand !== '' && mb_strpos($prodBrand, $brand) !== false) ||
+                    ($dynBrand !== '' && mb_strpos($dynBrand, $brand) !== false) ||
+                    (mb_strpos($lotTitle, $brand) !== false)
+                );
+
+                if (!$brandMatched) {
+                    continue;
+                }
+            }
+
+            // 5. Ekspertiz Durumu Filtresi (exp_status)
+            if ($expStatus !== '' && $expStatus !== 'TUMU' && $expStatus !== 'ALL') {
+                if ($expStatus === 'ONAYLI' && !$isApproved) {
+                    continue;
+                }
+                if ($expStatus === 'BEKLEMEDE' && $isApproved) {
+                    continue;
+                }
+                if ($expStatus === 'REDDEDILDI') {
+                    $isRejected = ($report && ($report['denetimDurumu'] ?? '') === 'REDDEDILDI');
+                    if (!$isRejected) {
+                        continue;
+                    }
+                }
+            }
+
+            // Eseri zenginleştirilmiş olarak ekle
+            $enriched = $lot;
+            $enriched['urun'] = $urun;
+            $enriched['ekspertizRapor'] = $report;
+            $enriched['ekspertizOnayli'] = $isApproved;
+            $enriched['markaGosterim'] = $lot['marka'] ?? ($urun['marka'] ?? 'Bağımsız Usta / Özel Koleksiyon');
+            $enriched['hesaplananFiyat'] = $curPrice;
+
+            $results[] = $enriched;
+        }
+
+        return $results;
+    }
+
+    /**
+     * Filtreleme seçenekleri için referans verileri döner
+     */
+    public function getFilterOptions(): array
+    {
+        $categories = $this->dataStore->getCollection('categories');
+        $lots = $this->dataStore->getCollection('lots');
+        $products = $this->dataStore->getCollection('products');
+
+        $brands = [];
+        $prices = [];
+
+        foreach ($lots as $l) {
+            if (!empty($l['marka'])) {
+                $brands[$l['marka']] = true;
+            }
+            $p = (float)($l['mevcutEnYuksekTeklif'] ?: ($l['baslangicFiyati'] ?? 0));
+            if ($p > 0) {
+                $prices[] = $p;
+            }
+        }
+        foreach ($products as $p) {
+            if (!empty($p['marka'])) {
+                $brands[$p['marka']] = true;
+            }
+            if (!empty($p['dinamikNitelikler']['marka'])) {
+                $brands[$p['dinamikNitelikler']['marka']] = true;
+            }
+        }
+
+        ksort($brands);
+
+        return [
+            'categories' => $categories,
+            'brands'     => array_keys($brands),
+            'minPrice'   => !empty($prices) ? min($prices) : 5000,
+            'maxPrice'   => !empty($prices) ? max($prices) : 1500000,
+        ];
+    }
 }

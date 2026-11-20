@@ -43,6 +43,20 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
     </a>
   </div>
 
+  <!-- Hızlı Eser & Marka Arama Çubuğu -->
+  <div class="topbar-search-box" style="flex:1; max-width:360px; margin:0 20px;">
+    <form method="GET" action="index.php" style="position:relative; width:100%; display:flex; align-items:center; margin:0;">
+      <input type="hidden" name="role" value="<?= $activeRole === 'buyer' ? 'buyer' : 'vitrin' ?>">
+      <?php if ($activeRole === 'buyer'): ?>
+        <input type="hidden" name="tab" value="arama">
+      <?php endif; ?>
+      <input type="text" name="q" placeholder="Eser, marka veya anahtar kelime ara..." value="<?= htmlspecialchars((string)($_GET['q'] ?? '')) ?>" style="width:100%; padding:6px 34px 6px 14px; background:rgba(255,255,255,0.05); border:1px solid rgba(197,160,89,0.35); border-radius:20px; color:#f0f3f6; font-size:0.78rem; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#d4af37'; this.style.background='rgba(0,0,0,0.5)';" onblur="this.style.borderColor='rgba(197,160,89,0.35)'; this.style.background='rgba(255,255,255,0.05)';">
+      <button type="submit" style="position:absolute; right:10px; background:none; border:none; color:#c5a059; cursor:pointer; padding:0; display:flex; align-items:center;" title="Hızlı Ara">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </form>
+  </div>
+
   <div class="topbar-nav">
     <?php if ($activeRole === 'buyer'): ?>
       <div class="topbar-balance" style="font-size:0.85rem; color:#f0f3f6; font-weight:500;">

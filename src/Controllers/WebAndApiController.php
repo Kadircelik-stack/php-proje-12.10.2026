@@ -538,4 +538,21 @@ class WebAndApiController
             default => new TryCurrencyStrategy(),
         };
     }
+
+    /**
+     * SRS: Kullanıcıların kategori, fiyat aralığı, ekspertiz durumu, marka ve anahtar kelimelere
+     * göre ürün araması ve filtreleme yapması
+     */
+    public function searchCatalog(array $params): array
+    {
+        return $this->workflowService->filterCatalog($params);
+    }
+
+    /**
+     * Filtreleme formları için referans parametreleri döner
+     */
+    public function getFilterOptions(): array
+    {
+        return $this->workflowService->getFilterOptions();
+    }
 }
