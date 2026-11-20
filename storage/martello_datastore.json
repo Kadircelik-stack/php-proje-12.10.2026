@@ -708,7 +708,7 @@
             "atananEksperId": 4,
             "durum": "ONAYLANDI",
             "eskalasyon": false,
-            "not": "Orijinallik ve kök boya analizi tamamlandı."
+            "not": "Heyet incelemesi tamamlandı: Eser özgün ve müze kondisyonundadır."
         },
         {
             "id": 202,
@@ -716,9 +716,9 @@
             "lotKodu": "AUC-1042",
             "urunId": 502,
             "atananEksperId": 4,
-            "durum": "TAMAMLANDI",
+            "durum": "REVIZE_ISTENDI",
             "eskalasyon": false,
-            "not": "Ekspertiz raporu tamamlandı."
+            "not": "Saat kurma kolu ve çark dişlilerinin yüksek çözünürlüklü makro görseli talep edildi."
         },
         {
             "id": 203,
@@ -769,8 +769,11 @@
             ],
             "denetimDurumu": "KABUL_EDILDI",
             "raporTarihi": "2026-10-09T15:30:00+03:00",
-            "adminOnayZamani": "2026-11-20T12:41:31+00:00",
-            "adminNotu": "Rapor yönetici tarafından incelendi, kabul edildi."
+            "adminOnayZamani": "2026-11-20T17:29:26+00:00",
+            "adminNotu": "Heyet incelemesi tamamlandı: Eser özgün ve müze kondisyonundadır.",
+            "heyetIncelemeZamani": "2026-11-20T17:29:26+00:00",
+            "heyetUyesi": "Admin & Uzman Heyet Kurulu",
+            "heyetKararNotu": "Heyet incelemesi tamamlandı: Eser özgün ve müze kondisyonundadır."
         },
         {
             "raporNo": "REP-2026-412",
@@ -784,9 +787,14 @@
                 "Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.",
                 "Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır."
             ],
-            "denetimDurumu": "ONAYLANDI",
+            "denetimDurumu": "REVIZE_ISTENDI",
             "raporTarihi": "2026-11-18T13:51:55+00:00",
-            "id": 302
+            "id": 302,
+            "adminOnayZamani": "2026-11-20T17:29:28+00:00",
+            "heyetIncelemeZamani": "2026-11-20T17:29:28+00:00",
+            "heyetUyesi": "Admin & Uzman Heyet Kurulu",
+            "adminNotu": "Saat kurma kolu ve çark dişlilerinin yüksek çözünürlüklü makro görseli talep edildi.",
+            "heyetKararNotu": "Saat kurma kolu ve çark dişlilerinin yüksek çözünürlüklü makro görseli talep edildi."
         },
         {
             "raporNo": "REP-2026-480",
@@ -899,7 +907,7 @@
             "urunId": 502,
             "saticiId": 2,
             "ekspertizRaporId": 308,
-            "durum": "YAYINDA"
+            "durum": "REVIZYON_BEKLIYOR"
         },
         {
             "id": 603,
@@ -3515,6 +3523,30 @@
             "tarih": "2026-11-20T17:07:18+00:00",
             "ipAdresi": "127.0.0.1",
             "id": 3
+        },
+        {
+            "islemTuru": "HEYET_EKSPERTIZ_INCELEME",
+            "kullaniciId": 1,
+            "hedefTur": "APPRAISAL_REPORT",
+            "hedefId": 301,
+            "aciklama": "Admin ve Uzman Heyet tarafından REP-2026-112 nolu detaylı değerlendirme raporu, orijinallik belgesi ve ürün notu incelendi. Karar: KABUL_EDILDI. Not: Heyet incelemesi tamamlandı: Eser özgün ve müze kondisyonundadır.",
+            "oncekiDeger": "KABUL_EDILDI",
+            "yeniDeger": "KABUL_EDILDI",
+            "tarih": "2026-11-20T17:29:26+00:00",
+            "ipAdresi": "127.0.0.1",
+            "id": 4
+        },
+        {
+            "islemTuru": "HEYET_EKSPERTIZ_INCELEME",
+            "kullaniciId": 1,
+            "hedefTur": "APPRAISAL_REPORT",
+            "hedefId": 302,
+            "aciklama": "Admin ve Uzman Heyet tarafından REP-2026-412 nolu detaylı değerlendirme raporu, orijinallik belgesi ve ürün notu incelendi. Karar: REVIZE_ISTENDI. Not: Saat kurma kolu ve çark dişlilerinin yüksek çözünürlüklü makro görseli talep edildi.",
+            "oncekiDeger": "ONAYLANDI",
+            "yeniDeger": "REVIZE_ISTENDI",
+            "tarih": "2026-11-20T17:29:28+00:00",
+            "ipAdresi": "127.0.0.1",
+            "id": 5
         }
     ],
     "pastSales": [

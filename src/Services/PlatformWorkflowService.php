@@ -830,6 +830,96 @@ class PlatformWorkflowService
     }
 
     /**
+     * SRS: Eksper tarafından hazırlanan detaylı değerlendirme raporunun, orijinallik belgesinin
+     * ve ürün notunun admin ve uzman heyet tarafından incelenmesidir.
+     */
+    public function reviewAppraisalDossier(int $reportId, string $decision, string $committeeNote = '', int $adminId = 1): array
+    {
+        $report = $this->dataStore->getItem('appraisalReports', 'id', $reportId);
+        if (!$report) {
+            return ['success' => false, 'message' => "Ekspertiz raporu (#{$reportId}) bulunamadı."];
+        }
+
+        $now = date('c');
+        $reportNo = $report['raporNo'] ?? "#{$reportId}";
+        $normDecision = strtoupper($decision);
+
+        switch ($normDecision) {
+            case 'REVISE':
+            case 'REVIZE':
+                $newStatus = 'REVIZE_ISTENDI';
+                $actionText = 'ek belge ve düzeltme talebiyle revizyona gönderildi';
+                break;
+            case 'REJECT':
+            case 'RED':
+                $newStatus = 'REDDEDILDI';
+                $actionText = 'uygunsuzluk gerekçesiyle reddedildi';
+                break;
+            case 'APPROVE':
+            case 'ONAY':
+            default:
+                $newStatus = 'KABUL_EDILDI';
+                $actionText = 'detaylı inceleme sonucunda onaylandı ve kabul edildi';
+                break;
+        }
+
+        $note = $committeeNote ?: "Admin ve Uzman Heyet tarafından dosya incelendi. Karar: {$newStatus}";
+
+        $this->dataStore->updateItem('appraisalReports', 'id', $reportId, [
+            'denetimDurumu'         => $newStatus,
+            'adminOnayZamani'       => $now,
+            'heyetIncelemeZamani'   => $now,
+            'heyetUyesi'            => 'Admin & Uzman Heyet Kurulu',
+            'adminNotu'             => $note,
+            'heyetKararNotu'        => $note,
+        ]);
+
+        // Bağlı talep ve ilan durumlarını güncelle
+        $talepId = (int)($report['talepId'] ?? 0);
+        if ($talepId > 0) {
+            $reqStatus = ($newStatus === 'KABUL_EDILDI') ? 'ONAYLANDI' : (($newStatus === 'REVIZE_ISTENDI') ? 'REVIZE_ISTENDI' : 'REDDEDILDI');
+            $this->dataStore->updateItem('appraisalRequests', 'id', $talepId, [
+                'durum' => $reqStatus,
+                'not'   => $note,
+            ]);
+        }
+
+        $urunId = (int)($report['urunId'] ?? 0);
+        if ($urunId > 0) {
+            $listings = $this->dataStore->getCollection('listings');
+            foreach ($listings as &$l) {
+                if ((int)($l['urunId'] ?? 0) === $urunId) {
+                    $l['durum'] = ($newStatus === 'KABUL_EDILDI') ? 'EKSPERTIZ_ONAYLI' : (($newStatus === 'REVIZE_ISTENDI') ? 'REVIZYON_BEKLIYOR' : 'EKSPERTIZ_RED');
+                    break;
+                }
+            }
+            unset($l);
+            $this->dataStore->saveCollection('listings', $listings);
+        }
+
+        // Denetim Kütüğü (Audit Log)
+        $this->dataStore->insertItem('auditLogs', [
+            'islemTuru'   => 'HEYET_EKSPERTIZ_INCELEME',
+            'kullaniciId' => $adminId,
+            'hedefTur'    => 'APPRAISAL_REPORT',
+            'hedefId'     => $reportId,
+            'aciklama'    => "Admin ve Uzman Heyet tarafından {$reportNo} nolu detaylı değerlendirme raporu, orijinallik belgesi ve ürün notu incelendi. Karar: {$newStatus}. Not: {$note}",
+            'oncekiDeger' => $report['denetimDurumu'] ?? 'BEKLEMEDE',
+            'yeniDeger'   => $newStatus,
+            'tarih'       => $now,
+            'ipAdresi'    => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+        ]);
+
+        $this->dataStore->commit();
+
+        return [
+            'success' => true,
+            'message' => "✓ {$reportNo} nolu rapor, orijinallik belgesi ve ürün notu heyet tarafından {$actionText}.",
+            'report'  => $report,
+        ];
+    }
+
+    /**
      * SRS: Onaylanmış bir müzayedenin belirlenen tarih/saatte otomatik ya da admin tarafından
      * manuel olarak başlatılması, duraklatılması veya sonlandırılmasıdır.
      */
