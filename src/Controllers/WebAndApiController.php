@@ -527,6 +527,17 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'process_collateral_refund':
+                $targetId = (int)($post['target_id'] ?? 0);
+                $refundType = trim($post['refund_type'] ?? 'ESCROW_IADE');
+                $reason = trim($post['reason'] ?? 'SRS uyarınca bloke edilen tutarın kullanıcıya iadesi');
+                $actorId = (int)($post['actor_id'] ?? 1);
+                $res = $this->workflowService->processCollateralRefund($targetId, $refundType, $reason, $actorId);
+                return [
+                    'type' => $res['success'] ? 'warning' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'cancel_listing':
                 $listingId = (int)($post['listing_id'] ?? 0);
                 $sellerId = (int)($post['seller_id'] ?? 2);
@@ -680,5 +691,13 @@ class WebAndApiController
     public function getEscrowSummary(): array
     {
         return $this->workflowService->getEscrowSummary();
+    }
+
+    /**
+     * Teklif İptali, Geçersiz Müzayede ve İhtilaf Teminat İadeleri Özetini Döner
+     */
+    public function getEscrowRefundSummary(): array
+    {
+        return $this->workflowService->getEscrowRefundSummary();
     }
 }

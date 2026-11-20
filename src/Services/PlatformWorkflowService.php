@@ -435,13 +435,28 @@ class PlatformWorkflowService
             $finalRefund = $escrowAmount;
             $kararAciklama = "Hakem Heyeti Kararı: Alıcı haklı bulundu. " . ($adminNote ? "Gerekçe: {$adminNote}. " : "") . "₺" . number_format($finalRefund, 2, ',', '.') . " emanet bloke bedeli alıcı cüzdanına iade edildi.";
 
-            // Alıcı cüzdanına iade
+            // Alıcı cüzdanına iade ve bloke bakiyesini düşürme
             $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $buyerId);
             if ($wallet) {
+                $curBlk = (float)($wallet['blokeBakiye'] ?? 0);
                 $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
                     'bakiye'        => ((float)($wallet['bakiye'] ?? 0)) + $finalRefund,
+                    'blokeBakiye'   => max(0.0, $curBlk - $finalRefund),
                     'sonGuncelleme' => date('c'),
                 ]);
+            }
+
+            // SRS: İhtilaf sonucu alıcı lehine karar verilmesi durumunda bloke edilen tutarın kullanıcıya iade edilmesi
+            $escrows = $this->dataStore->getCollection('escrowTransactions');
+            foreach ($escrows as $e) {
+                if (((int)($e['lotId'] ?? 0) === $lotId || (int)($e['aliciId'] ?? 0) === $buyerId) && ($e['durum'] ?? '') === 'EMANETTE_BLOKE') {
+                    $this->dataStore->updateItem('escrowTransactions', 'id', $e['id'], [
+                        'durum'          => 'BLOKE_IADE_EDILDI',
+                        'iadeTuru'       => 'IHTILAF_ALICI_LEHINE',
+                        'iadeZamani'     => date('c'),
+                        'iadeGerekcesi'  => "İhtilaf sonucu alıcı lehine karar verilmesi nedeniyle bloke edilen tutar kullanıcıya iade edildi. " . ($adminNote ? "Gerekçe: {$adminNote}" : ''),
+                    ]);
+                }
             }
         } elseif ($decision === 'SATICI_HAKLI') {
             $finalSellerAmount = $escrowAmount;
@@ -1047,6 +1062,70 @@ class PlatformWorkflowService
                 return [
                     'success' => true,
                     'message' => "'{$title}' müzayedesi geçici olarak DURAKLATILDI. Canlı teklif alımı donduruldu.",
+                ];
+
+            case 'void':
+            case 'gecersiz':
+            case 'iptal':
+                $this->dataStore->updateItem('auctions', 'id', $auctionId, [
+                    'durum'       => 'GECERSIZ',
+                    'iptalZamani' => date('c'),
+                ]);
+
+                // Bağlı lotları geçersiz kıl
+                $lots = $this->dataStore->getCollection('lots');
+                $refundedLots = [];
+                foreach ($lots as &$lot) {
+                    if ((int)($lot['muzayedeId'] ?? 801) === $auctionId || empty($lot['muzayedeId'])) {
+                        $lot['durum'] = 'GECERSIZ';
+                        $lot['kalanSureSaniye'] = 0;
+                        $refundedLots[] = (int)$lot['id'];
+                    }
+                }
+                unset($lot);
+                $this->dataStore->saveCollection('lots', $lots);
+
+                // Teklifleri iptal et ve blokeleri çöz
+                $allBids = $this->dataStore->getCollection('bids');
+                foreach ($allBids as $b) {
+                    if (in_array((int)($b['lotId'] ?? 0), $refundedLots, true) && ($b['durum'] ?? '') !== 'IPTAL_EDILDI') {
+                        $this->dataStore->updateItem('bids', 'id', $b['id'], [
+                            'durum'       => 'IPTAL_EDILDI',
+                            'iptalSebebi' => 'Müzayedenin geçersiz kalması nedeniyle teklif iptal edildi',
+                            'iptalZamani' => date('c'),
+                        ]);
+                        $bidderId = (int)($b['aliciId'] ?? 0);
+                        $bidAmt = (float)($b['teklifTutari'] ?? 0);
+                        if ($bidderId > 0 && $bidAmt > 0) {
+                            $wallet = $this->dataStore->getItem('wallets', 'kullaniciId', $bidderId);
+                            if ($wallet) {
+                                $curBlk = (float)($wallet['blokeBakiye'] ?? 0);
+                                $this->dataStore->updateItem('wallets', 'id', $wallet['id'], [
+                                    'blokeBakiye'   => max(0.0, $curBlk - $bidAmt),
+                                    'sonGuncelleme' => date('c'),
+                                ]);
+                            }
+                        }
+                    }
+                }
+
+                // Emanet işlemlerini iade durumuna getir (SRS: Müzayedenin geçersiz kalması iadesi)
+                $allEscrows = $this->dataStore->getCollection('escrowTransactions');
+                foreach ($allEscrows as $ae) {
+                    if (in_array((int)($ae['lotId'] ?? 0), $refundedLots, true) && ($ae['durum'] ?? '') === 'EMANETTE_BLOKE') {
+                        $this->dataStore->updateItem('escrowTransactions', 'id', $ae['id'], [
+                            'durum'          => 'BLOKE_IADE_EDILDI',
+                            'iadeTuru'       => 'MUZAYEDE_GECERSIZ',
+                            'iadeZamani'     => date('c'),
+                            'islemGerekcesi' => 'Müzayedenin geçersiz kalması nedeniyle bloke tutarı kullanıcıya eksiksiz iade edildi.',
+                        ]);
+                    }
+                }
+
+                $this->dataStore->commit();
+                return [
+                    'success' => true,
+                    'message' => "✓ '{$title}' müzayedesi GEÇERSİZ KILINDI. Bağlı lotlar kapatıldı ve tüm teminat blokeleri alıcılara iade edildi.",
                 ];
 
             case 'terminate':
@@ -2028,14 +2107,15 @@ class PlatformWorkflowService
                 ]);
             }
 
-            // Bağlı emanet/teminat blokesini de iade durumuna getir
+            // Bağlı emanet/teminat blokesini de iade durumuna getir (SRS Kuralı: Teklif iptali iadesi)
             $activeEscrows = $this->dataStore->getCollection('escrowTransactions');
             foreach ($activeEscrows as $ae) {
                 if ((int)($ae['lotId'] ?? 0) === $lotId && (int)($ae['aliciId'] ?? 0) === $bidderUserId && ($ae['durum'] ?? '') === 'EMANETTE_BLOKE') {
                     $this->dataStore->updateItem('escrowTransactions', 'id', $ae['id'], [
                         'durum'          => 'BLOKE_IADE_EDILDI',
+                        'iadeTuru'       => 'TEKLIF_IPTALI',
                         'iadeZamani'     => date('c'),
-                        'islemGerekcesi' => "Kural dışı/hatalı pey iptali (#{$bidId}) nedeniyle emanet bloke çözüldü ve iade edildi. Gerekçe: {$reason}",
+                        'islemGerekcesi' => "Kural dışı/hatalı pey iptali (#{$bidId}) nedeniyle emanet bloke çözüldü ve kullanıcıya iade edildi. Gerekçe: {$reason}",
                     ]);
                 }
             }
@@ -2124,6 +2204,19 @@ class PlatformWorkflowService
                             ]);
                         }
                     }
+                }
+            }
+
+            // SRS: Müzayededenin/lotun geçersiz kalması durumunda bloke edilen tutarın kullanıcıya iade edilmesi
+            $activeEscrows = $this->dataStore->getCollection('escrowTransactions');
+            foreach ($activeEscrows as $ae) {
+                if ((int)($ae['lotId'] ?? 0) === $targetId && ($ae['durum'] ?? '') === 'EMANETTE_BLOKE') {
+                    $this->dataStore->updateItem('escrowTransactions', 'id', $ae['id'], [
+                        'durum'          => 'BLOKE_IADE_EDILDI',
+                        'iadeTuru'       => 'MUZAYEDE_GECERSIZ',
+                        'iadeZamani'     => $now,
+                        'islemGerekcesi' => "Müzayedenin/lotun geçersiz kalması (hasar/ihtilaf tespiti) nedeniyle bloke edilen tutar kullanıcıya eksiksiz iade edildi. Gerekçe: {$reason}",
+                    ]);
                 }
             }
 
@@ -2449,6 +2542,52 @@ class PlatformWorkflowService
         return [
             'success' => true,
             'message' => "✓ ₺" . number_format($blockedAmount, 2, ',', '.') . " tutarındaki emanet blokesi çözülerek alıcıya iade edildi.",
+        ];
+    }
+
+    /**
+     * SRS: Teklif iptali, müzayedenin geçersiz kalması veya ihtilaf sonucu alıcı lehine
+     * karar verilmesi durumunda bloke edilen tutarın kullanıcıya iade edilmesidir.
+     */
+    public function processCollateralRefund(int $targetId, string $refundType, string $reason = '', int $actorId = 1): array
+    {
+        $refundType = strtoupper(trim($refundType));
+        switch ($refundType) {
+            case 'TEKLIF_IPTALI':
+                return $this->adminCancelBid($targetId, $reason ?: 'Kural dışı / hatalı pey tespiti nedeniyle teklif iptali ve teminat iadesi', $actorId);
+
+            case 'MUZAYEDE_GECERSIZ':
+                return $this->adminCancelLotOrListing($targetId, 'lot', $reason ?: 'Müzayedenin/lotun geçersiz kalması nedeniyle teminatların kullanıcıya iadesi', $actorId);
+
+            case 'IHTILAF_ALICI_LEHINE':
+                return $this->resolveDisputeDetailed($targetId, 'ALICI_HAKLI', 0.0, $reason ?: 'İhtilaf sonucu alıcı haklı bulundu ve emanet bedeli iade edildi', $actorId);
+
+            case 'ESCROW_IADE':
+            default:
+                return $this->refundEscrowHold($targetId, $actorId, $reason ?: 'Emanet blokesi çözülerek kullanıcıya iade edildi');
+        }
+    }
+
+    public function getEscrowRefundSummary(): array
+    {
+        $all = $this->dataStore->getCollection('escrowTransactions');
+        $refunded = array_filter($all, static fn($i) => ($i['durum'] ?? '') === 'BLOKE_IADE_EDILDI');
+
+        $byBidCancel = array_filter($refunded, static fn($i) => ($i['iadeTuru'] ?? '') === 'TEKLIF_IPTALI');
+        $byAuctionVoid = array_filter($refunded, static fn($i) => ($i['iadeTuru'] ?? '') === 'MUZAYEDE_GECERSIZ');
+        $byDisputeFavor = array_filter($refunded, static fn($i) => ($i['iadeTuru'] ?? '') === 'IHTILAF_ALICI_LEHINE');
+
+        $totalRefundedAmount = array_sum(array_map(static fn($i) => (float)($i['blokeTutari'] ?? 0), $refunded));
+
+        return [
+            'totalRefundedCount'      => count($refunded),
+            'totalRefundedAmount'     => $totalRefundedAmount,
+            'bidCancelCount'          => count($byBidCancel),
+            'bidCancelAmount'         => array_sum(array_map(static fn($i) => (float)($i['blokeTutari'] ?? 0), $byBidCancel)),
+            'auctionVoidCount'        => count($byAuctionVoid),
+            'auctionVoidAmount'       => array_sum(array_map(static fn($i) => (float)($i['blokeTutari'] ?? 0), $byAuctionVoid)),
+            'disputeFavorCount'       => count($byDisputeFavor),
+            'disputeFavorAmount'      => array_sum(array_map(static fn($i) => (float)($i['blokeTutari'] ?? 0), $byDisputeFavor)),
         ];
     }
 }

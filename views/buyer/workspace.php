@@ -1874,7 +1874,21 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
     <div id="buyerTab_itirazlar" class="tab-content <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">İtiraz ve İhtilaf Talepleri</h1>
-      <p class="page-subheading" style="margin-bottom:24px;">Uyuşmazlık bildirimlerinizi ve hakem heyeti kararlarını takip edin</p>
+      <p class="page-subheading" style="margin-bottom:20px;">Uyuşmazlık bildirimlerinizi ve hakem heyeti kararlarını takip edin</p>
+
+      <!-- SRS Bloke İade Güvencesi -->
+      <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:8px; padding:12px 18px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.4rem;">↩</span>
+          <div>
+            <strong style="color:#fca5a5; font-size:0.85rem;">SRS Otomatik Teminat & Emanet İade Güvencesi:</strong>
+            <span style="color:#94a3b8; font-size:0.8rem; display:block;">
+              ⚡ Teklif iptali, müzayedenin geçersiz kalması veya ihtilaf sonucu alıcı lehine karar verilmesi durumunda bloke edilen tutarın kullanıcıya iade edilmesidir.
+            </span>
+          </div>
+        </div>
+        <span class="badge" style="background:#450a0a; color:#fca5a5; border:1px solid #7f1d1d; font-size:0.75rem; padding:4px 10px;">%100 İade Koruması</span>
+      </div>
       
       <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px; align-items:start;">
         <!-- Sol: İtiraz Bildirim Formu -->

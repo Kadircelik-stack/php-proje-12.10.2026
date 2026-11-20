@@ -19,6 +19,7 @@ $expertAccreditations = $db['expertAccreditations'] ?? [];
 $commissionDefinitions = $controller->getCommissionDefinitions();
 $escrowTransactions = $controller->getEscrowTransactions();
 $escrowSummary = $controller->getEscrowSummary();
+$escrowRefundSummary = $controller->getEscrowRefundSummary();
 $activeTab = $_GET['tab'] ?? 'konsol';
 
 $lotMap = [];
@@ -1640,7 +1641,150 @@ foreach ($products as $p) {
         </div>
       </div>
 
-      <!-- Filtre Sekmeleri & Tablo -->
+
+      <!-- ====================================================================
+           SRS: TEKLİF İPTALİ, GEÇERSİZ MÜZAYEDE VE İHTİLAFTA TEMİNAT İADE MASASI
+           "Teklif iptali, müzayedenin geçersiz kalması veya ihtilaf sonucu alıcı
+            lehine karar verilmesi durumunda bloke edilen tutarın kullanıcıya iade edilmesidir."
+           ==================================================================== -->
+      <div class="panel-card" style="margin-bottom:24px; border:1px solid rgba(248,113,113,0.3); background:linear-gradient(180deg, #181824 0%, #0d0f17 100%); border-radius:10px; padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid #23263b; padding-bottom:14px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:1.3rem;">↩</span>
+              <h2 style="font-size:1.05rem; font-weight:700; color:#fff; margin:0;">
+                Otomatik Bloke İade Mekanizması & Geri Ödeme Masası
+              </h2>
+            </div>
+            <p style="font-size:0.83rem; color:#f87171; margin:6px 0 0 0; font-weight:500;">
+              ⚡ "Teklif iptali, müzayedenin geçersiz kalması veya ihtilaf sonucu alıcı lehine karar verilmesi durumunda bloke edilen tutarın kullanıcıya iade edilmesidir."
+            </p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div style="background:#111827; border:1px solid #374151; border-radius:6px; padding:6px 12px; font-size:0.75rem; color:#9ca3af;">
+              Toplam İade: <strong style="color:#f87171; font-family:'Cinzel', serif; font-size:0.9rem;"><?= $formatPrice($escrowRefundSummary['totalRefundedAmount'] ?? 0) ?></strong> (<?= (int)($escrowRefundSummary['totalRefundedCount'] ?? 0) ?> işlem)
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Teminat İade Durumu (Pillars) -->
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+          
+          <!-- DURUM 1: Teklif İptali İadesi -->
+          <div style="background:#111522; border:1px solid #1e2638; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-weight:700; color:#fca5a5; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                  <span>🔨</span> 1. Teklif İptali İadesi
+                </span>
+                <span class="badge" style="background:rgba(239,68,68,0.2); color:#fca5a5; font-size:0.7rem;">
+                  <?= (int)($escrowRefundSummary['bidCancelCount'] ?? 0) ?> İade
+                </span>
+              </div>
+              <p style="font-size:0.77rem; color:#94a3b8; line-height:1.45; margin:0 0 12px 0;">
+                Kural dışı, sehven veya kötü niyetli pey tespitinde, teklif iptal edilir; liderlik bir önceki geçerli peye döndürülür ve bloke edilen teminat bedeli anında alıcı cüzdanına iade edilir.
+              </p>
+            </div>
+            <form method="POST" style="margin:0; background:#090d15; border:1px solid #1b2333; border-radius:6px; padding:10px;" onsubmit="return confirm('Seçilen teklif iptal edilecek ve bloke teminat tutarı derhal alıcı cüzdanına iade edilecektir. Onaylıyor musunuz?');">
+              <input type="hidden" name="action" value="process_collateral_refund">
+              <input type="hidden" name="refund_type" value="TEKLIF_IPTALI">
+              <input type="hidden" name="actor_id" value="1">
+              <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px; text-transform:uppercase;">Hızlı Teklif İptali & İade:</div>
+              <div style="display:flex; gap:6px;">
+                <select name="target_id" class="form-control" style="font-size:0.75rem; padding:5px 8px; background:#141c2b; border-color:#2a364d; color:#fff; flex:1;">
+                  <?php 
+                  $activeBids = array_filter($bids, fn($b) => ($b['durum'] ?? '') === 'GECERLI');
+                  foreach (array_slice($activeBids, 0, 5) as $ab): 
+                  ?>
+                    <option value="<?= (int)$ab['id'] ?>">
+                      #<?= (int)$ab['id'] ?> - <?= htmlspecialchars($lotMap[(int)($ab['lotId'] ?? 0)]['baslik'] ?? 'Lot') ?> (<?= $formatPrice((float)$ab['teklifTutari']) ?>)
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn-sm" style="background:#dc2626; border:1px solid #b91c1c; color:#fff; font-weight:600; font-size:0.75rem; padding:6px 10px; cursor:pointer; white-space:nowrap;">
+                  İade Et
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- DURUM 2: Müzayedenin Geçersiz Kalması İadesi -->
+          <div style="background:#111522; border:1px solid #1e2638; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-weight:700; color:#fdba74; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                  <span>⚡</span> 2. Müzayede Geçersiz Kalması
+                </span>
+                <span class="badge" style="background:rgba(251,146,60,0.2); color:#fdba74; font-size:0.7rem;">
+                  <?= (int)($escrowRefundSummary['auctionVoidCount'] ?? 0) ?> İade
+                </span>
+              </div>
+              <p style="font-size:0.77rem; color:#94a3b8; line-height:1.45; margin:0 0 12px 0;">
+                Eserin hasar görmesi, rezerv taban fiyatına ulaşılamaması veya müzayedenin teknik/idari kararla geçersiz sayılması durumunda, o lota verilen tüm pey teminatları ve sipariş blokeleri topluca kullanıcılara iade edilir.
+              </p>
+            </div>
+            <form method="POST" style="margin:0; background:#090d15; border:1px solid #1b2333; border-radius:6px; padding:10px;" onsubmit="return confirm('Müzayede lotu geçersiz kılınacak ve bağlı tüm teklif teminatları kullanıcılara iade edilecektir. Onaylıyor musunuz?');">
+              <input type="hidden" name="action" value="process_collateral_refund">
+              <input type="hidden" name="refund_type" value="MUZAYEDE_GECERSIZ">
+              <input type="hidden" name="actor_id" value="1">
+              <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px; text-transform:uppercase;">Geçersiz Kılınacak Lot:</div>
+              <div style="display:flex; gap:6px;">
+                <select name="target_id" class="form-control" style="font-size:0.75rem; padding:5px 8px; background:#141c2b; border-color:#2a364d; color:#fff; flex:1;">
+                  <?php 
+                  $activeLots = array_filter($lots, fn($l) => ($l['durum'] ?? '') !== 'IPTAL_EDILDI' && ($l['durum'] ?? '') !== 'GECERSIZ');
+                  foreach (array_slice($activeLots, 0, 5) as $al): 
+                  ?>
+                    <option value="<?= (int)$al['id'] ?>">
+                      #<?= (int)$al['id'] ?> <?= htmlspecialchars($al['baslik'] ?? 'Lot') ?> (<?= $formatPrice((float)($al['mevcutEnYuksekTeklif'] ?? 0)) ?>)
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn-sm" style="background:#ea580c; border:1px solid #c2410c; color:#fff; font-weight:600; font-size:0.75rem; padding:6px 10px; cursor:pointer; white-space:nowrap;">
+                  Geçersiz Kıl
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- DURUM 3: İhtilaf Sonucu Alıcı Lehine Karar İadesi -->
+          <div style="background:#111522; border:1px solid #1e2638; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-weight:700; color:#c4b5fd; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                  <span>⚖️</span> 3. İhtilaf Alıcı Lehine Karar
+                </span>
+                <span class="badge" style="background:rgba(167,139,250,0.2); color:#c4b5fd; font-size:0.7rem;">
+                  <?= (int)($escrowRefundSummary['disputeFavorCount'] ?? 0) ?> İade
+                </span>
+              </div>
+              <p style="font-size:0.77rem; color:#94a3b8; line-height:1.45; margin:0 0 12px 0;">
+                Teslimat kusuru, orijinallik uyuşmazlığı veya gizli hasar durumunda tahkim heyeti alıcıyı haklı bulduğunda emanet havuzundaki satış bedeli eksiksiz olarak alıcının cüzdanına iade edilir.
+              </p>
+            </div>
+            <form method="POST" style="margin:0; background:#090d15; border:1px solid #1b2333; border-radius:6px; padding:10px;" onsubmit="return confirm('İhtilaf alıcı lehine sonuçlandırılacak ve emanet satış bedeli %100 alıcıya iade edilecektir. Onaylıyor musunuz?');">
+              <input type="hidden" name="action" value="process_collateral_refund">
+              <input type="hidden" name="refund_type" value="IHTILAF_ALICI_LEHINE">
+              <input type="hidden" name="actor_id" value="1">
+              <div style="font-size:0.72rem; color:#64748b; margin-bottom:4px; text-transform:uppercase;">Tahkim Dosyası (Alıcı Haklı):</div>
+              <div style="display:flex; gap:6px;">
+                <select name="target_id" class="form-control" style="font-size:0.75rem; padding:5px 8px; background:#141c2b; border-color:#2a364d; color:#fff; flex:1;">
+                  <?php foreach ($disputes as $disp): ?>
+                    <option value="<?= (int)$disp['id'] ?>">
+                      #<?= htmlspecialchars($disp['talepNo'] ?? ('DISP-' . $disp['id'])) ?> - <?= htmlspecialchars($disp['urunBaslik'] ?? 'Dosya') ?> (<?= $formatPrice((float)($disp['emanetTutari'] ?? 12800)) ?>)
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn-sm" style="background:#7c3aed; border:1px solid #6d28d9; color:#fff; font-weight:600; font-size:0.75rem; padding:6px 10px; cursor:pointer; white-space:nowrap;">
+                  Alıcıya İade
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+            <!-- Filtre Sekmeleri & Tablo -->
       <div class="panel-card" style="padding:0; overflow:hidden;">
         <div style="padding:16px 20px; border-bottom:1px solid #1f2736; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div>
@@ -1755,9 +1899,26 @@ foreach ($products as $p) {
                         ✓ Satıcıya Aktarıldı
                       </span>
                     <?php else: ?>
-                      <span class="badge" style="background:#1e293b; color:#94a3b8; padding:5px 10px; font-size:0.72rem; border:1px solid #334155;">
-                        ↩ İade Edildi
-                      </span>
+                      <?php 
+                        $iadeTuru = $esc['iadeTuru'] ?? '';
+                        if ($iadeTuru === 'TEKLIF_IPTALI'): 
+                      ?>
+                        <span class="badge" style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:5px 10px; font-size:0.7rem; border:1px solid rgba(239,68,68,0.4);">
+                          🔨 Teklif İptali İadesi
+                        </span>
+                      <?php elseif ($iadeTuru === 'MUZAYEDE_GECERSIZ'): ?>
+                        <span class="badge" style="background:rgba(251,146,60,0.2); color:#fdba74; padding:5px 10px; font-size:0.7rem; border:1px solid rgba(251,146,60,0.4);">
+                          ⚡ Müzayede Geçersiz İadesi
+                        </span>
+                      <?php elseif ($iadeTuru === 'IHTILAF_ALICI_LEHINE'): ?>
+                        <span class="badge" style="background:rgba(168,85,247,0.2); color:#d8b4fe; padding:5px 10px; font-size:0.7rem; border:1px solid rgba(168,85,247,0.4);">
+                          ⚖️ İhtilaf Alıcı Haklı İadesi
+                        </span>
+                      <?php else: ?>
+                        <span class="badge" style="background:#1e293b; color:#94a3b8; padding:5px 10px; font-size:0.7rem; border:1px solid #334155;">
+                          ↩ Kullanıcıya İade Edildi
+                        </span>
+                      <?php endif; ?>
                     <?php endif; ?>
                   </td>
 
@@ -1794,10 +1955,13 @@ foreach ($products as $p) {
                         <?= substr($esc['aktarimZamani'] ?? '', 0, 16) ?>
                       </div>
                     <?php else: ?>
-                      <div style="color:#94a3b8; font-size:0.75rem;">
-                        ↩ Alıcıya İade Edildi
+                      <div style="color:#f87171; font-size:0.75rem; font-weight:600;">
+                        ↩ Kullanıcıya İade Edildi
                       </div>
-                      <div style="font-size:0.68rem; color:#64748b;">
+                      <div style="font-size:0.71rem; color:#94a3b8; margin-top:2px; max-width:210px; line-height:1.3; margin-left:auto; margin-right:auto;">
+                        <?= htmlspecialchars($esc['iadeGerekcesi'] ?? ($esc['islemGerekcesi'] ?? 'İade tamamlandı')) ?>
+                      </div>
+                      <div style="font-size:0.68rem; color:#64748b; margin-top:2px;">
                         <?= substr($esc['iadeZamani'] ?? '', 0, 16) ?>
                       </div>
                     <?php endif; ?>
