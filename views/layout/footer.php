@@ -28,12 +28,12 @@ declare(strict_types=1);
       MARTELLO demo prototipi. Sunulan teklifler ve işlemler gerçek satın alma oluşturmaz.
     </p>
     <ul class="footer-links-list" style="list-style:none; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-      <li><a href="javascript:void(0)" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">Müzayede Şartları</a></li>
-      <li><a href="javascript:void(0)" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">Gizlilik Politikası</a></li>
-      <li><a href="javascript:void(0)" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">KVK</a></li>
-      <li><a href="javascript:void(0)" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">İletişim</a></li>
-      <li><a href="javascript:void(0)" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">Yardım Merkezi</a></li>
-      <li><a href="?role=support" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">Destek ve Yardım</a></li>
+      <li><a href="?role=yardim&htab=kurallar" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">Müzayede Şartları & Kurallar</a></li>
+      <li><a href="javascript:void(0)" onclick="openInfoModal('privacy')" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">Gizlilik Politikası</a></li>
+      <li><a href="javascript:void(0)" onclick="openInfoModal('privacy')" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">KVK</a></li>
+      <li><a href="?role=yardim&htab=destek" style="color:#848d9a; font-size:0.8rem; text-decoration:none;">İletişim & Destek</a></li>
+      <li><a href="?role=yardim" style="color:#d4af37; font-size:0.8rem; font-weight:600; text-decoration:none;">Yardım Merkezi (Rehber & SSS)</a></li>
+      <li><a href="?role=yardim&htab=destek" style="color:#38bdf8; font-size:0.8rem; font-weight:600; text-decoration:none;">Canlı & Bilet Destek Kanalı</a></li>
     </ul>
   </div>
 </footer>

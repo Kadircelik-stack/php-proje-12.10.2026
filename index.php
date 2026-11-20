@@ -115,6 +115,10 @@ switch ($activeRole) {
     case 'support':
         require __DIR__ . '/views/support/workspace.php';
         break;
+    case 'yardim':
+    case 'help':
+        require __DIR__ . '/views/support/help_center.php';
+        break;
     case 'admin':
         require __DIR__ . '/views/admin/workspace.php';
         break;

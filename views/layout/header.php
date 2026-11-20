@@ -13,6 +13,8 @@ $userRoleMap = [
     'appraiser' => ['name' => 'Burak Şahin', 'role' => 'EKSPERTİZ', 'balance' => 12000.0],
     'support'   => ['name' => 'Elif Çelik', 'role' => 'CANLI DESTEK', 'balance' => 0.0],
     'admin'     => ['name' => 'Ahmet Yılmaz', 'role' => 'ADMIN', 'balance' => 0.0],
+    'yardim'    => ['name' => 'Ziyaretçi', 'role' => 'YARDIM MERKEZİ', 'balance' => 0.0],
+    'help'      => ['name' => 'Ziyaretçi', 'role' => 'YARDIM MERKEZİ', 'balance' => 0.0],
 ];
 $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
 ?>
@@ -71,10 +73,18 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
   </div>
 
   <!-- Müzayede & Satış Geçmişi Kısayolu -->
-  <div style="display:flex; align-items:center; margin-right:12px;">
+  <div style="display:flex; align-items:center; margin-right:8px;">
     <a href="index.php?role=buyer&tab=gecmis&currency=<?= htmlspecialchars($activeCurrency) ?>" style="color:#d4af37; font-size:0.78rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:rgba(212,175,55,0.08); border:1px solid rgba(212,175,55,0.3); border-radius:18px; white-space:nowrap; transition:all 0.2s;" onmouseover="this.style.background='rgba(212,175,55,0.18)'; this.style.borderColor='#d4af37';" onmouseout="this.style.background='rgba(212,175,55,0.08)'; this.style.borderColor='rgba(212,175,55,0.3)';">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
-      <span>Müzayede & Satış Geçmişi</span>
+      <span>Müzayede Geçmişi</span>
+    </a>
+  </div>
+
+  <!-- Yardım Merkezi & Rehber Kısayolu -->
+  <div style="display:flex; align-items:center; margin-right:12px;">
+    <a href="index.php?role=yardim&currency=<?= htmlspecialchars($activeCurrency) ?>" style="color:#38bdf8; font-size:0.78rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.3); border-radius:18px; white-space:nowrap; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.18)'; this.style.borderColor='#38bdf8';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.borderColor='rgba(56,189,248,0.3)';">
+      <span>❓</span>
+      <span>Yardım Merkezi & Destek</span>
     </a>
   </div>
 
@@ -222,6 +232,15 @@ function closeInfoModal() {
         </div>
         <div style="font-weight:600; color:#fff; font-size:0.9rem;">Admin Konsolu</div>
         <div style="font-size:0.75rem; color:#848d9a;">Yönetim konsolu, moderasyon, denetim</div>
+      </a>
+
+      <a href="?role=yardim&currency=<?= htmlspecialchars($activeCurrency) ?>" style="display:block; padding:14px; background:#181d28; border:1px solid <?= $activeRole === 'yardim' ? '#d4af37' : '#263042' ?>; border-radius:8px; text-decoration:none; grid-column:span 2;">
+        <div style="color:#38bdf8; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.2rem;">❓</span>
+          <span style="font-weight:600; color:#fff; font-size:0.92rem;">Yardım Merkezi & Destek Masası</span>
+          <span class="badge badge-gold" style="font-size:0.65rem; margin-left:auto;">Rehber • Kurallar • SSS • Canlı Destek</span>
+        </div>
+        <div style="font-size:0.75rem; color:#848d9a;">Sistem kuralları, açık artırma kılavuzu, SSS arama ve canlı/bilet destek kanalı</div>
       </a>
     </div>
   </div>

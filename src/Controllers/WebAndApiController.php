@@ -611,6 +611,49 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            
+            case 'create_support_ticket':
+                $userId = (int)($post['user_id'] ?? 3);
+                $userName = trim($post['user_name'] ?? 'Emre K.');
+                $userEmail = trim($post['user_email'] ?? 'alici@martello.com');
+                $category = trim($post['category'] ?? 'Genel');
+                $priority = trim($post['priority'] ?? 'NORMAL');
+                $subject = trim($post['subject'] ?? '');
+                $message = trim($post['message'] ?? '');
+                $lotId = !empty($post['lot_id']) ? (int)$post['lot_id'] : null;
+
+                $res = $this->workflowService->createSupportTicket($userId, $userName, $userEmail, $category, $priority, $subject, $message, $lotId);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'reply_support_ticket':
+                $ticketId = (int)($post['ticket_id'] ?? 0);
+                $userId = (int)($post['user_id'] ?? 3);
+                $userName = trim($post['user_name'] ?? 'Emre K.');
+                $userRole = trim($post['user_role'] ?? 'ALICI');
+                $replyText = trim($post['reply_text'] ?? '');
+                $newStatus = !empty($post['new_status']) ? trim($post['new_status']) : null;
+
+                $res = $this->workflowService->replySupportTicket($ticketId, $userId, $userName, $userRole, $replyText, $newStatus);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'resolve_support_ticket':
+                $ticketId = (int)($post['ticket_id'] ?? 0);
+                $userId = (int)($post['user_id'] ?? 1);
+                $userName = trim($post['user_name'] ?? 'Elif Çelik (Canlı Destek)');
+                $note = trim($post['resolution_note'] ?? '');
+
+                $res = $this->workflowService->resolveSupportTicket($ticketId, $userId, $userName, $note);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             default:
                 return ['type' => 'info', 'text' => "İşlem alındı."];
         }
@@ -716,4 +759,29 @@ class WebAndApiController
     {
         return $this->workflowService->getAuditLogStatistics();
     }
+
+    /**
+     * Destek Biletlerini Döner (Tümü veya Kullanıcıya Göre)
+     */
+    public function getSupportTickets(?int $userId = null): array
+    {
+        return $this->workflowService->getSupportTickets($userId);
+    }
+
+    /**
+     * Destek Biletleri İstatistiklerini Döner
+     */
+    public function getSupportTicketStatistics(): array
+    {
+        return $this->workflowService->getSupportTicketStatistics();
+    }
+
+    /**
+     * Yardım Merkezi İçeriklerini Döner (Kurallar, Rehber, SSS)
+     */
+    public function getHelpCenterData(): array
+    {
+        return $this->workflowService->getHelpCenterData();
+    }
+
 }

@@ -2708,4 +2708,419 @@ class PlatformWorkflowService
             'lastActivity'        => !empty($all) ? ($all[count($all) - 1]['tarih'] ?? date('c')) : date('c'),
         ];
     }
+
+    /**
+     * =========================================================================
+     * YARDIM MERKEZİ & DESTEK KANALI (SRS Destek ve Bilgilendirme Sistemi)
+     * "Kullanıcılara sistem kurallarını, müzayede rehberini, sıkça sorulan
+     * soruları (SSS) ve canlı/bilet tabanlı destek kanalını sunan yardım merkezidir."
+     * =========================================================================
+     */
+
+    /**
+     * Destek Biletlerini Getirir (Tümü veya Belirli Kullanıcıya Göre)
+     */
+    public function getSupportTickets(?int $userId = null): array
+    {
+        $tickets = $this->dataStore->getCollection('supportTickets');
+        if ($userId !== null && $userId > 0) {
+            $tickets = array_filter($tickets, static fn($t) => (int)($t['kullaniciId'] ?? 0) === $userId);
+        }
+        usort($tickets, static fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
+        return array_values($tickets);
+    }
+
+    /**
+     * Destek Biletleri Durum İstatistiklerini Döner
+     */
+    public function getSupportTicketStatistics(): array
+    {
+        $tickets = $this->dataStore->getCollection('supportTickets');
+        $total = count($tickets);
+        $open = 0;
+        $inProgress = 0;
+        $answered = 0;
+        $resolved = 0;
+
+        foreach ($tickets as $t) {
+            $durum = strtoupper((string)($t['durum'] ?? 'ACIK'));
+            if ($durum === 'ACIK') $open++;
+            elseif ($durum === 'ISLENIYOR') $inProgress++;
+            elseif ($durum === 'YANITLANDI') $answered++;
+            elseif ($durum === 'COZULDU') $resolved++;
+        }
+
+        return [
+            'total'      => $total,
+            'open'       => $open,
+            'inProgress' => $inProgress,
+            'answered'   => $answered,
+            'resolved'   => $resolved,
+        ];
+    }
+
+    /**
+     * Kullanıcı İçin Yeni Destek Bileti Oluşturur
+     */
+    public function createSupportTicket(
+        int $userId,
+        string $userName,
+        string $userEmail,
+        string $category,
+        string $priority,
+        string $subject,
+        string $message,
+        ?int $relatedLotId = null
+    ): array {
+        $subject = trim($subject);
+        $message = trim($message);
+        if ($subject === '' || $message === '') {
+            return ['success' => false, 'message' => 'Lütfen bilet konusunu ve detaylı açıklama metnini eksiksiz giriniz.'];
+        }
+
+        $tickets = $this->dataStore->getCollection('supportTickets');
+        $maxId = 0;
+        foreach ($tickets as $t) {
+            if ((int)($t['id'] ?? 0) > $maxId) {
+                $maxId = (int)$t['id'];
+            }
+        }
+        $newId = $maxId + 1;
+        $ticketNo = 'TKT-' . date('Y') . '-' . str_pad((string)(8800 + $newId), 4, '0', STR_PAD_LEFT);
+
+        $newTicket = [
+            'id'              => $newId,
+            'biletNo'         => $ticketNo,
+            'kullaniciId'     => $userId,
+            'kullaniciAd'     => $userName,
+            'kullaniciEmail'  => $userEmail,
+            'kategori'        => $category,
+            'oncelik'         => strtoupper($priority),
+            'konu'            => $subject,
+            'mesaj'           => $message,
+            'durum'           => 'ACIK',
+            'lotId'           => $relatedLotId,
+            'olusturmaTarihi' => date('c'),
+            'guncellemeTarihi' => date('c'),
+            'cevaplar'        => [],
+        ];
+
+        $this->dataStore->insertItem('supportTickets', $newTicket);
+
+        // Denetim İzi Kaydı
+        $this->logAuditEvent(
+            'KULLANICI',
+            'DESTEK_BILETI_OLUSTURULDU',
+            $userId,
+            'DestekBileti',
+            $newId,
+            "{$ticketNo} nolu '{$subject}' konulu yeni destek bileti açıldı. (Kategori: {$category}, Öncelik: {$priority})",
+            null,
+            'ACIK',
+            'INFO'
+        );
+
+        // Kullanıcı Bildirimi
+        $this->dataStore->insertItem('notifications', [
+            'kullaniciId' => $userId,
+            'baslik'      => "Destek Talebiniz Alındı (#{$ticketNo})",
+            'icerik'      => "{$ticketNo} nolu talebiniz canlı destek ekibimize iletildi. Talebiniz en kısa sürede yanıtlanacaktır.",
+            'okundu'      => false,
+            'tarih'       => date('c'),
+            'oncelik'     => $priority,
+        ]);
+
+        return [
+            'success'   => true,
+            'ticket_id' => $newId,
+            'ticket_no' => $ticketNo,
+            'message'   => "✓ Destek talebiniz başarıyla oluşturuldu. Bilet Takip Numaranız: {$ticketNo}.",
+        ];
+    }
+
+    /**
+     * Destek Biletine Yanıt Ekler
+     */
+    public function replySupportTicket(
+        int $ticketId,
+        int $userId,
+        string $userName,
+        string $userRole,
+        string $replyText,
+        ?string $newStatus = null
+    ): array {
+        $ticket = $this->dataStore->getItem('supportTickets', 'id', $ticketId);
+        if (!$ticket) {
+            return ['success' => false, 'message' => 'Destek bileti bulunamadı.'];
+        }
+
+        $replyText = trim($replyText);
+        if ($replyText === '') {
+            return ['success' => false, 'message' => 'Lütfen boş yanıt göndermeyiniz.'];
+        }
+
+        $replies = $ticket['cevaplar'] ?? [];
+        $ansId = 'ANS-' . ($ticketId * 100 + count($replies) + 1);
+
+        $replies[] = [
+            'cevapId'  => $ansId,
+            'yazanId'  => $userId,
+            'yazanAd'  => $userName,
+            'yazanRol' => $userRole,
+            'mesaj'    => $replyText,
+            'tarih'    => date('Y-m-d H:i:s'),
+        ];
+
+        $status = $ticket['durum'] ?? 'ACIK';
+        if ($newStatus !== null && $newStatus !== '') {
+            $status = strtoupper($newStatus);
+        } else {
+            if (in_array(strtoupper($userRole), ['CANLI DESTEK', 'DESTEK_UZMANI', 'ADMIN', 'DESTEK'], true)) {
+                $status = 'YANITLANDI';
+            } else {
+                $status = 'ISLENIYOR';
+            }
+        }
+
+        $this->dataStore->updateItem('supportTickets', 'id', $ticketId, [
+            'cevaplar'        => $replies,
+            'durum'           => $status,
+            'guncellemeTarihi' => date('c'),
+        ]);
+
+        $this->logAuditEvent(
+            'KULLANICI',
+            'DESTEK_BILETI_YANITLANDI',
+            $userId,
+            'DestekBileti',
+            $ticketId,
+            "{$ticket['biletNo']} nolu destek biletine yanıt eklendi. (Yeni Durum: {$status})",
+            $ticket['durum'] ?? 'ACIK',
+            $status,
+            'INFO'
+        );
+
+        return [
+            'success' => true,
+            'message' => "✓ Yanıtınız başarıyla iletildi ve destek bileti güncellendi.",
+        ];
+    }
+
+    /**
+     * Destek Biletini Çözümlendi Olarak İşaretler
+     */
+    public function resolveSupportTicket(int $ticketId, int $userId, string $userName, string $resolutionNote = ''): array
+    {
+        $ticket = $this->dataStore->getItem('supportTickets', 'id', $ticketId);
+        if (!$ticket) {
+            return ['success' => false, 'message' => 'Destek bileti bulunamadı.'];
+        }
+
+        $replies = $ticket['cevaplar'] ?? [];
+        if ($resolutionNote !== '') {
+            $replies[] = [
+                'cevapId'  => 'RES-' . ($ticketId * 100 + count($replies) + 1),
+                'yazanId'  => $userId,
+                'yazanAd'  => $userName,
+                'yazanRol' => 'DESTEK_UZMANI',
+                'mesaj'    => "Çözüm Açıklaması: " . $resolutionNote,
+                'tarih'    => date('Y-m-d H:i:s'),
+            ];
+        }
+
+        $this->dataStore->updateItem('supportTickets', 'id', $ticketId, [
+            'durum'           => 'COZULDU',
+            'cevaplar'        => $replies,
+            'guncellemeTarihi' => date('c'),
+        ]);
+
+        $this->logAuditEvent(
+            'ADMIN',
+            'DESTEK_BILETI_COZULDU',
+            $userId,
+            'DestekBileti',
+            $ticketId,
+            "{$ticket['biletNo']} nolu destek bileti çözümlendi olarak kapatıldı.",
+            $ticket['durum'] ?? 'ISLENIYOR',
+            'COZULDU',
+            'INFO'
+        );
+
+        return [
+            'success' => true,
+            'message' => "✓ Destek bileti (#{$ticket['biletNo']}) başarıyla çözümlendi olarak kapatıldı.",
+        ];
+    }
+
+    /**
+     * Yardım Merkezi İçeriklerini (Sistem Kuralları, Rehber ve SSS) Döner
+     */
+    public function getHelpCenterData(): array
+    {
+        return [
+            'systemRules' => [
+                [
+                    'kod'     => 'RULE-01',
+                    'baslik'  => 'Asgari Pey ve Kademeli Artış Kuralı',
+                    'ozet'    => 'Teklif verirken uygulanması zorunlu minimum artış tutarları ve kademeleri.',
+                    'detay'   => 'Platformdaki her eser için mevcut en yüksek teklife eklenebilecek minimum pey tutarı otomatik hesaplanır: 0 - 25.000 ₺ arası +1.500 ₺; 25.001 - 100.000 ₺ arası +3.000 ₺; 100.001 - 500.000 ₺ arası +10.000 ₺; 500.001 ₺ üzeri (VIP) +25.000 ₺. Bu tutarın altındaki teklifler sistem motoru tarafından doğrudan reddedilir.',
+                    'ikon'    => '⚖️',
+                    'rozet'   => 'ZORUNLU KURAL'
+                ],
+                [
+                    'kod'     => 'RULE-02',
+                    'baslik'  => '60 Saniye Anti-Sniping (Adil Kapanış Prensibi)',
+                    'ozet'    => 'Son saniye bot tekliflerini ve manipülasyonu engelleyen uzatma algoritması.',
+                    'detay'   => 'Canlı açık artırmanın son 60 saniyesi içerisinde geçerli yeni bir pey verildiğinde, müzayede bitiş sayacı otomatik olarak +60 saniye uzatılır. Bu kural tüm katılımcılara adil karşı teklif verme fırsatı sağlar ve çekiç düşene kadar devam eder.',
+                    'ikon'    => '⏱️',
+                    'rozet'   => 'MANİPÜLASYON ENGELİ'
+                ],
+                [
+                    'kod'     => 'RULE-03',
+                    'baslik'  => 'Emanet Hesap (Escrow) ve Teminat Bloke Güvencesi',
+                    'ozet'    => 'Teklif anında bloke edilen teminat ve teslimat sonrası satıcıya aktarım döngüsü.',
+                    'detay'   => 'Teklif verme anında pey teminatı (%10 veya sabit tutar) kullanıcının emanet hesabında bloke edilir. Müzayede kazanıldığında toplam tutar emanet havuzunda güvenceye alınır. Satıcıya ödeme ancak ürün alıcı tarafından sigortalı teslim alınıp kondisyonu onaylandıktan sonra aktarılır.',
+                    'ikon'    => '🛡️',
+                    'rozet'   => 'TAM FİNANSAL GÜVENCE'
+                ],
+                [
+                    'kod'     => 'RULE-04',
+                    'baslik'  => 'Teminat İadesi, Teklif İptali ve İhtilaf Tahkimi',
+                    'ozet'    => 'Pey geçilmesinde anında iade, müzayede geçersizliğinde tam iade ve tahkim çözümü.',
+                    'detay'   => 'Verdiğiniz pey başka bir alıcı tarafından geçildiğinde ya da müzayede sonuçsuz kaldığında bloke edilen teminatınız 0 kesintiyle anında cüzdanınıza iade edilir. Teslimat hasarı veya orijinallik ihtilafında bağımsız tahkim heyeti alıcı lehine karar verirse emanet tutar eksiksiz iade edilir.',
+                    'ikon'    => '🔄',
+                    'rozet'   => 'ŞARTSIZ İADE GÜVENCESİ'
+                ],
+                [
+                    'kod'     => 'RULE-05',
+                    'baslik'  => 'Lisanslı Ekspertiz ve Çift Heyet Akreditasyonu Zorunluluğu',
+                    'ozet'    => 'Orijinallik belgesi ve bağımsız bilirkişi onayı bulunmayan eser listelenemez.',
+                    'detay'   => 'Platformdaki tüm sanat eserleri, antikalar ve saatler T.C. Kültür Bakanlığı veya uluslararası lisanslı eksperlerin fiziksel incelemesinden geçirilir. İki uzman heyet üyesinin ıslak/dijital imzalı onay raporu ve orijinallik sertifikası olmadan hiçbir ürün canlı müzayedeye çıkarılamaz.',
+                    'ikon'    => '🔍',
+                    'rozet'   => 'NOTER TASDİKLİ ORİJİNALLİK'
+                ],
+                [
+                    'kod'     => 'RULE-06',
+                    'baslik'  => 'Platform Komisyon Oranları ve Şeffaf Hizmet Bedelleri',
+                    'ozet'    => 'Gizli masraf içermeyen, açık ve net belirlenmiş komisyon ve hizmet bedeli tarifesi.',
+                    'detay'   => 'Standart Alıcı Primi: %12.0; Standart Satıcı Komisyonu: %8.0; VIP Salonu Komisyonu: %5.0; Ekspertiz & Sertifikasyon Sabit Bedeli: ₺2.500; Özel Sanat Lojistiği & Sandıklama: ₺1.200. Tüm masraflar teklif ekranında ve faturada net olarak gösterilir.',
+                    'ikon'    => '💰',
+                    'rozet'   => 'ŞEFFAF TARİFE'
+                ]
+            ],
+            'auctionGuide' => [
+                [
+                    'adim'   => 1,
+                    'baslik' => 'Üyelik ve KYC Kimlik Doğrulaması',
+                    'aciklama' => 'Seçkin koleksiyonerler topluluğuna katılmak için kimlik ve adres doğrulama adımını tamamlayın. Onaylı profiliniz ile canlı müzayedelere hemen katılabilirsiniz.',
+                    'ikon'   => '🆔'
+                ],
+                [
+                    'adim'   => 2,
+                    'baslik' => 'Cüzdan Yükleme ve Pey Teminatı',
+                    'aciklama' => 'Kredi kartı, banka havalesi veya emanet cüzdanınıza bakiye yükleyerek teklif vereceğiniz lot için gereken asgari teminatı bloke edin.',
+                    'ikon'   => '💳'
+                ],
+                [
+                    'adim'   => 3,
+                    'baslik' => 'Canlı İhalede Teklif Seçenekleri',
+                    'aciklama' => 'Manuel pey verin, hızlı artış butonlarını (+1.500₺, +5.000₺) kullanın ya da tavan bütçenizi belirleyip Otomatik Pey (Proxy Bidding) motorunu devreye sokun.',
+                    'ikon'   => '⚡'
+                ],
+                [
+                    'adim'   => 4,
+                    'baslik' => '60 Saniye Anti-Sniping ve Çekiç Vuruşu',
+                    'aciklama' => 'Son saniyelerde gelen teklifler sayacı 60 saniye uzatır. En yüksek pey sahibi siz olduğunuzda tokmak vurulur ve lot adınıza tescil edilir.',
+                    'ikon'   => '🔨'
+                ],
+                [
+                    'adim'   => 5,
+                    'baslik' => 'Emanet Hesap Güvencesinde Ödeme',
+                    'aciklama' => 'Satış tutarı emanet hesapta bloke edilir. Ödemeniz, eser elinize sağlam ve ekspertiz onaylı ulaşana kadar güvence altında tutulur.',
+                    'ikon'   => '🏦'
+                ],
+                [
+                    'adim'   => 6,
+                    'baslik' => 'Özel Sigortalı Sanat Kargo & Onay',
+                    'aciklama' => 'Eser özel ahşap sandıklama ve çift mühürlü sanat kuryesi ile kapınıza teslim edilir. 48 saatlik inceleme süresi sonrasında satış onaylanır.',
+                    'ikon'   => '📦'
+                ]
+            ],
+            'faqList' => [
+                [
+                    'kategori' => 'PEY_MUZAYEDE',
+                    'kategoriAd' => 'Teklif & Müzayede',
+                    'soru'     => 'Pey verirken asgari artış kuralı nedir ve nasıl hesaplanır?',
+                    'cevap'    => 'Platformumuzda her pey, mevcut en yüksek teklifin üzerine sistem tarafından belirlenen asgari adım tutarı eklenerek verilir. Örneğin mevcut teklif ₺340.000 ise bu kademe için asgari artış ₺10.000\\\'dir ve bir sonraki geçerli pey en az ₺350.000 olmalıdır. Daha düşük bir tutar girilemez.'
+                ],
+                [
+                    'kategori' => 'PEY_MUZAYEDE',
+                    'kategoriAd' => 'Teklif & Müzayede',
+                    'soru'     => 'Son saniyede pey verilirse müzayede ne zaman biter (Anti-Sniping)?',
+                    'cevap'    => 'Kapanışa son 60 saniye kala geçerli bir pey verildiğinde süre otomatik olarak 60 saniye uzatılır. Bu sayede tüm katılımcılar karşı teklif verebilir ve son milisaniye bot saldırıları tamamen engellenir.'
+                ],
+                [
+                    'kategori' => 'PEY_MUZAYEDE',
+                    'kategoriAd' => 'Teklif & Müzayede',
+                    'soru'     => 'Otomatik Teklif (Proxy Bidding) sistemi nasıl çalışır?',
+                    'cevap'    => 'Bir eser için ödemeye hazır olduğunuz maksimum tutarı sisteme girersiniz. Sistem sizin yerinize sadece rakip teklifleri bir asgari adım geçecek kadar pey sürer. Tavan tutarınız aşılmadığı sürece siz çevrimdışıyken bile liderliği korur.'
+                ],
+                [
+                    'kategori' => 'PEY_MUZAYEDE',
+                    'kategoriAd' => 'Teklif & Müzayede',
+                    'soru'     => 'VIP Müzayede Salonuna nasıl katılırım ve telefonla pey rezervasyonu nasıl yapılır?',
+                    'cevap'    => 'VIP salonundaki özel eserler için Platinum/VIP üyelik seviyesi veya teminat onayı gerekir. VIP salonunda yer alan "Telefonla Pey Rezervasyonu" formunu doldurarak canlı ihale saatinde özel müşteri temsilcinizin sizi doğrudan telefonla aramasını sağlayabilirsiniz.'
+                ],
+                [
+                    'kategori' => 'ODEME_EMANET',
+                    'kategoriAd' => 'Ödeme & Emanet',
+                    'soru'     => 'Emanet Hesap (Escrow) güvencesi nedir ve param satıcıya ne zaman aktarılır?',
+                    'cevap'    => 'MARTELLO\\\'da alıcı ödemesi doğrudan satıcıya gitmez. Tutar bağımsız emanet havuzunda bloke edilir. Ürün alıcıya ulaşıp orijinallik ve hasarsızlık incelemesi onaylandıktan sonra satıcı hesabına transfer edilir.'
+                ],
+                [
+                    'kategori' => 'ODEME_EMANET',
+                    'kategoriAd' => 'Ödeme & Emanet',
+                    'soru'     => 'Pey teminatı nedir ve ne zaman iade edilir?',
+                    'cevap'    => 'Teklif verirken cayma riskini önlemek amacıyla teklif tutarının %10-20\\\'si emanet havuzunda bloke edilir. Başka bir alıcı teklifinizi geçerse ya da müzayedeyi kazanamazsanız blokeniz anında ve kesintisiz serbest bırakılır.'
+                ],
+                [
+                    'kategori' => 'ODEME_EMANET',
+                    'kategoriAd' => 'Ödeme & Emanet',
+                    'soru'     => 'Alıcı primi ve platform komisyon oranları ne kadardır?',
+                    'cevap'    => 'Standart müzayedelerde alıcı primi %12.0, satıcı komisyonu %8.0\\\'dır. VIP salonunda alıcı primi %5.0\\\'a düşer. Eser sayfasında nihai tahmini toplam tutar tüm komisyonlar dahil olarak şeffafça hesaplanır.'
+                ],
+                [
+                    'kategori' => 'EKSPERTIZ_ORIJINALLIK',
+                    'kategoriAd' => 'Ekspertiz & Orijinallik',
+                    'soru'     => 'Eserlerin orijinalliği nasıl garanti altına alınır?',
+                    'cevap'    => 'Tüm eserler lisanslı bağımsız bilirkişi ve iki uzman kurul üyesinin fiziksel incelemesinden geçer. Eserle birlikte T.C. Kültür Bakanlığı akrediteli orijinallik sertifikası, kondisyon raporu ve mühürlü sertifika teslim edilir.'
+                ],
+                [
+                    'kategori' => 'EKSPERTIZ_ORIJINALLIK',
+                    'kategoriAd' => 'Ekspertiz & Orijinallik',
+                    'soru'     => 'Ekspertiz raporunu müzayede öncesinde detaylı inceleyebilir miyim?',
+                    'cevap'    => 'Evet. Lot detay sayfasında ve Ekspertiz Raporları sekmesinde esere ait yüksek çözünürlüklü mikroskobik fotoğraflar, materyal analizi, kondisyon notu (A+, A, B) ve uzman heyet şerhleri kamuya açık olarak sergilenir.'
+                ],
+                [
+                    'kategori' => 'KARGO_TESLIMAT',
+                    'kategoriAd' => 'Kargo & Teslimat',
+                    'soru'     => 'Satın aldığım antika veya sanat eseri nasıl kargolanır?',
+                    'cevap'    => 'Tüm eserler özel nem ve darbe korumalı ahşap sandıklarda, çift güvenlik mührüyle ve değerinin %100\\\'ü oranında sigortalanmış sanat lojistiği kuryesiyle doğrudan adrese teslim edilir.'
+                ],
+                [
+                    'kategori' => 'IPTAL_IHTILAF',
+                    'kategoriAd' => 'İptal & İhtilaf',
+                    'soru'     => 'Yanlışlıkla verdiğim bir peyi iptal edebilir miyim?',
+                    'cevap'    => 'Teklif verme anından itibaren ilk 5 dakika içinde sistem üzerinden "Hatalı Pey İptal Talebi" oluşturabilirsiniz. Admin ve ihale yöneticisi inceleyip onayladığında teklif iptal edilir ve teminatınız iade edilir.'
+                ],
+                [
+                    'kategori' => 'IPTAL_IHTILAF',
+                    'kategoriAd' => 'İptal & İhtilaf',
+                    'soru'     => 'Eser hasarlı çıkarsa veya rapordan farklıysa ihtilaf süreci nasıl işler?',
+                    'cevap'    => 'Teslimattan sonraki 48 saat içinde alıcı panelinden veya canlı destekten ihtilaf kaydı açabilirsiniz. Emanet hesaptaki ödeme dondurulur; bağımsız tahkim heyeti eseri inceler ve haklı bulunmanız halinde tutar eksiksiz iade edilir.'
+                ]
+            ]
+        ];
+    }
+
 }
