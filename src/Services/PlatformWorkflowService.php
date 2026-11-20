@@ -3006,6 +3006,14 @@ class PlatformWorkflowService
                     'detay'   => 'Standart Alıcı Primi: %12.0; Standart Satıcı Komisyonu: %8.0; VIP Salonu Komisyonu: %5.0; Ekspertiz & Sertifikasyon Sabit Bedeli: ₺2.500; Özel Sanat Lojistiği & Sandıklama: ₺1.200. Tüm masraflar teklif ekranında ve faturada net olarak gösterilir.',
                     'ikon'    => '💰',
                     'rozet'   => 'ŞEFFAF TARİFE'
+                ],
+                [
+                    'kod'     => 'RULE-07',
+                    'baslik'  => '3D Secure Kredi/Banka Kartı ve Tanımlı Kart ile Ödeme',
+                    'ozet'    => 'Kredi kartı, banka kartı ve kayıtlı kartlarla (3D Secure destekli) anında ve güvenli ödeme.',
+                    'detay'   => 'Kullanıcılar bakiye yüklemelerini ve müzayede ödemelerini Visa, Mastercard veya Troy logolu Kredi Kartı, Banka Kartı (Debit) veya PCI-DSS tokenizasyonuyla saklanan Tanımlı Kartlar ile gerçekleştirebilir. Tüm işlemler banka SMS OTP doğrulamasıyla (3D Secure 2.0) en fazla 3 saniyede tamamlanır.',
+                    'ikon'    => '💳',
+                    'rozet'   => '3D SECURE 2.0 ZORUNLU'
                 ]
             ],
             'auctionGuide' => [
@@ -3090,6 +3098,12 @@ class PlatformWorkflowService
                     'cevap'    => 'Standart müzayedelerde alıcı primi %12.0, satıcı komisyonu %8.0\\\'dır. VIP salonunda alıcı primi %5.0\\\'a düşer. Eser sayfasında nihai tahmini toplam tutar tüm komisyonlar dahil olarak şeffafça hesaplanır.'
                 ],
                 [
+                    'kategori' => 'ODEME_EMANET',
+                    'kategoriAd' => 'Ödeme & Emanet',
+                    'soru'     => 'Hangi kartlarla ödeme yapabilirim ve 3D Secure doğrulaması nasıl çalışır?',
+                    'cevap'    => 'Sistemimizde tüm Visa, Mastercard ve Troy logolu Kredi Kartları, Banka Kartları (Debit/Vadesiz) ve sisteme kaydedilmiş Tanımlı Kartlar ile güvenle ödeme yapabilirsiniz. Ödeme esnasında bankanız tarafından kayıtlı cep telefonunuza iletilen 6 haneli tek kullanımlık SMS onay şifresi (3D Secure) girilerek tahsilat en geç 3 saniyede sonuçlandırılır ve dekont üretilir.'
+                ],
+                [
                     'kategori' => 'EKSPERTIZ_ORIJINALLIK',
                     'kategoriAd' => 'Ekspertiz & Orijinallik',
                     'soru'     => 'Eserlerin orijinalliği nasıl garanti altına alınır?',
@@ -3120,6 +3134,395 @@ class PlatformWorkflowService
                     'cevap'    => 'Teslimattan sonraki 48 saat içinde alıcı panelinden veya canlı destekten ihtilaf kaydı açabilirsiniz. Emanet hesaptaki ödeme dondurulur; bağımsız tahkim heyeti eseri inceler ve haklı bulunmanız halinde tutar eksiksiz iade edilir.'
                 ]
             ]
+        ];
+    }
+
+
+    /**
+     * =========================================================================
+     * KARTLI ÖDEME & 3D SECURE YÖNETİMİ (Kredi Kartı, Banka Kartı & Kayıtlı Kartlar)
+     * SRS: "Sistem, kullanıcının kredi kartı, banka kartı veya tanımlı kayıtlı
+     * kartlar (3D Secure destekli) ile ödeme yapmasına olanak tanımalıdır."
+     * =========================================================================
+     */
+
+    /**
+     * Kullanıcının Tanımlı Kayıtlı Kartlarını Getirir
+     */
+    public function getUserSavedCards(int $userId): array
+    {
+        $user = $this->dataStore->getItem('users', 'id', $userId);
+        if (!$user) {
+            return [];
+        }
+        return $user['aliciProfili']['kayitliKartTokenlari'] ?? [];
+    }
+
+    /**
+     * Yeni Kredi veya Banka Kartını Güvenli Olarak Kaydeder (PCI-DSS Tokenizasyonu)
+     */
+    public function saveUserCard(int $userId, array $cardData): array
+    {
+        $user = $this->dataStore->getItem('users', 'id', $userId);
+        if (!$user) {
+            return ['success' => false, 'message' => 'Kullanıcı bulunamadı.'];
+        }
+
+        $cardHolder = trim($cardData['card_holder'] ?? '');
+        $rawNumber = preg_replace('/\s+/', '', (string)($cardData['card_number'] ?? ''));
+        $expMonth = str_pad(trim((string)($cardData['expire_month'] ?? '')), 2, '0', STR_PAD_LEFT);
+        $expYear = trim((string)($cardData['expire_year'] ?? ''));
+        $cardType = strtoupper(trim((string)($cardData['card_type'] ?? 'KREDI_KARTI')));
+        $cardName = trim($cardData['card_name'] ?? '');
+
+        if (strlen($rawNumber) < 15 || strlen($rawNumber) > 19) {
+            return ['success' => false, 'message' => 'Geçersiz kart numarası. Lütfen 16 haneli kart numaranızı kontrol ediniz.'];
+        }
+        if ($cardHolder === '') {
+            return ['success' => false, 'message' => 'Lütfen kart üzerindeki ad soyad bilgisini giriniz.'];
+        }
+
+        // Maskeleme
+        $masked = substr($rawNumber, 0, 4) . ' **** **** ' . substr($rawNumber, -4);
+        
+        // Banka ve Logo tespiti
+        $bin = substr($rawNumber, 0, 4);
+        $banka = 'Garanti BBVA';
+        $logo = 'mastercard';
+        if (str_starts_with($rawNumber, '4')) {
+            $logo = 'visa';
+            $banka = 'Türkiye İş Bankası';
+        } elseif (str_starts_with($bin, '54') || str_starts_with($bin, '55')) {
+            $banka = 'Garanti BBVA';
+        } elseif (str_starts_with($bin, '52') || str_starts_with($bin, '51')) {
+            $banka = 'Akbank';
+        } elseif (str_starts_with($rawNumber, '9792')) {
+            $logo = 'troy';
+            $banka = 'Ziraat Bankası';
+        }
+
+        $cardTypeLabel = ($cardType === 'BANKA_KARTI') ? 'Banka Kartı (Debit)' : 'Kredi Kartı';
+        if ($cardName === '') {
+            $cardName = "{$banka} {$cardTypeLabel}";
+        }
+
+        $tokenId = 'TOK_PCI_DSS_' . mt_rand(100000, 999999);
+        $savedCards = $user['aliciProfili']['kayitliKartTokenlari'] ?? [];
+
+        // Yeni kart kaydı
+        $newCard = [
+            'tokenId'            => $tokenId,
+            'kartTipi'           => $cardType,
+            'kartTipiEtiket'     => $cardTypeLabel,
+            'kartAdi'            => $cardName,
+            'maskeliKartNo'      => $masked,
+            'kartSahibi'         => strtoupper($cardHolder),
+            'sonKullanma'        => "{$expMonth}/{$expYear}",
+            'banka'              => $banka,
+            'logo'               => $logo,
+            'threeDSecureZorunlu'=> true,
+            'varsayilan'         => empty($savedCards),
+            'kayitTarihi'        => date('Y-m-d'),
+        ];
+
+        $savedCards[] = $newCard;
+        $prof = $user['aliciProfili'] ?? [];
+        $prof['kayitliKartTokenlari'] = $savedCards;
+        $this->dataStore->updateItem('users', 'id', $userId, ['aliciProfili' => $prof]);
+
+        // Denetim İzi
+        $this->logAuditEvent(
+            'FINANSAL',
+            'KART_TANIMLANDI',
+            $userId,
+            'KullaniciKart',
+            $tokenId,
+            "Yeni {$cardTypeLabel} tanımlandı: {$banka} ({$masked}) [3D Secure Zorunlu]",
+            null,
+            $masked,
+            'INFO'
+        );
+
+        return [
+            'success'  => true,
+            'tokenId'  => $tokenId,
+            'message'  => "✓ {$cardTypeLabel} ({$masked}) 3D Secure güvencesiyle başarıyla kaydedildi.",
+            'card'     => $newCard,
+        ];
+    }
+
+    /**
+     * Tanımlı Kartı Güvenli Olarak Siler
+     */
+    public function deleteUserCard(int $userId, string $tokenId): array
+    {
+        $user = $this->dataStore->getItem('users', 'id', $userId);
+        if (!$user) {
+            return ['success' => false, 'message' => 'Kullanıcı bulunamadı.'];
+        }
+
+        $savedCards = $user['aliciProfili']['kayitliKartTokenlari'] ?? [];
+        $filtered = [];
+        $deleted = null;
+
+        foreach ($savedCards as $c) {
+            if (($c['tokenId'] ?? '') === $tokenId) {
+                $deleted = $c;
+                continue;
+            }
+            $filtered[] = $c;
+        }
+
+        if (!$deleted) {
+            return ['success' => false, 'message' => 'Silinecek kart bulunamadı.'];
+        }
+
+        $prof = $user['aliciProfili'] ?? [];
+        $prof['kayitliKartTokenlari'] = $filtered;
+        $this->dataStore->updateItem('users', 'id', $userId, ['aliciProfili' => $prof]);
+
+        $this->logAuditEvent(
+            'FINANSAL',
+            'KART_SILINDI',
+            $userId,
+            'KullaniciKart',
+            $tokenId,
+            "Tanımlı kart silindi: {$deleted['banka']} ({$deleted['maskeliKartNo']})",
+            $deleted['maskeliKartNo'] ?? '',
+            null,
+            'INFO'
+        );
+
+        return [
+            'success' => true,
+            'message' => "✓ Kayıtlı kart ({$deleted['maskeliKartNo']}) başarıyla silindi.",
+        ];
+    }
+
+    /**
+     * Kredi Kartı, Banka Kartı veya Tanımlı Kartlar ile 3D Secure Destekli Ödeme Yürütür
+     */
+    public function processCardPayment(int $userId, float $amount, array $paymentData): array
+    {
+        if ($amount <= 0) {
+            return ['success' => false, 'message' => "Geçersiz ödeme tutarı. Tutar 0'dan büyük olmalıdır."];
+        }
+
+        $paymentMethod = strtoupper(trim((string)($paymentData['payment_method'] ?? 'NEW_CARD')));
+        $target = strtoupper(trim((string)($paymentData['payment_target'] ?? 'WALLET'))); // WALLET | ORDER | ESCROW_HOLD
+        $targetId = (int)($paymentData['target_id'] ?? 0);
+        $smsCode = trim((string)($paymentData['sms_code'] ?? '123456'));
+
+        $cardType = 'KREDI_KARTI';
+        $bankName = 'Garanti BBVA';
+        $maskedCard = '**** **** **** 8821';
+        $isSaved = false;
+        $strategy = null;
+        $meta = [];
+
+        // 1. Durum: Tanımlı Kayıtlı Kart ile Ödeme
+        if ($paymentMethod === 'SAVED_CARD') {
+            $tokenId = trim((string)($paymentData['token_id'] ?? ''));
+            $userCards = $this->getUserSavedCards($userId);
+            $selectedCard = null;
+            foreach ($userCards as $c) {
+                if (($c['tokenId'] ?? '') === $tokenId) {
+                    $selectedCard = $c;
+                    break;
+                }
+            }
+
+            if (!$selectedCard && !empty($userCards)) {
+                $selectedCard = $userCards[0];
+            }
+
+            if (!$selectedCard) {
+                return ['success' => false, 'message' => 'Kayıtlı kart bulunamadı. Lütfen yeni kart bilgisi giriniz.'];
+            }
+
+            $cardType = $selectedCard['kartTipi'] ?? 'KREDI_KARTI';
+            $bankName = $selectedCard['banka'] ?? 'Garanti BBVA';
+            $maskedCard = $selectedCard['maskeliKartNo'] ?? '**** **** **** 8821';
+            $isSaved = true;
+
+            $meta = [
+                'tokenId'     => $selectedCard['tokenId'] ?? 'TOK_SAVED',
+                'cardType'    => $cardType,
+                'bankName'    => $bankName,
+                'maskedCard'  => $maskedCard,
+                'isSavedCard' => true,
+                'smsCode'     => $smsCode,
+            ];
+
+            $strategy = new \Martello\Patterns\Strategy\Payment\ThreeDSecurePosStrategy();
+        } 
+        // 2. Durum: Yeni Kredi Kartı veya Banka Kartı ile Ödeme
+        else {
+            $cardType = strtoupper(trim((string)($paymentData['card_type'] ?? 'KREDI_KARTI')));
+            $cardHolder = trim((string)($paymentData['card_holder'] ?? ''));
+            $rawNumber = preg_replace('/\s+/', '', (string)($paymentData['card_number'] ?? ''));
+            $expMonth = str_pad(trim((string)($paymentData['expire_month'] ?? '')), 2, '0', STR_PAD_LEFT);
+            $expYear = trim((string)($paymentData['expire_year'] ?? ''));
+            $cvv = trim((string)($paymentData['cvv'] ?? ''));
+
+            if (strlen($rawNumber) < 15 || strlen($rawNumber) > 19) {
+                return ['success' => false, 'message' => 'Lütfen geçerli 16 haneli kart numaranızı giriniz.'];
+            }
+            if ($cardHolder === '') {
+                return ['success' => false, 'message' => 'Lütfen kart üzerindeki isim ve soyismi giriniz.'];
+            }
+            if (strlen($cvv) < 3 || strlen($cvv) > 4) {
+                return ['success' => false, 'message' => 'Lütfen geçerli 3 haneli CVV güvenlik kodunu giriniz.'];
+            }
+
+            $maskedCard = substr($rawNumber, 0, 4) . ' **** **** ' . substr($rawNumber, -4);
+            $bin = substr($rawNumber, 0, 4);
+            if (str_starts_with($rawNumber, '4')) {
+                $bankName = 'Türkiye İş Bankası';
+            } elseif (str_starts_with($bin, '54') || str_starts_with($bin, '55')) {
+                $bankName = 'Garanti BBVA';
+            } elseif (str_starts_with($bin, '52') || str_starts_with($bin, '51')) {
+                $bankName = 'Akbank';
+            } else {
+                $bankName = 'Yapı Kredi';
+            }
+
+            // Kartı Gelecek Ödemeler İçin Kaydetme İsteği
+            if (!empty($paymentData['save_card']) && ($paymentData['save_card'] === '1' || $paymentData['save_card'] === 'true' || $paymentData['save_card'] === 'on')) {
+                $this->saveUserCard($userId, [
+                    'card_holder'  => $cardHolder,
+                    'card_number'  => $rawNumber,
+                    'expire_month' => $expMonth,
+                    'expire_year'  => $expYear,
+                    'card_type'    => $cardType,
+                    'card_name'    => "{$bankName} " . (($cardType === 'BANKA_KARTI') ? 'Banka Kartı' : 'Kredi Kartı'),
+                ]);
+            }
+
+            $meta = [
+                'cardType'    => $cardType,
+                'cardHolder'  => $cardHolder,
+                'bankName'    => $bankName,
+                'maskedCard'  => $maskedCard,
+                'isSavedCard' => false,
+                'smsCode'     => $smsCode,
+            ];
+
+            $strategy = new \Martello\Patterns\Strategy\Payment\ThreeDSecurePosStrategy();
+        }
+
+        // 3D Secure Ödeme İşlemini Yürüt
+        $result = $strategy->processPayment($userId, $amount, $meta);
+        if (!$result['success']) {
+            return $result;
+        }
+
+        $txId = $result['transactionId'] ?? ('3DS-' . strtoupper(bin2hex(random_bytes(6))));
+        $authCode = $result['authCode'] ?? ('AUTH-' . mt_rand(100000, 999999));
+        $cardTypeLabel = ($cardType === 'BANKA_KARTI') ? 'Banka Kartı (Debit)' : 'Kredi Kartı';
+        $methodLabel = $isSaved ? "Kayıtlı {$cardTypeLabel}" : "Yeni {$cardTypeLabel}";
+
+        // 3. Hedefe Göre Bakiyeyi / Siparişi Güncelle
+        if ($target === 'WALLET') {
+            // Cüzdan Bakiyesine Ekle
+            $wallets = $this->dataStore->getCollection('wallets');
+            $foundWallet = false;
+            foreach ($wallets as &$w) {
+                if ((int)($w['kullaniciId'] ?? 0) === $userId) {
+                    $w['bakiye'] = (float)($w['bakiye'] ?? 0) + $amount;
+                    $w['sonGuncelleme'] = date('c');
+                    $foundWallet = true;
+                    break;
+                }
+            }
+            unset($w);
+
+            if (!$foundWallet) {
+                $nextWId = count($wallets) + 101;
+                $wallets[] = [
+                    'id'            => $nextWId,
+                    'kullaniciId'   => $userId,
+                    'paraBirimi'    => 'TRY',
+                    'bakiye'        => $amount,
+                    'blokeBakiye'   => 0,
+                    'aktifBlokeler' => [],
+                    'sonGuncelleme' => date('c'),
+                ];
+            }
+            $this->dataStore->saveCollection('wallets', $wallets);
+        } elseif ($target === 'ORDER' && $targetId > 0) {
+            // Siparişi 'Ödendi' Yap
+            $orders = $this->dataStore->getCollection('orders');
+            foreach ($orders as &$ord) {
+                if ((int)($ord['id'] ?? 0) === $targetId) {
+                    $ord['siparisDurumu'] = 'Ödendi';
+                    $ord['odemeYontemi'] = "{$bankName} {$cardTypeLabel} (3D Secure)";
+                    $ord['odemeZamani'] = date('c');
+                    break;
+                }
+            }
+            unset($ord);
+            $this->dataStore->saveCollection('orders', $orders);
+        }
+
+        // 4. Finansal Makbuz (Receipt) Oluştur
+        $receipts = $this->dataStore->getCollection('paymentReceipts');
+        $receiptId = count($receipts) + 1;
+        $receiptNo = 'MAKBUZ-3DS-' . date('Y') . '-' . str_pad((string)$receiptId, 4, '0', STR_PAD_LEFT);
+
+        $receiptEntry = [
+            'id'             => $receiptId,
+            'makbuzNo'       => $receiptNo,
+            'kullaniciId'    => $userId,
+            'islemKodu'      => $txId,
+            'onayKodu'       => $authCode,
+            'tutar'          => $amount,
+            'paraBirimi'     => 'TRY',
+            'odemeKanali'    => "3D Secure Sanal POS ({$bankName})",
+            'kartTuru'       => $cardTypeLabel,
+            'maskeliKart'    => $maskedCard,
+            'tarih'          => date('c'),
+            'durum'          => 'BASARILI',
+            'hedef'          => $target,
+            'hedefId'        => $targetId,
+        ];
+        $receipts[] = $receiptEntry;
+        $this->dataStore->saveCollection('paymentReceipts', $receipts);
+
+        // 5. Zaman Damgalı Denetim İzi (Audit Log - FINANSAL)
+        $this->logAuditEvent(
+            'FINANSAL',
+            '3D_SECURE_ODEME_BASARILI',
+            $userId,
+            'OdemeIslemi',
+            $txId,
+            "{$methodLabel} ({$bankName} - {$maskedCard}) ile ₺" . number_format($amount, 2, ',', '.') . " tutarında 3D Secure tahsilat tamamlandı. [Onay Kodu: {$authCode}, Makbuz: {$receiptNo}]",
+            null,
+            "₺" . number_format($amount, 2, ',', '.'),
+            'INFO'
+        );
+
+        // 6. Kullanıcıya Bildirim İlet
+        $this->dataStore->insertItem('notifications', [
+            'kullaniciId' => $userId,
+            'baslik'      => "3D Secure Ödeme Başarılı ({$receiptNo})",
+            'icerik'      => "{$methodLabel} üzerinden ₺" . number_format($amount, 2, ',', '.') . " tutarındaki işleminiz 3D Secure ile doğrulanarak başarıyla tamamlandı. İşlem Kodu: {$txId}",
+            'okundu'      => false,
+            'tarih'       => date('c'),
+            'oncelik'     => 'YUKSEK',
+        ]);
+
+        return [
+            'success'       => true,
+            'transactionId' => $txId,
+            'authCode'      => $authCode,
+            'receiptNo'     => $receiptNo,
+            'amount'        => $amount,
+            'cardType'      => $cardType,
+            'cardTypeLabel' => $cardTypeLabel,
+            'bankName'      => $bankName,
+            'maskedCard'    => $maskedCard,
+            'message'       => "✓ 3D Secure SMS doğrulaması başarılı! {$methodLabel} ({$bankName} - {$maskedCard}) üzerinden ₺" . number_format($amount, 2, ',', '.') . " tahsilat onaylandı. (İşlem Kodu: {$txId}, Onay Kodu: {$authCode})",
         ];
     }
 

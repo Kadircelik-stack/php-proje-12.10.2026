@@ -113,6 +113,18 @@ $userLimit = (float)($currentUserRecord['aliciProfili']['teklifLimiti'] ?? 20000
 $minNextVipBid = (float)($currentVipLot['mevcutEnYuksekTeklif'] ?? 0) + (float)($currentVipLot['minimumArtisTutari'] ?? 10000);
 
 $activeTab = $_GET['tab'] ?? 'kazanilanlar';
+
+$buyerSavedCards = $controller->getUserSavedCards($buyerId);
+$buyerPaymentReceipts = $controller->getPaymentReceipts($buyerId);
+$buyerWallet = null;
+foreach ($db['wallets'] ?? [] as $w) {
+    if ((int)($w['kullaniciId'] ?? 0) === $buyerId) {
+        $buyerWallet = $w;
+        break;
+    }
+}
+$buyerAvailableBalance = (float)($buyerWallet['bakiye'] ?? 0);
+$buyerBlockedBalance = (float)($buyerWallet['blokeBakiye'] ?? 0);
 ?>
 
 <div class="app-container">
@@ -1848,27 +1860,574 @@ $activeTab = $_GET['tab'] ?? 'kazanilanlar';
       </div>
     </div>
 
-    <!-- 4. TAB: BAKİYE VE FATURALAR -->
+    <!-- 4. TAB: BAKİYE, KART YÖNETİMİ VE 3D SECURE ÖDEME MASASI
+         SRS: "Sistem, kullanıcının kredi kartı, banka kartı veya tanımlı kayıtlı kartlar
+               (3D Secure destekli) ile ödeme yapmasına olanak tanımalıdır." -->
     <div id="buyerTab_bakiye" class="tab-content <?= $activeTab === 'bakiye' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Bakiye ve Faturalar</h1>
-      <p class="page-subheading">Cüzdanınızı yönetin ve 3D Secure ile bakiye yükleyin</p>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
-        <div class="panel-card">
-          <div class="panel-header"><h3 class="panel-title">Bakiye Yükle (3D Secure POS)</h3></div>
-          <form method="POST">
-            <input type="hidden" name="action" value="deposit_wallet">
-            <input type="hidden" name="user_id" value="<?= $buyerId ?>">
-            <div class="form-group">
-              <label class="form-label">Yüklenecek Tutar (TRY)</label>
-              <input type="number" name="amount" class="form-control" value="25000" required>
-            </div>
-            <button type="submit" class="btn-gold" style="width:100%; justify-content:center;">Bakiye Yükle</button>
-          </form>
+      <div class="page-breadcrumb">ALICI / ÇALIŞMA ALANI / FİNANS & 3D SECURE ÖDEME MASASI</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <h1 class="page-heading" style="margin-bottom:4px;">Bakiye, Kart Yönetimi ve 3D Secure Ödeme Masası</h1>
+          <p class="page-subheading" style="color:var(--gold-primary); font-weight:500; font-size:0.92rem; margin:0;">
+            ⚡ "Sistem, kullanıcının kredi kartı, banka kartı veya tanımlı kayıtlı kartlar (3D Secure destekli) ile ödeme yapmasına olanak tanımalıdır."
+          </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); border-radius:8px; padding:8px 14px;">
+          <span style="font-size:1.2rem;">🔒</span>
+          <div>
+            <div style="font-size:0.72rem; color:#34d399; font-weight:700; text-transform:uppercase;">PCI-DSS v4.0 & 3D SECURE 2.0</div>
+            <div style="font-size:0.75rem; color:#e2e8f0;">Banka onaylı şifreli tokenizasyon</div>
+          </div>
         </div>
       </div>
+
+      <!-- 4 Finansal KPI Kartı -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); gap:14px; margin-bottom:24px;">
+        <div class="kpi-card" style="border-left:4px solid var(--gold-primary); background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>💰</span>
+            <span>KULLANILABİLİR BAKİYE</span>
+          </div>
+          <div class="kpi-value" style="color:#d4af37; font-size:1.5rem; margin:4px 0;">
+            <?= $formatPrice($buyerAvailableBalance) ?>
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            Teklife hazır net cüzdan varlığı
+          </div>
+        </div>
+
+        <div class="kpi-card" style="border-left:4px solid #38bdf8; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>🛡️</span>
+            <span>EMANETTE BLOKE TUTAR</span>
+          </div>
+          <div class="kpi-value" style="color:#38bdf8; font-size:1.5rem; margin:4px 0;">
+            <?= $formatPrice($buyerBlockedBalance) ?>
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            Aktif pey teminatları güvencesi
+          </div>
+        </div>
+
+        <div class="kpi-card" style="border-left:4px solid #a78bfa; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>💳</span>
+            <span>TANIMLI KAYITLI KARTLAR</span>
+          </div>
+          <div class="kpi-value" style="color:#a78bfa; font-size:1.5rem; margin:4px 0;">
+            <?= count($buyerSavedCards) ?> Aktif Kart
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            Kredi & Banka kartları tanımlı
+          </div>
+        </div>
+
+        <div class="kpi-card" style="border-left:4px solid #34d399; background:linear-gradient(135deg, #131b2a 0%, #0c111c 100%); padding:16px;">
+          <div class="kpi-label" style="display:flex; align-items:center; gap:6px;">
+            <span>⚡</span>
+            <span>3D SECURE DURUMU</span>
+          </div>
+          <div class="kpi-value" style="color:#34d399; font-size:1.5rem; margin:4px 0;">
+            Aktif & Onaylı
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8;">
+            SMS OTP doğrulama süresi: ≤3 sn
+          </div>
+        </div>
+      </div>
+
+      <!-- Ana 2 Sütunlu Ödeme ve Kart Masası -->
+      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px; align-items:start; margin-bottom:28px;">
+        
+        <!-- SOL SÜTUN: 3D Secure Kart ile Ödeme / Bakiye Yükleme Formu -->
+        <div class="panel-card" style="background:#11151f; border:1px solid #243044; border-radius:12px; padding:24px; margin-bottom:0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #1e293b; padding-bottom:12px;">
+            <div>
+              <h3 class="panel-title" style="margin-bottom:2px;">💳 3D Secure ile Ödeme ve Bakiye Yükleme</h3>
+              <p style="font-size:0.8rem; color:#94a3b8; margin:0;">Kredi Kartı, Banka Kartı veya Tanımlı Kartınızla güvenli tahsilat</p>
+            </div>
+            <span class="badge badge-gold" style="font-size:0.7rem; padding:3px 8px;">Komisyonsuz (%0)</span>
+          </div>
+
+          <form id="cardPaymentForm" method="POST" onsubmit="return handleCardPaymentSubmit(event);">
+            <input type="hidden" name="action" value="process_card_payment">
+            <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+            <input type="hidden" name="payment_target" value="WALLET">
+            <input type="hidden" id="selectedPaymentMethod" name="payment_method" value="SAVED_CARD">
+            <input type="hidden" id="finalSmsCode" name="sms_code" value="123456">
+
+            <!-- 1. Adım: Kart Seçim Sekmeleri (Kayıtlı Kartlar vs Yeni Kredi Kartı vs Yeni Banka Kartı) -->
+            <div style="margin-bottom:18px;">
+              <label class="form-label" style="font-size:0.8rem; color:#f0f3f6; margin-bottom:8px; display:block;">1. Ödeme Aracını Seçiniz</label>
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+                <button type="button" id="btnMethodSaved" class="btn-method-tab active" onclick="switchPaymentMethodTab('SAVED_CARD')" style="padding:10px 12px; font-size:0.82rem; font-weight:600; background:#182133; border:1px solid var(--gold-primary); color:#fff; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+                  <span>💳</span>
+                  <span>Tanımlı Kartlarım</span>
+                </button>
+                <button type="button" id="btnMethodCredit" class="btn-method-tab" onclick="switchPaymentMethodTab('NEW_CREDIT')" style="padding:10px 12px; font-size:0.82rem; font-weight:600; background:#0b0e14; border:1px solid #28354a; color:#94a3b8; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+                  <span>💳</span>
+                  <span>Yeni Kredi Kartı</span>
+                </button>
+                <button type="button" id="btnMethodDebit" class="btn-method-tab" onclick="switchPaymentMethodTab('NEW_DEBIT')" style="padding:10px 12px; font-size:0.82rem; font-weight:600; background:#0b0e14; border:1px solid #28354a; color:#94a3b8; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+                  <span>🏦</span>
+                  <span>Yeni Banka Kartı</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- [SEÇENEK A] Tanımlı Kayıtlı Kartlar Listesi -->
+            <div id="paneSavedCards" style="display:block; margin-bottom:18px;">
+              <?php if (empty($buyerSavedCards)): ?>
+                <div style="background:#0b0e14; border:1px dashed #28354a; border-radius:8px; padding:16px; text-align:center; color:#94a3b8; font-size:0.82rem;">
+                  Henüz kayıtlı bir kartınız bulunmuyor. Lütfen "Yeni Kredi Kartı" veya "Yeni Banka Kartı" sekmesini kullanınız.
+                </div>
+              <?php else: ?>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <?php foreach ($buyerSavedCards as $idx => $sc): ?>
+                    <label style="display:flex; align-items:center; justify-content:space-between; background:#0e131d; border:1px solid <?= $idx === 0 ? 'var(--gold-primary)' : '#232d3f' ?>; border-radius:8px; padding:12px 16px; cursor:pointer; transition:all 0.2s;" class="saved-card-option">
+                      <div style="display:flex; align-items:center; gap:12px;">
+                        <input type="radio" name="token_id" value="<?= htmlspecialchars($sc['tokenId']) ?>" <?= $idx === 0 ? 'checked' : '' ?> onchange="highlightSelectedSavedCard(this)" style="accent-color:var(--gold-primary);">
+                        <div>
+                          <div style="font-weight:600; color:#fff; font-size:0.88rem; display:flex; align-items:center; gap:8px;">
+                            <span><?= htmlspecialchars($sc['kartAdi']) ?></span>
+                            <span class="badge" style="background:<?= ($sc['kartTipi'] ?? '') === 'BANKA_KARTI' ? '#1e3a8a' : '#451a03' ?>; color:<?= ($sc['kartTipi'] ?? '') === 'BANKA_KARTI' ? '#93c5fd' : '#fde047' ?>; font-size:0.65rem; padding:1px 6px;">
+                              <?= htmlspecialchars($sc['kartTipiEtiket'] ?? 'Kredi Kartı') ?>
+                            </span>
+                          </div>
+                          <div style="font-family:monospace; color:#94a3b8; font-size:0.82rem; margin-top:2px;">
+                            <?= htmlspecialchars($sc['maskeliKartNo']) ?> • SKT: <?= htmlspecialchars($sc['sonKullanma']) ?>
+                          </div>
+                        </div>
+                      </div>
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="badge badge-success" style="font-size:0.65rem; padding:2px 6px;">✓ 3DS Hazır</span>
+                      </div>
+                    </label>
+                  <?php endforeach; ?>
+                </div>
+
+                <div style="margin-top:10px; max-width:200px;">
+                  <label class="form-label" style="font-size:0.75rem; color:#94a3b8;">Kart Güvenlik Kodu (CVV) *</label>
+                  <input type="password" name="saved_card_cvv" maxlength="4" value="482" class="form-control" style="background:#0b0e14; border:1px solid #28354a; color:#fff; font-size:0.85rem; letter-spacing:3px;" required>
+                </div>
+              <?php endif; ?>
+            </div>
+
+            <!-- [SEÇENEK B & C] Yeni Kredi Kartı / Banka Kartı Giriş Paneli -->
+            <div id="paneNewCard" style="display:none; margin-bottom:18px;">
+              <input type="hidden" id="newCardTypeInput" name="card_type" value="KREDI_KARTI">
+
+              <div style="background:#0b0e14; border:1px solid #28354a; border-radius:10px; padding:18px; margin-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <span id="newCardTypeBadge" class="badge badge-gold" style="font-size:0.7rem;">Kredi Kartı ile Ödeme</span>
+                  <div style="display:flex; gap:6px;">
+                    <span style="font-size:0.75rem; color:#94a3b8;">Mastercard / Visa / Troy</span>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                  <label class="form-label" style="font-size:0.78rem; color:#f0f3f6;">Kart Üzerindeki İsim ve Soyisim *</label>
+                  <input type="text" name="card_holder" class="form-control" placeholder="Örn: EMRE KARAHAN" style="background:#131824; border:1px solid #2a3449; color:#fff; font-size:0.85rem; text-transform:uppercase;">
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                  <label class="form-label" style="font-size:0.78rem; color:#f0f3f6;">16 Haneli Kart Numarası *</label>
+                  <input type="text" name="card_number" id="newCardNumInput" class="form-control" placeholder="5400 0000 0000 0000" maxlength="19" oninput="formatCreditCardNumber(this)" style="background:#131824; border:1px solid #2a3449; color:#fff; font-size:0.9rem; font-family:monospace; letter-spacing:1px;">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+                  <div class="form-group">
+                    <label class="form-label" style="font-size:0.78rem; color:#f0f3f6;">Son Kullanma Ay *</label>
+                    <select name="expire_month" class="form-control" style="background:#131824; border:1px solid #2a3449; color:#fff; font-size:0.82rem;">
+                      <?php for ($m = 1; $m <= 12; $m++): ?>
+                        <option value="<?= sprintf('%02d', $m) ?>"><?= sprintf('%02d', $m) ?></option>
+                      <?php endfor; ?>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" style="font-size:0.78rem; color:#f0f3f6;">Son Kullanma Yıl *</label>
+                    <select name="expire_year" class="form-control" style="background:#131824; border:1px solid #2a3449; color:#fff; font-size:0.82rem;">
+                      <?php for ($y = 2026; $y <= 2035; $y++): ?>
+                        <option value="<?= substr((string)$y, -2) ?>"><?= $y ?></option>
+                      <?php endfor; ?>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" style="font-size:0.78rem; color:#f0f3f6;">CVV Kodu *</label>
+                    <input type="password" name="cvv" placeholder="•••" maxlength="4" class="form-control" style="background:#131824; border:1px solid #2a3449; color:#fff; font-size:0.85rem; letter-spacing:2px;">
+                  </div>
+                </div>
+
+                <!-- Kartı Kaydet Onay Kutusu -->
+                <div style="margin-top:14px; padding-top:12px; border-top:1px solid #1e293b;">
+                  <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:#cbd5e1; cursor:pointer;">
+                    <input type="checkbox" name="save_card" value="1" checked style="accent-color:var(--gold-primary); width:16px; height:16px;">
+                    <span>Bu kartı sonraki ödemelerim için güvenle kaydet (3D Secure PCI-DSS Tokenizasyonu)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Adım: Yüklenecek / Ödenecek Tutar Seçimi -->
+            <div style="margin-bottom:20px;">
+              <label class="form-label" style="font-size:0.8rem; color:#f0f3f6; margin-bottom:8px; display:block;">2. Yüklenecek Tutar (TRY)</label>
+              
+              <!-- Hızlı Tutar Hapları -->
+              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+                <button type="button" class="btn-dark-pill" style="font-size:0.78rem; padding:4px 12px; cursor:pointer;" onclick="setPaymentAmount(10000)">+10.000 ₺</button>
+                <button type="button" class="btn-dark-pill" style="font-size:0.78rem; padding:4px 12px; cursor:pointer;" onclick="setPaymentAmount(25000)">+25.000 ₺</button>
+                <button type="button" class="btn-dark-pill" style="font-size:0.78rem; padding:4px 12px; cursor:pointer;" onclick="setPaymentAmount(50000)">+50.000 ₺</button>
+                <button type="button" class="btn-dark-pill" style="font-size:0.78rem; padding:4px 12px; cursor:pointer;" onclick="setPaymentAmount(100000)">+100.000 ₺</button>
+                <button type="button" class="btn-dark-pill" style="font-size:0.78rem; padding:4px 12px; cursor:pointer;" onclick="setPaymentAmount(250000)">+250.000 ₺</button>
+              </div>
+
+              <div style="position:relative;">
+                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#d4af37; font-weight:700; font-size:1.1rem;">₺</span>
+                <input type="number" id="paymentAmountInput" name="amount" class="form-control" value="25000" min="100" step="500" required style="padding-left:36px; font-size:1.1rem; font-weight:700; background:#0b0e14; border:1px solid #28354a; color:#fff; border-radius:8px;">
+              </div>
+            </div>
+
+            <!-- 3. Adım: 3D Secure Doğrulama ve Ödeme Butonu -->
+            <button type="submit" class="btn-gold-pill" style="width:100%; padding:14px; font-size:0.95rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(212,175,55,0.3);">
+              <span>🛡️</span>
+              <span id="btnPayText">3D Secure ile Güvenli Bakiye Yükle (₺25.000,00)</span>
+            </button>
+            <div style="font-size:0.72rem; color:#848d9a; text-align:center; margin-top:8px;">
+              İşlem bankanızın 3D Secure SMS doğrulama protokolü üzerinden gerçekleştirilir.
+            </div>
+          </form>
+        </div>
+
+        <!-- SAĞ SÜTUN: Kayıtlı Kartlarım & Kart Cüzdanı -->
+        <div>
+          <!-- Kart Cüzdanı Kartı -->
+          <div class="panel-card" style="background:#11151f; border:1px solid #243044; border-radius:12px; padding:20px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <h3 class="panel-title" style="margin:0;">Kayıtlı Kartlarım (<?= count($buyerSavedCards) ?>)</h3>
+              <button type="button" onclick="switchPaymentMethodTab('NEW_CREDIT')" class="btn-outline-gold btn-sm" style="font-size:0.72rem; padding:3px 8px;">+ Kart Tanımla</button>
+            </div>
+
+            <?php if (empty($buyerSavedCards)): ?>
+              <div style="text-align:center; padding:20px; color:#64748b; font-size:0.8rem;">
+                Tanımlı kart bulunamadı.
+              </div>
+            <?php else: ?>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <?php foreach ($buyerSavedCards as $sc): ?>
+                  <?php 
+                    $isDebit = (($sc['kartTipi'] ?? '') === 'BANKA_KARTI');
+                    $cardGrad = $isDebit ? 'linear-gradient(135deg, #0f1e36 0%, #08101e 100%)' : 'linear-gradient(135deg, #2b1f09 0%, #150f05 100%)';
+                    $borderColor = $isDebit ? '#1d4ed8' : '#d4af37';
+                  ?>
+                  <!-- Görsel Kredi / Banka Kartı Tasarımı -->
+                  <div style="background:<?= $cardGrad ?>; border:1px solid <?= $borderColor ?>; border-radius:12px; padding:16px; position:relative; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.4);">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                      <div>
+                        <div style="font-size:0.72rem; color:<?= $isDebit ? '#93c5fd' : '#fef08a' ?>; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+                          <?= htmlspecialchars($sc['banka']) ?>
+                        </div>
+                        <div style="font-size:0.85rem; color:#fff; font-weight:600; margin-top:2px;">
+                          <?= htmlspecialchars($sc['kartAdi']) ?>
+                        </div>
+                      </div>
+                      <span class="badge" style="background:rgba(0,0,0,0.5); color:<?= $borderColor ?>; border:1px solid <?= $borderColor ?>; font-size:0.65rem; padding:2px 6px;">
+                        <?= htmlspecialchars($sc['kartTipiEtiket'] ?? 'Kredi Kartı') ?>
+                      </span>
+                    </div>
+
+                    <!-- Çip İkonu ve Maskeli No -->
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                      <div style="width:28px; height:20px; background:linear-gradient(135deg, #eab308 0%, #ca8a04 100%); border-radius:4px; border:1px solid #fef08a;"></div>
+                      <div style="font-family:monospace; font-size:1rem; letter-spacing:2px; color:#fff; font-weight:700;">
+                        <?= htmlspecialchars($sc['maskeliKartNo']) ?>
+                      </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                      <div>
+                        <div style="font-size:0.65rem; color:#848d9a; text-transform:uppercase;">KART SAHİBİ</div>
+                        <div style="font-size:0.78rem; color:#e2e8f0; font-weight:600; text-transform:uppercase;">
+                          <?= htmlspecialchars($sc['kartSahibi'] ?? 'EMRE KARAHAN') ?>
+                        </div>
+                      </div>
+                      <div style="text-align:right;">
+                        <div style="font-size:0.65rem; color:#848d9a; text-transform:uppercase;">SKT</div>
+                        <div style="font-size:0.78rem; color:#e2e8f0; font-weight:600; font-family:monospace;">
+                          <?= htmlspecialchars($sc['sonKullanma'] ?? '09/28') ?>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Kart Silme Butonu -->
+                    <form method="POST" style="position:absolute; right:12px; bottom:12px; margin:0;" onsubmit="return confirm('Bu kartı kayıtlı kartlarınızdan silmek istediğinize emin misiniz?');">
+                      <input type="hidden" name="action" value="delete_card">
+                      <input type="hidden" name="user_id" value="<?= $buyerId ?>">
+                      <input type="hidden" name="token_id" value="<?= htmlspecialchars($sc['tokenId']) ?>">
+                      <button type="submit" style="background:none; border:none; color:#ef4444; font-size:0.72rem; cursor:pointer; padding:2px 6px; text-decoration:underline;">Sil</button>
+                    </form>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
+          </div>
+
+          <!-- 3D Secure Güvenlik Protokolü Özeti -->
+          <div class="panel-card" style="background:#11151f; border:1px solid #243044; border-radius:12px; padding:18px;">
+            <div style="font-size:0.85rem; color:#fff; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+              <span>🛡️</span>
+              <span>3D Secure Güvenlik Standartları</span>
+            </div>
+            <div style="font-size:0.78rem; color:#94a3b8; line-height:1.55; display:flex; flex-direction:column; gap:8px;">
+              <div>
+                <strong style="color:#d4af37;">1. SMS OTP Onayı:</strong> Bankanız tarafından cep telefonunuza iletilen tek kullanımlık SMS şifresi ile iki adımlı doğrulama sağlanır.
+              </div>
+              <div>
+                <strong style="color:#34d399;">2. PCI-DSS Tokenizasyonu:</strong> Kart numaranız sunucularımızda ham olarak tutulmaz, BKM lisanslı tokenler ile güvenle saklanır.
+              </div>
+              <div>
+                <strong style="color:#38bdf8;">3. Anında Yansıma:</strong> İşlem onaylandığında bakiye veya sipariş durumu ≤3 saniyede cüzdanınıza yansır.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ALT BÖLÜM: 3D Secure Ödeme Geçmişi ve Makbuzlar Tablosu -->
+      <div class="panel-card" style="background:#11151f; border:1px solid #243044; border-radius:12px; padding:22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div>
+            <h3 class="panel-title" style="margin-bottom:2px;">📜 3D Secure Ödeme Makbuzları ve İşlem Geçmişi</h3>
+            <p style="font-size:0.8rem; color:#94a3b8; margin:0;">Kredi kartı, banka kartı ve kayıtlı kartlarla gerçekleştirilen doğrulanmış işlemler</p>
+          </div>
+          <span class="badge badge-success"><?= count($buyerPaymentReceipts) ?> Onaylı İşlem</span>
+        </div>
+
+        <?php if (empty($buyerPaymentReceipts)): ?>
+          <div style="text-align:center; padding:30px; color:#64748b; font-size:0.85rem;">
+            Henüz 3D Secure ile gerçekleştirilmiş bir ödeme kaydı bulunmuyor.
+          </div>
+        <?php else: ?>
+          <div style="overflow-x:auto;">
+            <table class="data-table" style="width:100%; font-size:0.82rem;">
+              <thead>
+                <tr style="background:#0b0e14; color:#d4af37;">
+                  <th style="padding:10px 12px;">Makbuz No</th>
+                  <th style="padding:10px 12px;">İşlem Kodu & Onay</th>
+                  <th style="padding:10px 12px;">Ödeme Aracı & Banka</th>
+                  <th style="padding:10px 12px;">Tarih</th>
+                  <th style="padding:10px 12px;">Tutar (TRY)</th>
+                  <th style="padding:10px 12px; text-align:center;">3D Secure Durumu</th>
+                  <th style="padding:10px 12px; text-align:right;">Makbuz</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($buyerPaymentReceipts as $rc): ?>
+                  <tr>
+                    <td style="font-family:monospace; color:#d4af37; font-weight:700;">
+                      <?= htmlspecialchars($rc['makbuzNo'] ?? 'MAKBUZ-3DS') ?>
+                    </td>
+                    <td>
+                      <div style="font-family:monospace; color:#fff; font-size:0.8rem;"><?= htmlspecialchars($rc['islemKodu'] ?? '') ?></div>
+                      <div style="font-size:0.7rem; color:#64748b;">Onay: <?= htmlspecialchars($rc['onayKodu'] ?? '') ?></div>
+                    </td>
+                    <td>
+                      <div style="color:#f0f3f6; font-weight:600;"><?= htmlspecialchars($rc['kartTuru'] ?? 'Kredi Kartı') ?></div>
+                      <div style="font-family:monospace; color:#94a3b8; font-size:0.75rem;"><?= htmlspecialchars($rc['maskeliKart'] ?? '') ?></div>
+                    </td>
+                    <td style="color:#94a3b8;">
+                      <?= htmlspecialchars(substr($rc['tarih'] ?? '', 0, 16)) ?>
+                    </td>
+                    <td style="font-family:var(--font-serif); font-weight:700; color:#34d399; font-size:0.95rem;">
+                      ₺<?= number_format((float)($rc['tutar'] ?? 0), 2, ',', '.') ?>
+                    </td>
+                    <td style="text-align:center;">
+                      <span class="badge" style="background:#064e3b; color:#6ee7b7; border:1px solid #059669; font-size:0.68rem; padding:2px 8px;">
+                        ✓ 3D Secure Onaylandı
+                      </span>
+                    </td>
+                    <td style="text-align:right;">
+                      <button type="button" onclick="alert('Makbuz: <?= htmlspecialchars($rc['makbuzNo'] ?? '') ?>\nTutar: ₺<?= number_format((float)($rc['tutar'] ?? 0), 2, ',', '.') ?>\nBanka: <?= htmlspecialchars($rc['odemeKanali'] ?? '') ?>\n3D Secure SMS Kodu ile onaylanmıştır.');" class="btn-table-action" style="font-size:0.72rem; padding:3px 8px;">
+                        Makbuz Görünümü
+                      </button>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        <?php endif; ?>
+      </div>
     </div>
+
+    <!-- Simüle Edilen 3D Secure Banka SMS Onay Modalı -->
+    <div id="threeDSecureModal" class="martello-modal" style="display:none; position:fixed; z-index:99999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+      <div style="background:#131824; border:1px solid #d4af37; border-radius:12px; max-width:440px; width:92%; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.85); position:relative;">
+        <button type="button" onclick="close3DSecureModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
+        
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="font-size:1.3rem;">🛡️</span>
+          <div style="color:#d4af37; font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;">3D SECURE DOĞRULAMA SERVİSİ</div>
+        </div>
+        <h3 id="modalBankTitle" style="color:#fff; font-size:1.25rem; font-weight:600; margin:0 0 12px 0;">Banka 3D Secure Onayı</h3>
+        
+        <div style="background:#0b0e14; border:1px solid #1e293b; border-radius:8px; padding:12px; margin-bottom:16px; font-size:0.8rem; color:#cbd5e1;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="color:#848d9a;">İşyeri:</span>
+            <strong style="color:#fff;">MARTELLO AUCTION</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="color:#848d9a;">İşlem Tutarı:</span>
+            <strong id="modalAmountDisplay" style="color:#d4af37; font-size:0.95rem;">₺25.000,00</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:#848d9a;">Gönderilen Numara:</span>
+            <span style="color:#fff; font-family:monospace;">+90 532 *** ** 21</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label class="form-label" style="font-size:0.8rem; color:#f0f3f6;">SMS Onay Kodu (Tek Kullanımlık Şifre)</label>
+          <input type="text" id="modalSmsInput" class="form-control" value="123456" maxlength="6" style="background:#0b0e14; border:1px solid #28354a; color:#34d399; font-size:1.3rem; font-weight:700; text-align:center; letter-spacing:6px; padding:10px;" required>
+          <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#848d9a; margin-top:6px;">
+            <span>Kalan Süre: <strong style="color:#38bdf8;">178 sn</strong></span>
+            <span style="color:#d4af37;">Demo Kodu: 123456</span>
+          </div>
+        </div>
+
+        <button type="button" onclick="confirm3DSecurePayment()" class="btn-gold-pill" style="width:100%; padding:12px; font-size:0.9rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+          <span>✓</span>
+          <span>Doğrula ve Tahsilatı Tamamla</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 3D Secure Javascript Fonksiyonları -->
+    <script>
+      function switchPaymentMethodTab(method) {
+        document.getElementById('selectedPaymentMethod').value = method;
+        document.querySelectorAll('.btn-method-tab').forEach(b => {
+          b.classList.remove('active');
+          b.style.background = '#0b0e14';
+          b.style.borderColor = '#28354a';
+          b.style.color = '#94a3b8';
+        });
+
+        const pSaved = document.getElementById('paneSavedCards');
+        const pNew = document.getElementById('paneNewCard');
+        const cardTypeInput = document.getElementById('newCardTypeInput');
+        const cardTypeBadge = document.getElementById('newCardTypeBadge');
+
+        if (method === 'SAVED_CARD') {
+          const btn = document.getElementById('btnMethodSaved');
+          if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#182133';
+            btn.style.borderColor = 'var(--gold-primary)';
+            btn.style.color = '#fff';
+          }
+          if (pSaved) pSaved.style.display = 'block';
+          if (pNew) pNew.style.display = 'none';
+        } else if (method === 'NEW_CREDIT') {
+          const btn = document.getElementById('btnMethodCredit');
+          if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#182133';
+            btn.style.borderColor = 'var(--gold-primary)';
+            btn.style.color = '#fff';
+          }
+          if (pSaved) pSaved.style.display = 'none';
+          if (pNew) pNew.style.display = 'block';
+          if (cardTypeInput) cardTypeInput.value = 'KREDI_KARTI';
+          if (cardTypeBadge) cardTypeBadge.innerText = 'Yeni Kredi Kartı ile 3D Secure';
+        } else if (method === 'NEW_DEBIT') {
+          const btn = document.getElementById('btnMethodDebit');
+          if (btn) {
+            btn.classList.add('active');
+            btn.style.background = '#182133';
+            btn.style.borderColor = 'var(--gold-primary)';
+            btn.style.color = '#fff';
+          }
+          if (pSaved) pSaved.style.display = 'none';
+          if (pNew) pNew.style.display = 'block';
+          if (cardTypeInput) cardTypeInput.value = 'BANKA_KARTI';
+          if (cardTypeBadge) cardTypeBadge.innerText = 'Yeni Banka Kartı (Debit) ile 3D Secure';
+        }
+      }
+
+      function highlightSelectedSavedCard(radio) {
+        document.querySelectorAll('.saved-card-option').forEach(el => {
+          el.style.borderColor = '#232d3f';
+        });
+        if (radio && radio.closest) {
+          const parent = radio.closest('.saved-card-option');
+          if (parent) parent.style.borderColor = 'var(--gold-primary)';
+        }
+      }
+
+      function setPaymentAmount(val) {
+        const input = document.getElementById('paymentAmountInput');
+        const text = document.getElementById('btnPayText');
+        if (input) {
+          input.value = val;
+        }
+        if (text) {
+          text.innerText = '3D Secure ile Güvenli Bakiye Yükle (₺' + Number(val).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ')';
+        }
+      }
+
+      document.getElementById('paymentAmountInput')?.addEventListener('input', function() {
+        const val = this.value || 0;
+        const text = document.getElementById('btnPayText');
+        if (text) {
+          text.innerText = '3D Secure ile Güvenli Bakiye Yükle (₺' + Number(val).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ')';
+        }
+      });
+
+      function formatCreditCardNumber(input) {
+        let val = input.value.replace(/\D/g, '');
+        let formatted = '';
+        for (let i = 0; i < val.length; i++) {
+          if (i > 0 && i % 4 === 0) formatted += ' ';
+          formatted += val[i];
+        }
+        input.value = formatted;
+      }
+
+      function handleCardPaymentSubmit(e) {
+        e.preventDefault();
+        const amt = document.getElementById('paymentAmountInput')?.value || 25000;
+        const modalAmt = document.getElementById('modalAmountDisplay');
+        if (modalAmt) {
+          modalAmt.innerText = '₺' + Number(amt).toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        }
+        const modal = document.getElementById('threeDSecureModal');
+        if (modal) {
+          modal.style.display = 'flex';
+        }
+        return false;
+      }
+
+      function close3DSecureModal() {
+        const modal = document.getElementById('threeDSecureModal');
+        if (modal) modal.style.display = 'none';
+      }
+
+      function confirm3DSecurePayment() {
+        const sms = document.getElementById('modalSmsInput')?.value || '123456';
+        const finalSms = document.getElementById('finalSmsCode');
+        if (finalSms) finalSms.value = sms;
+        close3DSecureModal();
+        const form = document.getElementById('cardPaymentForm');
+        if (form) {
+          form.submit();
+        }
+      }
+    </script>
+
 
     <!-- 5. TAB: İTİRAZLAR -->
     <div id="buyerTab_itirazlar" class="tab-content <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">

@@ -163,9 +163,45 @@
                 "kayitliKartTokenlari": [
                     {
                         "tokenId": "TOK_PCI_DSS_998271",
+                        "kartTipi": "KREDI_KARTI",
+                        "kartTipiEtiket": "Kredi Kartı",
+                        "kartAdi": "Garanti BBVA Miles&Smiles Platinum",
                         "maskeliKartNo": "5400 **** **** 8821",
+                        "kartSahibi": "Emre Karahan",
+                        "sonKullanma": "09/28",
                         "banka": "Garanti BBVA",
-                        "threeDSecureZorunlu": true
+                        "logo": "mastercard",
+                        "threeDSecureZorunlu": true,
+                        "varsayilan": true,
+                        "kayitTarihi": "2026-08-14"
+                    },
+                    {
+                        "tokenId": "TOK_PCI_DSS_331902",
+                        "kartTipi": "BANKA_KARTI",
+                        "kartTipiEtiket": "Banka Kartı (Debit)",
+                        "kartAdi": "İş Bankası Maximum Vadesiz Kart",
+                        "maskeliKartNo": "4543 **** **** 4490",
+                        "kartSahibi": "Emre Karahan",
+                        "sonKullanma": "11/27",
+                        "banka": "Türkiye İş Bankası",
+                        "logo": "visa",
+                        "threeDSecureZorunlu": true,
+                        "varsayilan": false,
+                        "kayitTarihi": "2026-09-20"
+                    },
+                    {
+                        "tokenId": "TOK_PCI_DSS_741038",
+                        "kartTipi": "BANKA_KARTI",
+                        "kartTipiEtiket": "Banka Kartı (Debit)",
+                        "kartAdi": "Türkiye İş Bankası Banka Kartı",
+                        "maskeliKartNo": "4543 **** **** 8888",
+                        "kartSahibi": "EMRE KARAHAN",
+                        "sonKullanma": "11/28",
+                        "banka": "Türkiye İş Bankası",
+                        "logo": "visa",
+                        "threeDSecureZorunlu": true,
+                        "varsayilan": false,
+                        "kayitTarihi": "2026-11-20"
                     }
                 ]
             },
@@ -323,7 +359,7 @@
             "id": 103,
             "kullaniciId": 3,
             "paraBirimi": "TRY",
-            "bakiye": 2710000,
+            "bakiye": 2760000,
             "blokeBakiye": 16131900,
             "aktifBlokeler": [
                 {
@@ -336,7 +372,7 @@
                     "olusturmaZamani": "2026-10-12T21:15:30+03:00"
                 }
             ],
-            "sonGuncelleme": "2026-11-20T20:29:48+00:00"
+            "sonGuncelleme": "2026-11-20T22:16:23+00:00"
         },
         {
             "id": 104,
@@ -3365,6 +3401,38 @@
             "odenenTutar": 70200,
             "odemeYontemi": "3D Secure Sanal POS (<=3sn)",
             "odemeTarihi": "2026-10-12T23:20:00+03:00"
+        },
+        {
+            "id": 2,
+            "makbuzNo": "MAKBUZ-3DS-2026-0002",
+            "kullaniciId": 3,
+            "islemKodu": "3DS-POS-02E831B62922",
+            "onayKodu": "AUTH-220913",
+            "tutar": 35000,
+            "paraBirimi": "TRY",
+            "odemeKanali": "3D Secure Sanal POS (Garanti BBVA)",
+            "kartTuru": "Kredi Kartı",
+            "maskeliKart": "5400 **** **** 8821",
+            "tarih": "2026-11-20T22:16:23+00:00",
+            "durum": "BASARILI",
+            "hedef": "WALLET",
+            "hedefId": 0
+        },
+        {
+            "id": 3,
+            "makbuzNo": "MAKBUZ-3DS-2026-0003",
+            "kullaniciId": 3,
+            "islemKodu": "3DS-POS-779DD694866D",
+            "onayKodu": "AUTH-568469",
+            "tutar": 15000,
+            "paraBirimi": "TRY",
+            "odemeKanali": "3D Secure Sanal POS (Garanti BBVA)",
+            "kartTuru": "Kredi Kartı",
+            "maskeliKart": "5400 **** **** 9999",
+            "tarih": "2026-11-20T22:16:23+00:00",
+            "durum": "BASARILI",
+            "hedef": "WALLET",
+            "hedefId": 0
         }
     ],
     "shipments": [

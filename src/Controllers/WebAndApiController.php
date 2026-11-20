@@ -654,6 +654,33 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            
+            case 'process_card_payment':
+                $userId = (int)($post['user_id'] ?? 3);
+                $amount = (float)($post['amount'] ?? 0);
+                $res = $this->workflowService->processCardPayment($userId, $amount, $post);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'save_card':
+                $userId = (int)($post['user_id'] ?? 3);
+                $res = $this->workflowService->saveUserCard($userId, $post);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
+            case 'delete_card':
+                $userId = (int)($post['user_id'] ?? 3);
+                $tokenId = trim($post['token_id'] ?? '');
+                $res = $this->workflowService->deleteUserCard($userId, $tokenId);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             default:
                 return ['type' => 'info', 'text' => "İşlem alındı."];
         }
@@ -782,6 +809,26 @@ class WebAndApiController
     public function getHelpCenterData(): array
     {
         return $this->workflowService->getHelpCenterData();
+    }
+
+
+    /**
+     * Kullanıcının Tanımlı Kayıtlı Kartlarını Döner
+     */
+    public function getUserSavedCards(int $userId): array
+    {
+        return $this->workflowService->getUserSavedCards($userId);
+    }
+
+    /**
+     * Kullanıcının 3D Secure Ödeme Makbuzlarını Döner
+     */
+    public function getPaymentReceipts(int $userId): array
+    {
+        $all = $this->dataStore->getCollection('paymentReceipts');
+        $filtered = array_filter($all, static fn($r) => (int)($r['kullaniciId'] ?? 0) === $userId);
+        usort($filtered, static fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
+        return array_values($filtered);
     }
 
 }
