@@ -49,6 +49,12 @@ foreach ($lots as $l) {
             Ekspertiz Raporları
           </button>
         </li>
+        <li class="nav-menu-item <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
+          <button type="button" data-tab="ekspertiz" onclick="switchAdminTab('ekspertiz', this)" style="display:flex; align-items:center; gap:6px; font-weight:600; color:#c5a059;">
+            <span>🔍</span>
+            <span>Ekspertiz atama</span>
+          </button>
+        </li>
         <li class="nav-menu-item <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
           <button type="button" data-tab="kategoriler" onclick="switchAdminTab('kategoriler', this)">
             Kategoriler & Nitelikler
@@ -62,11 +68,6 @@ foreach ($lots as $l) {
         <li class="nav-menu-item <?= $activeTab === 'yetkiler' ? 'active' : '' ?>">
           <button type="button" data-tab="yetkiler" onclick="switchAdminTab('yetkiler', this)">
             Rol & Yetki Yönetimi (RBAC)
-          </button>
-        </li>
-        <li class="nav-menu-item <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
-          <button type="button" data-tab="ekspertiz" onclick="switchAdminTab('ekspertiz', this)">
-            Ekspertiz atama
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
@@ -217,6 +218,9 @@ foreach ($lots as $l) {
             </button>
             <button type="button" class="btn-outline-gold btn-sm" onclick="switchAdminTab('raporlar', document.querySelector('[data-tab=\'raporlar\']'))" style="padding:8px 16px; cursor:pointer;">
               Raporlara Git →
+            </button>
+            <button type="button" class="btn-outline-gold btn-sm" onclick="switchAdminTab('ekspertiz', document.querySelector('[data-tab=\'ekspertiz\']'))" style="padding:8px 16px; cursor:pointer;">
+              Ekspertiz Atamaya Git →
             </button>
             <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('iptal_yonetimi', document.querySelector('[data-tab=\'iptal_yonetimi\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(239,68,68,0.5); color:#fca5a5;">
               ⚖️ İptal Masası →
@@ -1078,6 +1082,87 @@ foreach ($lots as $l) {
       </div>
     </div>
 
+    <!-- 5. TAB: EKSPERTİZ ATAMA (YUKARI TAŞINDI - media_1795014776298_9cbae966.jpg ile Birebir) -->
+    <div id="admTab_ekspertiz" class="tab-content <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / EKSPERTİZ ATAMA</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h1 class="page-heading">Ekspertiz Atama ve Heyet Görevlendirme</h1>
+          <p class="page-subheading" style="color:var(--gold-primary); font-weight:500;">
+            Gelen eser kayıtlarına bağımsız uzman ve eksper heyetlerini atayın, durumlarını yönetin.
+          </p>
+        </div>
+        <span class="badge badge-gold" style="font-size:0.78rem; padding:6px 14px;">SRS Ekspertiz Masası</span>
+      </div>
+
+      <div class="panel-card" style="padding:0; overflow:hidden;">
+        <table class="data-table" style="margin:0;">
+          <thead>
+            <tr>
+              <th style="padding-left:24px;">Lot</th>
+              <th>Ürün</th>
+              <th>Durum</th>
+              <th style="padding-right:24px; text-align:right;">İşlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding-left:24px; font-weight:600; color:#fff;">AUC-1042</td>
+              <td style="font-weight:600; color:#fff;">1968 İsviçre Vintage Saat</td>
+              <td><span style="color:#ef4444; font-weight:500;">Reddedildi</span></td>
+              <td style="padding-right:24px; text-align:right;">
+                <div style="display:inline-flex; gap:8px;">
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1042 onaylandı ve müzayedeye hazır statüsüne alındı.')">Onayla</button>
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1042 gerekçesiyle reddedildi.')">Reddet</button>
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1042 için bağımsız Marmara Ekspertiz Heyeti atandı.')">Ekspertiz ata</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-left:24px; font-weight:600; color:#fff;">AUC-1043</td>
+              <td style="font-weight:600; color:#fff;">Koleksiyon Analog Kamera</td>
+              <td><span style="color:#60a5fa; font-weight:500;">İncelemede</span></td>
+              <td style="padding-right:24px; text-align:right;">
+                <div style="display:inline-flex; gap:8px;">
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1043 onaylandı ve müzayedeye hazır statüsüne alındı.')">Onayla</button>
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1043 gerekçesiyle reddedildi.')">Reddet</button>
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1043 için bağımsız Optik Ekspertiz Heyeti atandı.')">Ekspertiz ata</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-left:24px; font-weight:600; color:#fff;">AUC-1044</td>
+              <td style="font-weight:600; color:#fff;">Çağdaş Sanat Baskısı</td>
+              <td><span style="color:#60a5fa; font-weight:500;">İncelemede</span></td>
+              <td style="padding-right:24px; text-align:right;">
+                <div style="display:inline-flex; gap:8px;">
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1044 onaylandı ve müzayedeye hazır statüsüne alındı.')">Onayla</button>
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1044 gerekçesiyle reddedildi.')">Reddet</button>
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1044 için Çağdaş Sanat Heyeti atandı.')">Ekspertiz ata</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding-left:24px; font-weight:600; color:#fff;">AUC-1045</td>
+              <td style="font-weight:600; color:#fff;">Klasik Otomobil Motor Parçası</td>
+              <td><span style="color:#60a5fa; font-weight:500;">İncelemede</span></td>
+              <td style="padding-right:24px; text-align:right;">
+                <div style="display:inline-flex; gap:8px;">
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1045 onaylandı ve müzayedeye hazır statüsüne alındı.')">Onayla</button>
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1045 gerekçesiyle reddedildi.')">Reddet</button>
+                  <button type="button" class="btn-table-action" onclick="alert('AUC-1045 için Klasik Araç Ekspertiz Heyeti atandı.')">Ekspertiz ata</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- 2. TAB: KATEGORİ YÖNETİMİ (SADE: EKLE & SİL) -->
     <div id="admTab_kategoriler" class="tab-content <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
       <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / KATEGORİLER</div>
@@ -1661,78 +1746,7 @@ foreach ($lots as $l) {
     </script>
     </div>
 
-    <!-- 4. TAB: EKSPERTİZ ATAMA (media_1795014776298_9cbae966.jpg ile Birebir) -->
-    <div id="admTab_ekspertiz" class="tab-content <?= $activeTab === 'ekspertiz' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Ekspertiz atama</h1>
-      <p class="page-subheading" style="margin-bottom:24px;">Seçkin müzayede deneyiminizi yönetin</p>
-
-      <div class="panel-card" style="padding:0; overflow:hidden;">
-        <table class="data-table" style="margin:0;">
-          <thead>
-            <tr>
-              <th style="padding-left:24px;">Lot</th>
-              <th>Ürün</th>
-              <th>Durum</th>
-              <th style="padding-right:24px; text-align:right;">İşlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding-left:24px; font-weight:600; color:#fff;">AUC-1042</td>
-              <td style="font-weight:600; color:#fff;">1968 İsviçre Vintage Saat</td>
-              <td><span style="color:#ef4444; font-weight:500;">Reddedildi</span></td>
-              <td style="padding-right:24px; text-align:right;">
-                <div style="display:inline-flex; gap:8px;">
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1042 onaylandı ve müzayedeye hazır statüsüne alındı.')">Onayla</button>
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1042 gerekçesiyle reddedildi.')">Reddet</button>
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1042 için bağımsız Marmara Ekspertiz Heyeti atandı.')">Ekspertiz ata</button>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td style="padding-left:24px; font-weight:600; color:#fff;">AUC-1043</td>
-              <td style="font-weight:600; color:#fff;">Koleksiyon Analog Kamera</td>
-              <td><span style="color:#60a5fa; font-weight:500;">İncelemede</span></td>
-              <td style="padding-right:24px; text-align:right;">
-                <div style="display:inline-flex; gap:8px;">
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1043 onaylandı ve müzayedeye hazır statüsüne alındı.')">Onayla</button>
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1043 gerekçesiyle reddedildi.')">Reddet</button>
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1043 için bağımsız Optik Ekspertiz Heyeti atandı.')">Ekspertiz ata</button>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td style="padding-left:24px; font-weight:600; color:#fff;">AUC-1044</td>
-              <td style="font-weight:600; color:#fff;">Çağdaş Sanat Baskısı</td>
-              <td><span style="color:#60a5fa; font-weight:500;">İncelemede</span></td>
-              <td style="padding-right:24px; text-align:right;">
-                <div style="display:inline-flex; gap:8px;">
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1044 onaylandı ve müzayedeye hazır statüsüne alındı.')">Onayla</button>
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1044 gerekçesiyle reddedildi.')">Reddet</button>
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1044 için Çağdaş Sanat Heyeti atandı.')">Ekspertiz ata</button>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td style="padding-left:24px; font-weight:600; color:#fff;">AUC-1045</td>
-              <td style="font-weight:600; color:#fff;">Klasik Otomobil Motor Parçası</td>
-              <td><span style="color:#60a5fa; font-weight:500;">İncelemede</span></td>
-              <td style="padding-right:24px; text-align:right;">
-                <div style="display:inline-flex; gap:8px;">
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1045 onaylandı ve müzayedeye hazır statüsüne alındı.')">Onayla</button>
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1045 gerekçesiyle reddedildi.')">Reddet</button>
-                  <button type="button" class="btn-table-action" onclick="alert('AUC-1045 için Klasik Araç Ekspertiz Heyeti atandı.')">Ekspertiz ata</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    
 
     <!-- 6. TAB: KOMİSYON VE ÜCRET TANIMLAMA -->
     <div id="admTab_komisyon" class="tab-content <?= $activeTab === 'komisyon' ? 'active' : '' ?>">

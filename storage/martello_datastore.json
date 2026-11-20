@@ -324,7 +324,7 @@
             "kullaniciId": 3,
             "paraBirimi": "TRY",
             "bakiye": 2620000,
-            "blokeBakiye": 16430000,
+            "blokeBakiye": 16383500,
             "aktifBlokeler": [
                 {
                     "blokeId": "BLK-2026-9001",
@@ -336,7 +336,7 @@
                     "olusturmaZamani": "2026-10-12T21:15:30+03:00"
                 }
             ],
-            "sonGuncelleme": "2026-11-20T17:00:26+00:00"
+            "sonGuncelleme": "2026-11-20T17:07:18+00:00"
         },
         {
             "id": 104,
@@ -3057,9 +3057,12 @@
             "teklifTipi": "MANUEL",
             "teklifZamani": "2026-11-19T09:06:37+00:00",
             "saatEtiketi": "09:06:37",
-            "durum": "GECERLI",
+            "durum": "IPTAL_EDILDI",
             "blokeIslemId": "TX-ESCROW-DF6E71276E8C",
-            "id": 9118
+            "id": 9118,
+            "iptalSebebi": "Kural Dışı / Yetkisiz Teklif Verme",
+            "iptalZamani": "2026-11-20T17:07:18+00:00",
+            "iptalEdenAdminId": 1
         },
         {
             "lotId": 1001,
@@ -3499,6 +3502,19 @@
             "tarih": "2026-11-20T17:00:28+00:00",
             "ipAdresi": "127.0.0.1",
             "id": 2
+        },
+        {
+            "islemTuru": "KURAL_DISI_PEY_IPTALI",
+            "kullaniciId": 1,
+            "hedefTur": "BID",
+            "hedefId": 9118,
+            "lotId": 1002,
+            "aciklama": "Admin #1 tarafından #9118 nolu kural dışı/hatalı pey iptal edildi. Tutar: ₺46.500 | Gerekçe: Kural Dışı / Yetkisiz Teklif Verme. Bloke iadesi tamamlandı. Lot liderliği #9115 nolu peye (₺714.000) devredildi.",
+            "oncekiDeger": 46500,
+            "yeniDeger": "IPTAL_EDILDI",
+            "tarih": "2026-11-20T17:07:18+00:00",
+            "ipAdresi": "127.0.0.1",
+            "id": 3
         }
     ],
     "pastSales": [
