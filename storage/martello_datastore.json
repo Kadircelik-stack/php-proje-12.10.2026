@@ -57,7 +57,7 @@
     "users": [
         {
             "id": 1,
-            "rol": "ADMIN",
+            "rol": "ALICI",
             "ad": "Ahmet",
             "soyad": "Yılmaz",
             "email": "admin@muzayede.com",
@@ -77,6 +77,25 @@
             "adminProfili": {
                 "yetkiDerecesi": 3,
                 "departman": "Platform Üst Yönetimi ve Denetim"
+            },
+            "yetkiSeviyesi": "GOLD",
+            "erisimIzinleri": [
+                "BID_LIVE",
+                "WALLET_ESCROW",
+                "ORDER_TRACK",
+                "VIP_SALON"
+            ],
+            "yetkiGuncellemeZamani": "2026-11-20T11:53:42+00:00",
+            "aliciProfili": {
+                "vipSeviyesi": "GOLD",
+                "dogrulandiMi": true
+            },
+            "kisitlamalar": {
+                "peyEngeli": true,
+                "vipEngeli": false,
+                "ilanEngeli": false,
+                "ekspertizEngeli": false,
+                "hesapAskisi": false
             }
         },
         {

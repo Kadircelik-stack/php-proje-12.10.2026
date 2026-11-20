@@ -324,6 +324,16 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'restrict_user_access':
+                $userId = (int)($post['user_id'] ?? 0);
+                $type = trim($post['restriction_type'] ?? 'peyEngeli');
+                $isRestricted = !empty($post['is_restricted']) && ($post['is_restricted'] === '1' || $post['is_restricted'] === 'true');
+                $res = $this->workflowService->restrictUserAccess($userId, $type, $isRestricted);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'assign_expert':
                 $reqId = (int)($post['request_id'] ?? 0);
                 $expertId = (int)($post['expert_id'] ?? 4);

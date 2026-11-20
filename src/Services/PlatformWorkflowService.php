@@ -274,6 +274,54 @@ class PlatformWorkflowService
     }
 
     /**
+     * Kullanıcı Erişimini ve Yetkilerini Kısıtlama / İzin Verme
+     */
+    public function restrictUserAccess(int $userId, string $restrictionType, bool $isRestricted): array
+    {
+        $user = $this->dataStore->getItem('users', 'id', $userId);
+        if (!$user) {
+            return ['success' => false, 'message' => "Kullanıcı bulunamadı."];
+        }
+
+        $kisitlamalar = $user['kisitlamalar'] ?? [
+            'peyEngeli'        => false,
+            'vipEngeli'        => false,
+            'ilanEngeli'       => false,
+            'ekspertizEngeli'  => false,
+            'hesapAskisi'      => false,
+        ];
+
+        $typeName = match ($restrictionType) {
+            'peyEngeli'        => 'Pey Verme (Açık Artırma)',
+            'vipEngeli'        => 'VIP Özel Salon Erişimi',
+            'ilanEngeli'       => 'Eser Yükleme ve İlan Açma',
+            'ekspertizEngeli'  => 'Ekspertiz Rapor Onaylama',
+            'hesapAskisi'      => 'Hesap Durumu (Askıya Alma)',
+            default            => $restrictionType
+        };
+
+        $updates = [];
+        if ($restrictionType === 'hesapAskisi') {
+            $kisitlamalar['hesapAskisi'] = $isRestricted;
+            $updates['durum'] = $isRestricted ? 'ASKIDA' : 'AKTIF';
+            $updates['kisitlamalar'] = $kisitlamalar;
+        } else {
+            $kisitlamalar[$restrictionType] = $isRestricted;
+            $updates['kisitlamalar'] = $kisitlamalar;
+        }
+
+        $this->dataStore->updateItem('users', 'id', $userId, $updates);
+        $this->dataStore->commit();
+
+        $actionWord = $isRestricted ? 'KISITLANDI (YASAKLANDI)' : 'KISITLAMA KALDIRILDI (İZİN VERİLDİ)';
+        return [
+            'success' => true,
+            'message' => "Kullanıcı (#{$userId} {$user['ad']} {$user['soyad']}) için '{$typeName}' yetkisi {$actionWord}.",
+            'kisitlamalar' => $kisitlamalar,
+        ];
+    }
+
+    /**
      * Şifremi Unuttum Kurtarma Akışı
      */
     public function requestPasswordReset(string $email): array

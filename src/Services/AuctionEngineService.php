@@ -85,11 +85,17 @@ class AuctionEngineService
                 return ['success' => false, 'message' => "Kullanıcı kaydı bulunamadı."];
             }
 
-            // FR-06: Hesap askıya alınmışsa işlem engellenir
+            // FR-06: Hesap askıya alınmışsa veya pey verme kısıtlanmışsa işlem engellenir
             if (($user['durum'] ?? '') === 'ASKIDA' || ($user['durum'] ?? '') === 'BANLI') {
                 $this->dataStore->rollback();
                 $this->dataStore->unlock($lockKey);
                 return ['success' => false, 'message' => "Hesabınız askıya alınmıştır. Teklif veremezsiniz."];
+            }
+
+            if (!empty($user['kisitlamalar']['peyEngeli'])) {
+                $this->dataStore->rollback();
+                $this->dataStore->unlock($lockKey);
+                return ['success' => false, 'message' => "Hesabınızın açık artırmada pey verme yetkisi yönetici tarafından kısıtlanmıştır."];
             }
 
             // Süre dolmuşsa pey kabul edilmez (Son 30 saniyede yeni pey gelmediğinde sonlandırma)

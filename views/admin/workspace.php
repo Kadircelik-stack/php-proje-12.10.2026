@@ -265,198 +265,418 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       </div>
     </div>
 
-    <!-- ROL & YETKİ YÖNETİMİ (RBAC) TABI — SADELEŞTİRİLMİŞ & HIZLI KULLANIM -->
+    <!-- ROL & YETKİ YÖNETİMİ TABI — SADE, KART TABANLI, SIFIR TABLO -->
     <div id="admTab_yetkiler" class="tab-content <?= $activeTab === 'yetkiler' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / YETKİLENDİRME</div>
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / ROL & ERİŞİM YÖNETİMİ</div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
         <div>
-          <h1 class="page-heading">Rol ve Yetki Seviyeleri Yönetimi</h1>
+          <h1 class="page-heading">Kullanıcı Rolleri ve Erişim Yönetimi</h1>
           <p class="page-subheading" style="color:var(--gold-primary); font-weight:500;">
-            ⚡ "Doğrulanan kullanıcıların rolüne göre (Alıcı, Satıcı, Eksper, Admin) sistem içi erişim izinlerinin ve yetki seviyelerinin belirlenmesidir."
+            Kullanıcıların rollerini belirleme ve sistem içi erişimlerini anlık kısıtlama masası.
           </p>
         </div>
-        <span class="badge badge-gold" style="font-size:0.78rem; padding:6px 12px;">RBAC Yetkilendirme</span>
+        <span class="badge badge-gold" style="font-size:0.78rem; padding:6px 14px;">RBAC & Erişim Denetimi</span>
       </div>
 
-      <!-- 4 Temel Rol Hızlı Özeti (Sadeleşmiş Kartlar) -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:20px;">
-        <div style="background:#0b0f17; border:1px solid #232b3b; border-left:3px solid #3fb950; border-radius:8px; padding:12px 14px;">
-          <div style="color:#3fb950; font-weight:700; font-size:0.9rem; margin-bottom:4px;">🟢 Alıcı (Buyer)</div>
+      <!-- 4 Temel Rol Hızlı Bilgi Şeritleri -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:24px;">
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #3fb950; border-radius:8px; padding:12px 14px;">
+          <div style="color:#3fb950; font-weight:700; font-size:0.88rem; margin-bottom:4px;">🟢 Alıcı (Buyer)</div>
           <div style="font-size:0.75rem; color:#8b949e; line-height:1.4;">Canlı açık artırmaya katılır, pey sürer. VIP kademede (Gold/Platinum) özel salona erişir.</div>
         </div>
-        <div style="background:#0b0f17; border:1px solid #232b3b; border-left:3px solid #60a5fa; border-radius:8px; padding:12px 14px;">
-          <div style="color:#60a5fa; font-weight:700; font-size:0.9rem; margin-bottom:4px;">🔵 Satıcı (Seller)</div>
-          <div style="font-size:0.75rem; color:#8b949e; line-height:1.4;">Eser ilanı oluşturur, ekspertiz talep eder, satış hakedişini çeker. (Kendi lotuna teklif veremez).</div>
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #60a5fa; border-radius:8px; padding:12px 14px;">
+          <div style="color:#60a5fa; font-weight:700; font-size:0.88rem; margin-bottom:4px;">🔵 Satıcı (Seller)</div>
+          <div style="font-size:0.75rem; color:#8b949e; line-height:1.4;">Eser ilanı oluşturur, ekspertiz talep eder. Kendi lotuna teklif veremez.</div>
         </div>
-        <div style="background:#0b0f17; border:1px solid #232b3b; border-left:3px solid #e3b341; border-radius:8px; padding:12px 14px;">
-          <div style="color:#e3b341; font-weight:700; font-size:0.9rem; margin-bottom:4px;">🟡 Eksper (Appraiser)</div>
-          <div style="font-size:0.75rem; color:#8b949e; line-height:1.4;">Eseri fiziksel inceler, kondisyon skorlar, orijinallik sertifikası ve değerleme onaylar.</div>
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #e3b341; border-radius:8px; padding:12px 14px;">
+          <div style="color:#e3b341; font-weight:700; font-size:0.88rem; margin-bottom:4px;">🟡 Eksper (Appraiser)</div>
+          <div style="font-size:0.75rem; color:#8b949e; line-height:1.4;">Kondisyon skorlar, orijinallik sertifikası ve değerleme onayı düzenler.</div>
         </div>
-        <div style="background:#0b0f17; border:1px solid #232b3b; border-left:3px solid #d4af37; border-radius:8px; padding:12px 14px;">
-          <div style="color:#d4af37; font-weight:700; font-size:0.9rem; margin-bottom:4px;">🔴 Admin (Yönetici)</div>
-          <div style="font-size:0.75rem; color:#8b949e; line-height:1.4;">KYC kimlik onaylar, rolleri belirler, müzayedeleri durdurur/kapatır, tam yetkilidir.</div>
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #d4af37; border-radius:8px; padding:12px 14px;">
+          <div style="color:#d4af37; font-weight:700; font-size:0.88rem; margin-bottom:4px;">🔴 Admin (Yönetici)</div>
+          <div style="font-size:0.75rem; color:#8b949e; line-height:1.4;">Kullanıcı doğrulama, rol atama, kısıtlama ve müzayede idaresinde tam yetkilidir.</div>
         </div>
       </div>
 
-      <!-- Kullanıcı Yetki Verme Tablosu (Sade ve Doğrudan) -->
-      <div class="panel-card" style="margin-bottom:24px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <!-- BÖLÜM 1: KULLANICININ ROLLERİNİ DEĞİŞTİRME -->
+      <div class="panel-card" style="margin-bottom:28px; border:1px solid rgba(212,175,55,0.25); background:linear-gradient(180deg, #111622 0%, #0a0e16 100%); border-radius:10px; padding:22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #1f2736; padding-bottom:12px;">
           <div>
-            <h3 class="panel-title" style="margin-bottom:2px;">Kullanıcı Yetki ve Rol Atama Masası</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
-              Kullanıcının yeni rolünü ve yetki seviyesini seçip <strong>"Kaydet"</strong> butonuna basmanız yeterlidir. İlgili sistem izinleri arka planda otomatik yapılandırılır.
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="display:inline-block; width:10px; height:10px; background:var(--gold-primary); border-radius:50%;"></span>
+              <h2 style="font-size:1.1rem; font-weight:700; color:#fff; margin:0;">Bölüm 1: Kullanıcı Rollerini Değiştirme</h2>
+            </div>
+            <p style="font-size:0.8rem; color:#8b949e; margin:4px 0 0 18px;">
+              Kullanıcının sistemdeki rolünü ve yetki seviyesini seçerek güncelleyin.
             </p>
           </div>
-          <span class="badge" style="background:#161b22; border:1px solid #30363d; color:#c5cbd3;"><?= count($users) ?> Kullanıcı</span>
+          <span class="badge" style="background:#161f30; color:#d4af37; border:1px solid #2d3e5e;">Rol Değiştirme</span>
         </div>
 
-        <div style="overflow-x:auto;">
-          <table class="data-table" style="font-size:0.84rem;">
-            <thead>
-              <tr>
-                <th style="width:50px;">ID</th>
-                <th>Kullanıcı / E-posta</th>
-                <th style="width:120px;">KYC Durumu</th>
-                <th style="width:130px;">Mevcut Rol & Statü</th>
-                <th style="min-width:320px;">Rol & Yetki Seviyesi Değiştir</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($users as $u): 
-                $uid = (int)($u['id'] ?? 0);
-                $isKyc = !empty($u['kycDogrulama']['dogrulandiMi']);
-                $urole = strtoupper((string)($u['rol'] ?? 'ALICI'));
-                $tier = strtoupper((string)($u['yetkiSeviyesi'] ?? ($u['aliciProfili']['vipSeviyesi'] ?? ($u['adminProfili']['yetkiDerecesi'] ? 'LV-' . $u['adminProfili']['yetkiDerecesi'] : 'STANDART'))));
-              ?>
-                <tr>
-                  <td><strong style="color:#8b949e;">#<?= $uid ?></strong></td>
-                  <td>
-                    <div style="font-weight:600; color:#fff;"><?= htmlspecialchars(($u['ad'] ?? '') . ' ' . ($u['soyad'] ?? '')) ?></div>
-                    <div style="font-size:0.75rem; color:#8b949e;"><?= htmlspecialchars($u['email'] ?? '') ?></div>
-                  </td>
-                  <td>
+        <!-- Rol Değiştirme Formu (Sade ve Kart Düzeni) -->
+        <form method="POST" style="margin:0 0 20px 0;">
+          <input type="hidden" name="action" value="update_user_role_and_permissions">
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:16px;">
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:6px;">
+                1. Kullanıcıyı Seçin
+              </label>
+              <select name="user_id" id="roleChangeUserSelect" class="form-control" style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;">
+                <?php foreach ($users as $u): 
+                  $uid = (int)($u['id'] ?? 0);
+                  $urole = strtoupper((string)($u['rol'] ?? 'ALICI'));
+                  $tier = strtoupper((string)($u['yetkiSeviyesi'] ?? ($u['aliciProfili']['vipSeviyesi'] ?? 'STANDART')));
+                  $uName = htmlspecialchars(($u['ad'] ?? '') . ' ' . ($u['soyad'] ?? ''));
+                  $isKyc = !empty($u['kycDogrulama']['dogrulandiMi']);
+                ?>
+                  <option value="<?= $uid ?>">
+                    #<?= $uid ?> — <?= $uName ?> (Mevcut: <?= $urole ?> / <?= $tier ?>) <?= $isKyc ? '✓ Onaylı' : '⏳ Bekliyor' ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:6px;">
+                2. Yeni Rol ve Seviye Seçin
+              </label>
+              <select name="new_role" class="form-control" style="background:#07090e; border:1px solid #2a3449; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; border-radius:6px;">
+                <optgroup label="Alıcı Rolleri">
+                  <option value="ALICI:STANDART">🟢 Alıcı — Standart Müzayede Katılımı</option>
+                  <option value="ALICI:GOLD">👑 Alıcı — VIP Gold (VIP Salon + ₺150K Limit)</option>
+                  <option value="ALICI:PLATINUM">💎 Alıcı — VIP Platinum (Yüksek Portföy & Özel Temsil)</option>
+                </optgroup>
+                <optgroup label="Satıcı Rolleri">
+                  <option value="SATICI:BIREYSEL">🔵 Satıcı — Bireysel (Standart 3 İlan)</option>
+                  <option value="SATICI:KURUMSAL">🏢 Satıcı — Kurumsal (Galeri, Müzayede Evi)</option>
+                </optgroup>
+                <optgroup label="Ekspertiz & Yönetim">
+                  <option value="EKSPERTIZ:BAS_EKSPER">🟡 Ekspertiz — Baş Eksper (Kondisyon & Orijinallik Onayı)</option>
+                  <option value="ADMIN:SUPER_ADMIN">🔴 Admin — Sistem Yöneticisi (Tam Yetki)</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:#080b11; border:1px solid #1a2333; border-radius:6px; padding:12px 16px;">
+            <div style="font-size:0.8rem; color:#8b949e;">
+              ⚡ Rol seçildiğinde ilgili role ait operasyonel işlem izinleri arka planda anında güncellenir.
+            </div>
+            <button type="submit" class="btn-gold" style="padding:9px 24px; font-weight:700; font-size:0.88rem; border-radius:6px; cursor:pointer;">
+              Rolü Güncelle
+            </button>
+          </div>
+        </form>
+
+        <!-- Kullanıcı Rolleri Hızlı Bakış Kartları (SIFIR TABLO) -->
+        <div style="margin-top:16px;">
+          <div style="font-size:0.82rem; font-weight:600; color:#8b949e; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">
+            Kayıtlı Kullanıcılar ve Güncel Rol Durumları (<?= count($users) ?>)
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px;">
+            <?php foreach ($users as $u): 
+              $uid = (int)($u['id'] ?? 0);
+              $urole = strtoupper((string)($u['rol'] ?? 'ALICI'));
+              $tier = strtoupper((string)($u['yetkiSeviyesi'] ?? ($u['aliciProfili']['vipSeviyesi'] ?? 'STANDART')));
+              $isKyc = !empty($u['kycDogrulama']['dogrulandiMi']);
+              $isBanned = ($u['durum'] ?? '') === 'ASKIDA';
+            ?>
+              <div style="background:#080b11; border:1px solid #1d2535; border-radius:8px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight:600; font-size:0.86rem; color:#fff;">
+                    #<?= $uid ?> <?= htmlspecialchars(($u['ad'] ?? '') . ' ' . ($u['soyad'] ?? '')) ?>
+                  </div>
+                  <div style="font-size:0.73rem; color:#8b949e; margin-top:2px;">
+                    <?= htmlspecialchars($u['email'] ?? '') ?>
+                  </div>
+                  <div style="margin-top:4px;">
                     <?php if ($isKyc): ?>
-                      <span class="badge badge-success" style="font-size:0.7rem;">✓ DOĞRULANDI</span>
+                      <span style="font-size:0.68rem; color:#3fb950; font-weight:600;">✓ KYC Onaylı</span>
                     <?php else: ?>
-                      <div style="display:flex; align-items:center; gap:6px;">
-                        <span class="badge badge-warning" style="font-size:0.7rem;">BEKLEMEDE</span>
-                        <form method="POST" style="margin:0;">
-                          <input type="hidden" name="action" value="verify_kyc">
-                          <input type="hidden" name="user_id" value="<?= $uid ?>">
-                          <input type="hidden" name="decision" value="approve">
-                          <button type="submit" class="btn-outline-gold btn-sm" style="padding:1px 6px; font-size:0.7rem;" title="Hemen Doğrula">✓</button>
-                        </form>
-                      </div>
+                      <span style="font-size:0.68rem; color:#e3b341; font-weight:600;">⏳ KYC Bekliyor</span>
                     <?php endif; ?>
-                  </td>
-                  <td>
-                    <span class="badge <?php 
-                      echo match($urole) {
-                        'ADMIN' => 'badge-gold',
-                        'EKSPERTIZ' => 'badge-info',
-                        'SATICI' => 'badge-primary',
-                        default => (in_array($tier, ['GOLD', 'PLATINUM', 'DIAMOND'], true) ? 'badge-gold' : 'badge-success')
-                      };
-                    ?>">
-                      <?= $urole ?> <?= in_array($tier, ['GOLD', 'PLATINUM'], true) ? "({$tier})" : "" ?>
-                    </span>
-                  </td>
-                  <td>
-                    <!-- Sade, Tek Adımda Yetki Verme Formu -->
-                    <form method="POST" style="margin:0; display:flex; align-items:center; gap:8px;">
-                      <input type="hidden" name="action" value="update_user_role_and_permissions">
-                      <input type="hidden" name="user_id" value="<?= $uid ?>">
-
-                      <select name="new_role" class="form-control" style="font-size:0.8rem; padding:5px 8px; height:auto; background:#07090e; border:1px solid #2a3449; color:#fff; min-width:240px; border-radius:6px;">
-                        <option value="ALICI:STANDART" <?= ($urole === 'ALICI' && !in_array($tier, ['GOLD', 'PLATINUM', 'DIAMOND'], true)) ? 'selected' : '' ?>>
-                          🟢 Alıcı (Standart Müzayede)
-                        </option>
-                        <option value="ALICI:GOLD" <?= ($urole === 'ALICI' && $tier === 'GOLD') ? 'selected' : '' ?>>
-                          👑 Alıcı (VIP Gold — VIP Salon + ₺150K Limit)
-                        </option>
-                        <option value="ALICI:PLATINUM" <?= ($urole === 'ALICI' && in_array($tier, ['PLATINUM', 'DIAMOND'], true)) ? 'selected' : '' ?>>
-                          💎 Alıcı (VIP Platinum — Yüksek Portföy)
-                        </option>
-                        <option value="SATICI:BIREYSEL" <?= ($urole === 'SATICI' && $tier !== 'KURUMSAL') ? 'selected' : '' ?>>
-                          🔵 Satıcı (Bireysel — 3 İlan Sınırı)
-                        </option>
-                        <option value="SATICI:KURUMSAL" <?= ($urole === 'SATICI' && $tier === 'KURUMSAL') ? 'selected' : '' ?>>
-                          🏢 Satıcı (Kurumsal Antikacı & Galeri)
-                        </option>
-                        <option value="EKSPERTIZ:BAS_EKSPER" <?= ($urole === 'EKSPERTIZ') ? 'selected' : '' ?>>
-                          🟡 Ekspertiz Uzmanı (Kondisyon & Orijinallik)
-                        </option>
-                        <option value="ADMIN:SUPER_ADMIN" <?= ($urole === 'ADMIN') ? 'selected' : '' ?>>
-                          🔴 Sistem Yöneticisi (Admin — Tam Yetki)
-                        </option>
-                      </select>
-
-                      <button type="submit" class="btn-gold btn-sm" style="padding:5px 12px; font-size:0.78rem; font-weight:600; white-space:nowrap; cursor:pointer;">
-                        Kaydet
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <span class="badge <?php 
+                    echo match($urole) {
+                      'ADMIN' => 'badge-gold',
+                      'EKSPERTIZ' => 'badge-info',
+                      'SATICI' => 'badge-primary',
+                      default => (in_array($tier, ['GOLD', 'PLATINUM'], true) ? 'badge-gold' : 'badge-success')
+                    };
+                  ?>" style="font-size:0.72rem; padding:4px 8px;">
+                    <?= $urole ?> <?= in_array($tier, ['GOLD', 'PLATINUM'], true) ? "({$tier})" : "" ?>
+                  </span>
+                  <?php if ($isBanned): ?>
+                    <div style="font-size:0.68rem; color:#f87171; font-weight:700; margin-top:3px;">[ASKIDA]</div>
+                  <?php endif; ?>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
         </div>
       </div>
 
-      <!-- Sade İzinler Matrisi Tablosu -->
-      <div class="panel-card">
-        <h3 class="panel-title" style="margin-bottom:6px; font-size:0.95rem;">Rol Bazlı İzin Politikası Özeti</h3>
-        <div style="overflow-x:auto;">
-          <table class="data-table" style="font-size:0.8rem;">
-            <thead>
-              <tr>
-                <th>İşlem / Yetki Alanı</th>
-                <th style="color:#3fb950; text-align:center;">Alıcı</th>
-                <th style="color:#60a5fa; text-align:center;">Satıcı</th>
-                <th style="color:#e3b341; text-align:center;">Eksper</th>
-                <th style="color:#d4af37; text-align:center;">Admin</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Canlı Müzayedede Pey Verme</td>
-                <td style="color:#3fb950; text-align:center;">✓ İzinli</td>
-                <td style="color:#f87171; text-align:center;">✕ Yasak (Shill Bidding)</td>
-                <td style="color:#f87171; text-align:center;">✕ Yasak (Çıkar Çatışması)</td>
-                <td style="color:#8b949e; text-align:center;">İzleme</td>
-              </tr>
-              <tr>
-                <td>VIP Özel Salon Katılımı</td>
-                <td style="color:#d4af37; text-align:center;">⚡ Gold / Platinum Şartı</td>
-                <td style="color:#8b949e; text-align:center;">—</td>
-                <td style="color:#8b949e; text-align:center;">Rapor Girişi</td>
-                <td style="color:#3fb950; text-align:center;">✓ Tam Yetki</td>
-              </tr>
-              <tr>
-                <td>Eser Yükleme ve İlan Açma</td>
-                <td style="color:#f87171; text-align:center;">✕ Yetkisiz</td>
-                <td style="color:#3fb950; text-align:center;">✓ İzinli</td>
-                <td style="color:#f87171; text-align:center;">✕ Yetkisiz</td>
-                <td style="color:#3fb950; text-align:center;">✓ Düzenleme</td>
-              </tr>
-              <tr>
-                <td>Ekspertiz Raporu Düzenleme</td>
-                <td style="color:#f87171; text-align:center;">✕ Yetkisiz</td>
-                <td style="color:#8b949e; text-align:center;">Talep Edebilir</td>
-                <td style="color:#3fb950; text-align:center;">✓ Resmi Onay</td>
-                <td style="color:#3fb950; text-align:center;">✓ Denetim</td>
-              </tr>
-              <tr>
-                <td>Kullanıcı Doğrulama & Rol Yönetimi</td>
-                <td style="color:#f87171; text-align:center;">✕ Yetkisiz</td>
-                <td style="color:#f87171; text-align:center;">✕ Yetkisiz</td>
-                <td style="color:#f87171; text-align:center;">✕ Yetkisiz</td>
-                <td style="color:#3fb950; text-align:center;">✓ Tek Yetkili</td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- BÖLÜM 2: ERİŞİMLERİ SINIRLAMA -->
+      <div class="panel-card" style="border:1px solid rgba(220,53,69,0.3); background:linear-gradient(180deg, #161118 0%, #0d0a10 100%); border-radius:10px; padding:22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #2d1e26; padding-bottom:12px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="display:inline-block; width:10px; height:10px; background:#f87171; border-radius:50%;"></span>
+              <h2 style="font-size:1.1rem; font-weight:700; color:#fff; margin:0;">Bölüm 2: Erişimleri Sınırlama</h2>
+            </div>
+            <p style="font-size:0.8rem; color:#8b949e; margin:4px 0 0 18px;">
+              Kullanıcıların pey verme, VIP salon, ilan açma, ekspertiz onaylama ve hesap durumunu kısıtlayın veya yeniden izin verin.
+            </p>
+          </div>
+          <span class="badge" style="background:#2a141b; color:#f87171; border:1px solid #5a202d;">Erişim Kısıtlama</span>
+        </div>
+
+        <!-- Hızlı Kısıtlama / İzin Verme Kontrol Masası -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:0.82rem; font-weight:600; color:#c5cbd3; margin-bottom:8px;">
+            Kısıtlama Uygulanacak Kullanıcıyı Seçin:
+          </div>
+          <select id="restrictTargetUserSelect" class="form-control" style="background:#07090e; border:1px solid #3d232e; color:#fff; padding:10px 12px; font-size:0.88rem; width:100%; max-width:500px; border-radius:6px;" onchange="syncRestrictUserId(this.value)">
+            <?php foreach ($users as $u): 
+              $uid = (int)($u['id'] ?? 0);
+              $uName = htmlspecialchars(($u['ad'] ?? '') . ' ' . ($u['soyad'] ?? ''));
+              $urole = strtoupper((string)($u['rol'] ?? 'ALICI'));
+              $k = $u['kisitlamalar'] ?? [];
+              $hasAny = !empty($k['peyEngeli']) || !empty($k['vipEngeli']) || !empty($k['ilanEngeli']) || !empty($k['ekspertizEngeli']) || ($u['durum'] ?? '') === 'ASKIDA';
+            ?>
+              <option value="<?= $uid ?>">
+                #<?= $uid ?> — <?= $uName ?> (<?= $urole ?>) <?= $hasAny ? '⚠️ KISITLAMA VAR' : '✓ Normal' ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <!-- 5 Temel Erişim Kısıtlama Kartı (SIFIR TABLO) -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:22px;">
+          
+          <!-- 1. Pey Verme Kısıtlaması -->
+          <div style="background:#0a0c13; border:1px solid #231c26; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; color:#fff; margin-bottom:4px;">
+                🔨 Canlı Müzayedede Pey Verme
+              </div>
+              <p style="font-size:0.75rem; color:#8b949e; line-height:1.4; margin:0 0 12px 0;">
+                Kullanıcının açık artırmalarda teklif vermesini engeller. (Shill bidding veya ödeme aksamalarında uygulanır).
+              </p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="peyEngeli">
+                <input type="hidden" name="is_restricted" value="1">
+                <button type="submit" class="btn-sm" style="width:100%; background:#2d1116; border:1px solid #6b1d28; color:#f87171; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  Pey Vermeyi Kısıtla
+                </button>
+              </form>
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="peyEngeli">
+                <input type="hidden" name="is_restricted" value="0">
+                <button type="submit" class="btn-sm" style="width:100%; background:#0f241a; border:1px solid #1a5c38; color:#3fb950; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  İzin Ver
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- 2. VIP Salon Erişimi Kısıtlaması -->
+          <div style="background:#0a0c13; border:1px solid #231c26; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; color:#fff; margin-bottom:4px;">
+                👑 VIP Özel Salon Erişimi
+              </div>
+              <p style="font-size:0.75rem; color:#8b949e; line-height:1.4; margin:0 0 12px 0;">
+                Yüksek portföy ve VIP kural stratejisine sahip kapalı salonlara girişi kısıtlar.
+              </p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="vipEngeli">
+                <input type="hidden" name="is_restricted" value="1">
+                <button type="submit" class="btn-sm" style="width:100%; background:#2d1116; border:1px solid #6b1d28; color:#f87171; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  VIP'yi Kısıtla
+                </button>
+              </form>
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="vipEngeli">
+                <input type="hidden" name="is_restricted" value="0">
+                <button type="submit" class="btn-sm" style="width:100%; background:#0f241a; border:1px solid #1a5c38; color:#3fb950; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  İzin Ver
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- 3. Eser & İlan Açma Kısıtlaması -->
+          <div style="background:#0a0c13; border:1px solid #231c26; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; color:#fff; margin-bottom:4px;">
+                📦 Eser Yükleme ve İlan Açma
+              </div>
+              <p style="font-size:0.75rem; color:#8b949e; line-height:1.4; margin:0 0 12px 0;">
+                Kullanıcının platformda satışa yeni eser çıkarmasını ve ilan yayımlamasını engeller.
+              </p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="ilanEngeli">
+                <input type="hidden" name="is_restricted" value="1">
+                <button type="submit" class="btn-sm" style="width:100%; background:#2d1116; border:1px solid #6b1d28; color:#f87171; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  İlanı Kısıtla
+                </button>
+              </form>
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="ilanEngeli">
+                <input type="hidden" name="is_restricted" value="0">
+                <button type="submit" class="btn-sm" style="width:100%; background:#0f241a; border:1px solid #1a5c38; color:#3fb950; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  İzin Ver
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- 4. Ekspertiz Onay Yetkisi Kısıtlaması -->
+          <div style="background:#0a0c13; border:1px solid #231c26; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; color:#fff; margin-bottom:4px;">
+                🔍 Ekspertiz Rapor Onaylama
+              </div>
+              <p style="font-size:0.75rem; color:#8b949e; line-height:1.4; margin:0 0 12px 0;">
+                Ekspertiz uzmanının orijinallik ve kondisyon raporu düzenleme yetkisini askıya alır.
+              </p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="ekspertizEngeli">
+                <input type="hidden" name="is_restricted" value="1">
+                <button type="submit" class="btn-sm" style="width:100%; background:#2d1116; border:1px solid #6b1d28; color:#f87171; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  Eksperi Kısıtla
+                </button>
+              </form>
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="ekspertizEngeli">
+                <input type="hidden" name="is_restricted" value="0">
+                <button type="submit" class="btn-sm" style="width:100%; background:#0f241a; border:1px solid #1a5c38; color:#3fb950; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  İzin Ver
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- 5. Hesabı Askıya Alma (Dondurma / Kilit) -->
+          <div style="background:#0a0c13; border:1px solid #3d1b26; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; color:#f87171; margin-bottom:4px;">
+                🚫 Hesabı Tamamen Askıya Alma
+              </div>
+              <p style="font-size:0.75rem; color:#8b949e; line-height:1.4; margin:0 0 12px 0;">
+                Kullanıcının platforma erişimini, oturumunu ve tüm işlemlerini tamamen dondurur.
+              </p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="hesapAskisi">
+                <input type="hidden" name="is_restricted" value="1">
+                <button type="submit" class="btn-sm" style="width:100%; background:#47121b; border:1px solid #8e2132; color:#fff; font-weight:700; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  Hesabı Askıya Al
+                </button>
+              </form>
+              <form method="POST" style="margin:0; flex:1;">
+                <input type="hidden" name="action" value="restrict_user_access">
+                <input type="hidden" name="user_id" class="restrictUserHiddenInput" value="<?= (int)($users[0]['id'] ?? 1) ?>">
+                <input type="hidden" name="restriction_type" value="hesapAskisi">
+                <input type="hidden" name="is_restricted" value="0">
+                <button type="submit" class="btn-sm" style="width:100%; background:#0f241a; border:1px solid #1a5c38; color:#3fb950; font-weight:600; padding:6px 0; border-radius:4px; cursor:pointer;">
+                  Aktifleştir
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aktif Kısıtlama Takip Listesi (SIFIR TABLO, SADE KARTLAR) -->
+        <div>
+          <div style="font-size:0.82rem; font-weight:600; color:#8b949e; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">
+            Kısıtlama ve İzin Durumları Özeti
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px;">
+            <?php foreach ($users as $u): 
+              $uid = (int)($u['id'] ?? 0);
+              $k = $u['kisitlamalar'] ?? [];
+              $isSuspended = ($u['durum'] ?? '') === 'ASKIDA';
+              $activeRestrictions = [];
+              if (!empty($k['peyEngeli'])) $activeRestrictions[] = 'Pey Yasağı';
+              if (!empty($k['vipEngeli'])) $activeRestrictions[] = 'VIP Giriş Yasağı';
+              if (!empty($k['ilanEngeli'])) $activeRestrictions[] = 'İlan Yasağı';
+              if (!empty($k['ekspertizEngeli'])) $activeRestrictions[] = 'Eksper Yasağı';
+              if ($isSuspended) $activeRestrictions[] = 'HESAP DONDURULDU';
+            ?>
+              <div style="background:#090d14; border:1px solid <?= empty($activeRestrictions) ? '#1c2433' : '#4d1e27' ?>; border-radius:8px; padding:12px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                  <div>
+                    <div style="font-weight:600; font-size:0.85rem; color:#fff;">
+                      #<?= $uid ?> <?= htmlspecialchars(($u['ad'] ?? '') . ' ' . ($u['soyad'] ?? '')) ?>
+                    </div>
+                    <div style="font-size:0.73rem; color:#8b949e;">
+                      <?= htmlspecialchars($u['email'] ?? '') ?>
+                    </div>
+                  </div>
+                  <?php if (empty($activeRestrictions)): ?>
+                    <span class="badge badge-success" style="font-size:0.68rem; padding:3px 8px;">Tam Erişim</span>
+                  <?php else: ?>
+                    <span class="badge badge-danger" style="font-size:0.68rem; padding:3px 8px;">Kısıtlı</span>
+                  <?php endif; ?>
+                </div>
+
+                <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:4px;">
+                  <?php if (empty($activeRestrictions)): ?>
+                    <span style="font-size:0.72rem; color:#5c6b7d;">Hiçbir kısıtlama yok, tüm fonksiyonlar açık.</span>
+                  <?php else: ?>
+                    <?php foreach ($activeRestrictions as $ar): ?>
+                      <span style="font-size:0.7rem; background:#36131a; border:1px solid #6b1f2b; color:#f87171; border-radius:4px; padding:2px 6px;">
+                        ✕ <?= $ar ?>
+                      </span>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
         </div>
       </div>
+    </div>
+
+    <script>
+      function syncRestrictUserId(val) {
+        document.querySelectorAll('.restrictUserHiddenInput').forEach(function(el) {
+          el.value = val;
+        });
+      }
+    </script>
     </div>
 
     <!-- 3. TAB: MÜZAYEDE & LOT DÜZENLEME (ADMİN DÜZENLEME YETKİSİ) -->

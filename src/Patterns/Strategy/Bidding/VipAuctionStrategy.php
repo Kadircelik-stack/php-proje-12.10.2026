@@ -12,6 +12,14 @@ class VipAuctionStrategy implements IBiddingRuleStrategy
     public function validateBid(array $lot, float $bidAmount, array $user): array
     {
         // NFR-14: VIP Müzayede Yetki ve Tier Kontrolü (Gold veya onaylı VIP)
+        if (!empty($user['kisitlamalar']['vipEngeli'])) {
+            return [
+                'valid'       => false,
+                'message'     => "VIP özel salon katılım yetkiniz yönetici tarafından kısıtlanmıştır.",
+                'minRequired' => 0.0,
+            ];
+        }
+
         $vipLevel = $user['aliciProfili']['vipSeviyesi'] ?? 'STANDARD';
         $isKycApproved = $user['kycDogrulama']['dogrulandiMi'] ?? false;
 
