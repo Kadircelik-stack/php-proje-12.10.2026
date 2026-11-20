@@ -16,6 +16,7 @@ $bids = $db['bids'] ?? [];
 $wallets = $db['wallets'] ?? [];
 $products = $db['products'] ?? [];
 $expertAccreditations = $db['expertAccreditations'] ?? [];
+$commissionDefinitions = $controller->getCommissionDefinitions();
 $activeTab = $_GET['tab'] ?? 'konsol';
 
 $lotMap = [];
@@ -96,8 +97,9 @@ foreach ($products as $p) {
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
-          <button type="button" data-tab="komisyon" onclick="switchAdminTab('komisyon', this)">
-            Komisyon oranları
+          <button type="button" data-tab="komisyon" onclick="switchAdminTab('komisyon', this)" style="display:flex; align-items:center; gap:6px; font-weight:600; color:#eab308;">
+            <span>💰</span>
+            <span>Komisyon & Hizmet Bedelleri</span>
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'denetim' ? 'active' : '' ?>">
@@ -258,6 +260,9 @@ foreach ($products as $p) {
             </button>
             <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('ihtilaf_cozumu', document.querySelector('[data-tab=\'ihtilaf_cozumu\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(251,146,60,0.5); color:#fdba74;">
               ⚖️ İhtilaf & Tahkim →
+            </button>
+            <button type="button" class="btn-dark-pill btn-sm" onclick="switchAdminTab('komisyon', document.querySelector('[data-tab=\'komisyon\']'))" style="padding:8px 16px; cursor:pointer; border-color:rgba(234,179,8,0.5); color:#facc15;">
+              💰 Komisyon Tanımları →
             </button>
           </div>
         </div>
@@ -2811,29 +2816,431 @@ function filterAccreditation(filter, btn) {
 
     
 
-    <!-- 6. TAB: KOMİSYON VE ÜCRET TANIMLAMA -->
+    <!-- 6. TAB: KOMİSYON VE ÜCRET TANIMLAMA (SRS GEREKSİNİMİ) -->
     <div id="admTab_komisyon" class="tab-content <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Komisyon ve Ücret Tanımlama</h1>
-      <p class="page-subheading">Platform gelir modeli, kademeli komisyon ve emanet bloke oranları (Strategy)</p>
-
-      <div class="panel-card">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / KOMİSYON & SABİT HİZMET BEDELLERİ</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <h1 class="page-heading" style="margin-bottom:6px;">
+            💰 Komisyon Oranları & Sabit Hizmet Bedelleri Tanımlama Masası
+          </h1>
+          <p class="page-subheading" style="margin:0; line-height:1.5;">
+            Müzayedeler, nihai başarılı satışlar ve bağımsız ekspertiz hizmetleri için platform gelir modeli, kademeli komisyon dilimleri ve sabit işlem harçlarının tescili.
+          </p>
+        </div>
+        <div style="background:rgba(234,179,8,0.1); border:1px solid rgba(234,179,8,0.3); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.5rem;">⚖️</span>
           <div>
-            <div style="font-weight:700; color:var(--gold-primary); margin-bottom:8px;">Sanat & Antika Komisyon Stratejisi (ArtAntiqueCommission)</div>
-            <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
-              Kapanış tutarı üzerinden <strong>%8 Alıcı / Satıcı Hizmet Payı</strong> + <strong><?= $formatPrice(1500) ?> Sabit Kurul Bedeli</strong> tahsil edilerek teminat emanet hesabına yansıtılır.
-            </p>
-          </div>
-          <div>
-            <div style="font-weight:700; color:var(--gold-primary); margin-bottom:8px;">Özel Taşıt & VIP Stratejisi (VehicleCommission)</div>
-            <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
-              Yüksek hacimli lotlarda <strong>%4 Kademeli Komisyon</strong> ve doğrudan blokeli emanet takas (Escrow) uygulanır.
-            </p>
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#facc15; font-weight:700;">STRATEGY GELİR MODELİ</div>
+            <div style="font-size:0.8rem; color:#e2e8f0;">Tanımlar anında tüm sipariş ve faturaya yansır.</div>
           </div>
         </div>
       </div>
+
+      <!-- RESMİ SRS TANIM KUTUSU (BİREBİR) -->
+      <div style="background:linear-gradient(135deg, rgba(234,179,8,0.08) 0%, rgba(20,27,38,0.92) 100%); border-left:4px solid #eab308; border-top:1px solid rgba(234,179,8,0.25); border-right:1px solid rgba(234,179,8,0.25); border-bottom:1px solid rgba(234,179,8,0.25); border-radius:8px; padding:18px 22px; margin-bottom:24px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <span class="badge" style="background:#ca8a04; color:#fff; font-size:0.72rem; padding:3px 8px; font-weight:700; letter-spacing:0.5px;">RESMİ SİSTEM GEREKSİNİMİ</span>
+          <span style="font-size:0.8rem; color:#94a3b8;">Finansal Kurallar & Hizmet Bedelleri Protokolü</span>
+        </div>
+        <div style="font-size:1.05rem; color:#f8fafc; font-weight:600; line-height:1.6; font-family:'Cinzel', serif;">
+          "Tanım: Müzayedelerden, başarılı satışlardan veya ekspertiz hizmetlerinden kesilecek platform komisyon oranlarının ve sabit hizmet bedellerinin tanımlanmasıdır."
+        </div>
+        <div style="font-size:0.82rem; color:#94a3b8; margin-top:8px; line-height:1.5;">
+          Bu masada; canlı ve VIP müzayedelerden alınacak <strong>Alıcı Primi (Buyer's Premium)</strong>, başarılı satışlardan tahsil edilecek <strong>Satıcı Komisyonu</strong> ve laboratuvar/heyet tarafından yürütülen <strong>Ekspertiz ve Sertifikasyon Sabit Bedelleri</strong> bağımsız olarak parametrik biçimde tanımlanır ve sistem genelinde otomatik uygulanır.
+        </div>
+      </div>
+
+      <?php
+        $commMuz = $commissionDefinitions['muzayede'] ?? [];
+        $commSat = $commissionDefinitions['basariliSatis'] ?? [];
+        $commExp = $commissionDefinitions['ekspertiz'] ?? [];
+        $commKat = $commissionDefinitions['kategoriOzel'] ?? [];
+      ?>
+
+      <!-- 4 Temel Metrik / KPI Kartları -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #38bdf8;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">1. Müzayede Alıcı Primi</div>
+          <div style="font-size:1.65rem; font-weight:700; color:#38bdf8; font-family:'Cinzel', serif;">
+            %<?= number_format((float)($commMuz['aliciPrimiYuzde'] ?? 12), 1) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">/ VIP %<?= number_format((float)($commMuz['vipAliciPrimiYuzde'] ?? 8), 1) ?></span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Çekiç fiyatı üzerine eklenen alıcı payı</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #10b981;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">2. Satıcı Başarı Komisyonu</div>
+          <div style="font-size:1.65rem; font-weight:700; color:#34d399; font-family:'Cinzel', serif;">
+            %<?= number_format((float)($commSat['saticiKomisyonYuzde'] ?? 8), 1) ?> <span style="font-size:0.85rem; font-family:sans-serif; color:#94a3b8; font-weight:normal;">/ Hacimli %<?= number_format((float)($commSat['yuksekHacimKomisyonYuzde'] ?? 4), 1) ?></span>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Başarılı kapanışta satıcıdan kesilen pay</div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #f59e0b;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">3. Sabit Ekspertiz Bedeli</div>
+          <div style="font-size:1.55rem; font-weight:700; color:#fbbf24; font-family:'Cinzel', serif;">
+            <?= $formatPrice((float)($commExp['standartEkspertizSabitBedeli'] ?? 1500)) ?>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Laboratuvar: <?= $formatPrice((float)($commExp['ileriLaboratuvarSabitBedeli'] ?? 4500)) ?></div>
+        </div>
+
+        <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #121820 0%, #171f2c 100%); border-left:4px solid #c084fc;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#848d9a; margin-bottom:4px;">4. Emanet & Takas Harcı</div>
+          <div style="font-size:1.55rem; font-weight:700; color:#c084fc; font-family:'Cinzel', serif;">
+            <?= $formatPrice((float)($commSat['emanetTakasSabitBedeli'] ?? 750)) ?>
+          </div>
+          <div style="font-size:0.75rem; color:#848d9a; margin-top:4px;">Noter & Escrow tescil bedeli</div>
+        </div>
+      </div>
+
+      <!-- ANA FORM: 3 Temel Sütun Tanımlama Formu -->
+      <form method="POST" style="margin-bottom:24px;">
+        <input type="hidden" name="action" value="update_commission_definitions">
+        <input type="hidden" name="tab" value="komisyon">
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px; margin-bottom:20px;">
+          
+          <!-- SÜTUN 1: MÜZAYEDELERDEN KESİLECEK ORAN VE SABİT BEDELLER -->
+          <div class="panel-card" style="margin-bottom:0; background:#0e131b; border:1px solid #1e293b; border-radius:10px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; border-bottom:1px solid #1e293b; padding-bottom:10px;">
+              <span style="font-size:1.2rem;">🏛️</span>
+              <div>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:#38bdf8;">1. Müzayede Komisyon & Bedelleri</h3>
+                <div style="font-size:0.74rem; color:#848d9a;">Açık artırma oturum katılım ve alıcı primleri</div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Standart Alıcı Primi (% Buyer's Premium)</label>
+              <div style="position:relative;">
+                <input type="number" step="0.1" min="0" max="40" name="aliciPrimiYuzde" class="form-control" value="<?= htmlspecialchars((string)($commMuz['aliciPrimiYuzde'] ?? 12.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600; color:#38bdf8;" required>
+                <span style="position:absolute; right:12px; top:10px; color:#64748b; font-size:0.8rem;">%</span>
+              </div>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Çekiç fiyatına eklenerek alıcı faturasına yansır.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">VIP Salon d'Honneur Alıcı Primi (%)</label>
+              <div style="position:relative;">
+                <input type="number" step="0.1" min="0" max="30" name="vipAliciPrimiYuzde" class="form-control" value="<?= htmlspecialchars((string)($commMuz['vipAliciPrimiYuzde'] ?? 8.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600; color:#38bdf8;" required>
+                <span style="position:absolute; right:12px; top:10px; color:#64748b; font-size:0.8rem;">%</span>
+              </div>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Özel müşteri ve akredite VIP koleksiyoner indirimi.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Müzayede Kataloglama Sabit Bedeli (TRY)</label>
+              <input type="number" step="50" min="0" name="katalogSabitBedeli" class="form-control" value="<?= htmlspecialchars((string)($commMuz['katalogSabitBedeli'] ?? 2500.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600;" required>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Katalog çekimi ve dijital sergi hazırlık bedeli.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Canlı Yayın & Altyapı Sabit Bedeli (TRY)</label>
+              <input type="number" step="50" min="0" name="canliYayinHizmetBedeli" class="form-control" value="<?= htmlspecialchars((string)($commMuz['canliYayinHizmetBedeli'] ?? 1200.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600;" required>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">WebSocket canlı pey akışı & CDN sunucu payı.</div>
+            </div>
+          </div>
+
+          <!-- SÜTUN 2: BAŞARILI SATIŞLARDAN KESİLECEK ORAN VE SABİT BEDELLER -->
+          <div class="panel-card" style="margin-bottom:0; background:#0e131b; border:1px solid #1e293b; border-radius:10px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; border-bottom:1px solid #1e293b; padding-bottom:10px;">
+              <span style="font-size:1.2rem;">🔨</span>
+              <div>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:#34d399;">2. Başarılı Satış Komisyon & Bedelleri</h3>
+                <div style="font-size:0.74rem; color:#848d9a;">Çekiç kapanışında satıcı hakedişinden tahsil edilenler</div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Satıcı Başarı Komisyon Oranı (%)</label>
+              <div style="position:relative;">
+                <input type="number" step="0.1" min="0" max="30" name="saticiKomisyonYuzde" class="form-control" value="<?= htmlspecialchars((string)($commSat['saticiKomisyonYuzde'] ?? 8.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600; color:#34d399;" required>
+                <span style="position:absolute; right:12px; top:10px; color:#64748b; font-size:0.8rem;">%</span>
+              </div>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Eser satıldığında çekiç bedelinden düşülür.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Kademeli Yüksek Hacim Komisyonu (%)</label>
+              <div style="position:relative;">
+                <input type="number" step="0.1" min="0" max="20" name="yuksekHacimKomisyonYuzde" class="form-control" value="<?= htmlspecialchars((string)($commSat['yuksekHacimKomisyonYuzde'] ?? 4.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600; color:#34d399;" required>
+                <span style="position:absolute; right:12px; top:10px; color:#64748b; font-size:0.8rem;">%</span>
+              </div>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Eşik üzerindeki yüksek değerli eser komisyon oranı.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Yüksek Hacim İndirim Eşiği (TRY)</label>
+              <input type="number" step="10000" min="0" name="yuksekHacimEsigi" class="form-control" value="<?= htmlspecialchars((string)($commSat['yuksekHacimEsigi'] ?? 500000.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600;" required>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Bu tutarın üzerindeki satışlarda kademeli oran devreye girer.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Emanet (Escrow) Takas Sabit Bedeli (TRY)</label>
+              <input type="number" step="50" min="0" name="emanetTakasSabitBedeli" class="form-control" value="<?= htmlspecialchars((string)($commSat['emanetTakasSabitBedeli'] ?? 750.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600;" required>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Banka emanet havuzu tescil ve bloke çözme masrafı.</div>
+            </div>
+          </div>
+
+          <!-- SÜTUN 3: EKSPERTİZ HİZMETLERİNDEN KESİLECEK SABİT BEDELLER VE HAKEDİŞLER -->
+          <div class="panel-card" style="margin-bottom:0; background:#0e131b; border:1px solid #1e293b; border-radius:10px; padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; border-bottom:1px solid #1e293b; padding-bottom:10px;">
+              <span style="font-size:1.2rem;">🔬</span>
+              <div>
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; color:#fbbf24;">3. Ekspertiz Sabit Bedelleri & Hakediş</h3>
+                <div style="font-size:0.74rem; color:#848d9a;">Orijinallik tespiti, laboratuvar ve kurul bedelleri</div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Standart Ekspertiz Sabit Bedeli (TRY)</label>
+              <input type="number" step="50" min="0" name="standartEkspertizSabitBedeli" class="form-control" value="<?= htmlspecialchars((string)($commExp['standartEkspertizSabitBedeli'] ?? 1500.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600; color:#fbbf24;" required>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Fiziksel kondisyon, mikroskop ve optik inceleme bedeli.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">İleri Laboratuvar / Spektral Sabit Bedeli (TRY)</label>
+              <input type="number" step="100" min="0" name="ileriLaboratuvarSabitBedeli" class="form-control" value="<?= htmlspecialchars((string)($commExp['ileriLaboratuvarSabitBedeli'] ?? 4500.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600; color:#fbbf24;" required>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">XRF spektrometre, Karbon-14 ve kimyasal pigment test bedeli.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Orijinallik Belgesi & QR Sertifika Bedeli (TRY)</label>
+              <input type="number" step="50" min="0" name="orijinallikSertifikaBedeli" class="form-control" value="<?= htmlspecialchars((string)($commExp['orijinallikSertifikaBedeli'] ?? 1000.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600;" required>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Akredite kurul onaylı e-imzalı sertifika tanzim bedeli.</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Eksper Hakediş Payı (% Eksper / % Platform)</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div style="position:relative;">
+                  <input type="number" step="1" min="0" max="100" name="eksperHakedisOraniYuzde" class="form-control" value="<?= htmlspecialchars((string)($commExp['eksperHakedisOraniYuzde'] ?? 80.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600; color:#10b981;" required>
+                  <span style="position:absolute; right:10px; top:10px; color:#64748b; font-size:0.75rem;">% Eksper</span>
+                </div>
+                <div style="position:relative;">
+                  <input type="number" step="1" min="0" max="100" name="platformEkspertizPayiYuzde" class="form-control" value="<?= htmlspecialchars((string)($commExp['platformEkspertizPayiYuzde'] ?? 20.0)) ?>" style="background:#07090e; border-color:#2a3449; font-weight:600; color:#eab308;" required>
+                  <span style="position:absolute; right:10px; top:10px; color:#64748b; font-size:0.75rem;">% Platform</span>
+                </div>
+              </div>
+              <div style="font-size:0.72rem; color:#848d9a; margin-top:3px;">Ekspertiz bedelinin eksper ve sistem arasındaki dağılımı.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#111722; border:1px solid #1f2c3f; border-radius:8px; padding:14px 20px;">
+          <div style="font-size:0.82rem; color:#94a3b8;">
+            Yetkili Onayı: <strong>Baş Yönetici (Admin ID #1)</strong> • Değişiklikler SHA-256 denetim izine tescil edilir.
+          </div>
+          <button type="submit" class="btn-gold" style="padding:10px 24px; font-weight:700; font-size:0.88rem; cursor:pointer;">
+            💾 Oranları ve Sabit Bedelleri Sisteme Kaydet
+          </button>
+        </div>
+      </form>
+
+      <!-- KATEGORİ BAZLI ÖZEL KOMİSYON MATRİSİ & TABLOSU -->
+      <div class="panel-card" style="margin-bottom:24px; background:#0e131b; border:1px solid #1e293b; padding:0; overflow:hidden;">
+        <div style="padding:16px 20px; border-bottom:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.15rem;">📊</span>
+            <div>
+              <h3 style="margin:0; font-size:0.92rem; font-weight:700; color:#fff;">Kategori Bazlı Özel Komisyon ve Ekspertiz Bedeli Matrisi</h3>
+              <div style="font-size:0.72rem; color:#848d9a;">Koleksiyon kategorilerine göre farklılaşan komisyon stratejileri</div>
+            </div>
+          </div>
+          <span class="badge badge-gold" style="font-size:0.72rem;">Strategy Deseni Aktif</span>
+        </div>
+
+        <table class="data-table" style="margin:0; width:100%;">
+          <thead>
+            <tr>
+              <th style="padding-left:20px;">Kategori</th>
+              <th>Satıcı Komisyonu</th>
+              <th>Alıcı Primi</th>
+              <th>Sabit Ekspertiz Bedeli</th>
+              <th>Uygulanan Strateji Deseni</th>
+              <th style="text-align:right; padding-right:20px;">Durum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($commKat as $kItem): ?>
+              <tr>
+                <td style="padding-left:20px;">
+                  <strong style="color:#fff;"><?= htmlspecialchars((string)($kItem['kategoriAdi'] ?? 'Kategori')) ?></strong>
+                </td>
+                <td>
+                  <span class="badge" style="background:rgba(16,185,129,0.15); color:#34d399; font-weight:700;">
+                    %<?= number_format((float)($kItem['saticiKomisyonYuzde'] ?? 8), 1) ?>
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-weight:700;">
+                    %<?= number_format((float)($kItem['aliciPrimiYuzde'] ?? 12), 1) ?>
+                  </span>
+                </td>
+                <td>
+                  <strong style="color:#fbbf24;"><?= $formatPrice((float)($kItem['sabitEkspertizBedeli'] ?? 1500)) ?></strong>
+                </td>
+                <td>
+                  <code style="font-size:0.75rem; color:#cbd5e1;">
+                    <?= (stripos((string)($kItem['kategoriAdi'] ?? ''), 'taşıt') !== false || stripos((string)($kItem['kategoriAdi'] ?? ''), 'otomobil') !== false) ? 'VehicleCommission' : 'ArtAntiqueCommission' ?>
+                  </code>
+                </td>
+                <td style="text-align:right; padding-right:20px;">
+                  <span class="badge badge-success" style="font-size:0.7rem;">YÜRÜRLÜKTE</span>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- CANLI HESAPLAMA SİMÜLATÖRÜ (KOMİSYON & HAKEDİŞ HESAPLAYICI) -->
+      <div class="panel-card" style="margin-bottom:0; background:linear-gradient(135deg, #0e131b 0%, #151c27 100%); border:1px solid #2a3449; border-radius:10px; padding:22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #202b3c; padding-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:1.3rem;">🧮</span>
+            <div>
+              <h3 style="margin:0; font-size:1rem; font-weight:700; color:#fff;">Canlı Komisyon ve Hakediş Hesaplama Simülatörü</h3>
+              <div style="font-size:0.75rem; color:#94a3b8;">Girilen çekiç fiyatına göre alıcı, satıcı, platform ve eksper paylarını anında hesaplayın</div>
+            </div>
+          </div>
+          <span class="badge" style="background:rgba(234,179,8,0.15); color:#facc15; border:1px solid rgba(234,179,8,0.4); font-size:0.75rem; padding:4px 10px;">
+            Simülasyon Modu
+          </span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1.6fr; gap:24px; align-items:start;">
+          <!-- Simülatör Girdileri -->
+          <div style="background:#090d14; border:1px solid #1a2230; border-radius:8px; padding:16px;">
+            <div class="form-group" style="margin-bottom:12px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Örnek Çekiç / Kapanış Fiyatı (TRY)</label>
+              <input type="number" id="simHammerInput" value="50000" step="1000" min="1000" class="form-control" style="font-size:1.1rem; font-weight:700; color:#c5a059; background:#121822;" oninput="runCommissionSimulation()">
+            </div>
+
+            <div class="form-group" style="margin-bottom:12px;">
+              <label class="form-label" style="font-size:0.8rem; color:#cbd5e1;">Uygulanacak Kategori</label>
+              <select id="simCategorySelect" class="form-control" style="background:#121822; font-size:0.82rem;" onchange="runCommissionSimulation()">
+                <option value="antika" data-seller="8" data-buyer="12" data-exp="1500">Antika & Sanat Eserleri (%8 Satıcı / %12 Alıcı)</option>
+                <option value="saat" data-seller="7" data-buyer="10" data-exp="2000">Nadir Saat & Mücevher (%7 Satıcı / %10 Alıcı)</option>
+                <option value="arac" data-seller="4" data-buyer="6" data-exp="5000">Klasik Otomobil & Taşıt (%4 Satıcı / %6 Alıcı)</option>
+                <option value="kitap" data-seller="9" data-buyer="12" data-exp="1200">Nadir Kitap & Efemera (%9 Satıcı / %12 Alıcı)</option>
+              </select>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px; font-size:0.82rem; color:#94a3b8;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="simVipCheck" onchange="runCommissionSimulation()" style="accent-color:#eab308;">
+                <span>VIP Salon d'Honneur Katılımı (İndirimli Alıcı Primi)</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="simAdvancedLabCheck" onchange="runCommissionSimulation()" style="accent-color:#eab308;">
+                <span>İleri Laboratuvar / Spektral Test Bedeli Dahil (+<?= $formatPrice(4500) ?>)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Simülatör Canlı Çıktıları -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="background:#0c131d; border:1px solid #1c2b3f; border-radius:8px; padding:14px;">
+              <div style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px;">Alıcı Faturası (Toplam)</div>
+              <div id="simResBuyerTotal" style="font-size:1.35rem; font-weight:700; color:#38bdf8; font-family:'Cinzel', serif; margin:4px 0;">
+                -
+              </div>
+              <div id="simResBuyerBreakdown" style="font-size:0.74rem; color:#64748b;">Çekiç + Alıcı Primi</div>
+            </div>
+
+            <div style="background:#0c131d; border:1px solid #1c2b3f; border-radius:8px; padding:14px;">
+              <div style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px;">Satıcı Net Hakedişi</div>
+              <div id="simResSellerPayout" style="font-size:1.35rem; font-weight:700; color:#34d399; font-family:'Cinzel', serif; margin:4px 0;">
+                -
+              </div>
+              <div id="simResSellerBreakdown" style="font-size:0.74rem; color:#64748b;">Çekiç - Komisyon - Sabit Harçlar</div>
+            </div>
+
+            <div style="background:#0c131d; border:1px solid #1c2b3f; border-radius:8px; padding:14px;">
+              <div style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px;">Platform Toplam Geliri</div>
+              <div id="simResPlatformRevenue" style="font-size:1.35rem; font-weight:700; color:#facc15; font-family:'Cinzel', serif; margin:4px 0;">
+                -
+              </div>
+              <div id="simResPlatformBreakdown" style="font-size:0.74rem; color:#64748b;">Alıcı Primi + Satıcı Komisyonu + Paylar</div>
+            </div>
+
+            <div style="background:#0c131d; border:1px solid #1c2b3f; border-radius:8px; padding:14px;">
+              <div style="font-size:0.7rem; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px;">Eksper Heyet Hakedişi</div>
+              <div id="simResExpertPayout" style="font-size:1.35rem; font-weight:700; color:#c084fc; font-family:'Cinzel', serif; margin:4px 0;">
+                -
+              </div>
+              <div id="simResExpertBreakdown" style="font-size:0.74rem; color:#64748b;">Ekspertiz Harcının %80'i</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
+
+    <script>
+      function runCommissionSimulation() {
+        const hammer = parseFloat(document.getElementById('simHammerInput')?.value || 0);
+        const catSelect = document.getElementById('simCategorySelect');
+        const isVip = document.getElementById('simVipCheck')?.checked || false;
+        const isAdvLab = document.getElementById('simAdvancedLabCheck')?.checked || false;
+
+        if (!catSelect) return;
+        const opt = catSelect.options[catSelect.selectedIndex];
+        let sellerRate = parseFloat(opt.getAttribute('data-seller') || 8);
+        let buyerRate = parseFloat(opt.getAttribute('data-buyer') || 12);
+        let expFee = parseFloat(opt.getAttribute('data-exp') || 1500);
+
+        if (isVip) {
+          buyerRate = Math.max(4, buyerRate - 4);
+        }
+        if (hammer >= 500000) {
+          sellerRate = Math.max(3, sellerRate - 4);
+        }
+        if (isAdvLab) {
+          expFee += 4500;
+        }
+
+        const escrowFee = 750; // Emanet takas sabit bedeli
+        const buyerPremium = hammer * (buyerRate / 100);
+        const sellerCommission = hammer * (sellerRate / 100);
+        const expertPayout = expFee * 0.80;
+        const platformExpertShare = expFee * 0.20;
+
+        const buyerTotal = hammer + buyerPremium;
+        const sellerPayout = Math.max(0, hammer - sellerCommission - expFee - escrowFee);
+        const platformRevenue = buyerPremium + sellerCommission + platformExpertShare + escrowFee;
+
+        const fmt = window.formatPriceJs ? window.formatPriceJs : (v => '₺' + v.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2}));
+
+        const bEl = document.getElementById('simResBuyerTotal');
+        if (bEl) bEl.innerText = fmt(buyerTotal);
+        const bSub = document.getElementById('simResBuyerBreakdown');
+        if (bSub) bSub.innerText = 'Çekiç (' + fmt(hammer) + ') + %' + buyerRate + ' Prim (' + fmt(buyerPremium) + ')';
+
+        const sEl = document.getElementById('simResSellerPayout');
+        if (sEl) sEl.innerText = fmt(sellerPayout);
+        const sSub = document.getElementById('simResSellerBreakdown');
+        if (sSub) sSub.innerText = 'Çekiç - %' + sellerRate + ' Komisyon - ' + fmt(expFee) + ' Ekspertiz - ' + fmt(escrowFee) + ' Emanet';
+
+        const pEl = document.getElementById('simResPlatformRevenue');
+        if (pEl) pEl.innerText = fmt(platformRevenue);
+        const pSub = document.getElementById('simResPlatformBreakdown');
+        if (pSub) pSub.innerText = 'Alıcı Prim (' + fmt(buyerPremium) + ') + Satıcı Kom. (' + fmt(sellerCommission) + ') + Hizmetler';
+
+        const eEl = document.getElementById('simResExpertPayout');
+        if (eEl) eEl.innerText = fmt(expertPayout);
+        const eSub = document.getElementById('simResExpertBreakdown');
+        if (eSub) eSub.innerText = 'Toplam ' + fmt(expFee) + ' Ekspertiz Harcının %80 Uzman Payı';
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        runCommissionSimulation();
+      });
+    </script>
 
     
 

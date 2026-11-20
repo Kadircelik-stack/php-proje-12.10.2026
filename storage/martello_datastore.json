@@ -3694,6 +3694,14 @@
             "ipAdresi": "127.0.0.1",
             "tarih": "2026-11-20T17:55:13+00:00",
             "id": 8
+        },
+        {
+            "kullaniciId": 1,
+            "islemTuru": "KOMISYON_TANIM_GUNCELLEME",
+            "detay": "Platform komisyon oranları ve sabit hizmet bedelleri güncellendi (Müzayede Alıcı: %12.5, Satıcı: %8.5, Ekspertiz: ₺1600)",
+            "ipAdresi": "127.0.0.1",
+            "tarih": "2026-11-20T18:26:50+00:00",
+            "id": 9
         }
     ],
     "pastSales": [
@@ -4045,5 +4053,60 @@
             "vizeBitisTarihi": "2027-11-19",
             "adminNotu": "Mesleki yeterlilik ve oda belgeleri onaylandı, B Seviyesi Uzman lisansı verildi."
         }
-    ]
+    ],
+    "commissionDefinitions": {
+        "version": "2026.4",
+        "guncellemeTarihi": "2026-11-20T18:26:50+00:00",
+        "guncelleyenAdminId": 1,
+        "muzayede": {
+            "aliciPrimiYuzde": 12.5,
+            "vipAliciPrimiYuzde": 8.5,
+            "katalogSabitBedeli": 2600,
+            "canliYayinHizmetBedeli": 1300
+        },
+        "basariliSatis": {
+            "saticiKomisyonYuzde": 8.5,
+            "yuksekHacimKomisyonYuzde": 4.5,
+            "yuksekHacimEsigi": 600000,
+            "emanetTakasSabitBedeli": 800,
+            "odemeIslemPayiYuzde": 1.8
+        },
+        "ekspertiz": {
+            "standartEkspertizSabitBedeli": 1600,
+            "ileriLaboratuvarSabitBedeli": 4800,
+            "orijinallikSertifikaBedeli": 1100,
+            "eksperHakedisOraniYuzde": 80,
+            "platformEkspertizPayiYuzde": 20
+        },
+        "kategoriOzel": [
+            {
+                "kategoriId": 1,
+                "kategoriAdi": "Antika & Sanat Eserleri",
+                "saticiKomisyonYuzde": 8,
+                "aliciPrimiYuzde": 12,
+                "sabitEkspertizBedeli": 1500
+            },
+            {
+                "kategoriId": 2,
+                "kategoriAdi": "Nadir Saat & Mücevher",
+                "saticiKomisyonYuzde": 7,
+                "aliciPrimiYuzde": 10,
+                "sabitEkspertizBedeli": 2000
+            },
+            {
+                "kategoriId": 3,
+                "kategoriAdi": "Klasik Otomobil & Taşıt",
+                "saticiKomisyonYuzde": 4,
+                "aliciPrimiYuzde": 6,
+                "sabitEkspertizBedeli": 5000
+            },
+            {
+                "kategoriId": 4,
+                "kategoriAdi": "Nadir Kitap & Efemera",
+                "saticiKomisyonYuzde": 9,
+                "aliciPrimiYuzde": 12,
+                "sabitEkspertizBedeli": 1200
+            }
+        ]
+    }
 }

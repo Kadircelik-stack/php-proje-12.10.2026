@@ -468,6 +468,13 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'update_commission_definitions':
+                $res = $this->workflowService->updateCommissionDefinitions($post, 1);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'add_category':
                 $res = $this->workflowService->saveCategoryDefinition($post);
                 return [
@@ -628,5 +635,13 @@ class WebAndApiController
     public function getHistoryStatistics(): array
     {
         return $this->workflowService->getHistoryStatistics();
+    }
+
+    /**
+     * Komisyon Oranları ve Sabit Hizmet Bedelleri Tanımlarını Döner
+     */
+    public function getCommissionDefinitions(): array
+    {
+        return $this->workflowService->getCommissionDefinitions();
     }
 }

@@ -1821,6 +1821,134 @@ class PlatformWorkflowService
     }
 
     /**
+     * SRS Tanım: Müzayedelerden, başarılı satışlardan veya ekspertiz hizmetlerinden
+     * kesilecek platform komisyon oranlarının ve sabit hizmet bedellerinin tanımlanmasıdır.
+     */
+    public function getCommissionDefinitions(): array
+    {
+        $all = $this->dataStore->getAllData();
+        return $all['commissionDefinitions'] ?? [
+            'version'            => '2026.3',
+            'guncellemeTarihi'   => date('c'),
+            'guncelleyenAdminId' => 1,
+            'muzayede'           => [
+                'aliciPrimiYuzde'        => 12.0,
+                'vipAliciPrimiYuzde'     => 8.0,
+                'katalogSabitBedeli'     => 2500.0,
+                'canliYayinHizmetBedeli' => 1200.0,
+            ],
+            'basariliSatis'      => [
+                'saticiKomisyonYuzde'      => 8.0,
+                'yuksekHacimKomisyonYuzde' => 4.0,
+                'yuksekHacimEsigi'         => 500000.0,
+                'emanetTakasSabitBedeli'   => 750.0,
+                'odemeIslemPayiYuzde'      => 1.5,
+            ],
+            'ekspertiz'          => [
+                'standartEkspertizSabitBedeli' => 1500.0,
+                'ileriLaboratuvarSabitBedeli'  => 4500.0,
+                'orijinallikSertifikaBedeli'   => 1000.0,
+                'eksperHakedisOraniYuzde'      => 80.0,
+                'platformEkspertizPayiYuzde'   => 20.0,
+            ],
+            'kategoriOzel'       => [
+                [
+                    'kategoriId'          => 1,
+                    'kategoriAdi'         => 'Antika & Sanat Eserleri',
+                    'saticiKomisyonYuzde' => 8.0,
+                    'aliciPrimiYuzde'     => 12.0,
+                    'sabitEkspertizBedeli'=> 1500.0,
+                ],
+                [
+                    'kategoriId'          => 2,
+                    'kategoriAdi'         => 'Nadir Saat & Mücevher',
+                    'saticiKomisyonYuzde' => 7.0,
+                    'aliciPrimiYuzde'     => 10.0,
+                    'sabitEkspertizBedeli'=> 2000.0,
+                ],
+                [
+                    'kategoriId'          => 3,
+                    'kategoriAdi'         => 'Klasik Otomobil & Taşıt',
+                    'saticiKomisyonYuzde' => 4.0,
+                    'aliciPrimiYuzde'     => 6.0,
+                    'sabitEkspertizBedeli'=> 5000.0,
+                ],
+                [
+                    'kategoriId'          => 4,
+                    'kategoriAdi'         => 'Nadir Kitap & Efemera',
+                    'saticiKomisyonYuzde' => 9.0,
+                    'aliciPrimiYuzde'     => 12.0,
+                    'sabitEkspertizBedeli'=> 1200.0,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Komisyon Oranları ve Sabit Hizmet Bedellerini Tanımlar ve Günceller
+     */
+    public function updateCommissionDefinitions(array $data, int $adminId = 1): array
+    {
+        $current = $this->getCommissionDefinitions();
+
+        $muzayede = [
+            'aliciPrimiYuzde'        => isset($data['aliciPrimiYuzde']) ? (float)$data['aliciPrimiYuzde'] : (float)($current['muzayede']['aliciPrimiYuzde'] ?? 12.0),
+            'vipAliciPrimiYuzde'     => isset($data['vipAliciPrimiYuzde']) ? (float)$data['vipAliciPrimiYuzde'] : (float)($current['muzayede']['vipAliciPrimiYuzde'] ?? 8.0),
+            'katalogSabitBedeli'     => isset($data['katalogSabitBedeli']) ? (float)$data['katalogSabitBedeli'] : (float)($current['muzayede']['katalogSabitBedeli'] ?? 2500.0),
+            'canliYayinHizmetBedeli' => isset($data['canliYayinHizmetBedeli']) ? (float)$data['canliYayinHizmetBedeli'] : (float)($current['muzayede']['canliYayinHizmetBedeli'] ?? 1200.0),
+        ];
+
+        $basariliSatis = [
+            'saticiKomisyonYuzde'      => isset($data['saticiKomisyonYuzde']) ? (float)$data['saticiKomisyonYuzde'] : (float)($current['basariliSatis']['saticiKomisyonYuzde'] ?? 8.0),
+            'yuksekHacimKomisyonYuzde' => isset($data['yuksekHacimKomisyonYuzde']) ? (float)$data['yuksekHacimKomisyonYuzde'] : (float)($current['basariliSatis']['yuksekHacimKomisyonYuzde'] ?? 4.0),
+            'yuksekHacimEsigi'         => isset($data['yuksekHacimEsigi']) ? (float)$data['yuksekHacimEsigi'] : (float)($current['basariliSatis']['yuksekHacimEsigi'] ?? 500000.0),
+            'emanetTakasSabitBedeli'   => isset($data['emanetTakasSabitBedeli']) ? (float)$data['emanetTakasSabitBedeli'] : (float)($current['basariliSatis']['emanetTakasSabitBedeli'] ?? 750.0),
+            'odemeIslemPayiYuzde'      => isset($data['odemeIslemPayiYuzde']) ? (float)$data['odemeIslemPayiYuzde'] : (float)($current['basariliSatis']['odemeIslemPayiYuzde'] ?? 1.5),
+        ];
+
+        $ekspertiz = [
+            'standartEkspertizSabitBedeli' => isset($data['standartEkspertizSabitBedeli']) ? (float)$data['standartEkspertizSabitBedeli'] : (float)($current['ekspertiz']['standartEkspertizSabitBedeli'] ?? 1500.0),
+            'ileriLaboratuvarSabitBedeli'  => isset($data['ileriLaboratuvarSabitBedeli']) ? (float)$data['ileriLaboratuvarSabitBedeli'] : (float)($current['ekspertiz']['ileriLaboratuvarSabitBedeli'] ?? 4500.0),
+            'orijinallikSertifikaBedeli'   => isset($data['orijinallikSertifikaBedeli']) ? (float)$data['orijinallikSertifikaBedeli'] : (float)($current['ekspertiz']['orijinallikSertifikaBedeli'] ?? 1000.0),
+            'eksperHakedisOraniYuzde'      => isset($data['eksperHakedisOraniYuzde']) ? (float)$data['eksperHakedisOraniYuzde'] : (float)($current['ekspertiz']['eksperHakedisOraniYuzde'] ?? 80.0),
+            'platformEkspertizPayiYuzde'   => isset($data['platformEkspertizPayiYuzde']) ? (float)$data['platformEkspertizPayiYuzde'] : (float)($current['ekspertiz']['platformEkspertizPayiYuzde'] ?? 20.0),
+        ];
+
+        $kategoriOzel = $current['kategoriOzel'] ?? [];
+        if (!empty($data['kategoriOzel']) && is_array($data['kategoriOzel'])) {
+            $kategoriOzel = $data['kategoriOzel'];
+        }
+
+        $newDefinitions = [
+            'version'            => '2026.4',
+            'guncellemeTarihi'   => date('c'),
+            'guncelleyenAdminId' => $adminId,
+            'muzayede'           => $muzayede,
+            'basariliSatis'      => $basariliSatis,
+            'ekspertiz'          => $ekspertiz,
+            'kategoriOzel'       => $kategoriOzel,
+        ];
+
+        $allData = $this->dataStore->getAllData();
+        $allData['commissionDefinitions'] = $newDefinitions;
+        $this->dataStore->saveAllData($allData);
+
+        $this->dataStore->insertItem('auditLogs', [
+            'kullaniciId' => $adminId,
+            'islemTuru'   => 'KOMISYON_TANIM_GUNCELLEME',
+            'detay'       => "Platform komisyon oranları ve sabit hizmet bedelleri güncellendi (Müzayede Alıcı: %{$muzayede['aliciPrimiYuzde']}, Satıcı: %{$basariliSatis['saticiKomisyonYuzde']}, Ekspertiz: ₺{$ekspertiz['standartEkspertizSabitBedeli']})",
+            'ipAdresi'    => '127.0.0.1',
+            'tarih'       => date('c'),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => "✓ Platform komisyon oranları ve sabit hizmet bedelleri başarıyla tanımlandı ve güncellendi.",
+            'data'    => $newDefinitions,
+        ];
+    }
+
+    /**
      * Kural dışı, hatalı veya kötü niyetli peylerin yetkili admin tarafından iptali
      */
     public function adminCancelBid(int $bidId, string $reason, int $adminId = 1): array
