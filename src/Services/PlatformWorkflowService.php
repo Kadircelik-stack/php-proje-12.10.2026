@@ -777,6 +777,59 @@ class PlatformWorkflowService
     }
 
     /**
+     * Admin: Ekspertiz Raporunu Kabul Etme (Onaylama) veya Reddetme
+     */
+    public function reviewAppraisalReport(int $reportId, bool $approve, string $adminNote = ''): array
+    {
+        $report = $this->dataStore->getItem('appraisalReports', 'id', $reportId);
+        if (!$report) {
+            return ['success' => false, 'message' => "Ekspertiz raporu (#{$reportId}) bulunamadı."];
+        }
+
+        $newStatus = $approve ? 'KABUL_EDILDI' : 'REDDEDILDI';
+        $reportNo = $report['raporNo'] ?? "#{$reportId}";
+
+        $this->dataStore->updateItem('appraisalReports', 'id', $reportId, [
+            'denetimDurumu'   => $newStatus,
+            'adminOnayZamani' => date('c'),
+            'adminNotu'       => $adminNote ?: ($approve ? 'Rapor yönetici tarafından incelendi, kabul edildi.' : 'Rapor yönetici tarafından yetersiz görülerek reddedildi.'),
+        ]);
+
+        // Bağlı talep ve ilanın durumunu güncelle
+        $talepId = (int)($report['talepId'] ?? 0);
+        if ($talepId > 0) {
+            $req = $this->dataStore->getItem('appraisalRequests', 'id', $talepId);
+            if ($req) {
+                $this->dataStore->updateItem('appraisalRequests', 'id', $talepId, [
+                    'durum' => $approve ? 'ONAYLANDI' : 'REDDEDILDI',
+                ]);
+            }
+        }
+
+        $urunId = (int)($report['urunId'] ?? 0);
+        if ($urunId > 0) {
+            $listings = $this->dataStore->getCollection('listings');
+            foreach ($listings as &$l) {
+                if ((int)($l['urunId'] ?? 0) === $urunId) {
+                    $l['durum'] = $approve ? 'EKSPERTIZ_ONAYLI' : 'EKSPERTIZ_RED';
+                    break;
+                }
+            }
+            unset($l);
+            $this->dataStore->saveCollection('listings', $listings);
+        }
+
+        $this->dataStore->commit();
+
+        $actionText = $approve ? 'kabul edildi (onaylandı)' : 'reddedildi';
+        return [
+            'success' => true,
+            'message' => "Ekspertiz Raporu ({$reportNo}) yönetici tarafından {$actionText}.",
+            'report'  => $report,
+        ];
+    }
+
+    /**
      * Admin: İlan Onaylama / Reddetme ve Müzayedeye Lot Olarak Ekleme
      */
     public function approveListingAndPublish(int $listingId, float $startPrice, float $reservePrice, float $minStep): array

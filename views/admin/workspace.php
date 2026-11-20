@@ -25,6 +25,11 @@ $activeTab = $_GET['tab'] ?? 'konsol';
             Yönetim konsolu
           </button>
         </li>
+        <li class="nav-menu-item <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
+          <button type="button" data-tab="raporlar" onclick="switchAdminTab('raporlar', this)">
+            Ekspertiz Raporları
+          </button>
+        </li>
         <li class="nav-menu-item <?= $activeTab === 'kategoriler' ? 'active' : '' ?>">
           <button type="button" data-tab="kategoriler" onclick="switchAdminTab('kategoriler', this)">
             Kategoriler & Nitelikler
@@ -53,11 +58,6 @@ $activeTab = $_GET['tab'] ?? 'konsol';
         <li class="nav-menu-item <?= $activeTab === 'komisyon' ? 'active' : '' ?>">
           <button type="button" data-tab="komisyon" onclick="switchAdminTab('komisyon', this)">
             Komisyon oranları
-          </button>
-        </li>
-        <li class="nav-menu-item <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
-          <button type="button" data-tab="raporlar" onclick="switchAdminTab('raporlar', this)">
-            Raporlar
           </button>
         </li>
         <li class="nav-menu-item <?= $activeTab === 'ihtilaflar' ? 'active' : '' ?>">
@@ -169,39 +169,173 @@ $activeTab = $_GET['tab'] ?? 'konsol';
       <h1 class="page-heading">Yönetim konsolu</h1>
       <p class="page-subheading" style="margin-bottom:24px;">Seçkin müzayede deneyiminizi yönetin</p>
 
-      <!-- KPI Grid: Kategoriler ve Temel Sayaçlar -->
+      <!-- KPI Grid: Raporlar, Kategoriler ve Temel Sayaçlar -->
       <div class="kpi-grid">
+        <div class="kpi-card highlight" style="cursor:pointer;" onclick="switchAdminTab('raporlar', document.querySelector('[data-tab=\'raporlar\']'))">
+          <div class="kpi-label">EKSPERTİZ RAPORLARI</div>
+          <div class="kpi-value" style="color:var(--gold-primary);"><?= count($reports) ?></div>
+        </div>
         <div class="kpi-card" style="cursor:pointer;" onclick="switchAdminTab('kategoriler', document.querySelector('[data-tab=\'kategoriler\']'))">
           <div class="kpi-label">KATEGORİLER</div>
-          <div class="kpi-value" style="color:var(--gold-primary);"><?= count($categories) ?></div>
-        </div>
-        <div class="kpi-card highlight">
-          <div class="kpi-label">AKTİF LOTLAR</div>
-          <div class="kpi-value">6</div>
+          <div class="kpi-value"><?= count($categories) ?></div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">KULLANICILAR</div>
           <div class="kpi-value"><?= count($users) ?></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">AÇIK İHTİLAFLAR</div>
-          <div class="kpi-value">0</div>
+          <div class="kpi-label">AKTİF LOTLAR</div>
+          <div class="kpi-value">6</div>
         </div>
       </div>
 
-      <!-- Yönetim Konsolu Kartı & Kategori Hızlı Geçiş -->
+      <!-- Yönetim Konsolu Kartı & Hızlı Geçiş -->
       <div class="panel-card" style="margin-bottom:16px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div>
             <h2 class="panel-title" style="margin-bottom:4px;">Yönetim Konsolu</h2>
             <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
-              Kategorileri eklemek ve silmek için sol menüden veya butondan Kategori Masasına geçebilirsiniz.
+              Ekspertiz raporlarını incelemek, kabul/red kararı vermek ve kategorileri yönetmek için yukarı taşınan masaları kullanabilirsiniz.
             </p>
           </div>
-          <button type="button" class="btn-gold btn-sm" onclick="switchAdminTab('kategoriler', document.querySelector('[data-tab=\'kategoriler\']'))" style="padding:8px 16px; cursor:pointer;">
-            Kategori Yönetimine Git →
-          </button>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn-gold btn-sm" onclick="switchAdminTab('raporlar', document.querySelector('[data-tab=\'raporlar\']'))" style="padding:8px 16px; cursor:pointer;">
+              Ekspertiz Raporlarına Git →
+            </button>
+            <button type="button" class="btn-outline-gold btn-sm" onclick="switchAdminTab('kategoriler', document.querySelector('[data-tab=\'kategoriler\']'))" style="padding:8px 16px; cursor:pointer;">
+              Kategorilere Git →
+            </button>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 2. TAB: RAPORLAMA VE EKSPERTİZ ONAY / RED MASASI (YUKARI TAŞINDI) -->
+    <div id="admTab_raporlar" class="tab-content <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI / EKSPERTİZ RAPORLARI</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h1 class="page-heading">Ekspertiz Raporları ve Onay Masası</h1>
+          <p class="page-subheading" style="color:var(--gold-primary); font-weight:500;">
+            Uzmanlar tarafından düzenlenen ekspertiz raporlarını inceleyin; kabul edin veya reddedin.
+          </p>
+        </div>
+        <span class="badge badge-gold" style="font-size:0.78rem; padding:6px 14px;"><?= count($reports) ?> Rapor</span>
+      </div>
+
+      <!-- Ekspertiz Raporları İstatistik Kartları -->
+      <?php
+        $approvedReports = array_values(array_filter($reports, fn($r) => in_array($r['denetimDurumu'] ?? '', ['KABUL_EDILDI', 'ONAYLANDI'], true)));
+        $rejectedReports = array_values(array_filter($reports, fn($r) => ($r['denetimDurumu'] ?? '') === 'REDDEDILDI'));
+        $pendingReports = array_values(array_filter($reports, fn($r) => !in_array($r['denetimDurumu'] ?? '', ['KABUL_EDILDI', 'ONAYLANDI', 'REDDEDILDI'], true)));
+      ?>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:24px;">
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid var(--gold-primary); border-radius:8px; padding:12px 14px;">
+          <div style="font-size:0.75rem; color:#8b949e; text-transform:uppercase;">Toplam Rapor</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#fff;"><?= count($reports) ?></div>
+        </div>
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #3fb950; border-radius:8px; padding:12px 14px;">
+          <div style="font-size:0.75rem; color:#8b949e; text-transform:uppercase;">Kabul Edilen (Onaylı)</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#3fb950;"><?= count($approvedReports) ?></div>
+        </div>
+        <div style="background:#090d14; border:1px solid #1f2736; border-left:3px solid #f87171; border-radius:8px; padding:12px 14px;">
+          <div style="font-size:0.75rem; color:#8b949e; text-transform:uppercase;">Reddedilen Raporlar</div>
+          <div style="font-size:1.4rem; font-weight:700; color:#f87171;"><?= count($rejectedReports) ?></div>
+        </div>
+      </div>
+
+      <!-- Ekspertiz Raporları Kart Listesi (KABUL ET & REDDET TUŞLARI) -->
+      <div style="display:grid; grid-template-columns:1fr; gap:16px;">
+        <?php foreach ($reports as $r): 
+          $rId = (int)($r['id'] ?? 0);
+          $rNo = htmlspecialchars($r['raporNo'] ?? "#{$rId}");
+          $status = $r['denetimDurumu'] ?? 'ONAYLANDI';
+          $isApproved = in_array($status, ['KABUL_EDILDI', 'ONAYLANDI'], true);
+          $isRejected = ($status === 'REDDEDILDI');
+          $val = (float)($r['onerilenPiyasaDegeri'] ?? 0);
+          $note = htmlspecialchars($r['orijinallikNotu'] ?? 'Belirtilmedi');
+          $date = htmlspecialchars($r['raporTarihi'] ?? date('c'));
+          $maddeler = (array)($r['maddeler'] ?? []);
+          $talepId = (int)($r['talepId'] ?? 0);
+          $urunId = (int)($r['urunId'] ?? 0);
+        ?>
+          <div class="panel-card" style="border:1px solid <?= $isApproved ? '#1e3827' : ($isRejected ? '#4a1d25' : '#1f2736') ?>; background:#0b0f17; border-radius:10px; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:12px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="badge" style="background:#131822; border:1px solid #232b3b; color:#d4af37; font-weight:700; font-size:0.8rem;">
+                    <?= $rNo ?>
+                  </span>
+                  <span class="badge" style="background:#131822; border:1px solid #232b3b; color:#8b949e; font-size:0.75rem;">
+                    Talep #<?= $talepId ?> • Eser #<?= $urunId ?>
+                  </span>
+                  <?php if ($isApproved): ?>
+                    <span class="badge badge-success" style="font-size:0.72rem; padding:3px 8px;">✓ KABUL EDİLDİ</span>
+                  <?php elseif ($isRejected): ?>
+                    <span class="badge badge-danger" style="font-size:0.72rem; padding:3px 8px;">✕ REDDEDİLDİ</span>
+                  <?php else: ?>
+                    <span class="badge badge-warning" style="font-size:0.72rem; padding:3px 8px;">⏳ İNCELENİYOR</span>
+                  <?php endif; ?>
+                </div>
+
+                <div style="margin-top:6px; font-size:0.88rem; color:#fff; font-weight:600;">
+                  Orijinallik Notu: <span style="color:#d4af37; font-weight:500;"><?= $note ?></span>
+                </div>
+              </div>
+
+              <!-- Eksper Değerleme & Kabul / Red Tuşları -->
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <div style="text-align:right;">
+                  <div style="font-size:0.72rem; color:#8b949e; text-transform:uppercase;">Eksper Değerlemesi</div>
+                  <div style="font-size:1.15rem; font-weight:700; color:var(--gold-bright);">
+                    <?= $formatPrice($val) ?>
+                  </div>
+                </div>
+
+                <!-- Kabul Et ve Reddet Tuşları -->
+                <div style="display:flex; gap:8px;">
+                  <!-- Kabul Et Tuşu -->
+                  <form method="POST" style="margin:0;">
+                    <input type="hidden" name="action" value="review_appraisal_report">
+                    <input type="hidden" name="report_id" value="<?= $rId ?>">
+                    <input type="hidden" name="decision" value="approve">
+                    <button type="submit" class="btn-sm" style="background:<?= $isApproved ? '#103822' : '#0c2217' ?>; border:1px solid <?= $isApproved ? '#3fb950' : '#1a5c38' ?>; color:#3fb950; font-weight:700; font-size:0.8rem; padding:8px 16px; border-radius:6px; cursor:pointer;" title="Raporu Kabul Et">
+                      ✓ Kabul Et
+                    </button>
+                  </form>
+
+                  <!-- Reddet Tuşu -->
+                  <form method="POST" style="margin:0;" onsubmit="return confirm('Bu ekspertiz raporunu reddetmek istediğinizden emin misiniz?');">
+                    <input type="hidden" name="action" value="review_appraisal_report">
+                    <input type="hidden" name="report_id" value="<?= $rId ?>">
+                    <input type="hidden" name="decision" value="reject">
+                    <button type="submit" class="btn-sm" style="background:<?= $isRejected ? '#4a151d' : '#260e13' ?>; border:1px solid <?= $isRejected ? '#f87171' : '#6b1d28' ?>; color:#f87171; font-weight:700; font-size:0.8rem; padding:8px 16px; border-radius:6px; cursor:pointer;" title="Raporu Reddet">
+                      ✕ Reddet
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Maddeler / Rapor Bulguları -->
+            <?php if (!empty($maddeler)): ?>
+              <div style="background:#07090e; border:1px solid #1a2333; border-radius:6px; padding:10px 14px; margin-top:10px;">
+                <div style="font-size:0.72rem; color:#8b949e; text-transform:uppercase; margin-bottom:4px; font-weight:600;">Ekspertiz Heyet Bulguları:</div>
+                <ul style="margin:0; padding-left:18px; font-size:0.78rem; color:#c5cbd3; line-height:1.5;">
+                  <?php foreach ($maddeler as $madde): ?>
+                    <li><?= htmlspecialchars((string)$madde) ?></li>
+                  <?php endforeach; ?>
+                </ul>
+              </div>
+            <?php endif; ?>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.72rem; color:#606a7b;">
+              <span>Düzenleme Tarihi: <?= date('d.m.Y H:i', strtotime($date)) ?></span>
+              <span>Arşiv Durumu: Hot Storage (&lt;1 Yıl)</span>
+            </div>
+          </div>
+        <?php endforeach; ?>
       </div>
     </div>
 
@@ -1064,30 +1198,6 @@ $activeTab = $_GET['tab'] ?? 'konsol';
             </p>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- 7. TAB: RAPORLAR -->
-    <div id="admTab_raporlar" class="tab-content <?= $activeTab === 'raporlar' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">ADMIN / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Ekspertiz ve Müzayede Raporları</h1>
-      <p class="page-subheading">Onaylı değerlendirmeler ve 1 yıldan eski verilerin arşivleme politikası (Cold Storage)</p>
-
-      <div class="panel-card">
-        <table class="data-table">
-          <thead><tr><th>Rapor No</th><th>Lot Kodu</th><th>Piyasa Değeri</th><th>Durum</th><th>Arşiv Durumu</th></tr></thead>
-          <tbody>
-            <?php foreach ($reports as $r): ?>
-              <tr>
-                <td><code><?= $r['raporNo'] ?></code></td>
-                <td>AUC-1001</td>
-                <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$r['onerilenPiyasaDegeri']) ?></td>
-                <td><span class="badge badge-success">✓ Onaylandı</span></td>
-                <td><span class="badge badge-gold">Hot Storage (&lt;1 Yıl)</span></td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
       </div>
     </div>
 

@@ -334,6 +334,17 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'review_appraisal_report':
+                $reportId = (int)($post['report_id'] ?? 0);
+                $decision = $post['decision'] ?? 'approve';
+                $approve = ($decision === 'approve' || $decision === '1' || $decision === 'kabul');
+                $note = trim($post['admin_note'] ?? '');
+                $res = $this->workflowService->reviewAppraisalReport($reportId, $approve, $note);
+                return [
+                    'type' => $res['success'] ? ($approve ? 'success' : 'warning') : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'assign_expert':
                 $reqId = (int)($post['request_id'] ?? 0);
                 $expertId = (int)($post['expert_id'] ?? 4);

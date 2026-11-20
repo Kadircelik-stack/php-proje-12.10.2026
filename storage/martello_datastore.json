@@ -691,7 +691,7 @@
             "lotKodu": "AUC-1001",
             "urunId": 501,
             "atananEksperId": 4,
-            "durum": "TAMAMLANDI",
+            "durum": "ONAYLANDI",
             "eskalasyon": false,
             "not": "Orijinallik ve kök boya analizi tamamlandı."
         },
@@ -752,8 +752,10 @@
                 "Kadran, çerçeve ve kök boya pigmentleri %100 dönem orijinalidir.",
                 "Bağımsız akredite uzman heyet tarafından e-imzalı QR kod ile onaylanmıştır."
             ],
-            "denetimDurumu": "ONAYLANDI",
-            "raporTarihi": "2026-10-09T15:30:00+03:00"
+            "denetimDurumu": "KABUL_EDILDI",
+            "raporTarihi": "2026-10-09T15:30:00+03:00",
+            "adminOnayZamani": "2026-11-20T12:40:33+00:00",
+            "adminNotu": "Ekspertiz kabul edildi."
         },
         {
             "raporNo": "REP-2026-412",
@@ -874,7 +876,7 @@
             "urunId": 501,
             "saticiId": 2,
             "ekspertizRaporId": 301,
-            "durum": "YAYINDA"
+            "durum": "EKSPERTIZ_ONAYLI"
         },
         {
             "id": 602,
