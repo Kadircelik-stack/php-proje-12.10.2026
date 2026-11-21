@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  martello:
+    build: .
+    container_name: martello_auction_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./storage:/var/www/html/storage
+    restart: unless-stopped
+    environment:
+      - PHP_CLI_SERVER_WORKERS=4

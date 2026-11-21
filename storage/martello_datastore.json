@@ -360,7 +360,7 @@
             "kullaniciId": 3,
             "paraBirimi": "TRY",
             "bakiye": 2760000,
-            "blokeBakiye": 16131900,
+            "blokeBakiye": 16847400,
             "aktifBlokeler": [
                 {
                     "blokeId": "BLK-2026-9001",
@@ -372,7 +372,7 @@
                     "olusturmaZamani": "2026-10-12T21:15:30+03:00"
                 }
             ],
-            "sonGuncelleme": "2026-11-20T22:16:23+00:00"
+            "sonGuncelleme": "2026-11-21T10:18:35+00:00"
         },
         {
             "id": 104,
@@ -1114,7 +1114,7 @@
             "aciklama": "Hereke saray ipekleri, İznik sır altı seramikleri ve nadir litografi koleksiyonlarının açık artırması sonuçlandı.",
             "gorselUrl": "public/assets/images/vase.jpg",
             "kategori": "Antika & Görsel Sanatlar",
-            "duraklatilmaZamani": "2026-11-21T09:52:04+00:00"
+            "duraklatilmaZamani": "2026-11-21T10:03:19+00:00"
         }
     ],
     "lots": [
@@ -1131,7 +1131,7 @@
             "paraBirimi": "TRY",
             "baslangicFiyati": 32000,
             "rezervFiyat": 40000,
-            "mevcutEnYuksekTeklif": 714000,
+            "mevcutEnYuksekTeklif": 715500,
             "minimumArtisTutari": 1500,
             "liderAliciId": 3,
             "liderAnonimKod": "yortunen...",
@@ -3244,6 +3244,20 @@
             "iptalSebebi": "Kural Dışı / Yetkisiz Teklif Verme",
             "iptalZamani": "2026-11-20T17:00:26+00:00",
             "iptalEdenAdminId": 1
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 715500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-21T10:18:35+00:00",
+            "saatEtiketi": "10:18:35",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-081BFE85835F",
+            "id": 9124
         }
     ],
     "proxyBids": [
@@ -4672,6 +4686,29 @@
             "iadeZamani": "2026-10-10T11:15:00+03:00",
             "islemKaniti": "TX-ESCROW-DISP-001",
             "islemGerekcesi": "İhtilaf Dosyası #DISP-001 hakem heyeti kararı: Kondisyon farkı nedeniyle alıcı haklı bulundu; emanet bloke tutarı (₺12.800) alıcı cüzdanına %100 iade edildi."
+        },
+        {
+            "emanetNo": "ESC-PEY-1002-1795256315",
+            "tur": "PEY_TEMINATI",
+            "lotId": 1002,
+            "lotKodu": "AUC-1002",
+            "urunBaslik": "1968 İsviçre Vintage Saat",
+            "aliciId": 3,
+            "aliciAd": "Emre Kaya",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 715500,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 57240,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 657510,
+            "durum": "EMANETTE_BLOKE",
+            "blokeZamani": "2026-11-21T10:18:35+00:00",
+            "aktarimZamani": null,
+            "islemKaniti": "TX-ESCROW-081BFE85835F",
+            "islemGerekcesi": "Teklif verme anında pey teminatı emanet hesapta bloke edildi.",
+            "id": 7008
         }
     ],
     "supportTickets": [

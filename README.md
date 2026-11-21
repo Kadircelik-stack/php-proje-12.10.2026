@@ -21,23 +21,28 @@ Bu depo, **Martello Açık Artırma Sitesi SRS Dokümanı** (IEEE Std 830-1998 &
 
 ---
 
-## 2. Kurulum ve Çalıştırma
+## 2. Kurulum ve Başka Bilgisayarda Çalıştırma
 
-### Windows (XAMPP veya Yerleşik PHP)
-`baslat.bat` dosyasına çift tıklayın veya terminalde şu komutu çalıştırın:
-```bash
-php -S localhost:8000 index.php
-```
-Ardından tarayıcınızda `http://localhost:8000` adresini açın.
+> 📖 **Detaylı Adım Adım Kılavuz:** [BASKA_BILGISAYARDA_CALISTIRMA_KILAVUZU.md](BASKA_BILGISAYARDA_CALISTIRMA_KILAVUZU.md) dosyasını inceleyebilirsiniz.
 
-### macOS / Linux / GitHub Codespaces
+### 🌟 Veritabanı Kurulumu GEREKTİRMEZ
+MARTELLO platformu **Pure Native PHP 8.2+** ve yerleşik **JSON Veri Deposu (`storage/martello_datastore.json`)** ile çalışır. MySQL vb. harici bir veritabanı kurmanıza veya `composer install` çalıştırmanıza gerek yoktur.
+
+### Windows (Tek Tıkla Otomatik Çalıştırma)
+Proje klasöründeki **`baslat.bat`** dosyasına çift tıklayın. Sistem ortamdaki PHP'yi otomatik bulur; eğer bilgisayarda hiç PHP yoksa taşınabilir (portable) PHP'yi otomatik indirip sıfır konfigürasyonla başlatır.
+
+### macOS / Linux
 ```bash
-./baslat.command
-# veya
-php -S localhost:8000 index.php
+chmod +x start.sh
+./start.sh
 ```
 
-### 2. Aşama Otomatik Testlerini Çalıştırma
+### Docker ile Tek Komutla
 ```bash
-php tests/Stage2ArchitectureAndRulesTest.php
+docker compose up -d
 ```
+
+Tarayıcınızda açın: **`http://localhost:8000`**
+
+### Başka Bilgisayara Aktarma (ZIP Paketi)
+Temiz ve hafif bir dağıtım arşivi oluşturmak için **`paketi_hazirla.bat`** dosyasını çalıştırabilirsiniz. Oluşan `MARTELLO_PROJE_PAKETI.zip` dosyasını USB bellekle dilediğiniz bilgisayara aktarabilirsiniz.
