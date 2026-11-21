@@ -26,7 +26,7 @@ class OrderAndReminderObserver implements IAuctionObserver
                 $commissionAmount = $closingPrice * $commissionRate;
                 $grandTotal = $closingPrice + $commissionAmount;
 
-                $orderId = 'ORD-' . date('Y') . '-' . ($lot['id'] ?? mt_rand(1000, 9999));
+                $orderId = 'ORD-' . date('Y') . '-' . ($lot['id'] ?? mt_rand(1000, 9999)) . '-' . strtoupper(bin2hex(random_bytes(3)));
 
                 $order = [
                     'siparisNo'         => $orderId,

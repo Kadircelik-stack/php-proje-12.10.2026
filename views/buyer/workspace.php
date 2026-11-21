@@ -64,6 +64,7 @@ usort($lotBids, static fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
 
 $orders = $db['orders'] ?? [];
 $wonOrders = array_filter($orders, static fn($o) => (int)($o['aliciId'] ?? 0) === $buyerId || in_array($o['lotKodu'] ?? '', ['AUC-0991', 'AUC-0984'], true));
+usort($wonOrders, static fn($a, $b) => ($b['id'] ?? 0) <=> ($a['id'] ?? 0));
 
 $watchlists = $db['watchlists'] ?? [];
 $isWatched = false;
@@ -1583,90 +1584,88 @@ $buyerBlockedBalance = (float)($buyerWallet['blokeBakiye'] ?? 0);
           <table class="data-table" style="margin:0;">
             <thead>
               <tr>
-                <th style="padding-left:20px;">Lot</th>
+                <th style="padding-left:20px;">Lot & Sipariş No</th>
                 <th>Ürün</th>
+                <th>Satıcı</th>
                 <th>Kategori</th>
                 <th>Son Tarih</th>
-                <th>Son Fiyat</th>
+                <th>Kapanış Fiyatı</th>
                 <th>Emanet / Ödeme</th>
                 <th style="padding-right:20px;">İşlemler</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="padding-left:20px;">
-                  <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="public/assets/images/carpet.jpg" alt="Halı" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;" onerror="this.src='public/assets/images/vase.jpg'">
-                    <span style="font-weight:600; color:#fff;">AUC-1001</span>
-                  </div>
-                </td>
-                <td style="font-weight:600; color:#fff;">1920'ler Osmanlı Halı Levhası</td>
-                <td style="color:var(--text-muted);">Antika & Sanat</td>
-                <td>12-Ekim-2026</td>
-                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(70200) ?></td>
-                <td>
-                  <span class="badge" style="background:#854d0e; color:#fef08a; border:1px solid #ca8a04; font-size:0.72rem; padding:3px 8px;">
-                    🔒 Emanette Bloke
-                  </span>
-                </td>
-                <td style="padding-right:20px;">
-                  <form method="POST" style="margin:0;" onsubmit="return confirm('Eseri eksiksiz teslim aldığınızı onaylıyor musunuz?\\n\\nEmanet hesaptaki satış bedeli satıcı hesabına aktarılacaktır.');">
-                    <input type="hidden" name="action" value="complete_escrow_payout">
-                    <input type="hidden" name="escrow_id" value="7001">
-                    <input type="hidden" name="actor_id" value="<?= $buyerId ?>">
-                    <input type="hidden" name="actor_role" value="ALICI">
-                    <input type="hidden" name="release_note" value="Alıcı kargoyu teslim aldı ve satıcıya hakediş aktarımını onayladı.">
-                    <button type="submit" class="btn-sm btn-gold" style="font-size:0.75rem; padding:5px 10px; cursor:pointer; background:#10b981; border-color:#059669; color:#fff;">
-                      ✓ Teslim Aldım (Satıcıya Aktar)
-                    </button>
-                  </form>
-                  <a href="javascript:void(0)" onclick="alert('Kargo: KRG-99887766 (Dağıtımda)')" style="color:#d1b179; font-size:0.75rem; display:block; margin-top:4px; text-decoration:none;">Kargoyu Takip Et</a>
-                </td>
-              </tr>
-
-              <tr>
-                <td style="padding-left:20px;">
-                  <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="public/assets/images/vase.jpg" alt="Vazo" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
-                    <span style="font-weight:600; color:#fff;">AUC-0991</span>
-                  </div>
-                </td>
-                <td style="font-weight:600; color:#fff;">Antika Seramik Vazo</td>
-                <td style="color:var(--text-muted);">Sanat</td>
-                <td>12-Ekim-2026</td>
-                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(43500) ?></td>
-                <td>
-                  <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
-                    ✓ Satıcıya Aktarıldı
-                  </span>
-                </td>
-                <td style="padding-right:20px;">
-                  <span style="color:#4ade80; font-size:0.75rem; font-weight:600; display:block;">İşlem Tamamlandı</span>
-                  <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0991 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.75rem; display:block; margin-top:2px; text-decoration:none;">Faturayı İndir</a>
-                </td>
-              </tr>
-
-              <tr>
-                <td style="padding-left:20px;">
-                  <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="public/assets/images/books.jpg" alt="Kitap" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;">
-                    <span style="font-weight:600; color:#fff;">AUC-0984</span>
-                  </div>
-                </td>
-                <td style="font-weight:600; color:#fff;">Nadir Kitap Koleksiyonu</td>
-                <td style="color:var(--text-muted);">Sanat</td>
-                <td>12-Ekim-2026</td>
-                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(3200) ?></td>
-                <td>
-                  <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
-                    ✓ Satıcıya Aktarıldı
-                  </span>
-                </td>
-                <td style="padding-right:20px;">
-                  <span style="color:#4ade80; font-size:0.75rem; font-weight:600; display:block;">İşlem Tamamlandı</span>
-                  <a href="javascript:void(0)" onclick="alert('Fatura No: FAT-2026-0984 (PDF olarak indirildi)')" style="color:#d1b179; font-size:0.75rem; display:block; margin-top:2px; text-decoration:none;">Faturayı İndir</a>
-                </td>
-              </tr>
+              <?php if (empty($wonOrders)): ?>
+                <tr>
+                  <td colspan="8" style="text-align:center; padding:30px; color:#888;">
+                    Henüz kazandığınız bir lot veya oluşturulmuş sipariş kaydı bulunmuyor.
+                  </td>
+                </tr>
+              <?php else: ?>
+                <?php foreach ($wonOrders as $wo): 
+                  $lotImg = !empty($wo['urunGorsel']) ? $wo['urunGorsel'] : 'public/assets/images/carpet.jpg';
+                  $lotCode = $wo['lotKodu'] ?? ('AUC-' . ($wo['lotId'] ?? ''));
+                  $sipNo = $wo['siparisNo'] ?? ('ORD-2026-' . ($wo['id'] ?? ''));
+                  $kapanis = (float)($wo['kapanisFiyati'] ?? $wo['genelToplamTutar'] ?? 0);
+                  $toplam = (float)($wo['genelToplamTutar'] ?? $kapanis);
+                  $durum = $wo['siparisDurumu'] ?? 'Emanet_Bloke';
+                  $sellerName = $wo['saticiAdi'] ?? 'Mehmet Kaya';
+                ?>
+                  <tr>
+                    <td style="padding-left:20px;">
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="<?= htmlspecialchars($lotImg) ?>" alt="Lot" style="width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid #2a3449;" onerror="this.src='public/assets/images/vase.jpg'">
+                        <div>
+                          <span style="font-weight:600; color:#fff; display:block;"><?= htmlspecialchars($lotCode) ?></span>
+                          <span class="badge badge-gold" style="font-size:0.65rem; padding:1px 5px;"><?= htmlspecialchars($sipNo) ?></span>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="font-weight:600; color:#fff; max-width:180px;">
+                      <?= htmlspecialchars($wo['urunBaslik'] ?? 'Müzayede Eseri') ?>
+                    </td>
+                    <td style="color:#d1b179; font-size:0.8rem;">
+                      <?= htmlspecialchars($sellerName) ?>
+                    </td>
+                    <td style="color:var(--text-muted); font-size:0.8rem;"><?= htmlspecialchars($wo['kategoriAdi'] ?? 'Antika & Sanat') ?></td>
+                    <td style="font-size:0.8rem;"><?= htmlspecialchars($wo['sonTarih'] ?? date('d-M-Y')) ?></td>
+                    <td>
+                      <div style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice($kapanis) ?></div>
+                      <?php if ($toplam > $kapanis): ?>
+                        <div style="font-size:0.7rem; color:#888;">Toplam: <?= $formatPrice($toplam) ?></div>
+                      <?php endif; ?>
+                    </td>
+                    <td>
+                      <?php if (in_array($durum, ['Teslim Edildi & Satıcıya Aktarıldı', 'SATICIYA_AKTARILDI', 'Ödendi'], true)): ?>
+                        <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
+                          ✓ Satıcıya Aktarıldı
+                        </span>
+                      <?php else: ?>
+                        <span class="badge" style="background:#854d0e; color:#fef08a; border:1px solid #ca8a04; font-size:0.72rem; padding:3px 8px;">
+                          🔒 Emanette Bloke
+                        </span>
+                      <?php endif; ?>
+                    </td>
+                    <td style="padding-right:20px;">
+                      <?php if (!in_array($durum, ['Teslim Edildi & Satıcıya Aktarıldı', 'SATICIYA_AKTARILDI', 'Ödendi'], true)): ?>
+                        <form method="POST" style="margin:0;" onsubmit="return confirm('Eseri eksiksiz teslim aldığınızı onaylıyor musunuz?\\n\\nEmanet hesaptaki satış bedeli satıcı hesabına aktarılacaktır.');">
+                          <input type="hidden" name="action" value="complete_escrow_payout">
+                          <input type="hidden" name="escrow_id" value="7001">
+                          <input type="hidden" name="actor_id" value="<?= $buyerId ?>">
+                          <input type="hidden" name="actor_role" value="ALICI">
+                          <input type="hidden" name="release_note" value="Alıcı kargoyu teslim aldı ve satıcıya hakediş aktarımını onayladı.">
+                          <button type="submit" class="btn-sm btn-gold" style="font-size:0.75rem; padding:5px 10px; cursor:pointer; background:#10b981; border-color:#059669; color:#fff;">
+                            ✓ Teslim Aldım
+                          </button>
+                        </form>
+                      <?php else: ?>
+                        <span style="color:#4ade80; font-size:0.75rem; font-weight:600; display:block;">İşlem Tamamlandı</span>
+                      <?php endif; ?>
+                      <a href="javascript:void(0)" onclick="alert('Sipariş No: <?= htmlspecialchars($sipNo) ?>\\nKargo Takip: <?= htmlspecialchars($wo['kargoTakipNo'] ?? 'KRG-2026-998877') ?> (Dağıtımda)')" style="color:#d1b179; font-size:0.75rem; display:block; margin-top:4px; text-decoration:none;">Kargoyu Takip Et</a>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </tbody>
           </table>
         </div>

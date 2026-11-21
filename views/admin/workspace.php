@@ -12,6 +12,7 @@ $disputes = $db['disputes'] ?? [];
 $listings = $db['listings'] ?? [];
 $categories = $db['categories'] ?? [];
 $auditLogs = $db['auditLogs'] ?? [];
+$orders = $db['orders'] ?? [];
 $bids = $db['bids'] ?? [];
 $wallets = $db['wallets'] ?? [];
 $products = $db['products'] ?? [];
@@ -2332,14 +2333,22 @@ foreach ($products as $p) {
 
       <!-- Müzayedeler Yaşam Döngüsü Kontrol Kartları (BAŞLAT / DURAKLAT / SONLANDIR / ZAMANLA) -->
       <div class="panel-card" style="margin-bottom:24px; border:1px solid rgba(212,175,55,0.25); background:linear-gradient(180deg, #111622 0%, #0a0e16 100%); border-radius:10px; padding:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #1f2736; padding-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #1f2736; padding-bottom:12px; flex-wrap:wrap; gap:12px;">
           <div>
             <h2 style="font-size:1.05rem; font-weight:700; color:#fff; margin:0;">Müzayede Otomasyon ve Manuel Kontrol Masası</h2>
             <p style="font-size:0.78rem; color:#8b949e; margin:4px 0 0 0;">
-              Müzayedeyi canlı yayına alabilir (Başlat), teklif alımını dondurabilir (Duraklat) veya resmi olarak kapatabilirsiniz (Sonlandır).
+              Müzayedeyi canlı yayına alabilir (Başlat), teklif alımını dondurabilir (Duraklat) veya süresi dolduğunda kazanan peylerle benzersiz sipariş oluşturup resmi olarak kapatabilirsiniz (Sonlandır).
             </p>
           </div>
-          <span class="badge" style="background:#161f30; color:#d4af37; border:1px solid #2d3e5e;"><?= count($auctions) ?> Müzayede Salonu</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <form method="POST" style="margin:0;">
+              <input type="hidden" name="action" value="finalize_expired_auctions">
+              <button type="submit" class="btn-sm btn-gold" style="font-size:0.78rem; padding:6px 12px; cursor:pointer;" title="Süresi dolmuş tüm müzayedeleri kontrol eder ve kazanan teklifler için benzersiz sipariş kaydı oluşturur">
+                ⏱️ Süresi Dolanları Kapat & Siparişleri Oluştur
+              </button>
+            </form>
+            <span class="badge" style="background:#161f30; color:#d4af37; border:1px solid #2d3e5e;"><?= count($auctions) ?> Müzayede Salonu</span>
+          </div>
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:16px;">
@@ -2480,9 +2489,32 @@ foreach ($products as $p) {
                   <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$lot['mevcutEnYuksekTeklif']) ?></td>
                   <td style="font-size:0.8rem; color:var(--text-muted);"><?= htmlspecialchars($lot['kalanSureMetni'] ?? '5 saat') ?></td>
                   <td>
-                    <span class="badge <?= ($lot['durum'] ?? '') === 'ACIK_ARTIRMADA' ? 'badge-success' : 'badge-warning' ?>">
-                      <?= htmlspecialchars($lot['durum'] ?? 'ACIK_ARTIRMADA') ?>
-                    </span>
+                    <?php 
+                      $lotStatus = $lot['durum'] ?? 'ACIK_ARTIRMADA';
+                      $lotOrd = null;
+                      if ($lotStatus === 'SATILDI') {
+                          foreach ($orders as $o) {
+                              if ((int)($o['lotId'] ?? 0) === (int)$lot['id'] && !in_array($o['siparisDurumu'] ?? '', ['IPTAL_EDILDI', 'GECERSIZ'], true)) {
+                                  $lotOrd = $o;
+                                  break;
+                              }
+                          }
+                      }
+                    ?>
+                    <?php if ($lotStatus === 'SATILDI'): ?>
+                      <span class="badge badge-success" style="font-size:0.72rem; padding:2px 6px;">✓ SATILDI</span>
+                      <?php if ($lotOrd): ?>
+                        <div style="margin-top:3px;">
+                          <span class="badge badge-gold" style="font-size:0.65rem; padding:1px 5px;" title="Alıcı: <?= htmlspecialchars($lotOrd['aliciAdi'] ?? '') ?> | Satıcı: <?= htmlspecialchars($lotOrd['saticiAdi'] ?? '') ?> | Kapanış: <?= $formatPrice((float)($lotOrd['kapanisFiyati'] ?? 0)) ?>">
+                            <?= htmlspecialchars($lotOrd['siparisNo'] ?? '') ?>
+                          </span>
+                        </div>
+                      <?php endif; ?>
+                    <?php elseif ($lotStatus === 'ACIK_ARTIRMADA'): ?>
+                      <span class="badge badge-success"><?= htmlspecialchars($lotStatus) ?></span>
+                    <?php else: ?>
+                      <span class="badge badge-warning"><?= htmlspecialchars($lotStatus) ?></span>
+                    <?php endif; ?>
                   </td>
                   <td>
                     <button type="button" class="btn-gold btn-sm" style="padding:4px 10px; font-size:0.78rem; cursor:pointer;" onclick='openEditLotModal(<?= json_encode($lot, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>

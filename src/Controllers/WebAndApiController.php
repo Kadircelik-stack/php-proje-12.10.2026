@@ -28,6 +28,10 @@ class WebAndApiController
         $this->dataStore       = $dataStore;
         $this->auctionService = $auctionService;
         $this->workflowService = $workflowService;
+
+        // Otomatik planlı müzayede ve süre dolumu kontrolleri
+        $this->workflowService->checkAndAutoStartScheduledAuctions();
+        $this->workflowService->checkAndFinalizeExpiredAuctions();
     }
 
     /**
@@ -364,6 +368,22 @@ class WebAndApiController
                 return [
                     'type' => $res['success'] ? 'success' : 'danger',
                     'text' => $res['message'],
+                ];
+
+            case 'finalize_expired_auctions':
+                $res = $this->workflowService->checkAndFinalizeExpiredAuctions();
+                $finCount = count($res['finalizedAuctions']);
+                $ordCount = count($res['createdOrders']);
+                if ($finCount > 0 || $ordCount > 0) {
+                    $orderNos = array_map(static fn($o) => $o['siparisNo'] ?? '', $res['createdOrders']);
+                    return [
+                        'type' => 'success',
+                        'text' => "✓ {$finCount} adet süresi dolan müzayede tamamlandı. Kazanan alıcı, satıcı, ürün ve kapanış fiyatı bilgileriyle {$ordCount} adet benzersiz sipariş kaydı (" . implode(', ', $orderNos) . ") oluşturuldu.",
+                    ];
+                }
+                return [
+                    'type' => 'info',
+                    'text' => "Şu anda süresi dolup kapanmayı bekleyen aktif müzayede bulunmuyor.",
                 ];
 
             case 'assign_expert':

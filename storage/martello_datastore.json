@@ -973,7 +973,7 @@
             "durum": "CANLI",
             "paraBirimi": "TRY",
             "baslangicZamani": "2026-11-25T20:00:00+00:00",
-            "bitisZamani": "2026-11-15T23:00:00+03:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
             "katilimciSayisi": 1420,
             "maksimumKatilimci": 50000,
             "duraklatilmaZamani": "2026-11-20T12:56:26+00:00",
@@ -992,7 +992,7 @@
             "durum": "AKTIF",
             "paraBirimi": "TRY",
             "baslangicZamani": "2026-10-15T21:00:00+03:00",
-            "bitisZamani": "2026-11-20T23:59:00+03:00",
+            "bitisZamani": "2026-11-29T23:59:00+03:00",
             "katilimciSayisi": 48,
             "maksimumKatilimci": 100,
             "girisKosulu": "GOLD, PLATINUM veya DIAMOND VIP Statüsü",
@@ -1133,13 +1133,14 @@
             "liderAliciId": 3,
             "liderAnonimKod": "yortunen...",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "Tamamlandı",
+            "kalanSureMetni": "5 saat",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": null
             },
             "gorselUrl": "public/assets/images/watch.jpg",
-            "marka": "Omega & Swiss Chronograph"
+            "marka": "Omega & Swiss Chronograph",
+            "kalanSureSaniye": 18000
         },
         {
             "id": 1001,
@@ -1159,13 +1160,14 @@
             "liderAliciId": 3,
             "liderAnonimKod": "yortunen...",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "Tamamlandı",
+            "kalanSureMetni": "5 saat",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": null
             },
             "gorselUrl": "public/assets/images/cat_osmanli.jpg",
-            "marka": "Hereke Saray Dokuma"
+            "marka": "Hereke Saray Dokuma",
+            "kalanSureSaniye": 18000
         },
         {
             "id": 1003,
@@ -1185,13 +1187,14 @@
             "liderAliciId": 6,
             "liderAnonimKod": "damror0ki",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "Tamamlandı",
+            "kalanSureMetni": "5 saat",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 1,
                 "sonBitisZamani": "2026-10-12T22:00:30+03:00"
             },
             "gorselUrl": "public/assets/images/vase.jpg",
-            "marka": "İznik & Kütahya Atölyesi"
+            "marka": "İznik & Kütahya Atölyesi",
+            "kalanSureSaniye": 18000
         },
         {
             "id": 1004,
@@ -1211,13 +1214,14 @@
             "liderAliciId": 6,
             "liderAnonimKod": "damror0ki",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "Tamamlandı",
+            "kalanSureMetni": "5 saat",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": "2026-10-12T21:00:00+03:00"
             },
             "gorselUrl": "public/assets/images/books.jpg",
-            "marka": "Matbaa-i Âmire"
+            "marka": "Matbaa-i Âmire",
+            "kalanSureSaniye": 18000
         },
         {
             "id": 1005,
@@ -1225,7 +1229,7 @@
             "muzayedeId": 802,
             "baslik": "16. Yüzyıl Osmanlı Saray Ustası İmzalı Pirinç Usturlap",
             "kategoriId": 104,
-            "durum": "ACIK_ARTIRMADA",
+            "durum": "KALDI",
             "baslangicFiyati": 450000,
             "mevcutEnYuksekTeklif": 620000,
             "minimumArtisTutari": 10000,
@@ -1241,7 +1245,9 @@
             },
             "marka": "Osmanlı Saray Ustası",
             "kategoriAdi": "Horoloji & Yüksek Saatçilik",
-            "urunId": 501
+            "urunId": 501,
+            "kalanSureSaniye": 0,
+            "kalanSureMetni": "Tamamlandı"
         },
         {
             "id": 1006,
@@ -1249,7 +1255,7 @@
             "muzayedeId": 802,
             "baslik": "1895 Fabergé İmparatorluk Altın Emaye Masa Saati",
             "kategoriId": 101,
-            "durum": "ACIK_ARTIRMADA",
+            "durum": "KALDI",
             "baslangicFiyati": 850000,
             "mevcutEnYuksekTeklif": 1150000,
             "minimumArtisTutari": 25000,
@@ -1265,7 +1271,9 @@
             },
             "marka": "Fabergé İmparatorluk",
             "kategoriAdi": "Horoloji & Yüksek Saatçilik",
-            "urunId": 502
+            "urunId": 502,
+            "kalanSureSaniye": 0,
+            "kalanSureMetni": "Tamamlandı"
         },
         {
             "id": 1007,
@@ -1273,7 +1281,7 @@
             "muzayedeId": 802,
             "baslik": "Antik Dönem Helenistik Altın Sikke ve Kolye",
             "kategoriId": 103,
-            "durum": "ACIK_ARTIRMADA",
+            "durum": "KALDI",
             "baslangicFiyati": 320000,
             "mevcutEnYuksekTeklif": 390000,
             "minimumArtisTutari": 10000,
@@ -1289,7 +1297,9 @@
             },
             "marka": "Helenistik Darphanesi",
             "kategoriAdi": "Nümismatik & Antik Sikkeler",
-            "urunId": 503
+            "urunId": 503,
+            "kalanSureSaniye": 0,
+            "kalanSureMetni": "Tamamlandı"
         },
         {
             "lotKodu": "AUC-2330",
@@ -1308,14 +1318,15 @@
             "liderAliciId": null,
             "liderAnonimKod": "Henüz Teklif Yok",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "2 gün 04 saat",
+            "kalanSureMetni": "1 gün",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": "2026-11-20T20:46:54+00:00"
             },
             "id": 1008,
             "gorselUrl": "public/assets/images/camera.jpg",
-            "marka": "Hereke Saray Dokuma"
+            "marka": "Hereke Saray Dokuma",
+            "kalanSureSaniye": 86400
         },
         {
             "lotKodu": "AUC-2490",
@@ -1334,13 +1345,14 @@
             "liderAliciId": null,
             "liderAnonimKod": "Henüz Teklif Yok",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "2 gün 04 saat",
+            "kalanSureMetni": "1 gün",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": "2026-11-21T09:09:13+00:00"
             },
             "id": 1009,
-            "marka": "Omega & Swiss Chronograph"
+            "marka": "Omega & Swiss Chronograph",
+            "kalanSureSaniye": 86400
         },
         {
             "lotKodu": "AUC-2633",
@@ -1359,13 +1371,14 @@
             "liderAliciId": null,
             "liderAnonimKod": "Henüz Teklif Yok",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "2 gün 04 saat",
+            "kalanSureMetni": "1 gün",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": "2026-11-21T09:09:16+00:00"
             },
             "id": 1010,
-            "marka": "Leica Wetzlar"
+            "marka": "Leica Wetzlar",
+            "kalanSureSaniye": 86400
         },
         {
             "lotKodu": "AUC-2500",
@@ -3236,7 +3249,9 @@
             "paraBirimi": "TRY",
             "siparisDurumu": "Teslim Edildi & Satıcıya Aktarıldı",
             "kargoTakipNo": "KRG-99887766",
-            "emanetDurumu": "SATICIYA_AKTARILDI"
+            "emanetDurumu": "SATICIYA_AKTARILDI",
+            "aliciAdi": "Emre Kaya",
+            "saticiAdi": "Mehmet Kaya"
         },
         {
             "id": 5002,
@@ -3256,7 +3271,9 @@
             "genelToplamTutar": 13824,
             "paraBirimi": "TRY",
             "siparisDurumu": "Ödendi",
-            "kargoTakipNo": "KRG-99887701"
+            "kargoTakipNo": "KRG-99887701",
+            "aliciAdi": "Emre Karahan",
+            "saticiAdi": "Mehmet Kaya"
         },
         {
             "id": 5003,
@@ -3276,7 +3293,9 @@
             "genelToplamTutar": 9752,
             "paraBirimi": "TRY",
             "siparisDurumu": "Ödendi",
-            "kargoTakipNo": "KRG-99887702"
+            "kargoTakipNo": "KRG-99887702",
+            "aliciAdi": "Emre Karahan",
+            "saticiAdi": "Mehmet Kaya"
         },
         {
             "siparisNo": "ORD-2026-1002",
@@ -3296,7 +3315,9 @@
             "paraBirimi": "TRY",
             "siparisDurumu": "Ödendi",
             "kargoTakipNo": "KRG-29200071",
-            "id": 5004
+            "id": 5004,
+            "aliciAdi": "Emre Kaya",
+            "saticiAdi": "Mehmet Kaya"
         },
         {
             "siparisNo": "ORD-2026-1002",
@@ -3316,7 +3337,9 @@
             "paraBirimi": "TRY",
             "siparisDurumu": "Ödendi",
             "kargoTakipNo": "KRG-43674224",
-            "id": 5005
+            "id": 5005,
+            "aliciAdi": "Emre Kaya",
+            "saticiAdi": "Mehmet Kaya"
         },
         {
             "siparisNo": "ORD-2026-1002",
@@ -3336,7 +3359,9 @@
             "paraBirimi": "TRY",
             "siparisDurumu": "Ödendi",
             "kargoTakipNo": "KRG-43281161",
-            "id": 5006
+            "id": 5006,
+            "aliciAdi": "Emre Kaya",
+            "saticiAdi": "Mehmet Kaya"
         },
         {
             "siparisNo": "ORD-2026-1002",
@@ -3356,7 +3381,9 @@
             "paraBirimi": "TRY",
             "siparisDurumu": "Ödendi",
             "kargoTakipNo": "KRG-51044188",
-            "id": 5007
+            "id": 5007,
+            "aliciAdi": "Emre Kaya",
+            "saticiAdi": "Mehmet Kaya"
         },
         {
             "siparisNo": "ORD-2026-1001",
@@ -3376,7 +3403,9 @@
             "paraBirimi": "TRY",
             "siparisDurumu": "Ödendi",
             "kargoTakipNo": "KRG-94284947",
-            "id": 5008
+            "id": 5008,
+            "aliciAdi": "Emre Kaya",
+            "saticiAdi": "Mehmet Kaya"
         }
     ],
     "invoices": [

@@ -276,10 +276,10 @@ class JsonDataStore
             throw new RuntimeException("Veri deposuna yazma başarısız oldu: {$this->filePath}");
         }
 
-        // Atomik dosya değişimi
-        if (!rename($tmpFile, $this->filePath)) {
+        // Atomik dosya değişimi (Windows kilit fallback korumalı)
+        if (!@rename($tmpFile, $this->filePath)) {
             copy($tmpFile, $this->filePath);
-            unlink($tmpFile);
+            @unlink($tmpFile);
         }
     }
 
