@@ -713,11 +713,37 @@ class PlatformWorkflowService
         }
         if (isset($data['minimumArtisTutari']) && is_numeric($data['minimumArtisTutari'])) {
             $updates['minimumArtisTutari'] = (float)$data['minimumArtisTutari'];
+            $updates['teklifAdimi'] = (float)$data['minimumArtisTutari'];
+        }
+        if (!empty($data['teklifAdimTipi'])) {
+            $updates['teklifAdimTipi'] = trim((string)$data['teklifAdimTipi']);
+        }
+        if (!empty($data['baslangicZamani'])) {
+            $updates['baslangicZamani'] = date('c', strtotime((string)$data['baslangicZamani']));
+        }
+        if (!empty($data['bitisZamani'])) {
+            $updates['bitisZamani'] = date('c', strtotime((string)$data['bitisZamani']));
+            $rem = strtotime($updates['bitisZamani']) - time();
+            $updates['kalanSureSaniye'] = max(0, $rem);
+            if ($rem > 86400) {
+                $days = floor($rem / 86400);
+                $hrs = floor(($rem % 86400) / 3600);
+                $updates['kalanSureMetni'] = "{$days} gün {$hrs} saat";
+            } elseif ($rem > 3600) {
+                $hrs = floor($rem / 3600);
+                $mins = floor(($rem % 3600) / 60);
+                $updates['kalanSureMetni'] = "{$hrs} saat {$mins} dakika";
+            } elseif ($rem > 0) {
+                $mins = floor($rem / 60);
+                $updates['kalanSureMetni'] = "{$mins} dakika";
+            } else {
+                $updates['kalanSureMetni'] = "Tamamlandı";
+            }
         }
         if (!empty($data['durum'])) {
             $updates['durum'] = trim((string)$data['durum']);
         }
-        if (!empty($data['kalanSureMetni'])) {
+        if (!empty($data['kalanSureMetni']) && empty($data['bitisZamani'])) {
             $updates['kalanSureMetni'] = trim((string)$data['kalanSureMetni']);
         }
         if (!empty($data['kategoriAdi'])) {
@@ -728,18 +754,136 @@ class PlatformWorkflowService
 
         // Denetim günlüğüne kaydet (WORM Log)
         $this->dataStore->insertItem('auditLogs', [
+            'id'                 => count($this->dataStore->getCollection('auditLogs')) + 1,
             'logId'              => 'LOG-MOD-' . mt_rand(1000, 9999),
+            'logKodu'            => 'LOG-' . date('Y') . '-' . sprintf('%04d', count($this->dataStore->getCollection('auditLogs')) + 1),
+            'kategori'           => 'ADMIN',
+            'islemTuru'          => 'LOT_DUZENLEME',
             'zamanDamgasi'       => date('c'),
+            'tarih'              => date('c'),
+            'saatEtiketi'        => date('d.m.Y H:i:s'),
             'kullaniciId'        => 1, // Admin
+            'kullaniciAd'        => 'Sistem Yöneticisi',
+            'rol'                => 'ADMIN',
             'islemTipi'          => 'MÜZAYEDE_DÜZENLEME',
             'shillBiddingDurumu' => 'TEMİZ',
-            'detay'              => "Lot #{$lotId} ({$lot['lotKodu']}) admin tarafından güncellendi.",
+            'detay'              => "Lot #{$lotId} ({$lot['lotKodu']}) açık artırma süreci (Başlangıç, Bitiş ve Teklif Adımı) admin tarafından güncellendi.",
+            'aciklama'           => "Lot #{$lotId} ({$lot['lotKodu']} - {$lot['baslik']}) açık artırma başlangıç/bitiş zamanı ve teklif adımı büyüklüğü güncellendi.",
             'currentHash'        => hash('sha256', date('c') . $lotId . json_encode($updates)),
         ]);
 
         return [
             'success' => true,
-            'message' => "Müzayede Lotu ({$lot['lotKodu']} - {$lot['baslik']}) bilgileri başarıyla güncellendi.",
+            'message' => "Müzayede Lotu ({$lot['lotKodu']} - {$lot['baslik']}) açık artırma süreci ve teklif adımları başarıyla güncellendi.",
+            'lot'     => array_merge($lot, $updates),
+        ];
+    }
+
+    /**
+     * SRS: Bir ürün için açık artırma sürecinin ne zaman başlayacağını,
+     * ne zaman sona ereceğini ve teklif adımlarının büyüklüğünü yapılandıran servis metodu.
+     */
+    public function configureLotAuctionSchedule(
+        int $lotId,
+        string $startDate,
+        string $endDate,
+        float $minimumStep,
+        string $stepType = 'SABIT',
+        ?float $startPrice = null,
+        ?float $reservePrice = null
+    ): array {
+        $lot = $this->dataStore->getItem('lots', 'id', $lotId);
+        if (!$lot) {
+            return ['success' => false, 'message' => "Yapılandırılacak ürün/lot (#{$lotId}) bulunamadı."];
+        }
+
+        $startTs = strtotime($startDate);
+        $endTs = strtotime($endDate);
+
+        if (!$startTs || !$endTs) {
+            return ['success' => false, 'message' => "Geçersiz başlangıç veya bitiş tarihi formatı."];
+        }
+
+        if ($endTs <= $startTs) {
+            return ['success' => false, 'message' => "Açık artırma bitiş zamanı, başlangıç zamanından sonra olmalıdır."];
+        }
+
+        if ($minimumStep <= 0) {
+            return ['success' => false, 'message' => "Teklif adımı büyüklüğü sıfırdan büyük olmalıdır."];
+        }
+
+        $now = time();
+        $remaining = $endTs - $now;
+        $kalanSaniye = max(0, $remaining);
+
+        if ($remaining > 86400) {
+            $days = floor($remaining / 86400);
+            $hours = floor(($remaining % 86400) / 3600);
+            $kalanMetin = "{$days} gün {$hours} saat";
+        } elseif ($remaining > 3600) {
+            $hours = floor($remaining / 3600);
+            $mins = floor(($remaining % 3600) / 60);
+            $kalanMetin = "{$hours} saat {$mins} dakika";
+        } elseif ($remaining > 0) {
+            $mins = floor($remaining / 60);
+            $kalanMetin = "{$mins} dakika";
+        } else {
+            $kalanMetin = "Tamamlandı";
+        }
+
+        $status = $lot['durum'] ?? 'ACIK_ARTIRMADA';
+        if ($startTs > $now) {
+            $status = 'PLANLANDI';
+        } elseif ($endTs <= $now) {
+            $status = 'TAMAMLANDI';
+        } else {
+            $status = 'ACIK_ARTIRMADA';
+        }
+
+        $updates = [
+            'baslangicZamani'     => date('c', $startTs),
+            'bitisZamani'         => date('c', $endTs),
+            'minimumArtisTutari'  => round($minimumStep, 2),
+            'teklifAdimi'         => round($minimumStep, 2),
+            'teklifAdimTipi'      => in_array($stepType, ['SABIT', 'KADEMELI'], true) ? $stepType : 'SABIT',
+            'kalanSureSaniye'     => $kalanSaniye,
+            'kalanSureMetni'      => $kalanMetin,
+            'durum'               => $status,
+            'zamanlamaGuncelleme' => date('c'),
+        ];
+
+        if ($startPrice !== null && $startPrice > 0) {
+            $updates['baslangicFiyati'] = round($startPrice, 2);
+        }
+        if ($reservePrice !== null && $reservePrice > 0) {
+            $updates['rezervFiyat'] = round($reservePrice, 2);
+        }
+
+        $this->dataStore->updateItem('lots', 'id', $lotId, $updates);
+
+        $this->dataStore->insertItem('auditLogs', [
+            'id'            => count($this->dataStore->getCollection('auditLogs')) + 1,
+            'logKodu'       => 'LOG-' . date('Y') . '-' . sprintf('%04d', count($this->dataStore->getCollection('auditLogs')) + 1),
+            'kategori'      => 'ADMIN',
+            'islemTuru'     => 'LOT_SUREC_VE_TEKLIF_ADIMI_GUNCELLEME',
+            'kullaniciId'   => 1,
+            'kullaniciAd'   => 'Sistem Yöneticisi',
+            'rol'           => 'ADMIN',
+            'hedefTur'      => 'LOT',
+            'hedefId'       => $lotId,
+            'aciklama'      => "Lot #{$lot['lotKodu']} ('{$lot['baslik']}') için açık artırma süreci güncellendi: Başlangıç: " . date('d.m.Y H:i', $startTs) . ", Bitiş: " . date('d.m.Y H:i', $endTs) . ", Teklif Adımı Büyüklüğü: ₺" . number_format($minimumStep, 2, ',', '.') . " ({$stepType}).",
+            'tarih'         => date('c'),
+            'saatEtiketi'   => date('d.m.Y H:i:s'),
+            'ipAdresi'      => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+            'seviye'        => 'INFO',
+            'guvenlikOzeti' => strtoupper(substr(md5($lotId . $startTs . $endTs), 0, 16)),
+        ]);
+
+        $this->dataStore->commit();
+
+        return [
+            'success' => true,
+            'message' => "✓ '{$lot['baslik']}' ürünü için açık artırma başlangıç (" . date('d.m.Y H:i', $startTs) . "), bitiş (" . date('d.m.Y H:i', $endTs) . ") ve teklif adımı (+₺" . number_format($minimumStep, 2, ',', '.') . ") başarıyla tanımlandı.",
             'lot'     => array_merge($lot, $updates),
         ];
     }

@@ -237,6 +237,20 @@ class WebAndApiController
                     'text' => $res['message'],
                 ];
 
+            case 'configure_lot_schedule':
+                $lotId = (int)($post['lot_id'] ?? 0);
+                $start = trim((string)($post['baslangic_zamani'] ?? ''));
+                $end = trim((string)($post['bitis_zamani'] ?? ''));
+                $step = (float)($post['minimum_artis_tutari'] ?? 0);
+                $stepType = trim((string)($post['teklif_adim_tipi'] ?? 'SABIT'));
+                $startPrice = isset($post['baslangic_fiyati']) && is_numeric($post['baslangic_fiyati']) ? (float)$post['baslangic_fiyati'] : null;
+                $reservePrice = isset($post['rezerv_fiyat']) && is_numeric($post['rezerv_fiyat']) ? (float)$post['rezerv_fiyat'] : null;
+                $res = $this->workflowService->configureLotAuctionSchedule($lotId, $start, $end, $step, $stepType, $startPrice, $reservePrice);
+                return [
+                    'type' => $res['success'] ? 'success' : 'danger',
+                    'text' => $res['message'],
+                ];
+
             case 'toggle_ban':
                 $userId = (int)($post['user_id'] ?? 0);
                 $status = $post['new_status'] ?? 'ASKIDA';

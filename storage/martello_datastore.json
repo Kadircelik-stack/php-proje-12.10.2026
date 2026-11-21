@@ -1075,11 +1075,11 @@
             "id": 799,
             "baslik": "Yaz Klasik Horoloji ve Lüks Saatler Müzayedesi",
             "tur": "CANLI",
-            "durum": "SONLANDI",
+            "durum": "TAMAMLANDI",
             "paraBirimi": "TRY",
-            "baslangicZamani": "2026-08-24T20:00:00+03:00",
+            "baslangicZamani": "2026-08-24T17:00:00+00:00",
             "bitisZamani": "2026-08-24T23:15:00+03:00",
-            "kapanisZamani": "2026-08-24T23:15:00+03:00",
+            "kapanisZamani": "2026-11-21T09:52:04+00:00",
             "katilimciSayisi": 1150,
             "maksimumKatilimci": 3000,
             "lotSayisi": 40,
@@ -1090,13 +1090,15 @@
             "rekorLot": "1971 Rolex Daytona Paul Newman (₺ 8.400.000)",
             "aciklama": "Cenevre ve İsviçre bağımsız saat ustalarının şaheserleri, vintage kronograflar ve cep saatleri yüksek katılımla kapandı.",
             "gorselUrl": "public/assets/images/watch.jpg",
-            "kategori": "Horoloji & Yüksek Saatçilik"
+            "kategori": "Horoloji & Yüksek Saatçilik",
+            "otomatikBaslatildiMi": true,
+            "gerceklesenBaslangic": "2026-11-21T09:52:04+00:00"
         },
         {
             "id": 800,
             "baslik": "Güz Başyapıtları ve Seçkin Antika Müzayedesi",
             "tur": "CANLI",
-            "durum": "SONLANDI",
+            "durum": "DURAKLATILDI",
             "paraBirimi": "TRY",
             "baslangicZamani": "2026-10-12T19:30:00+03:00",
             "bitisZamani": "2026-10-12T22:45:00+03:00",
@@ -1111,7 +1113,8 @@
             "rekorLot": "1920ler Osmanlı Halı Levhası (₺ 122.500)",
             "aciklama": "Hereke saray ipekleri, İznik sır altı seramikleri ve nadir litografi koleksiyonlarının açık artırması sonuçlandı.",
             "gorselUrl": "public/assets/images/vase.jpg",
-            "kategori": "Antika & Görsel Sanatlar"
+            "kategori": "Antika & Görsel Sanatlar",
+            "duraklatilmaZamani": "2026-11-21T09:52:04+00:00"
         }
     ],
     "lots": [
@@ -1140,7 +1143,11 @@
             },
             "gorselUrl": "public/assets/images/watch.jpg",
             "marka": "Omega & Swiss Chronograph",
-            "kalanSureSaniye": 18000
+            "kalanSureSaniye": 18000,
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 1500
         },
         {
             "id": 1001,
@@ -1153,21 +1160,26 @@
             "baslik": "1920'ler Osmanlı Halı Levhası",
             "kategoriAdi": "Antika & Görsel Sanatlar",
             "paraBirimi": "TRY",
-            "baslangicFiyati": 45000,
-            "rezervFiyat": 60000,
+            "baslangicFiyati": 48000,
+            "rezervFiyat": 65000,
             "mevcutEnYuksekTeklif": 122500,
-            "minimumArtisTutari": 2500,
+            "minimumArtisTutari": 3500,
             "liderAliciId": 3,
             "liderAnonimKod": "yortunen...",
-            "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "5 saat",
+            "durum": "PLANLANDI",
+            "kalanSureMetni": "9 gün 11 saat",
             "antiSnipingSayaci": {
                 "uzatmaSayisi": 0,
                 "sonBitisZamani": null
             },
             "gorselUrl": "public/assets/images/cat_osmanli.jpg",
             "marka": "Hereke Saray Dokuma",
-            "kalanSureSaniye": 18000
+            "kalanSureSaniye": 817214,
+            "baslangicZamani": "2026-11-25T14:00:00+00:00",
+            "bitisZamani": "2026-11-30T21:00:00+00:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 3500,
+            "zamanlamaGuncelleme": "2026-11-21T09:59:46+00:00"
         },
         {
             "id": 1003,
@@ -1194,7 +1206,11 @@
             },
             "gorselUrl": "public/assets/images/vase.jpg",
             "marka": "İznik & Kütahya Atölyesi",
-            "kalanSureSaniye": 18000
+            "kalanSureSaniye": 18000,
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 500
         },
         {
             "id": 1004,
@@ -1221,7 +1237,11 @@
             },
             "gorselUrl": "public/assets/images/books.jpg",
             "marka": "Matbaa-i Âmire",
-            "kalanSureSaniye": 18000
+            "kalanSureSaniye": 18000,
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 400
         },
         {
             "id": 1005,
@@ -1247,7 +1267,11 @@
             "kategoriAdi": "Horoloji & Yüksek Saatçilik",
             "urunId": 501,
             "kalanSureSaniye": 0,
-            "kalanSureMetni": "Tamamlandı"
+            "kalanSureMetni": "Tamamlandı",
+            "baslangicZamani": "2026-10-15T21:00:00+03:00",
+            "bitisZamani": "2026-11-29T23:59:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 10000
         },
         {
             "id": 1006,
@@ -1273,7 +1297,11 @@
             "kategoriAdi": "Horoloji & Yüksek Saatçilik",
             "urunId": 502,
             "kalanSureSaniye": 0,
-            "kalanSureMetni": "Tamamlandı"
+            "kalanSureMetni": "Tamamlandı",
+            "baslangicZamani": "2026-10-15T21:00:00+03:00",
+            "bitisZamani": "2026-11-29T23:59:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 25000
         },
         {
             "id": 1007,
@@ -1299,7 +1327,11 @@
             "kategoriAdi": "Nümismatik & Antik Sikkeler",
             "urunId": 503,
             "kalanSureSaniye": 0,
-            "kalanSureMetni": "Tamamlandı"
+            "kalanSureMetni": "Tamamlandı",
+            "baslangicZamani": "2026-10-15T21:00:00+03:00",
+            "bitisZamani": "2026-11-29T23:59:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 10000
         },
         {
             "lotKodu": "AUC-2330",
@@ -1326,7 +1358,11 @@
             "id": 1008,
             "gorselUrl": "public/assets/images/camera.jpg",
             "marka": "Hereke Saray Dokuma",
-            "kalanSureSaniye": 86400
+            "kalanSureSaniye": 86400,
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 1500
         },
         {
             "lotKodu": "AUC-2490",
@@ -1352,7 +1388,11 @@
             },
             "id": 1009,
             "marka": "Omega & Swiss Chronograph",
-            "kalanSureSaniye": 86400
+            "kalanSureSaniye": 86400,
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 1500
         },
         {
             "lotKodu": "AUC-2633",
@@ -1378,7 +1418,11 @@
             },
             "id": 1010,
             "marka": "Leica Wetzlar",
-            "kalanSureSaniye": 86400
+            "kalanSureSaniye": 86400,
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 1500
         },
         {
             "lotKodu": "AUC-2500",
@@ -1406,7 +1450,11 @@
             "marka": "Patek Philippe",
             "iptalSebebi": "Eser Hasarı / Nakliye Sırasında Kondisyon Bozulması",
             "iptalZamani": "2026-11-20T17:00:28+00:00",
-            "iptalEdenAdminId": 1
+            "iptalEdenAdminId": 1,
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
+            "teklifAdimTipi": "SABIT",
+            "teklifAdimi": 1500
         }
     ],
     "bids": [
@@ -4024,6 +4072,23 @@
             "rol": "ADMIN",
             "guvenlikOzeti": "9CAB1E402F896BAD",
             "saatEtiketi": "13.10.2026 11:45:00"
+        },
+        {
+            "id": 19,
+            "logKodu": "LOG-2026-0019",
+            "kategori": "ADMIN",
+            "islemTuru": "LOT_SUREC_VE_TEKLIF_ADIMI_GUNCELLEME",
+            "kullaniciId": 1,
+            "kullaniciAd": "Sistem Yöneticisi",
+            "rol": "ADMIN",
+            "hedefTur": "LOT",
+            "hedefId": 1001,
+            "aciklama": "Lot #AUC-1001 ('1920'ler Osmanlı Halı Levhası') için açık artırma süreci güncellendi: Başlangıç: 25.11.2026 14:00, Bitiş: 30.11.2026 21:00, Teklif Adımı Büyüklüğü: ₺3.500,00 (SABIT).",
+            "tarih": "2026-11-21T09:59:46+00:00",
+            "saatEtiketi": "21.11.2026 09:59:46",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "INFO",
+            "guvenlikOzeti": "55B9BB68285A037B"
         }
     ],
     "pastSales": [

@@ -2449,13 +2449,135 @@ foreach ($products as $p) {
         </div>
       </div>
 
+      <!-- Bölüm 1.5: Ürün Açık Artırma Süreç ve Teklif Adımı Yapılandırma Masası (SRS Zamanlama & Artırım Sihirbazı) -->
+      <div class="panel-card" style="margin-bottom:24px; border:1px solid rgba(212,175,55,0.3); background:linear-gradient(180deg, #121824 0%, #0c111a 100%); border-radius:10px; padding:22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #1f2736; padding-bottom:12px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:1.3rem;">⏱️</span>
+              <h2 style="font-size:1.05rem; font-weight:700; color:#fff; margin:0;">
+                Ürün Açık Artırma Süreç & Teklif Adımı Yapılandırma Masası
+              </h2>
+            </div>
+            <p style="font-size:0.8rem; color:#8b949e; margin:4px 0 0 0;">
+              Sistemdeki herhangi bir ürün için açık artırma sürecinin ne zaman başlayacağını, ne zaman sona ereceğini ve teklif adımlarının büyüklüğünü (₺) buradan yapılandırabilirsiniz.
+            </p>
+          </div>
+          <span class="badge badge-gold" style="font-size:0.75rem; padding:5px 12px;">SRS Süreç & Pey Adımı Kuralı</span>
+        </div>
+
+        <form method="POST" id="quickScheduleForm" style="margin:0;">
+          <input type="hidden" name="action" value="configure_lot_schedule">
+
+          <div style="display:grid; grid-template-columns:1.8fr 1.2fr 1.2fr; gap:16px; margin-bottom:16px;">
+            <!-- Hedef Ürün / Lot Seçimi -->
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#d1b179;">
+                📦 Yapılandırılacak Ürün / Müzayede Eseri
+              </label>
+              <select name="lot_id" id="quickScheduleLotSelect" class="form-control" style="background:#090d14; border:1px solid #232b3b; color:#fff; font-size:0.85rem;" onchange="updateQuickScheduleForm(this.value)">
+                <?php foreach ($lots as $idx => $l): 
+                  $lotStartDate = !empty($l['baslangicZamani']) ? date('Y-m-d\TH:i', strtotime($l['baslangicZamani'])) : date('Y-m-d\TH:i');
+                  $lotEndDate = !empty($l['bitisZamani']) ? date('Y-m-d\TH:i', strtotime($l['bitisZamani'])) : date('Y-m-d\TH:i', strtotime('+3 days'));
+                  $lotStep = (float)($l['minimumArtisTutari'] ?? 1500);
+                  $lotStartPrice = (float)($l['baslangicFiyati'] ?? 0);
+                  $lotReservePrice = (float)($l['rezervFiyat'] ?? 0);
+                ?>
+                  <option value="<?= $l['id'] ?>" 
+                          data-start="<?= $lotStartDate ?>"
+                          data-end="<?= $lotEndDate ?>"
+                          data-step="<?= $lotStep ?>"
+                          data-steptype="<?= htmlspecialchars($l['teklifAdimTipi'] ?? 'SABIT') ?>"
+                          data-startprice="<?= $lotStartPrice ?>"
+                          data-reserve="<?= $lotReservePrice ?>"
+                          <?= $idx === 0 ? 'selected' : '' ?>>
+                    [<?= htmlspecialchars($l['lotKodu'] ?? "AUC-{$l['id']}") ?>] <?= htmlspecialchars($l['baslik']) ?> (<?= htmlspecialchars($l['kategoriAdi'] ?? 'Antika') ?>) — <?= $formatPrice((float)$l['mevcutEnYuksekTeklif']) ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+
+            <!-- Ne Zaman Başlayacak -->
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#38bdf8;">
+                🟢 Süreç Ne Zaman Başlayacak? (Başlangıç Tarih/Saat)
+              </label>
+              <input type="datetime-local" name="baslangic_zamani" id="quickScheduleStart" class="form-control" style="background:#090d14; border:1px solid #232b3b; color:#fff; font-size:0.85rem;" required>
+            </div>
+
+            <!-- Ne Zaman Sona Erecek -->
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#f87171;">
+                🏁 Süreç Ne Zaman Sona Erecek? (Bitiş Tarih/Saat)
+              </label>
+              <input type="datetime-local" name="bitis_zamani" id="quickScheduleEnd" class="form-control" style="background:#090d14; border:1px solid #232b3b; color:#fff; font-size:0.85rem;" required>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:16px; margin-bottom:16px; align-items:end;">
+            <!-- Teklif Adımlarının Büyüklüğü -->
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#fbbf24;">
+                ⚡ Teklif Adımlarının Büyüklüğü (Asgari Pey Artışı ₺)
+              </label>
+              <input type="number" step="100" min="50" name="minimum_artis_tutari" id="quickScheduleStep" class="form-control" style="background:#090d14; border:1px solid #232b3b; color:#fbbf24; font-weight:700; font-size:0.9rem;" required>
+              <!-- Hızlı Seçim Hapları -->
+              <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
+                <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="setQuickStep(500)">+₺500</button>
+                <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="setQuickStep(1000)">+₺1.000</button>
+                <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="setQuickStep(2500)">+₺2.500</button>
+                <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="setQuickStep(5000)">+₺5.000</button>
+                <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="setQuickStep(10000)">+₺10.000</button>
+                <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="setQuickStep(25000)">+₺25.000</button>
+              </div>
+            </div>
+
+            <!-- Teklif Adım Modeli -->
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#94a3b8;">
+                Kural Türü
+              </label>
+              <select name="teklif_adim_tipi" id="quickScheduleStepType" class="form-control" style="background:#090d14; border:1px solid #232b3b; color:#fff; font-size:0.85rem;">
+                <option value="SABIT">Sabit Teklif Adımı</option>
+                <option value="KADEMELI">Kademeli Değer Skalası</option>
+              </select>
+            </div>
+
+            <!-- Başlangıç Fiyatı -->
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#94a3b8;">
+                Başlangıç Fiyatı (₺)
+              </label>
+              <input type="number" step="500" name="baslangic_fiyati" id="quickScheduleStartPrice" class="form-control" style="background:#090d14; border:1px solid #232b3b; color:#fff; font-size:0.85rem;">
+            </div>
+
+            <!-- Rezerv Fiyat -->
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#94a3b8;">
+                Rezerv Fiyat (₺)
+              </label>
+              <input type="number" step="500" name="rezerv_fiyat" id="quickScheduleReservePrice" class="form-control" style="background:#090d14; border:1px solid #232b3b; color:#fff; font-size:0.85rem;">
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #1a2230; padding-top:12px; margin-top:12px; flex-wrap:wrap; gap:8px;">
+            <div style="font-size:0.75rem; color:#8b949e;">
+              ℹ️ Belirlenen başlangıç/bitiş tarihleri ile teklif adımı büyüklüğü anında kaydedilir ve açık artırma pey motoruna yansıtılır.
+            </div>
+            <button type="submit" class="btn-sm btn-gold" style="padding:8px 20px; font-weight:700; font-size:0.85rem; cursor:pointer;">
+              ✓ Açık Artırma Sürecini ve Teklif Adımını Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+
       <!-- Bölüm 2: Katalogdaki Müzayede Lotları ve Düzenleme Masası -->
       <div class="panel-card" style="margin-bottom:24px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
           <div>
             <h3 class="panel-title" style="margin-bottom:2px;">Katalogdaki Müzayede Lotları ve Fiyat Düzenleme</h3>
             <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
-              Canlı lotların başlangıç/rezerv fiyatını, artırım adımını ve sürelerini düzenleyin ya da kural dışı teklifleri iptal edin.
+              Her eserin açık artırma başlangıç zamanını, bitiş zamanını ve teklif adımı büyüklüğünü canlı katalog üzerinden düzenleyebilirsiniz.
             </p>
           </div>
           <span class="badge badge-gold"><?= count($lots) ?> Adet Eser</span>
@@ -2468,9 +2590,11 @@ foreach ($products as $p) {
                 <th>Lot Kodu</th>
                 <th>Eser Adı</th>
                 <th>Kategori</th>
+                <th>Başlangıç Zamanı</th>
+                <th>Bitiş Zamanı</th>
                 <th>Başlangıç</th>
-                <th>Rezerv Fiyat</th>
-                <th>Pey Adımı</th>
+                <th>Rezerv</th>
+                <th>Teklif Adımı</th>
                 <th>Güncel Teklif</th>
                 <th>Kalan Süre</th>
                 <th>Durum</th>
@@ -2478,14 +2602,27 @@ foreach ($products as $p) {
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($lots as $lot): ?>
+              <?php foreach ($lots as $lot): 
+                $lotStartStr = !empty($lot['baslangicZamani']) ? date('d.m.Y H:i', strtotime($lot['baslangicZamani'])) : 'Belirtilmedi';
+                $lotEndStr = !empty($lot['bitisZamani']) ? date('d.m.Y H:i', strtotime($lot['bitisZamani'])) : 'Belirtilmedi';
+              ?>
                 <tr>
                   <td><span class="badge badge-gold"><?= htmlspecialchars($lot['lotKodu'] ?? "AUC-{$lot['id']}") ?></span></td>
-                  <td style="font-weight:600; color:#fff; max-width:200px;"><?= htmlspecialchars($lot['baslik']) ?></td>
-                  <td style="color:var(--text-muted); font-size:0.82rem;"><?= htmlspecialchars($lot['kategoriAdi'] ?? 'Antika & Sanat') ?></td>
+                  <td style="font-weight:600; color:#fff; max-width:180px;"><?= htmlspecialchars($lot['baslik']) ?></td>
+                  <td style="color:var(--text-muted); font-size:0.8rem;"><?= htmlspecialchars($lot['kategoriAdi'] ?? 'Antika & Sanat') ?></td>
+                  <td style="font-size:0.75rem; color:#38bdf8; white-space:nowrap;">
+                    🕒 <?= $lotStartStr ?>
+                  </td>
+                  <td style="font-size:0.75rem; color:#f87171; white-space:nowrap;">
+                    🏁 <?= $lotEndStr ?>
+                  </td>
                   <td><?= $formatPrice((float)$lot['baslangicFiyati']) ?></td>
                   <td><?= $formatPrice((float)$lot['rezervFiyat']) ?></td>
-                  <td>+<?= $formatPrice((float)$lot['minimumArtisTutari']) ?></td>
+                  <td>
+                    <span class="badge badge-gold" style="font-weight:700; font-size:0.75rem;">
+                      +<?= $formatPrice((float)$lot['minimumArtisTutari']) ?>
+                    </span>
+                  </td>
                   <td style="color:var(--gold-bright); font-weight:700;"><?= $formatPrice((float)$lot['mevcutEnYuksekTeklif']) ?></td>
                   <td style="font-size:0.8rem; color:var(--text-muted);"><?= htmlspecialchars($lot['kalanSureMetni'] ?? '5 saat') ?></td>
                   <td>
@@ -2517,8 +2654,8 @@ foreach ($products as $p) {
                     <?php endif; ?>
                   </td>
                   <td>
-                    <button type="button" class="btn-gold btn-sm" style="padding:4px 10px; font-size:0.78rem; cursor:pointer;" onclick='openEditLotModal(<?= json_encode($lot, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
-                      Düzenle
+                    <button type="button" class="btn-gold btn-sm" style="padding:4px 10px; font-size:0.78rem; cursor:pointer; white-space:nowrap;" onclick='openEditLotModal(<?= json_encode($lot, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'>
+                      ⏱️ Süreç & Adım
                     </button>
                     <form method="POST" style="display:inline; margin-left:4px;" onsubmit="return confirm('Son verilen peyi kural ihlali gerekçesiyle iptal edip önceki peye dönmek istediğinize emin misiniz?');">
                       <input type="hidden" name="action" value="cancel_bid">
@@ -2535,36 +2672,84 @@ foreach ($products as $p) {
       </div>
     </div>
 
-    <!-- Müzayede / Lot Düzenleme Modalı -->
+    <!-- Müzayede / Lot Düzenleme Modalı (Süreç, Başlangıç, Bitiş & Teklif Adımları) -->
     <div id="editLotModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
-      <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:540px; width:92%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.8); position:relative;">
+      <div style="background:#12161f; border:1px solid #2a3449; border-radius:12px; max-width:600px; width:94%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.8); position:relative; max-height:90vh; overflow-y:auto;">
         <button type="button" onclick="closeEditLotModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer;">&times;</button>
         
-        <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:4px;">
-          Müzayede Lotu Düzenle (<span id="editLotKoduModal"></span>)
+        <div style="color:var(--gold-primary); font-size:1.15rem; font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+          <span>⏱️</span>
+          <span>Açık Artırma Süreç ve Teklif Adımı Düzenle (<span id="editLotKoduModal"></span>)</span>
         </div>
         <div style="color:#888; font-size:0.8rem; margin-bottom:16px;">
-          Fiyat, pey adımı, süre ve müzayede durumunu güncelleyin. Değişiklikler anında canlı kataloğa yansır.
+          Bu ürün için açık artırma sürecinin ne zaman başlayacağını, ne zaman sona ereceğini ve teklif adımlarının büyüklüğünü güncelleyin.
         </div>
 
         <form method="POST">
           <input type="hidden" name="action" value="edit_lot">
           <input type="hidden" name="lot_id" id="editLotId">
 
-          <div class="form-group" style="margin-bottom:10px;">
+          <div class="form-group" style="margin-bottom:12px;">
             <label class="form-label">Eser / Lot Başlığı</label>
             <input type="text" name="baslik" id="editLotBaslik" class="form-control" required>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-            <div class="form-group">
-              <label class="form-label">Kategori</label>
-              <input type="text" name="kategoriAdi" id="editLotKategori" class="form-control" required>
+          <!-- Süreç Zamanlaması: Ne Zaman Başlayacak, Ne Zaman Sona Erecek -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; background:#0b0f17; border:1px solid #1a2230; border-radius:8px; padding:12px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="color:#38bdf8; font-weight:600; font-size:0.8rem;">
+                🟢 Başlangıç Zamanı (Ne Zaman Başlayacak?)
+              </label>
+              <input type="datetime-local" name="baslangicZamani" id="editLotBaslangicZamani" class="form-control" style="background:#05070a; border:1px solid #232b3b; color:#fff;" required>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="color:#f87171; font-weight:600; font-size:0.8rem;">
+                🏁 Bitiş Zamanı (Ne Zaman Sona Erecek?)
+              </label>
+              <input type="datetime-local" name="bitisZamani" id="editLotBitisZamani" class="form-control" style="background:#05070a; border:1px solid #232b3b; color:#fff;" required>
+            </div>
+          </div>
+
+          <!-- Teklif Adımlarının Büyüklüğü ve Fiyat Parametreleri -->
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:8px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Başlangıç (TRY)</label>
+              <input type="number" step="500" name="baslangicFiyati" id="editLotBaslangic" class="form-control" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Rezerv Fiyat (TRY)</label>
+              <input type="number" step="500" name="rezervFiyat" id="editLotRezerv" class="form-control" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="color:#fbbf24; font-weight:600;">Teklif Adımı Büyüklüğü</label>
+              <input type="number" step="100" name="minimumArtisTutari" id="editLotArtis" class="form-control" style="color:#fbbf24; font-weight:700;" required>
+            </div>
+          </div>
+
+          <!-- Teklif Adımı Hızlı Seçim Hapları -->
+          <div style="margin-bottom:14px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <span style="font-size:0.75rem; color:#8b949e;">Hızlı Pey Adımı:</span>
+            <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="document.getElementById('editLotArtis').value=500">+₺500</button>
+            <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="document.getElementById('editLotArtis').value=1000">+₺1.000</button>
+            <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="document.getElementById('editLotArtis').value=2500">+₺2.500</button>
+            <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="document.getElementById('editLotArtis').value=5000">+₺5.000</button>
+            <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="document.getElementById('editLotArtis').value=10000">+₺10.000</button>
+            <button type="button" class="btn-sm" style="background:#161c27; border:1px solid #283447; color:#d1b179; font-size:0.7rem; padding:2px 6px; border-radius:4px; cursor:pointer;" onclick="document.getElementById('editLotArtis').value=25000">+₺25.000</button>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Teklif Adım Modeli</label>
+              <select name="teklifAdimTipi" id="editLotStepType" class="form-control">
+                <option value="SABIT">Sabit Teklif Adımı (Seçilen sabit artış)</option>
+                <option value="KADEMELI">Kademeli Fiyat Skalası (Fiyat baremine göre dinamik)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
               <label class="form-label">Müzayede Durumu</label>
               <select name="durum" id="editLotDurum" class="form-control">
                 <option value="ACIK_ARTIRMADA">Açık Artırmada (Aktif)</option>
+                <option value="PLANLANDI">Planlandı (Başlama Zamanı Bekleniyor)</option>
                 <option value="DURAKLATILDI">Duraklatıldı</option>
                 <option value="SATILDI">Satıldı / Kapanmış</option>
                 <option value="IPTAL_EDILDI">İptal Edildi</option>
@@ -2572,29 +2757,9 @@ foreach ($products as $p) {
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
-            <div class="form-group">
-              <label class="form-label">Başlangıç (TRY)</label>
-              <input type="number" step="500" name="baslangicFiyati" id="editLotBaslangic" class="form-control" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Rezerv Fiyat (TRY)</label>
-              <input type="number" step="500" name="rezervFiyat" id="editLotRezerv" class="form-control" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Pey Adımı (TRY)</label>
-              <input type="number" step="100" name="minimumArtisTutari" id="editLotArtis" class="form-control" required>
-            </div>
-          </div>
-
-          <div class="form-group" style="margin-bottom:18px;">
-            <label class="form-label">Kalan Süre Metni (Örn: 5 saat 23 dakika)</label>
-            <input type="text" name="kalanSureMetni" id="editLotSure" class="form-control" required>
-          </div>
-
-          <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #1a2230; padding-top:14px;">
             <button type="button" onclick="closeEditLotModal()" class="btn-outline-gold" style="padding:10px 18px; cursor:pointer;">Vazgeç</button>
-            <button type="submit" class="btn-register-glow" style="padding:10px 24px; cursor:pointer;">Değişiklikleri Kaydet</button>
+            <button type="submit" class="btn-register-glow" style="padding:10px 24px; cursor:pointer;">✓ Süreç ve Teklif Adımını Kaydet</button>
           </div>
         </form>
       </div>
@@ -2604,18 +2769,64 @@ foreach ($products as $p) {
     function openEditLotModal(lot) {
       document.getElementById('editLotId').value = lot.id;
       document.getElementById('editLotKoduModal').textContent = lot.lotKodu || ('AUC-' + lot.id);
-      document.getElementById('editLotBaslik').value = lot.baslik;
-      document.getElementById('editLotKategori').value = lot.kategoriAdi || 'Antika & Sanat';
-      document.getElementById('editLotBaslangic').value = lot.baslangicFiyati;
-      document.getElementById('editLotRezerv').value = lot.rezervFiyat;
-      document.getElementById('editLotArtis').value = lot.minimumArtisTutari;
-      document.getElementById('editLotSure').value = lot.kalanSureMetni || '5 saat 23 dakika';
+      document.getElementById('editLotBaslik').value = lot.baslik || '';
+      document.getElementById('editLotBaslangic').value = lot.baslangicFiyati || '';
+      document.getElementById('editLotRezerv').value = lot.rezervFiyat || '';
+      document.getElementById('editLotArtis').value = lot.minimumArtisTutari || 1500;
       document.getElementById('editLotDurum').value = lot.durum || 'ACIK_ARTIRMADA';
+      
+      var nowIso = new Date().toISOString().substring(0, 16);
+      var futureIso = new Date(Date.now() + 3 * 86400000).toISOString().substring(0, 16);
+      var startVal = lot.baslangicZamani ? lot.baslangicZamani.substring(0, 16) : nowIso;
+      var endVal = lot.bitisZamani ? lot.bitisZamani.substring(0, 16) : futureIso;
+      
+      document.getElementById('editLotBaslangicZamani').value = startVal;
+      document.getElementById('editLotBitisZamani').value = endVal;
+      if (document.getElementById('editLotStepType')) {
+        document.getElementById('editLotStepType').value = lot.teklifAdimTipi || 'SABIT';
+      }
+
       document.getElementById('editLotModal').style.display = 'flex';
     }
+
     function closeEditLotModal() {
       document.getElementById('editLotModal').style.display = 'none';
     }
+
+    function updateQuickScheduleForm(lotId) {
+      var sel = document.getElementById('quickScheduleLotSelect');
+      if (!sel) return;
+      var opt = sel.options[sel.selectedIndex];
+      if (!opt) return;
+      
+      var start = opt.getAttribute('data-start') || '';
+      var end = opt.getAttribute('data-end') || '';
+      var step = opt.getAttribute('data-step') || '1500';
+      var stepType = opt.getAttribute('data-steptype') || 'SABIT';
+      var startPrice = opt.getAttribute('data-startprice') || '';
+      var reservePrice = opt.getAttribute('data-reserve') || '';
+
+      if (document.getElementById('quickScheduleStart')) document.getElementById('quickScheduleStart').value = start;
+      if (document.getElementById('quickScheduleEnd')) document.getElementById('quickScheduleEnd').value = end;
+      if (document.getElementById('quickScheduleStep')) document.getElementById('quickScheduleStep').value = step;
+      if (document.getElementById('quickScheduleStepType')) document.getElementById('quickScheduleStepType').value = stepType;
+      if (document.getElementById('quickScheduleStartPrice')) document.getElementById('quickScheduleStartPrice').value = startPrice;
+      if (document.getElementById('quickScheduleReservePrice')) document.getElementById('quickScheduleReservePrice').value = reservePrice;
+    }
+
+    function setQuickStep(val) {
+      if (document.getElementById('quickScheduleStep')) {
+        document.getElementById('quickScheduleStep').value = val;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var sel = document.getElementById('quickScheduleLotSelect');
+      if (sel) {
+        updateQuickScheduleForm(sel.value);
+      }
+    });
+    </script>
     
 function selectInspectionDossier(reportId, btn) {
   document.querySelectorAll('.dossier-box').forEach(el => el.style.display = 'none');
