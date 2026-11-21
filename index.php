@@ -1,6 +1,15 @@
 <?php
 declare(strict_types=1);
 
+// PHP yerleşik sunucusunda CSS, JS, görsel gibi statik dosyaların doğrudan sunulmasını sağla
+if (php_sapi_name() === 'cli-server') {
+    $urlPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    $filePath = __DIR__ . $urlPath;
+    if ($urlPath !== '' && $urlPath !== '/' && file_exists($filePath) && !is_dir($filePath)) {
+        return false;
+    }
+}
+
 /**
  * MARTELLO Çevrimiçi Müzayede ve Ekspertiz Platformu — Ana Giriş ve Katman Bağlayıcı (index.php)
  * 2. Aşama: JSON Veri Deposu, Tasarım Desenleri (Observer & Strategy), İş Kuralları ve 5 Rol Ekranı

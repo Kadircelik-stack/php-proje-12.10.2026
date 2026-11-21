@@ -19,15 +19,17 @@ if %ERRORLEVEL% EQU 0 (
     echo Sunucu baslatiliyor: http://localhost:8000
     start http://localhost:8000
     php -S localhost:8000 index.php
+    pause
     goto :eof
 )
 
 :: 2. Yerel tasinabilir (portable) PHP kontrolu
 if exist ".php-portable\php.exe" (
-    echo [OK] Tasinabilir PHP bulundu (.php-portable\php.exe).
+    echo [OK] Tasinabilir PHP bulundu: .php-portable\php.exe
     echo Sunucu baslatiliyor: http://localhost:8000
     start http://localhost:8000
     ".php-portable\php.exe" -S localhost:8000 index.php
+    pause
     goto :eof
 )
 

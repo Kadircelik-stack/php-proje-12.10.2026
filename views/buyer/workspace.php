@@ -270,10 +270,10 @@ $buyerBlockedBalance = (float)($buyerWallet['blokeBakiye'] ?? 0);
             </button>
           </li>
           <li class="nav-menu-item">
-            <button type="button" onclick="openInfoModal('help')">
+            <a href="?role=yardim">
               <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
               Yardım Merkezi & SSS
-            </button>
+            </a>
           </li>
           <li class="nav-menu-item">
             <a href="?role=support">

@@ -38,6 +38,6 @@ declare(strict_types=1);
   </div>
 </footer>
 
-<script src="public/assets/js/martello.js"></script>
+<script src="public/assets/js/martello.js?v=<?= time() ?>"></script>
 </body>
 </html>

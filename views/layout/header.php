@@ -24,7 +24,7 @@ $currentUser = $userRoleMap[$activeRole] ?? $userRoleMap['buyer'];
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MARTELLO — Çevrimiçi Müzayede ve Ekspertiz Platformu (ZeroDay)</title>
-  <link rel="stylesheet" href="public/assets/css/martello.css">
+  <link rel="stylesheet" href="public/assets/css/martello.css?v=<?= time() ?>">
   <script>
     window.MARTELLO_CURRENCY = {
       code: <?= json_encode($activeCurrency) ?>,

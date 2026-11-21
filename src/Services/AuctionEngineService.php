@@ -42,6 +42,60 @@ class AuctionEngineService
      */
     
     /**
+     * NFR6: Katılımcı Kapasitesi ve Eşzamanlı Erişim Sınırı Kontrolü (Maks. 50.000 Katılımcı)
+     * 50.000 sınırına ulaşıldığında 50.001. ve sonraki katılım isteklerini <= 100ms içinde
+     * güvenli şekilde engelleyip "Kontenjan Dolu" ekranına yönlendirir.
+     */
+    public function checkAndAdmitParticipant(int $auctionId, int $userId): array
+    {
+        $t0 = microtime(true);
+        $auction = $this->dataStore->getItem('auctions', 'id', $auctionId);
+        if (!$auction) {
+            return [
+                'admitted'     => false,
+                'httpStatus'   => 404,
+                'redirect'     => null,
+                'decisionMs'   => round((microtime(true) - $t0) * 1000, 3),
+                'message'      => "Müzayede #{$auctionId} bulunamadı.",
+            ];
+        }
+
+        $sysParams = $this->dataStore->getAllData()['systemParameters']['concurrencyAndCapacity'] ?? [];
+        $maxCap = (int)($auction['maksimumKatilimci'] ?? ($sysParams['maxParticipantsPerAuction'] ?? 50000));
+        $currentCount = (int)($auction['katilimciSayisi'] ?? 0);
+
+        if ($currentCount >= $maxCap) {
+            $elapsedMs = round((microtime(true) - $t0) * 1000, 3);
+            return [
+                'admitted'          => false,
+                'httpStatus'        => 429,
+                'redirect'          => '/kontenjan-dolu',
+                'screenTitle'       => 'Kontenjan Dolu',
+                'currentCount'      => $currentCount,
+                'maxCapacity'       => $maxCap,
+                'decisionMs'        => $elapsedMs,
+                'activeUsersLagMs'  => 0.0,
+                'message'           => "Müzayede kontenjanı dolmuştur ({$currentCount}/{$maxCap}). Yeni katılımcı erişimi güvenli şekilde engellendi ve 'Kontenjan Dolu' ekranına yönlendirildi.",
+            ];
+        }
+
+        $newCount = $currentCount + 1;
+        $this->dataStore->updateItem('auctions', 'id', $auctionId, [
+            'katilimciSayisi' => $newCount,
+        ]);
+
+        return [
+            'admitted'     => true,
+            'httpStatus'   => 200,
+            'redirect'     => null,
+            'currentCount' => $newCount,
+            'maxCapacity'  => $maxCap,
+            'decisionMs'   => round((microtime(true) - $t0) * 1000, 3),
+            'message'      => "Kullanıcı #{$userId} müzayede oturumuna kabul edildi ({$newCount}/{$maxCap}).",
+        ];
+    }
+
+    /**
      * Eserin müzayede türüne göre (VIP vs CANLI) uygun BiddingRuleStrategy nesnesini dinamik çözer.
      */
     public function getStrategyForLot(array $lot): IBiddingRuleStrategy
@@ -59,6 +113,7 @@ class AuctionEngineService
         string $bidType = 'MANUEL',
         ?int $remainingSeconds = null
     ): array {
+        $bidStartTimeMs = round(microtime(true) * 1000, 3);
         $lockKey = "lot_{$lotId}";
         $this->dataStore->lock($lockKey);
 
@@ -251,6 +306,7 @@ class AuctionEngineService
                 'user'           => $user,
                 'previousLeader' => $prevLeader,
                 'antiSnip'       => $antiSnipInfo,
+                'bidStartTimeMs' => $bidStartTimeMs,
             ];
 
             if ($antiSnipInfo && $antiSnipInfo['extended']) {
@@ -389,17 +445,229 @@ class AuctionEngineService
      */
     public function closeLot(int $lotId): array
     {
-        $lot = $this->auctionRepo->findLotById($lotId);
-        if (!$lot) {
-            return ['success' => false, 'message' => 'Lot bulunamadı.'];
-        }
+        $lockKey = "lot_{$lotId}";
+        $this->dataStore->lock($lockKey);
 
-        $winnerId = $lot['liderAliciId'] ?? null;
-        $closingPrice = (float)($lot['mevcutEnYuksekTeklif'] ?? 0);
-        $reservePrice = (float)($lot['rezervFiyat'] ?? 0);
+        try {
+            $this->dataStore->beginTransaction();
 
-        if ($winnerId && $closingPrice >= $reservePrice) {
-            $lot['durum'] = 'SATILDI';
+            $lot = $this->auctionRepo->findLotById($lotId);
+            if (!$lot) {
+                $this->dataStore->rollback();
+                return ['success' => false, 'message' => 'Lot bulunamadı.'];
+            }
+
+            // İdempotency kontrolü (NFR5): Aynı lot eşzamanlı ikinci kez kapatılmaya çalışılırsa tutarsızlığı önle
+            if (($lot['durum'] ?? '') === 'SATILDI') {
+                $orders = $this->dataStore->getCollection('orders');
+                $existingOrder = null;
+                foreach ($orders as $o) {
+                    if ((int)($o['lotId'] ?? 0) === $lotId && !in_array($o['siparisDurumu'] ?? '', ['IPTAL_EDILDI', 'GECERSIZ'], true)) {
+                        $existingOrder = $o;
+                        break;
+                    }
+                }
+                $this->dataStore->rollback();
+                return [
+                    'success' => true,
+                    'alreadyClosed' => true,
+                    'message' => $existingOrder
+                        ? "Lot zaten kapatılmış ve atomik olarak kilitlenmiştir. Mevcut sipariş: {$existingOrder['siparisNo']}."
+                        : "Lot zaten SATILDI durumundadır.",
+                    'order'   => $existingOrder,
+                ];
+            }
+
+            $winnerId = $lot['liderAliciId'] ?? null;
+            $closingPrice = (float)($lot['mevcutEnYuksekTeklif'] ?? 0);
+            $reservePrice = (float)($lot['rezervFiyat'] ?? 0);
+
+            if ($winnerId && $closingPrice >= $reservePrice) {
+                $lot['durum'] = 'SATILDI';
+                $lot['kalanSureMetni'] = 'Tamamlandı';
+
+                // İhale bittiğinde tutulan pey verme sayısını sıfırla
+                if (!isset($lot['antiSnipingSayaci']) || !is_array($lot['antiSnipingSayaci'])) {
+                    $lot['antiSnipingSayaci'] = [];
+                }
+                $lot['antiSnipingSayaci']['uzatmaSayisi'] = 0;
+                $lot['antiSnipingSayaci']['sonBitisZamani'] = null;
+                if (isset($lot['antiSnipingSayaci']['uzatildiMi'])) {
+                    $lot['antiSnipingSayaci']['uzatildiMi'] = false;
+                }
+
+                $this->auctionRepo->saveLot($lot);
+
+                // SRS: Kazanan alıcı, satıcı, ürün ve kapanış fiyatı bilgilerini kullanarak benzersiz bir sipariş kaydı oluştur
+                $orders = $this->dataStore->getCollection('orders');
+                $existingOrder = null;
+                $maxId = 5000;
+                $existingNos = [];
+                foreach ($orders as $o) {
+                    if ((int)($o['lotId'] ?? 0) === $lotId && !in_array($o['siparisDurumu'] ?? '', ['IPTAL_EDILDI', 'GECERSIZ'], true)) {
+                        $existingOrder = $o;
+                    }
+                    if ((int)($o['id'] ?? 0) > $maxId) {
+                        $maxId = (int)$o['id'];
+                    }
+                    if (!empty($o['siparisNo'])) {
+                        $existingNos[$o['siparisNo']] = true;
+                    }
+                }
+
+                if ($existingOrder !== null) {
+                    $this->dataStore->commit();
+                    return [
+                        'success' => true,
+                        'message' => "Lot başarıyla satıldı. Mevcut benzersiz sipariş kaydı: {$existingOrder['siparisNo']}.",
+                        'order'   => $existingOrder,
+                    ];
+                }
+
+                // Alıcı, Satıcı ve Ürün Detayları
+                $winner = $this->dataStore->getItem('users', 'id', (int)$winnerId);
+                $winnerName = $winner ? trim(($winner['ad'] ?? '') . ' ' . ($winner['soyad'] ?? '')) : 'Koleksiyoner Alıcı';
+                $winnerEmail = $winner['email'] ?? 'alici@martello.com';
+                $winnerPhone = $winner['telefon'] ?? '+90 532 000 00 00';
+                $winnerAddress = $winner['adres'] ?? 'Nişantaşı, Şişli, İstanbul';
+
+                $sellerId = (int)($lot['saticiId'] ?? 2);
+                $seller = $this->dataStore->getItem('users', 'id', $sellerId);
+                $sellerName = $seller ? trim(($seller['ad'] ?? '') . ' ' . ($seller['soyad'] ?? '')) : 'Koleksiyoner Satıcı';
+                $sellerEmail = $seller['email'] ?? 'satici@martello.com';
+                $sellerPhone = $seller['telefon'] ?? '+90 532 000 00 00';
+                $sellerAddress = $seller['adres'] ?? 'Kadıköy, İstanbul';
+
+                $productId = (int)($lot['urunId'] ?? 501);
+                $product = $this->dataStore->getItem('products', 'id', $productId);
+                $productTitle = $lot['baslik'] ?? ($product['baslik'] ?? "Müzayede Eseri #{$lotId}");
+                $categoryName = $lot['kategoriAdi'] ?? ($product['kategori'] ?? 'Antika & Sanat');
+                $productImage = $lot['gorselUrl'] ?? ($product['gorselUrl'] ?? 'public/assets/images/carpet.jpg');
+
+                $commissionRate = 0.08;
+                $commission = round($closingPrice * $commissionRate, 2);
+                $fixedFee = 750.0;
+                $grandTotal = round($closingPrice + $commission, 2);
+                $currency = $lot['paraBirimi'] ?? 'TRY';
+
+                // Benzersiz Sipariş Numarası ve ID (Strictly Unique Order Record)
+                $newOrderId = $maxId + 1;
+                do {
+                    $uniqueSuffix = strtoupper(bin2hex(random_bytes(3)));
+                    $newOrderNo = 'ORD-' . date('Y') . '-' . sprintf('%04d', $lotId) . '-' . $uniqueSuffix;
+                } while (isset($existingNos[$newOrderNo]));
+
+                $trackingNo = 'KRG-' . date('Y') . '-' . mt_rand(100000, 999999);
+                $nowIso = date('c');
+
+                $orderRecord = [
+                    'id'                => $newOrderId,
+                    'siparisNo'         => $newOrderNo,
+                    'lotId'             => $lotId,
+                    'lotKodu'           => $lot['lotKodu'] ?? ('AUC-' . $lotId),
+                    'urunId'            => $productId,
+                    'urunBaslik'        => $productTitle,
+                    'kategoriAdi'       => $categoryName,
+                    'urunGorsel'        => $productImage,
+                    'muzayedeId'        => $lot['muzayedeId'] ?? 801,
+                    
+                    // Kazanan Alıcı
+                    'aliciId'           => (int)$winnerId,
+                    'aliciAdi'          => $winnerName,
+                    'aliciEmail'        => $winnerEmail,
+                    'aliciTelefon'      => $winnerPhone,
+                    'aliciAdres'        => $winnerAddress,
+                    'aliciAnonimKod'    => $lot['liderAnonimKod'] ?? ($winner['anonimKod'] ?? ''),
+
+                    // Satıcı
+                    'saticiId'          => $sellerId,
+                    'saticiAdi'         => $sellerName,
+                    'saticiEmail'       => $sellerEmail,
+                    'saticiTelefon'     => $sellerPhone,
+                    'saticiAdres'       => $sellerAddress,
+
+                    // Kapanış Fiyatı ve Finansal Kalemler
+                    'kapanisFiyati'     => $closingPrice,
+                    'komisyonOrani'     => $commissionRate * 100,
+                    'komisyonTutari'    => $commission,
+                    'sabitHizmetBedeli' => $fixedFee,
+                    'genelToplamTutar'  => $grandTotal,
+                    'paraBirimi'        => $currency,
+
+                    // Durum ve Zaman Takibi
+                    'siparisDurumu'     => 'Emanet_Bloke',
+                    'emanetDurumu'      => 'EMANETTE_BLOKE',
+                    'kargoTakipNo'      => $trackingNo,
+                    'olusturmaZamani'   => $nowIso,
+                    'sonOdemeZamani'    => date('c', strtotime('+48 hours')),
+                    'sonTarih'          => date('d-M-Y'),
+                    'kapanisGerekcesi'  => 'Açık artırma süresi doldu / En yüksek pey ile tamamlandı',
+                ];
+
+                $this->dataStore->insertItem('orders', $orderRecord);
+
+                // Audit Log
+                $allLogs = $this->dataStore->getCollection('auditLogs');
+                $newLogId = count($allLogs) + 1;
+                $this->dataStore->insertItem('auditLogs', [
+                    'id'            => $newLogId,
+                    'logKodu'       => 'LOG-' . date('Y') . '-' . sprintf('%04d', $newLogId),
+                    'kategori'      => 'FINANSAL',
+                    'islemTuru'     => 'SIPARIS_OLUSTURULDU',
+                    'kullaniciId'   => (int)$winnerId,
+                    'kullaniciAd'   => $winnerName,
+                    'rol'           => 'ALICI',
+                    'hedefTur'      => 'ORDER',
+                    'hedefId'       => $newOrderId,
+                    'aciklama'      => "Açık artırma süresi doldu. Lot #{$orderRecord['lotKodu']} ('{$productTitle}') için kazanan alıcı {$winnerName} (#{$winnerId}), satıcı {$sellerName} (#{$sellerId}) ve ₺" . number_format($closingPrice, 2, ',', '.') . " kapanış fiyatıyla benzersiz sipariş kaydı ({$newOrderNo}) oluşturuldu.",
+                    'oncekiDeger'   => 'ACIK_ARTIRMADA',
+                    'yeniDeger'     => 'SIPARIS_OLUSTURULDU',
+                    'tarih'         => $nowIso,
+                    'saatEtiketi'   => date('d.m.Y H:i:s'),
+                    'ipAdresi'      => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+                    'seviye'        => 'INFO',
+                    'guvenlikOzeti' => strtoupper(substr(md5($newOrderNo . $nowIso), 0, 16)),
+                ]);
+
+                // Kazanan alıcı ve satıcıya bildirim
+                $allNotifs = $this->dataStore->getCollection('notifications');
+                $notifId = count($allNotifs) + 6001;
+                $this->dataStore->insertItem('notifications', [
+                    'id'          => $notifId,
+                    'kullaniciId' => (int)$winnerId,
+                    'baslik'      => "🎉 Tebrikler! Müzayedeyi Kazandınız",
+                    'icerik'      => "Lot #{$orderRecord['lotKodu']} ('{$productTitle}') açık artırmasını ₺" . number_format($closingPrice, 2, ',', '.') . " kapanış fiyatıyla kazandınız. Benzersiz sipariş kaydınız ({$newOrderNo}) oluşturuldu.",
+                    'okundu'      => false,
+                    'tarih'       => $nowIso,
+                    'oncelik'     => 'YUKSEK',
+                ]);
+                $this->dataStore->insertItem('notifications', [
+                    'id'          => $notifId + 1,
+                    'kullaniciId' => $sellerId,
+                    'baslik'      => "🏷️ Eseriniz Açık Artırmada Satıldı",
+                    'icerik'      => "Lot #{$orderRecord['lotKodu']} ('{$productTitle}') açık artırmada ₺" . number_format($closingPrice, 2, ',', '.') . " kapanış fiyatıyla satıldı. Sipariş no: {$newOrderNo}.",
+                    'okundu'      => false,
+                    'tarih'       => $nowIso,
+                    'oncelik'     => 'YUKSEK',
+                ]);
+
+                // Atomik commit (Lot + Sipariş + Audit Log + Bildirimler tek işlemde diske yazılır)
+                $this->dataStore->commit();
+
+                // Gözlemcileri tetikle
+                $this->auctionSubject->notifyObservers('LOT_CLOSED', [
+                    'lot'    => $lot,
+                    'winner' => ['aliciId' => $winnerId],
+                ]);
+
+                return [
+                    'success' => true,
+                    'message' => "Lot başarıyla satıldı ve kazanan alıcı ({$winnerName}), satıcı ({$sellerName}) ve ₺" . number_format($closingPrice, 2, ',', '.') . " kapanış fiyatıyla benzersiz sipariş ({$newOrderNo}) oluşturuldu.",
+                    'order'   => $orderRecord,
+                ];
+            }
+
+            $lot['durum'] = 'REZERVE_ULASILMADI';
             $lot['kalanSureMetni'] = 'Tamamlandı';
 
             // İhale bittiğinde tutulan pey verme sayısını sıfırla
@@ -415,192 +683,15 @@ class AuctionEngineService
             $this->auctionRepo->saveLot($lot);
             $this->dataStore->commit();
 
-            // Gözlemcileri tetikle (OrderAndReminderObserver siparişi oluşturacak)
-            $this->auctionSubject->notifyObservers('LOT_CLOSED', [
-                'lot'    => $lot,
-                'winner' => ['aliciId' => $winnerId],
-            ]);
-
-            // SRS: Kazanan alıcı, satıcı, ürün ve kapanış fiyatı bilgilerini kullanarak benzersiz bir sipariş kaydı oluştur
-            $orders = $this->dataStore->getCollection('orders');
-            $existingOrder = null;
-            $maxId = 5000;
-            $existingNos = [];
-            foreach ($orders as $o) {
-                if ((int)($o['lotId'] ?? 0) === $lotId && !in_array($o['siparisDurumu'] ?? '', ['IPTAL_EDILDI', 'GECERSIZ'], true)) {
-                    $existingOrder = $o;
-                }
-                if ((int)($o['id'] ?? 0) > $maxId) {
-                    $maxId = (int)$o['id'];
-                }
-                if (!empty($o['siparisNo'])) {
-                    $existingNos[$o['siparisNo']] = true;
-                }
-            }
-
-            if ($existingOrder !== null) {
-                return [
-                    'success' => true,
-                    'message' => "Lot başarıyla satıldı. Mevcut benzersiz sipariş kaydı: {$existingOrder['siparisNo']}.",
-                    'order'   => $existingOrder,
-                ];
-            }
-
-            // Alıcı, Satıcı ve Ürün Detayları
-            $winner = $this->dataStore->getItem('users', 'id', (int)$winnerId);
-            $winnerName = $winner ? trim(($winner['ad'] ?? '') . ' ' . ($winner['soyad'] ?? '')) : 'Koleksiyoner Alıcı';
-            $winnerEmail = $winner['email'] ?? 'alici@martello.com';
-            $winnerPhone = $winner['telefon'] ?? '+90 532 000 00 00';
-            $winnerAddress = $winner['adres'] ?? 'Nişantaşı, Şişli, İstanbul';
-
-            $sellerId = (int)($lot['saticiId'] ?? 2);
-            $seller = $this->dataStore->getItem('users', 'id', $sellerId);
-            $sellerName = $seller ? trim(($seller['ad'] ?? '') . ' ' . ($seller['soyad'] ?? '')) : 'Koleksiyoner Satıcı';
-            $sellerEmail = $seller['email'] ?? 'satici@martello.com';
-            $sellerPhone = $seller['telefon'] ?? '+90 532 000 00 00';
-            $sellerAddress = $seller['adres'] ?? 'Kadıköy, İstanbul';
-
-            $productId = (int)($lot['urunId'] ?? 501);
-            $product = $this->dataStore->getItem('products', 'id', $productId);
-            $productTitle = $lot['baslik'] ?? ($product['baslik'] ?? "Müzayede Eseri #{$lotId}");
-            $categoryName = $lot['kategoriAdi'] ?? ($product['kategori'] ?? 'Antika & Sanat');
-            $productImage = $lot['gorselUrl'] ?? ($product['gorselUrl'] ?? 'public/assets/images/carpet.jpg');
-
-            $commissionRate = 0.08;
-            $commission = round($closingPrice * $commissionRate, 2);
-            $fixedFee = 750.0;
-            $grandTotal = round($closingPrice + $commission, 2);
-            $currency = $lot['paraBirimi'] ?? 'TRY';
-
-            // Benzersiz Sipariş Numarası ve ID (Strictly Unique Order Record)
-            $newOrderId = $maxId + 1;
-            do {
-                $uniqueSuffix = strtoupper(bin2hex(random_bytes(3)));
-                $newOrderNo = 'ORD-' . date('Y') . '-' . sprintf('%04d', $lotId) . '-' . $uniqueSuffix;
-            } while (isset($existingNos[$newOrderNo]));
-
-            $trackingNo = 'KRG-' . date('Y') . '-' . mt_rand(100000, 999999);
-            $nowIso = date('c');
-
-            $orderRecord = [
-                'id'                => $newOrderId,
-                'siparisNo'         => $newOrderNo,
-                'lotId'             => $lotId,
-                'lotKodu'           => $lot['lotKodu'] ?? ('AUC-' . $lotId),
-                'urunId'            => $productId,
-                'urunBaslik'        => $productTitle,
-                'kategoriAdi'       => $categoryName,
-                'urunGorsel'        => $productImage,
-                'muzayedeId'        => $lot['muzayedeId'] ?? 801,
-                
-                // Kazanan Alıcı
-                'aliciId'           => (int)$winnerId,
-                'aliciAdi'          => $winnerName,
-                'aliciEmail'        => $winnerEmail,
-                'aliciTelefon'      => $winnerPhone,
-                'aliciAdres'        => $winnerAddress,
-                'aliciAnonimKod'    => $lot['liderAnonimKod'] ?? ($winner['anonimKod'] ?? ''),
-
-                // Satıcı
-                'saticiId'          => $sellerId,
-                'saticiAdi'         => $sellerName,
-                'saticiEmail'       => $sellerEmail,
-                'saticiTelefon'     => $sellerPhone,
-                'saticiAdres'       => $sellerAddress,
-
-                // Kapanış Fiyatı ve Finansal Kalemler
-                'kapanisFiyati'     => $closingPrice,
-                'komisyonOrani'     => $commissionRate * 100,
-                'komisyonTutari'    => $commission,
-                'sabitHizmetBedeli' => $fixedFee,
-                'genelToplamTutar'  => $grandTotal,
-                'paraBirimi'        => $currency,
-
-                // Durum ve Zaman Takibi
-                'siparisDurumu'     => 'Emanet_Bloke',
-                'emanetDurumu'      => 'EMANETTE_BLOKE',
-                'kargoTakipNo'      => $trackingNo,
-                'olusturmaZamani'   => $nowIso,
-                'sonOdemeZamani'    => date('c', strtotime('+48 hours')),
-                'sonTarih'          => date('d-M-Y'),
-                'kapanisGerekcesi'  => 'Açık artırma süresi doldu / En yüksek pey ile tamamlandı',
-            ];
-
-            $this->dataStore->insertItem('orders', $orderRecord);
-
-            // Audit Log
-            $allLogs = $this->dataStore->getCollection('auditLogs');
-            $newLogId = count($allLogs) + 1;
-            $this->dataStore->insertItem('auditLogs', [
-                'id'            => $newLogId,
-                'logKodu'       => 'LOG-' . date('Y') . '-' . sprintf('%04d', $newLogId),
-                'kategori'      => 'FINANSAL',
-                'islemTuru'     => 'SIPARIS_OLUSTURULDU',
-                'kullaniciId'   => (int)$winnerId,
-                'kullaniciAd'   => $winnerName,
-                'rol'           => 'ALICI',
-                'hedefTur'      => 'ORDER',
-                'hedefId'       => $newOrderId,
-                'aciklama'      => "Açık artırma süresi doldu. Lot #{$orderRecord['lotKodu']} ('{$productTitle}') için kazanan alıcı {$winnerName} (#{$winnerId}), satıcı {$sellerName} (#{$sellerId}) ve ₺" . number_format($closingPrice, 2, ',', '.') . " kapanış fiyatıyla benzersiz sipariş kaydı ({$newOrderNo}) oluşturuldu.",
-                'oncekiDeger'   => 'ACIK_ARTIRMADA',
-                'yeniDeger'     => 'SIPARIS_OLUSTURULDU',
-                'tarih'         => $nowIso,
-                'saatEtiketi'   => date('d.m.Y H:i:s'),
-                'ipAdresi'      => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
-                'seviye'        => 'INFO',
-                'guvenlikOzeti' => strtoupper(substr(md5($newOrderNo . $nowIso), 0, 16)),
-            ]);
-
-            // Kazanan alıcı ve satıcıya bildirim
-            $allNotifs = $this->dataStore->getCollection('notifications');
-            $notifId = count($allNotifs) + 6001;
-            $this->dataStore->insertItem('notifications', [
-                'id'          => $notifId,
-                'kullaniciId' => (int)$winnerId,
-                'baslik'      => "🎉 Tebrikler! Müzayedeyi Kazandınız",
-                'icerik'      => "Lot #{$orderRecord['lotKodu']} ('{$productTitle}') açık artırmasını ₺" . number_format($closingPrice, 2, ',', '.') . " kapanış fiyatıyla kazandınız. Benzersiz sipariş kaydınız ({$newOrderNo}) oluşturuldu.",
-                'okundu'      => false,
-                'tarih'       => $nowIso,
-                'oncelik'     => 'YUKSEK',
-            ]);
-            $this->dataStore->insertItem('notifications', [
-                'id'          => $notifId + 1,
-                'kullaniciId' => $sellerId,
-                'baslik'      => "🏷️ Eseriniz Açık Artırmada Satıldı",
-                'icerik'      => "Lot #{$orderRecord['lotKodu']} ('{$productTitle}') açık artırmada ₺" . number_format($closingPrice, 2, ',', '.') . " kapanış fiyatıyla satıldı. Sipariş no: {$newOrderNo}.",
-                'okundu'      => false,
-                'tarih'       => $nowIso,
-                'oncelik'     => 'YUKSEK',
-            ]);
-
-            $this->dataStore->commit();
-
             return [
-                'success' => true,
-                'message' => "Lot başarıyla satıldı ve kazanan alıcı ({$winnerName}), satıcı ({$sellerName}) ve ₺" . number_format($closingPrice, 2, ',', '.') . " kapanış fiyatıyla benzersiz sipariş ({$newOrderNo}) oluşturuldu.",
-                'order'   => $orderRecord,
+                'success' => false,
+                'message' => "Rezerv fiyata (₺" . number_format($reservePrice, 2) . ") ulaşılamadığı için satış gerçekleşmedi.",
             ];
+        } catch (Throwable $e) {
+            $this->dataStore->rollback();
+            return ['success' => false, 'message' => "Lot kapanışı sırasında ACID rollback gerçekleşti: " . $e->getMessage()];
+        } finally {
+            $this->dataStore->unlock($lockKey);
         }
-
-        $lot['durum'] = 'REZERVE_ULASILMADI';
-        $lot['kalanSureMetni'] = 'Tamamlandı';
-
-        // İhale bittiğinde tutulan pey verme sayısını sıfırla
-        if (!isset($lot['antiSnipingSayaci']) || !is_array($lot['antiSnipingSayaci'])) {
-            $lot['antiSnipingSayaci'] = [];
-        }
-        $lot['antiSnipingSayaci']['uzatmaSayisi'] = 0;
-        $lot['antiSnipingSayaci']['sonBitisZamani'] = null;
-        if (isset($lot['antiSnipingSayaci']['uzatildiMi'])) {
-            $lot['antiSnipingSayaci']['uzatildiMi'] = false;
-        }
-
-        $this->auctionRepo->saveLot($lot);
-        $this->dataStore->commit();
-
-        return [
-            'success' => false,
-            'message' => "Rezerv fiyata (₺" . number_format($reservePrice, 2) . ") ulaşılamadığı için satış gerçekleşmedi.",
-        ];
     }
 }

@@ -3158,8 +3158,8 @@ class PlatformWorkflowService
             'hedefTur'      => $targetType,
             'hedefId'       => $targetId,
             'aciklama'      => $description,
-            'oncekiDeger'   => $previousValue !== null ? (string)$previousValue : null,
-            'yeniDeger'     => $newValue !== null ? (string)$newValue : null,
+            'oncekiDeger'   => $previousValue !== null ? (is_array($previousValue) ? json_encode($previousValue, JSON_UNESCAPED_UNICODE) : (string)$previousValue) : null,
+            'yeniDeger'     => $newValue !== null ? (is_array($newValue) ? json_encode($newValue, JSON_UNESCAPED_UNICODE) : (string)$newValue) : null,
             'tarih'         => $now,
             'saatEtiketi'   => date('d.m.Y H:i:s'),
             'ipAdresi'      => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
@@ -3759,14 +3759,14 @@ class PlatformWorkflowService
         $prof['kayitliKartTokenlari'] = $savedCards;
         $this->dataStore->updateItem('users', 'id', $userId, ['aliciProfili' => $prof]);
 
-        // Denetim İzi
+        // Denetim İzi (Argüman sırası düzeltildi: actorId, description, targetType, targetId, prev, new, severity)
         $this->logAuditEvent(
             'FINANSAL',
             'KART_TANIMLANDI',
             $userId,
+            "Yeni {$cardTypeLabel} tanımlandı: {$banka} ({$masked}) [3D Secure Zorunlu, Token: {$tokenId}]",
             'KullaniciKart',
-            $tokenId,
-            "Yeni {$cardTypeLabel} tanımlandı: {$banka} ({$masked}) [3D Secure Zorunlu]",
+            $userId,
             null,
             $masked,
             'INFO'

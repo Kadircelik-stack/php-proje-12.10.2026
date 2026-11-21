@@ -18,15 +18,21 @@ class LiveBidScreenObserver implements IAuctionObserver
             $lot = $payload['lot'] ?? [];
             $bid = $payload['bid'] ?? [];
 
+            $nowMs = round(microtime(true) * 1000, 3);
+            $bidStartMs = isset($payload['bidStartTimeMs']) ? (float)$payload['bidStartTimeMs'] : $nowMs;
+            $processingLatencyMs = max(0.0, round($nowMs - $bidStartMs, 3));
+
             $broadcastPacket = [
-                'type'           => 'LIVE_SCREEN_PUSH',
-                'event'          => $event,
-                'lotId'          => $lot['id'] ?? null,
-                'lotKodu'        => $lot['lotKodu'] ?? null,
-                'currentPrice'   => $lot['mevcutEnYuksekTeklif'] ?? ($bid['teklifTutari'] ?? 0),
-                'leaderAnonCode' => $lot['liderAnonimKod'] ?? ($bid['aliciAnonimKod'] ?? 'Anonim'),
-                'timestamp'      => date('c'),
-                'latencyBudgetMs'=> 300,
+                'type'                => 'LIVE_SCREEN_PUSH',
+                'event'               => $event,
+                'lotId'               => $lot['id'] ?? null,
+                'lotKodu'             => $lot['lotKodu'] ?? null,
+                'currentPrice'        => $lot['mevcutEnYuksekTeklif'] ?? ($bid['teklifTutari'] ?? 0),
+                'leaderAnonCode'      => $lot['liderAnonimKod'] ?? ($bid['aliciAnonimKod'] ?? 'Anonim'),
+                'timestamp'           => date('c'),
+                'serverTimestampMs'   => $nowMs,
+                'processingLatencyMs' => $processingLatencyMs,
+                'latencyBudgetMs'     => 300,
             ];
 
             $this->broadcastQueue[] = $broadcastPacket;

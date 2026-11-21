@@ -360,7 +360,7 @@
             "kullaniciId": 3,
             "paraBirimi": "TRY",
             "bakiye": 2760000,
-            "blokeBakiye": 16847400,
+            "blokeBakiye": 17564400,
             "aktifBlokeler": [
                 {
                     "blokeId": "BLK-2026-9001",
@@ -372,7 +372,7 @@
                     "olusturmaZamani": "2026-10-12T21:15:30+03:00"
                 }
             ],
-            "sonGuncelleme": "2026-11-21T10:18:35+00:00"
+            "sonGuncelleme": "2026-11-21T15:30:51+00:00"
         },
         {
             "id": 104,
@@ -1131,15 +1131,15 @@
             "paraBirimi": "TRY",
             "baslangicFiyati": 32000,
             "rezervFiyat": 40000,
-            "mevcutEnYuksekTeklif": 715500,
+            "mevcutEnYuksekTeklif": 717000,
             "minimumArtisTutari": 1500,
             "liderAliciId": 3,
             "liderAnonimKod": "yortunen...",
             "durum": "ACIK_ARTIRMADA",
-            "kalanSureMetni": "5 saat",
+            "kalanSureMetni": "00:00:52",
             "antiSnipingSayaci": {
-                "uzatmaSayisi": 0,
-                "sonBitisZamani": null
+                "uzatmaSayisi": 1,
+                "sonBitisZamani": "2026-11-21T15:31:43+00:00"
             },
             "gorselUrl": "public/assets/images/watch.jpg",
             "marka": "Omega & Swiss Chronograph",
@@ -3258,6 +3258,20 @@
             "durum": "GECERLI",
             "blokeIslemId": "TX-ESCROW-081BFE85835F",
             "id": 9124
+        },
+        {
+            "lotId": 1002,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 717000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-21T15:30:51+00:00",
+            "saatEtiketi": "15:30:51",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-F9CC4585487C",
+            "id": 9125
         }
     ],
     "proxyBids": [
@@ -4709,6 +4723,29 @@
             "islemKaniti": "TX-ESCROW-081BFE85835F",
             "islemGerekcesi": "Teklif verme anında pey teminatı emanet hesapta bloke edildi.",
             "id": 7008
+        },
+        {
+            "emanetNo": "ESC-PEY-1002-1795275051",
+            "tur": "PEY_TEMINATI",
+            "lotId": 1002,
+            "lotKodu": "AUC-1002",
+            "urunBaslik": "1968 İsviçre Vintage Saat",
+            "aliciId": 3,
+            "aliciAd": "Emre Kaya",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 717000,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 57360,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 658890,
+            "durum": "EMANETTE_BLOKE",
+            "blokeZamani": "2026-11-21T15:30:51+00:00",
+            "aktarimZamani": null,
+            "islemKaniti": "TX-ESCROW-F9CC4585487C",
+            "islemGerekcesi": "Teklif verme anında pey teminatı emanet hesapta bloke edildi.",
+            "id": 7009
         }
     ],
     "supportTickets": [

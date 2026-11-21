@@ -32,17 +32,34 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
 
   const activeTimers = {};
+  const activeIntervalIds = [];
+  const lifecycleController = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const MAX_FEED_ITEMS = 100; // NFR20: Sabit boyutlu halka tampon (Ring Buffer) ile bellek sızıntısı önleme
+  const liveEventRingBuffer = [];
+
+  function pushBoundedEvent(evt) {
+    liveEventRingBuffer.push(evt);
+    if (liveEventRingBuffer.length > MAX_FEED_ITEMS) {
+      liveEventRingBuffer.splice(0, liveEventRingBuffer.length - MAX_FEED_ITEMS);
+    }
+  }
 
   timerConfigs.forEach((cfg) => {
     if (!cfg.el) return;
 
     let remaining = parseInt(cfg.el.getAttribute("data-seconds") || "300", 10);
+    let intervalId = null;
     const box = cfg.el.closest(".countdown-box");
 
     const updateDisplay = () => {
       // İhale süresi bittiğinde (Son 30 saniyede yeni pey gelmediğinde sonlandırma)
       if (remaining <= 0) {
         remaining = 0;
+        // NFR20: İhale tamamlandığında zamanlayıcıyı serbest bırak (Memory Leak önleme)
+        if (intervalId !== null) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
         cfg.el.textContent = "İhale Sonlandı (Satıldı)";
         if (box) box.classList.remove("critical");
         if (cfg.input) cfg.input.value = "0";
@@ -128,16 +145,27 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     updateDisplay();
-    const intervalId = setInterval(updateDisplay, 1000);
+    intervalId = setInterval(updateDisplay, 1000);
+    activeIntervalIds.push(intervalId);
 
     activeTimers[cfg.key] = {
       set: (sec) => {
         remaining = parseInt(sec, 10);
         if (cfg.input) cfg.input.value = remaining;
         cfg.closedSent = false;
+        if (intervalId === null && remaining > 0) {
+          intervalId = setInterval(updateDisplay, 1000);
+          activeIntervalIds.push(intervalId);
+        }
         updateDisplay();
       },
-      getRemaining: () => remaining
+      getRemaining: () => remaining,
+      destroy: () => {
+        if (intervalId !== null) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+      }
     };
   });
 
@@ -153,9 +181,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  // Hızlı Bakiye Artırma Butonları (Pey Önizleme)
+  // Hızlı Bakiye Artırma Butonları (Pey Önizleme) — AbortController ile sızıntısız dinleyici
   const quickBidButtons = document.querySelectorAll(".btn-quick-bid");
   const bidInput = document.getElementById("bidAmountInput");
+  const listenerOpts = lifecycleController ? { signal: lifecycleController.signal } : false;
 
   quickBidButtons.forEach((btn) => {
     btn.addEventListener("click", function () {
@@ -164,8 +193,21 @@ document.addEventListener("DOMContentLoaded", function () {
         const cur = parseFloat(bidInput.value || "0");
         bidInput.value = (cur + addAmount).toFixed(0);
       }
-    });
+      pushBoundedEvent({ type: "QUICK_BID_CLICK", ts: Date.now() });
+    }, listenerOpts);
   });
+
+  // NFR20: Sayfa kapanırken tüm zamanlayıcıları, olay dinleyicilerini ve tamponları temizle
+  window.MartelloMemoryCleanup = function () {
+    activeIntervalIds.forEach((id) => clearInterval(id));
+    activeIntervalIds.length = 0;
+    Object.values(activeTimers).forEach((t) => t.destroy && t.destroy());
+    if (lifecycleController) {
+      lifecycleController.abort();
+    }
+    liveEventRingBuffer.length = 0;
+  };
+  window.addEventListener("beforeunload", window.MartelloMemoryCleanup);
 
   // Otomatik Kur Değişimi Yönlendirmesi
   document.querySelectorAll(".currency-select, #currencySelector").forEach(function (sel) {

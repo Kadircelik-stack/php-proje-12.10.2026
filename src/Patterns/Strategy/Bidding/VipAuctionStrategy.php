@@ -9,6 +9,67 @@ namespace Martello\Patterns\Strategy\Bidding;
  */
 class VipAuctionStrategy implements IBiddingRuleStrategy
 {
+    /** @var array<int, array{authorized: bool, tier: string, reason: string}> Bellek içi önbellek (NFR14 Plan/Wish) */
+    private array $tierCache = [];
+
+    /**
+     * NFR14: VIP Müzayede API Yetki ve Tier Kontrolü (Bellek İçi Önbellekli)
+     * Must: <= 20ms & %100 doğruluk | Plan: <= 10ms cache | Wish: < 3ms & anlık dinamik güncelleme
+     */
+    public function authorizeVipApiRequest(array $user, int $minWonLots = 1): array
+    {
+        $t0 = microtime(true);
+        $userId = (int)($user['id'] ?? 0);
+
+        if ($userId > 0 && isset($this->tierCache[$userId])) {
+            $cached = $this->tierCache[$userId];
+            return [
+                'authorized' => $cached['authorized'],
+                'httpStatus' => $cached['authorized'] ? 200 : 403,
+                'tier'       => $cached['tier'],
+                'cacheHit'   => true,
+                'latencyMs'  => round((microtime(true) - $t0) * 1000, 4),
+                'reason'     => $cached['reason'],
+            ];
+        }
+
+        $isVipBlocked  = !empty($user['kisitlamalar']['vipEngeli']);
+        $isKycApproved = !empty($user['kycDogrulama']['dogrulandiMi']);
+        $tier          = strtoupper((string)($user['aliciProfili']['vipSeviyesi'] ?? 'STANDARD'));
+        $wonLots       = (int)($user['aliciProfili']['toplamKazanilanLot'] ?? 0);
+        $allowedTiers  = ['GOLD', 'PLATINUM', 'DIAMOND'];
+
+        $authorized = !$isVipBlocked && $isKycApproved && in_array($tier, $allowedTiers, true) && ($wonLots >= $minWonLots);
+        $reason = $authorized
+            ? "VIP API yetkisi onaylandı (Tier: {$tier}, Kazanılan Lot: {$wonLots})."
+            : "VIP API yetkisi reddedildi (Tier: {$tier}, KYC: " . ($isKycApproved ? 'OK' : 'YOK') . ", Kazanılan Lot: {$wonLots}).";
+
+        if ($userId > 0) {
+            $this->tierCache[$userId] = [
+                'authorized' => $authorized,
+                'tier'       => $tier,
+                'reason'     => $reason,
+            ];
+        }
+
+        return [
+            'authorized' => $authorized,
+            'httpStatus' => $authorized ? 200 : 403,
+            'tier'       => $tier,
+            'cacheHit'   => false,
+            'latencyMs'  => round((microtime(true) - $t0) * 1000, 4),
+            'reason'     => $reason,
+        ];
+    }
+
+    /**
+     * Dinamik tier ataması değiştiğinde önbelleği anında temizler (NFR14 Wish).
+     */
+    public function invalidateTierCache(int $userId): void
+    {
+        unset($this->tierCache[$userId]);
+    }
+
     public function validateBid(array $lot, float $bidAmount, array $user): array
     {
         // NFR-14: VIP Müzayede Yetki ve Tier Kontrolü (Gold veya onaylı VIP)
