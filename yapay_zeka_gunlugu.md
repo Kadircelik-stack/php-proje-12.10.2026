@@ -10,7 +10,7 @@
 
 ## 1. Yönetici Özeti
 
-Bu mühendislik günlüğü; MARTELLO platformunun temel iş akışları tamamlandıktan sonra gerçekleştirilen **Post-Implementation (Uygulama Sonrası) Mimari ve Güvenlik Denetimi** sürecini belgelemektedir. Denetim kapsamında sistemde tespit edilen güvenlik zafiyetleri, istemci-sunucu senkronizasyon eksiklikleri, yetkilendirme boşlukları ve statik veri bağımlılıkları; yazılım mühendisliği prensiplerine uygun olarak giderilmiş ve NFR (Fonksiyonel Olmayan Gereksinimler) birim testleriyle doğrulanmıştır.
+Bu mühendislik günlüğü; MARTELLO platformunun **Post-Implementation (Uygulama Sonrası) Mimari ve Güvenlik Denetimi** sürecini belgelemektedir. Denetim kapsamında sistemde tespit edilen güvenlik zafiyetleri, istemci-sunucu senkronizasyon eksiklikleri, yetkilendirme boşlukları ve statik veri bağımlılıkları; yazılım mühendisliği prensiplerine uygun olarak giderilmiş ve NFR (Fonksiyonel Olmayan Gereksinimler) birim testleriyle doğrulanmıştır.
 
 ---
 
