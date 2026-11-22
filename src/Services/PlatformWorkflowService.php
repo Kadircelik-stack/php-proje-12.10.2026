@@ -904,6 +904,9 @@ class PlatformWorkflowService
         }
 
         // Ürünü kaydet
+        $uploadedImg = trim((string)($data['uploaded_image'] ?? ''));
+        $gorseller = $uploadedImg !== '' ? [$uploadedImg] : ['public/assets/images/lot_ceramic_vase.jpg'];
+
         $product = $this->dataStore->insertItem('products', [
             'saticiId'          => $sellerId,
             'kategoriId'        => $categoryId,
@@ -911,7 +914,8 @@ class PlatformWorkflowService
             'aciklama'          => $data['aciklama'] ?? '',
             'fizikselKondisyon' => $data['fizikselKondisyon'] ?? 'İnceleme Bekliyor',
             'orijinallikDurumu' => 'Ekspertizde',
-            'gorseller'         => ['varsayilan_lot.jpg'],
+            'gorseller'         => $gorseller,
+            'gorselUrl'         => $gorseller[0],
             'dinamikNitelikler' => $data['nitelikler'] ?? [],
         ]);
 
@@ -1754,6 +1758,9 @@ class PlatformWorkflowService
         $this->dataStore->updateItem('listings', 'id', $listingId, ['durum' => 'YAYINDA']);
 
         $product = $this->dataStore->getItem('products', 'id', $listing['urunId']);
+        $category = $this->dataStore->getItem('categories', 'id', (int)($product['kategoriId'] ?? 10));
+        $catName  = (string)($category['ad'] ?? 'Antika & Sanat');
+        $prodImg  = (string)($product['gorselUrl'] ?? ($product['gorseller'][0] ?? 'public/assets/images/lot_ceramic_vase.jpg'));
 
         // Müzayedeye lot olarak ekle
         $newLot = $this->dataStore->insertItem('lots', [
@@ -1764,7 +1771,8 @@ class PlatformWorkflowService
             'ilanId'               => $listingId,
             'ekspertizRaporId'     => $listing['ekspertizRaporId'] ?? 301,
             'baslik'               => $product['baslik'] ?? 'Müzayede Lotu',
-            'kategoriAdi'          => 'Antika & Sanat',
+            'kategoriAdi'          => $catName,
+            'gorselUrl'            => $prodImg,
             'paraBirimi'           => 'TRY',
             'baslangicFiyati'      => $startPrice,
             'rezervFiyat'          => $reservePrice,
@@ -2274,6 +2282,12 @@ class PlatformWorkflowService
 
             // Eseri zenginleştirilmiş olarak ekle
             $enriched = $lot;
+            if (empty($enriched['gorselUrl']) && is_array($urun)) {
+                $candidateImg = (string)($urun['gorselUrl'] ?? ($urun['gorseller'][0] ?? ''));
+                if ($candidateImg !== '') {
+                    $enriched['gorselUrl'] = str_contains($candidateImg, '/') ? $candidateImg : ('public/assets/images/' . $candidateImg);
+                }
+            }
             $enriched['urun'] = $urun;
             $enriched['ekspertizRapor'] = $report;
             $enriched['ekspertizOnayli'] = $isApproved;
@@ -2333,7 +2347,7 @@ class PlatformWorkflowService
     public function getPastAuctions(): array
     {
         $auctions = $this->dataStore->getCollection('auctions');
-        $past = array_filter($auctions, static fn($a) => ($a['durum'] ?? '') === 'SONLANDI');
+        $past = array_filter($auctions, static fn($a) => in_array(strtoupper((string)($a['durum'] ?? '')), ['SONLANDI', 'TAMAMLANDI'], true));
         usort($past, static fn($a, $b) => strcmp((string)($b['kapanisZamani'] ?? ''), (string)($a['kapanisZamani'] ?? '')));
         return array_values($past);
     }
@@ -2421,10 +2435,13 @@ class PlatformWorkflowService
         }
 
         return [
-            'totalAuctions'   => count($pastAuctions),
-            'totalItemsSold'  => $totalLotsSold,
-            'totalVolume'     => $totalSalesVolume > 0 ? $totalSalesVolume : 60000000.0,
-            'avgSuccessRate'  => '94.2%',
+            'totalAuctions'          => count($pastAuctions),
+            'totalCompletedAuctions' => count($pastAuctions),
+            'totalItemsSold'         => $totalLotsSold,
+            'totalSoldLots'          => $totalLotsSold,
+            'totalVolume'            => $totalSalesVolume > 0 ? $totalSalesVolume : 60000000.0,
+            'avgSuccessRate'         => '94.2%',
+            'averageSuccessRate'     => 94.2,
         ];
     }
 

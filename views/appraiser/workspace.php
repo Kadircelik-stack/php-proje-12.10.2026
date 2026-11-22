@@ -4,7 +4,9 @@ declare(strict_types=1);
 /** @var callable $formatPrice */
 /** @var array $db */
 
-$expertId = 4; // Burak Şahin (Ekspertiz Uzmanı)
+$expertId = (!empty($_SESSION['auth_user']['id']) && strtoupper((string)($_SESSION['auth_user']['rol'] ?? '')) === 'EKSPERTIZ')
+    ? (int)$_SESSION['auth_user']['id']
+    : 4; // Burak Şahin (Ekspertiz Uzmanı)
 $currentUser = null;
 foreach ($db['users'] ?? [] as $u) {
     if ((int)($u['id'] ?? 0) === $expertId) {
@@ -81,83 +83,48 @@ $activeTab = $_GET['tab'] ?? 'gorev';
 
     <!-- 2. BÖLÜM: PAZAR YERİ SEÇENEKLERİ -->
     <div style="margin-top:16px;">
-      <div class="sidebar-section-title">Pazar Yeri</div>
+      <div class="sidebar-section-title">Pazar Yeri &amp; Salonlar</div>
       <ul class="nav-menu">
         <li class="nav-menu-item">
           <a href="?role=vitrin">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
-            Koleksiyonlar & Keşif
+            Vitrin &amp; Koleksiyonlar
           </a>
         </li>
         <li class="nav-menu-item">
           <a href="?role=buyer&tab=canli">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-            Canlı Müzayedeler
+            Canlı Müzayede Salonları
           </a>
         </li>
         <li class="nav-menu-item">
-          <a href="?role=buyer&tab=vip">
-            <span class="menu-icon" style="color:#d4af37;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg></span>
-            <span style="color:#dfbe7e; font-weight:600;">VIP Müzayede Salonu</span>
+          <a href="?role=buyer&tab=kesfet">
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></span>
+            Müzayede Keşfet
           </a>
         </li>
         <li class="nav-menu-item">
-          <button type="button" onclick="openInfoModal('categories')">
+          <button type="button" onclick="return openInfoModal('categories', event)">
             <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
             Ürün Kategorileri
           </button>
         </li>
         <li class="nav-menu-item">
-          <button type="button" onclick="openInfoModal('about')">
-            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
-            Hakkımızda
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <!-- 3. BÖLÜM: MÜZAYEDE ŞARTLARI & GİZLİLİK SEÇENEKLERİ -->
-    <div style="margin-top:16px;">
-      <div class="sidebar-section-title">Şartlar & Gizlilik</div>
-      <ul class="nav-menu">
-        <li class="nav-menu-item">
-          <button type="button" onclick="openInfoModal('terms')">
-            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+          <button type="button" onclick="return openInfoModal('terms', event)">
+            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
             Müzayede Şartları
           </button>
         </li>
-        <li class="nav-menu-item">
-          <button type="button" onclick="openInfoModal('privacy')">
-            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
-            Gizlilik Politikası & KVK
-          </button>
-        </li>
-        <li class="nav-menu-item">
-          <button type="button" onclick="openInfoModal('help')">
-            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-            Yardım Merkezi & SSS
-          </button>
-        </li>
-        <li class="nav-menu-item">
-          <a href="?role=support">
-            <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
-            Canlı Destek Masası
-          </a>
-        </li>
       </ul>
     </div>
 
-    <!-- 4. BÖLÜM: HIZLI ROL ERİŞİMİ -->
-    <div style="margin-top:16px;">
-      <div class="sidebar-section-title">Hızlı Panel Erişimi</div>
-      <ul class="nav-menu" style="font-size:0.8rem;">
-        <li class="nav-menu-item"><a href="?role=buyer" style="padding:7px 12px; font-size:0.8rem;">Alıcı Paneli</a></li>
-        <li class="nav-menu-item"><a href="?role=seller" style="padding:7px 12px; font-size:0.8rem;">Satıcı Paneli</a></li>
-        <li class="nav-menu-item"><a href="?role=appraiser" style="padding:7px 12px; font-size:0.8rem;">Ekspertiz Paneli</a></li>
-        <li class="nav-menu-item"><a href="?role=support" style="padding:7px 12px; font-size:0.8rem;">Canlı Destek & Kargo</a></li>
-        <li class="nav-menu-item"><a href="?role=admin" style="padding:7px 12px; font-size:0.8rem;">Admin Konsolu</a></li>
-      </ul>
-    </div>
+    <form method="POST" action="index.php" style="margin:12px 0 8px 0;">
+      <input type="hidden" name="action" value="logout">
+      <button type="submit" class="btn-logout-luxury" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; font-size:0.82rem; cursor:pointer;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Çıkış Yap</span>
+      </button>
+    </form>
 
     <div class="sidebar-demo-badge">
       <div style="font-weight:700; font-size:0.75rem; color:#d4af37; letter-spacing:0.5px;">MARTELLO / DEMO</div>
@@ -208,20 +175,23 @@ $activeTab = $_GET['tab'] ?? 'gorev';
 
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(310px, 1fr)); gap:20px; margin-bottom:32px;">
         <!-- Örnek Görev 1: AUC-1042 (1968 İsviçre Vintage Saat) -->
-        <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(197,160,89,0.3);">
+        <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(200,170,110,0.28);">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <span class="badge badge-gold">AUC-1042</span>
               <span class="badge badge-warning">BEKLEYEN</span>
             </div>
-            <h3 style="font-family:var(--font-serif); font-size:1.2rem; color:#fff; font-weight:600; margin-bottom:8px;">
-              1968 İsviçre Vintage Saat
-            </h3>
-            <p style="font-size:0.84rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+              <img src="public/assets/images/lot_swiss_watch_1968.jpg" alt="1968 İsviçre Vintage Saat" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid rgba(200,170,110,0.25); flex-shrink:0;">
+              <h3 style="font-family:var(--font-serif); font-size:1.18rem; color:#F5F0E6; font-weight:600; margin:0;">
+                1968 İsviçre Vintage Saat
+              </h3>
+            </div>
+            <p style="font-size:0.84rem; color:#A39B8F; line-height:1.5; margin-bottom:12px;">
               Calibre 861 mekanizma, kronograf fonksiyonu ve orijinal kadran mikroskop incelemesi bekliyor.
             </p>
-            <div style="background:#090c10; padding:8px 12px; border-radius:6px; font-size:0.75rem; color:#848d9a; border:1px solid #1f2735;">
-              Talep No: <strong>EXP-REQ-441</strong> • Kategori: Horoloji & Saat
+            <div style="background:#0D0B0A; padding:8px 12px; border-radius:6px; font-size:0.75rem; color:#A39B8F; border:1px solid rgba(200,170,110,0.16);">
+              Talep No: <strong style="color:#E2C992;">EXP-REQ-441</strong> · Kategori: Horoloji &amp; Saat
             </div>
           </div>
           <div style="margin-top:20px; display:flex; gap:8px;">
@@ -229,26 +199,29 @@ $activeTab = $_GET['tab'] ?? 'gorev';
               Rapor Oluştur
             </button>
             <button type="button" class="btn-outline-gold btn-sm" onclick="loadRequestIntoForm(202, 'AUC-1042', '1968 İsviçre Vintage Saat', 65000, 'Saat mekanizması ve kronograf fonksiyonları laboratuvar testlerinde incelenmiş, orijinal fabrikasyon kondisyonunda bulunmuştur.')" title="Detaylı laboratuvar inceleme formuna aktar">
-              Detaylı İncele →
+              Detaylı İncele &rarr;
             </button>
           </div>
         </div>
 
         <!-- Örnek Görev 2: AUC-1043 (Koleksiyon Analog Kamera) -->
-        <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(197,160,89,0.3);">
+        <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(200,170,110,0.28);">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <span class="badge badge-gold">AUC-1043</span>
               <span class="badge badge-warning">BEKLEYEN</span>
             </div>
-            <h3 style="font-family:var(--font-serif); font-size:1.2rem; color:#fff; font-weight:600; margin-bottom:8px;">
-              Koleksiyon Analog Kamera
-            </h3>
-            <p style="font-size:0.84rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+              <img src="public/assets/images/lot_vintage_camera.jpg" alt="Koleksiyon Analog Kamera" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid rgba(200,170,110,0.25); flex-shrink:0;">
+              <h3 style="font-family:var(--font-serif); font-size:1.18rem; color:#F5F0E6; font-weight:600; margin:0;">
+                Koleksiyon Analog Kamera
+              </h3>
+            </div>
+            <p style="font-size:0.84rem; color:#A39B8F; line-height:1.5; margin-bottom:12px;">
               Optik lens şeffaflığı, diyafram kademesi ve deklanşör hızı testleri yapılmalıdır.
             </p>
-            <div style="background:#090c10; padding:8px 12px; border-radius:6px; font-size:0.75rem; color:#848d9a; border:1px solid #1f2735;">
-              Talep No: <strong>EXP-REQ-442</strong> • Kategori: Efemera & Antika
+            <div style="background:#0D0B0A; padding:8px 12px; border-radius:6px; font-size:0.75rem; color:#A39B8F; border:1px solid rgba(200,170,110,0.16);">
+              Talep No: <strong style="color:#E2C992;">EXP-REQ-442</strong> · Kategori: Efemera &amp; Antika
             </div>
           </div>
           <div style="margin-top:20px; display:flex; gap:8px;">
@@ -256,26 +229,29 @@ $activeTab = $_GET['tab'] ?? 'gorev';
               Rapor Oluştur
             </button>
             <button type="button" class="btn-outline-gold btn-sm" onclick="loadRequestIntoForm(203, 'AUC-1043', 'Koleksiyon Analog Kamera', 25000, 'Kamera aksamı oldukça iyi durumda gerekli incelemeler neticesinde satışa uygun bulunmuştur.')" title="Detaylı laboratuvar inceleme formuna aktar">
-              Detaylı İncele →
+              Detaylı İncele &rarr;
             </button>
           </div>
         </div>
 
         <!-- Örnek Görev 3: AUC-1044 (Çağdaş Sanat Baskısı) -->
-        <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(197,160,89,0.3);">
+        <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(200,170,110,0.28);">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <span class="badge badge-gold">AUC-1044</span>
               <span class="badge badge-warning">BEKLEYEN</span>
             </div>
-            <h3 style="font-family:var(--font-serif); font-size:1.2rem; color:#fff; font-weight:600; margin-bottom:8px;">
-              Çağdaş Sanat Baskısı
-            </h3>
-            <p style="font-size:0.84rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+              <img src="public/assets/images/lot_oil_painting.jpg" alt="Çağdaş Sanat Baskısı" style="width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid rgba(200,170,110,0.25); flex-shrink:0;">
+              <h3 style="font-family:var(--font-serif); font-size:1.18rem; color:#F5F0E6; font-weight:600; margin:0;">
+                Çağdaş Sanat Baskısı
+              </h3>
+            </div>
+            <p style="font-size:0.84rem; color:#A39B8F; line-height:1.5; margin-bottom:12px;">
               Kağıt dokusu, edisyon numarası, sanatçı el ıslak imzası ve spektral asitsizlik değerlendirmesi.
             </p>
-            <div style="background:#090c10; padding:8px 12px; border-radius:6px; font-size:0.75rem; color:#848d9a; border:1px solid #1f2735;">
-              Talep No: <strong>EXP-REQ-443</strong> • Kategori: Antika & Sanat
+            <div style="background:#0D0B0A; padding:8px 12px; border-radius:6px; font-size:0.75rem; color:#A39B8F; border:1px solid rgba(200,170,110,0.16);">
+              Talep No: <strong style="color:#E2C992;">EXP-REQ-443</strong> · Kategori: Antika &amp; Sanat
             </div>
           </div>
           <div style="margin-top:20px; display:flex; gap:8px;">
@@ -283,7 +259,7 @@ $activeTab = $_GET['tab'] ?? 'gorev';
               Rapor Oluştur
             </button>
             <button type="button" class="btn-outline-gold btn-sm" onclick="loadRequestIntoForm(204, 'AUC-1044', 'Çağdaş Sanat Baskısı', 18000, 'Kağıt ve baskı kalitesi laboratuvar ortamında spektral testlerle incelenmiş ve doğrulanmıştır.')" title="Detaylı laboratuvar inceleme formuna aktar">
-              Detaylı İncele →
+              Detaylı İncele &rarr;
             </button>
           </div>
         </div>
@@ -292,20 +268,20 @@ $activeTab = $_GET['tab'] ?? 'gorev';
         <?php foreach ($pendingRequests as $preq): 
           if (in_array((int)$preq['id'], [202, 203, 204], true)) continue;
         ?>
-          <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(197,160,89,0.3);">
+          <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border-color:rgba(200,170,110,0.28);">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span class="badge badge-gold"><?= htmlspecialchars($preq['lotKodu'] ?? 'AUC-YENİ') ?></span>
                 <span class="badge badge-warning"><?= htmlspecialchars($preq['durum'] ?? 'BEKLEYEN') ?></span>
               </div>
-              <h3 style="font-family:var(--font-serif); font-size:1.2rem; color:#fff; font-weight:600; margin-bottom:8px;">
+              <h3 style="font-family:var(--font-serif); font-size:1.18rem; color:#F5F0E6; font-weight:600; margin-bottom:8px;">
                 <?= htmlspecialchars($preq['not'] ?? 'Yeni Eser İnceleme Talebi') ?>
               </h3>
-              <p style="font-size:0.84rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px;">
+              <p style="font-size:0.84rem; color:#A39B8F; line-height:1.5; margin-bottom:12px;">
                 Fiziksel kondisyon, köken ve piyasa değerleme incelemesi bekliyor.
               </p>
-              <div style="background:#090c10; padding:8px 12px; border-radius:6px; font-size:0.75rem; color:#848d9a; border:1px solid #1f2735;">
-                Talep No: <strong><?= htmlspecialchars($preq['talepNo'] ?? 'EXP-REQ') ?></strong>
+              <div style="background:#0D0B0A; padding:8px 12px; border-radius:6px; font-size:0.75rem; color:#A39B8F; border:1px solid rgba(200,170,110,0.16);">
+                Talep No: <strong style="color:#E2C992;"><?= htmlspecialchars($preq['talepNo'] ?? 'EXP-REQ') ?></strong>
               </div>
             </div>
             <div style="margin-top:20px; display:flex; gap:8px;">
@@ -313,7 +289,7 @@ $activeTab = $_GET['tab'] ?? 'gorev';
                 Rapor Oluştur
               </button>
               <button type="button" class="btn-outline-gold btn-sm" onclick="loadRequestIntoForm(<?= $preq['id'] ?>, '<?= htmlspecialchars($preq['lotKodu'] ?? 'AUC-YENİ') ?>', 'Yeni Eser', 30000, 'Fiziksel kondisyon incelendi.')">
-                Detaylı İncele →
+                Detaylı İncele &rarr;
               </button>
             </div>
           </div>
@@ -329,10 +305,10 @@ $activeTab = $_GET['tab'] ?? 'gorev';
       <h1 class="page-heading">Ekspertiz Raporu Düzenle</h1>
       <p class="page-subheading">Laboratuvar incelemesi, orijinallik onayı, piyasa değerlemesi ve eskalasyon yönetimi</p>
 
-      <div class="panel-card" style="border-color:rgba(197,160,89,0.35);">
+      <div class="panel-card" style="border-color:rgba(200,170,110,0.32);">
         <!-- Hızlı Eser Seçici -->
-        <div style="margin-bottom:18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:#0a0d14; padding:12px 18px; border-radius:8px; border:1px solid #232b3c;">
-          <span style="font-size:0.84rem; color:var(--gold-primary); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">İncelenecek Eseri Seçin:</span>
+        <div style="margin-bottom:18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:#0D0B0A; padding:12px 18px; border-radius:8px; border:1px solid rgba(200,170,110,0.18);">
+          <span style="font-size:0.84rem; color:#C8AA6E; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">İncelenecek Eseri Seçin:</span>
           <select id="requestSelector" class="form-control" style="max-width:420px; font-size:0.85rem; font-weight:600;" onchange="onSelectRequest(this.value)">
             <option value="202" data-lot="AUC-1042" data-title="1968 İsviçre Vintage Saat" data-val="65000" data-notes="Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.&#10;Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.&#10;Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır.">AUC-1042 — 1968 İsviçre Vintage Saat (Tahmini: <?= $formatPrice(65000) ?>)</option>
             <option value="203" data-lot="AUC-1043" data-title="Koleksiyon Analog Kamera" data-val="25000" data-notes="Kamera aksamı oldukça iyi durumda gerekli incelemeler neticesinde satışa uygun bulunmuştur.&#10;Optik lens ve perde mekanizması kalibre edilmiştir.">AUC-1043 — Koleksiyon Analog Kamera (Tahmini: <?= $formatPrice(25000) ?>)</option>
@@ -350,9 +326,9 @@ $activeTab = $_GET['tab'] ?? 'gorev';
           <input type="hidden" name="expert_id" value="<?= $expertId ?>">
           <input type="hidden" id="appraisalReqId" name="request_id" value="202">
 
-          <div style="background:#090c10; padding:12px 16px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              Seçili Eser: <strong id="appraisalTargetText" style="color:var(--gold-bright);">AUC-1042 — 1968 İsviçre Vintage Saat</strong>
+          <div style="background:#0D0B0A; padding:12px 16px; border-radius:8px; border:1px solid rgba(200,170,110,0.18); margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="color:#A39B8F;">
+              Seçili Eser: <strong id="appraisalTargetText" style="color:#E2C992;">AUC-1042 — 1968 İsviçre Vintage Saat</strong>
             </div>
             <span class="badge badge-gold" id="appraisalBadge">MÜZE SEÇKİ ADAYI</span>
           </div>
@@ -363,7 +339,7 @@ $activeTab = $_GET['tab'] ?? 'gorev';
               <input type="number" step="500" id="appraisalValue" name="suggested_value" class="form-control" value="65000" required>
             </div>
             <div class="form-group">
-              <label class="form-label">Orijinallik & Damga Notu *</label>
+              <label class="form-label">Orijinallik &amp; Damga Notu *</label>
               <input type="text" id="appraisalAuthNote" name="authenticity_note" class="form-control" value="Orijinal - Ekspertiz Seçki Damgalı" required>
             </div>
           </div>
@@ -381,9 +357,9 @@ $activeTab = $_GET['tab'] ?? 'gorev';
             <div class="form-group">
               <label class="form-label">Özgünlük Değerlendirmesi</label>
               <select name="ozgunluk" class="form-control">
-                <option value="Doğrulandı" selected>✓ Doğrulandı (Orijinal Eser)</option>
-                <option value="Şüpheli">? Şüpheli / İleri İnceleme Gerekli</option>
-                <option value="Taklit">✗ Taklit / Sahte</option>
+                <option value="Doğrulandı" selected>Doğrulandı (Orijinal Eser)</option>
+                <option value="Şüpheli">Şüpheli / İleri İnceleme Gerekli</option>
+                <option value="Taklit">Taklit / Sahte</option>
               </select>
             </div>
           </div>
@@ -397,12 +373,12 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
 
           <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
             <button type="submit" class="btn-gold" style="padding:12px 28px; font-weight:700;">
-              ✓ Raporu Mühürle ve Admin Onayına Gönder
+              Raporu Mühürle ve Admin Onayına Gönder
             </button>
             <button type="button" class="btn-outline-gold" style="padding:12px 20px;" onclick="openRevizeModal()">
-              Düzeltme & Revize Talep Et
+              Düzeltme &amp; Revize Talep Et
             </button>
-            <button type="button" class="btn-outline-gold" style="padding:12px 20px; color:#f87171 !important; border-color:rgba(239,68,68,0.5);" onclick="openEskaleModal()">
+            <button type="button" class="btn-outline-gold" style="padding:12px 20px; color:#DDA3A3 !important; border-color:rgba(195,108,108,0.4);" onclick="openEskaleModal()">
               Üst Heyete Eskale Et
             </button>
           </div>
@@ -424,7 +400,7 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
             <tr>
               <th style="padding-left:24px;">Rapor No</th>
               <th>Talep / Eser</th>
-              <th>Özgünlük & Damga</th>
+              <th>Özgünlük &amp; Damga</th>
               <th>Önerilen Piyasa Değeri</th>
               <th>Durum</th>
               <th>Tarih</th>
@@ -435,22 +411,22 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
             <?php if (!empty($completedReports)): ?>
               <?php foreach ($completedReports as $rep): ?>
                 <tr>
-                  <td style="padding-left:24px; font-weight:700; color:var(--gold-primary);">
+                  <td style="padding-left:24px; font-weight:700; color:#C8AA6E;">
                     <?= htmlspecialchars($rep['raporNo']) ?>
                   </td>
-                  <td style="color:#fff; font-weight:600;">
+                  <td style="color:#F5F0E6; font-weight:600;">
                     Talep #<?= htmlspecialchars((string)($rep['talepId'] ?? '')) ?>
                   </td>
-                  <td style="color:#cbd5e1; font-size:0.85rem;">
+                  <td style="color:#EAE2D5; font-size:0.85rem;">
                     <?= htmlspecialchars($rep['orijinallikNotu'] ?? 'Orijinal') ?>
                   </td>
-                  <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">
+                  <td style="font-family:var(--font-serif); font-weight:700; color:#E2C992;">
                     <?= $formatPrice((float)($rep['onerilenPiyasaDegeri'] ?? 0)) ?>
                   </td>
                   <td>
-                    <span class="badge badge-success">✓ ONAYLANDI</span>
+                    <span class="badge badge-success">ONAYLANDI</span>
                   </td>
-                  <td style="color:#848d9a; font-size:0.8rem;">
+                  <td style="color:#A39B8F; font-size:0.8rem;">
                     <?= !empty($rep['raporTarihi']) ? date('d.m.Y H:i', strtotime($rep['raporTarihi'])) : date('d.m.Y') ?>
                   </td>
                   <td style="padding-right:24px; text-align:right;">
@@ -462,12 +438,12 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
               <?php endforeach; ?>
             <?php else: ?>
               <tr>
-                <td style="padding-left:24px; font-weight:700; color:var(--gold-primary);">REP-2026-112</td>
-                <td style="color:#fff; font-weight:600;">AUC-1042 — 1968 İsviçre Vintage Saat</td>
-                <td style="color:#cbd5e1;">Orijinal - Ekspertiz Seçki Damgalı</td>
-                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);"><?= $formatPrice(65000) ?></td>
-                <td><span class="badge badge-success">✓ ONAYLANDI</span></td>
-                <td style="color:#848d9a; font-size:0.8rem;"><?= date('d.m.Y') ?></td>
+                <td style="padding-left:24px; font-weight:700; color:#C8AA6E;">REP-2026-112</td>
+                <td style="color:#F5F0E6; font-weight:600;">AUC-1042 — 1968 İsviçre Vintage Saat</td>
+                <td style="color:#EAE2D5;">Orijinal - Ekspertiz Seçki Damgalı</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#E2C992;"><?= $formatPrice(65000) ?></td>
+                <td><span class="badge badge-success">ONAYLANDI</span></td>
+                <td style="color:#A39B8F; font-size:0.8rem;"><?= date('d.m.Y') ?></td>
                 <td style="padding-right:24px; text-align:right;">
                   <button type="button" class="btn-outline-gold btn-sm" onclick="openCertificateModal('REP-2026-112', 'AUC-1042', '1968 İsviçre Vintage Saat', 65000, 'Orijinal - Ekspertiz Seçki Damgalı', '<?= date('d.m.Y') ?>')">
                     Sertifikayı İncele
@@ -490,31 +466,31 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
 
       <?php if (!empty($disputes)): ?>
         <?php foreach ($disputes as $disp): ?>
-          <div class="panel-card" style="border:1px solid #c5a059; margin-bottom:18px;">
+          <div class="panel-card" style="border:1px solid rgba(200,170,110,0.34); margin-bottom:18px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
               <div style="display:flex; align-items:center; gap:8px;">
                 <span class="badge badge-gold"><?= htmlspecialchars($disp['talepNo'] ?? 'DISP') ?></span>
-                <span style="font-size:0.85rem; color:#fff; font-weight:600;">Lot Kodu: <strong><?= htmlspecialchars($disp['lotKodu'] ?? 'AUC') ?></strong></span>
+                <span style="font-size:0.85rem; color:#F5F0E6; font-weight:600;">Lot Kodu: <strong style="color:#E2C992;"><?= htmlspecialchars($disp['lotKodu'] ?? 'AUC') ?></strong></span>
               </div>
               <span class="badge <?= ($disp['durum'] ?? '') === 'COZULDU' ? 'badge-success' : 'badge-warning' ?>">
                 <?= htmlspecialchars($disp['durum'] ?? 'INCELENIYOR') ?>
               </span>
             </div>
 
-            <div style="background:#090c10; padding:12px 16px; border-radius:8px; border:1px solid #1f2735; margin-bottom:16px;">
-              <div style="color:var(--gold-primary); font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-bottom:4px;">İhtilaf Konusu: <?= htmlspecialchars($disp['konuTipi'] ?? 'KONDİSYON') ?></div>
-              <p style="color:#cbd5e1; font-size:0.88rem; line-height:1.5; margin:0;">
+            <div style="background:#0D0B0A; padding:12px 16px; border-radius:8px; border:1px solid rgba(200,170,110,0.16); margin-bottom:16px;">
+              <div style="color:#C8AA6E; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-bottom:4px;">İhtilaf Konusu: <?= htmlspecialchars($disp['konuTipi'] ?? 'KONDİSYON') ?></div>
+              <p style="color:#EAE2D5; font-size:0.88rem; line-height:1.5; margin:0;">
                 "<?= htmlspecialchars($disp['aciklama'] ?? '') ?>"
               </p>
-              <div style="font-size:0.75rem; color:#848d9a; margin-top:8px;">
+              <div style="font-size:0.75rem; color:#A39B8F; margin-top:8px;">
                 Başvuru Tarihi: <?= !empty($disp['olusturmaTarihi']) ? date('d.m.Y H:i', strtotime($disp['olusturmaTarihi'])) : date('d.m.Y') ?>
               </div>
             </div>
 
             <?php if (!empty($disp['eksperGorus'])): ?>
-              <div style="background:rgba(63,185,80,0.1); border:1px solid rgba(63,185,80,0.3); padding:10px 14px; border-radius:8px; margin-bottom:14px;">
-                <div style="color:#3fb950; font-weight:700; font-size:0.8rem; margin-bottom:2px;">✓ Ekspertiz Teknik Mütalaanız Kaydedildi</div>
-                <div style="color:#e2e8f0; font-size:0.84rem;"><?= htmlspecialchars($disp['eksperGorus']) ?></div>
+              <div style="background:rgba(200,170,110,0.08); border:1px solid rgba(200,170,110,0.28); padding:10px 14px; border-radius:8px; margin-bottom:14px;">
+                <div style="color:#E2C992; font-weight:700; font-size:0.8rem; margin-bottom:2px;">Ekspertiz Teknik Mütalaanız Kaydedildi</div>
+                <div style="color:#EAE2D5; font-size:0.84rem;"><?= htmlspecialchars($disp['eksperGorus']) ?></div>
               </div>
             <?php else: ?>
               <form method="POST" style="margin:0;">
@@ -573,16 +549,16 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
             <?php foreach ($lots as $lt): ?>
               <tr class="searchable-row" data-text="<?= htmlspecialchars(strtolower($lt['lotKodu'] . ' ' . $lt['baslik'] . ' ' . ($lt['kategoriAdi'] ?? ''))) ?>">
                 <td style="padding-left:24px; display:flex; align-items:center; gap:10px;">
-                  <img src="<?= htmlspecialchars($lt['gorselUrl'] ?? 'public/assets/images/watch.jpg') ?>" alt="Lot" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid #334155;">
-                  <strong style="color:var(--gold-primary);"><?= htmlspecialchars($lt['lotKodu']) ?></strong>
+                  <img src="<?= htmlspecialchars($lt['gorselUrl'] ?? 'public/assets/images/lot_swiss_watch_1968.jpg') ?>" alt="Lot" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(200,170,110,0.2);" onerror="this.src='public/assets/images/lot_swiss_watch_1968.jpg'">
+                  <strong style="color:#C8AA6E;"><?= htmlspecialchars($lt['lotKodu']) ?></strong>
                 </td>
-                <td style="color:#fff; font-weight:600;"><?= htmlspecialchars($lt['baslik']) ?></td>
-                <td style="color:#cbd5e1;"><?= htmlspecialchars($lt['kategoriAdi'] ?? 'Antika') ?></td>
-                <td style="font-family:var(--font-serif); font-weight:700; color:var(--gold-bright);">
+                <td style="color:#F5F0E6; font-weight:500;"><?= htmlspecialchars($lt['baslik']) ?></td>
+                <td style="color:#A39B8F;"><?= htmlspecialchars($lt['kategoriAdi'] ?? 'Antika') ?></td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#E2C992;">
                   <?= $formatPrice((float)$lt['mevcutEnYuksekTeklif']) ?>
                 </td>
                 <td>
-                  <span class="badge badge-success">✓ ONAYLI</span>
+                  <span class="badge badge-success">ONAYLI</span>
                 </td>
                 <td style="padding-right:24px; text-align:right;">
                   <button type="button" class="btn-outline-gold btn-sm" onclick="openCertificateModal('REP-2026-<?= $lt['id'] ?>', '<?= htmlspecialchars($lt['lotKodu']) ?>', '<?= htmlspecialchars($lt['baslik']) ?>', <?= (float)$lt['mevcutEnYuksekTeklif'] ?>, 'Ekspertiz Seçki Mührü Onaylı', '<?= date('d.m.Y') ?>')">
@@ -597,72 +573,72 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
     </div>
 
     <!-- ====================================================================
-         6. TAB: BİLDİRİMLER (Use Case: Bildirimleri İnceleme)
+         6. TAB: BİLDİRİMLER
          ==================================================================== -->
     <div id="appTab_bildirim" class="tab-content <?= $activeTab === 'bildirim' ? 'active' : '' ?>">
       <div class="page-breadcrumb">EKSPERTİZ UZMANI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Bildirimler</h1>
-      <p class="page-subheading">Sistem atamaları, kurul kararları ve bilgilendirme kayıtları</p>
+      <p class="page-subheading">Sistem atamaları, kurul kararları ve bilgilendirme kayıtları.</p>
 
       <div class="panel-card" style="padding:0; overflow:hidden;">
         <div style="display:flex; flex-direction:column;">
-          <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <div style="padding:16px 20px; border-bottom:1px solid rgba(200,170,110,0.12); display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <div style="font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
-                <span style="color:#d4af37;">●</span>
+              <div style="font-weight:600; color:#F5F0E6; display:flex; align-items:center; gap:8px;">
+                <span style="color:#E2C992;">◆</span>
                 <span>Yeni Ekspertiz Görevi Atandı (AUC-1042)</span>
               </div>
-              <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">
+              <div style="font-size:0.81rem; color:#A39B8F; margin-top:4px;">
                 1968 İsviçre Vintage Saat için fiziksel ve optik inceleme görevi panelinize aktarıldı.
               </div>
             </div>
-            <span style="font-size:0.75rem; color:#848d9a;">Bugün, 14:30</span>
+            <span style="font-size:0.75rem; color:#A39B8F;">Bugün, 14:30</span>
           </div>
 
-          <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <div style="padding:16px 20px; border-bottom:1px solid rgba(200,170,110,0.12); display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <div style="font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
-                <span style="color:#3fb950;">●</span>
+              <div style="font-weight:600; color:#F5F0E6; display:flex; align-items:center; gap:8px;">
+                <span style="color:#C8AA6E;">◆</span>
                 <span>Ekspertiz Akreditasyonu Yenilendi</span>
               </div>
-              <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">
+              <div style="font-size:0.81rem; color:#A39B8F; margin-top:4px;">
                 Marmara Ekspertiz A.Ş. 2026/2. Dönem Horoloji ve Sanat yetkilendirmesi onaylanmıştır.
               </div>
             </div>
-            <span style="font-size:0.75rem; color:#848d9a;">Dün, 09:15</span>
+            <span style="font-size:0.75rem; color:#A39B8F;">Dün, 09:15</span>
           </div>
 
           <div style="padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <div style="font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
-                <span style="color:#60a5fa;">●</span>
+              <div style="font-weight:600; color:#F5F0E6; display:flex; align-items:center; gap:8px;">
+                <span style="color:#C8AA6E;">◆</span>
                 <span>İhtilaf Dosyası Görüş Bildirimi (AUC-1001)</span>
               </div>
-              <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">
+              <div style="font-size:0.81rem; color:#A39B8F; margin-top:4px;">
                 Osmanlı Halı Levhası ihtilafı için teknik mütalaa talebi iletildi.
               </div>
             </div>
-            <span style="font-size:0.75rem; color:#848d9a;">12.10.2026</span>
+            <span style="font-size:0.75rem; color:#A39B8F;">12.10.2026</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- ====================================================================
-         7. TAB: PROFİL & YETKİ (Use Case: Profil Bilgileri Güncelleme)
+         7. TAB: PROFİL & YETKİ
          ==================================================================== -->
     <div id="appTab_profil" class="tab-content <?= $activeTab === 'profil' ? 'active' : '' ?>">
       <div class="page-breadcrumb">EKSPERTİZ UZMANI / ÇALIŞMA ALANI</div>
       <h1 class="page-heading">Profil ve Uzmanlık Bilgileri</h1>
-      <p class="page-subheading">Yetkili eksper kimliği, meslek odası sicil kaydı ve iletişim bilgilerini yönetin</p>
+      <p class="page-subheading">Yetkili eksper kimliği, meslek odası sicil kaydı ve iletişim bilgilerini yönetin.</p>
 
-      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px;">
-        <div class="panel-card">
+      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:20px;">
+        <div class="panel-card" style="margin-bottom:0;">
           <form method="POST">
             <input type="hidden" name="action" value="update_profile">
             <input type="hidden" name="user_id" value="<?= $expertId ?>">
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
               <div class="form-group">
                 <label class="form-label">Ad</label>
                 <input type="text" name="ad" class="form-control" value="<?= htmlspecialchars($currentUser['ad'] ?? 'Burak') ?>" required>
@@ -673,7 +649,7 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
               </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
               <div class="form-group">
                 <label class="form-label">E-Posta</label>
                 <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($currentUser['email'] ?? 'burak@ekspertiz.com') ?>" required>
@@ -686,36 +662,36 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
 
             <div class="form-group" style="margin-bottom:14px;">
               <label class="form-label">Bağlı Olduğu Ekspertiz Kuruluşu / Kurum Adı</label>
-              <input type="text" class="form-control" value="<?= htmlspecialchars($currentUser['ekspertizProfili']['kurumAdi'] ?? 'Marmara Ekspertiz A.Ş.') ?>" readonly style="background:#0a0d13; color:#8b949e;">
+              <input type="text" class="form-control" value="<?= htmlspecialchars($currentUser['ekspertizProfili']['kurumAdi'] ?? 'Marmara Ekspertiz A.Ş.') ?>" readonly style="background:#0D0B0A; color:#A39B8F;">
             </div>
 
             <div class="form-group" style="margin-bottom:14px;">
               <label class="form-label">Uzmanlık Alanı ve İhtisas Branşları</label>
-              <input type="text" class="form-control" value="<?= htmlspecialchars($currentUser['ekspertizProfili']['uzmanlikAlani'] ?? 'Klasik Halı, Saat ve Tablolar') ?>" readonly style="background:#0a0d13; color:#8b949e;">
+              <input type="text" class="form-control" value="<?= htmlspecialchars($currentUser['ekspertizProfili']['uzmanlikAlani'] ?? 'Klasik Halı, Saat ve Tablolar') ?>" readonly style="background:#0D0B0A; color:#A39B8F;">
             </div>
 
             <div class="form-group" style="margin-bottom:20px;">
               <label class="form-label">Parola Değiştir (İsteğe bağlı)</label>
-              <input type="password" name="password" class="form-control" placeholder="Mevcut parolayı korumak için boş bırakın">
+              <input type="password" name="yeni_sifre" class="form-control" placeholder="Mevcut parolayı korumak için boş bırakın">
             </div>
 
-            <button type="submit" class="btn-gold" style="padding:11px 24px;">
+            <button type="submit" class="btn-gold" style="padding:10px 24px;">
               Profil Bilgilerini Güncelle
             </button>
           </form>
         </div>
 
         <div>
-          <div class="panel-card" style="border-color:#c5a059;">
-            <div style="color:var(--gold-primary); font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">AKREDİTASYON VE LİSANS</div>
-            <h3 style="color:#fff; font-size:1.15rem; margin-bottom:12px;">Yetkili Eksper Belgesi</h3>
-            <div style="display:flex; flex-direction:column; gap:8px; font-size:0.83rem; color:#cbd5e1;">
-              <div>Akreditasyon No: <strong style="color:#d4af37;"><?= htmlspecialchars($currentUser['ekspertizProfili']['akreditasyonNo'] ?? 'EXP-2024-889') ?></strong></div>
+          <div class="panel-card" style="margin-bottom:0;">
+            <div style="color:#C8AA6E; font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:6px;">AKREDİTASYON VE LİSANS</div>
+            <h3 class="panel-title" style="margin-bottom:12px;">Yetkili Eksper Belgesi</h3>
+            <div style="display:flex; flex-direction:column; gap:8px; font-size:0.82rem; color:#EAE2D5; padding:12px 14px; background:#0D0B0A; border:1px solid rgba(200,170,110,0.14); border-radius:8px;">
+              <div>Akreditasyon No: <strong style="color:#E2C992;"><?= htmlspecialchars($currentUser['ekspertizProfili']['akreditasyonNo'] ?? 'EXP-2024-889') ?></strong></div>
               <div>Meslek Odası Sicil: <strong><?= htmlspecialchars($currentUser['ekspertizProfili']['meslekOdasiSicilNo'] ?? 'OD-IST-44910') ?></strong></div>
-              <div>Yetki Seviyesi: <span class="badge badge-success">TAM YETKİLİ & ONAYLI</span></div>
-              <div>Denetim İmzası: <strong>E-İmza & SHA-256 Mühürlü</strong></div>
+              <div>Yetki Seviyesi: <span class="badge badge-success">TAM YETKİLİ &amp; ONAYLI</span></div>
+              <div>Denetim İmzası: <strong style="color:#C8AA6E;">E-İmza &amp; SHA-256 Mühürlü</strong></div>
             </div>
-            <div style="margin-top:16px; border-top:1px dashed #2a3449; padding-top:12px; font-size:0.75rem; color:#848d9a; line-height:1.4;">
+            <div style="margin-top:14px; border-top:1px solid rgba(200,170,110,0.12); padding-top:12px; font-size:0.75rem; color:#A39B8F; line-height:1.5;">
               Raporlarınız 5070 Sayılı Elektronik İmza Kanunu kapsamında hukuki geçerliliğe ve müzayede platformu kurumsal garantisine sahiptir.
             </div>
           </div>
@@ -731,13 +707,13 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
      ==================================================================== -->
 
 <!-- 1. Hızlı Ekspertiz Raporu Modalı (Görev Kartından Açılır) -->
-<div id="expertReportModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
-  <div style="background:#141822; border:1px solid #c5a059; border-radius:12px; max-width:500px; width:92%; padding:26px; box-shadow:0 12px 40px rgba(0,0,0,0.9); position:relative;">
-    <button type="button" onclick="closeExpertModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.6rem; cursor:pointer; line-height:1;">&times;</button>
+<div id="expertReportModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(6,5,4,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#141210; border:1px solid rgba(200,170,110,0.38); border-radius:14px; max-width:500px; width:92%; padding:26px; box-shadow:0 20px 50px rgba(0,0,0,0.9); position:relative;">
+    <button type="button" onclick="closeExpertModal()" style="position:absolute; right:16px; top:14px; background:none; border:none; color:#A39B8F; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
     
-    <div style="color:#d4af37; font-size:0.72rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">MARTELLO EKSPERTİZ HEYETİ</div>
-    <div style="font-family:var(--font-serif); font-size:1.4rem; font-weight:600; color:#fff; margin-bottom:2px;">Ekspertiz Raporu • <span id="modalLotKodu" style="color:var(--gold-bright);">AUC-1042</span></div>
-    <div id="modalItemTitle" style="color:#8893a4; font-size:0.85rem; margin-bottom:16px;">1968 İsviçre Vintage Saat</div>
+    <div style="color:#C8AA6E; font-size:0.72rem; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; margin-bottom:4px;">MARTELLO EKSPERTİZ HEYETİ</div>
+    <div style="font-family:var(--font-serif); font-size:1.35rem; font-weight:600; color:#F5F0E6; margin-bottom:2px;">Ekspertiz Raporu · <span id="modalLotKodu" style="color:#E2C992;">AUC-1042</span></div>
+    <div id="modalItemTitle" style="color:#A39B8F; font-size:0.84rem; margin-bottom:16px;">1968 İsviçre Vintage Saat</div>
 
     <form method="POST">
       <input type="hidden" name="action" value="submit_appraisal">
@@ -745,14 +721,14 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
       <input type="hidden" name="request_id" id="modalReqId" value="202">
 
       <div class="form-group" style="margin-bottom:12px;">
-        <label class="form-label" style="font-size:0.82rem; color:#f0f3f6;">İnceleme Notları ve Bulgular *</label>
-        <textarea name="notes" id="modalNotes" class="form-control" rows="3" required style="border-radius:8px; background:#10131b; font-size:0.85rem;">Saat mekanizması ve kronograf fonksiyonları laboratuvar testlerinde incelenmiş, orijinal fabrikasyon kondisyonunda bulunmuştur.</textarea>
+        <label class="form-label">İnceleme Notları ve Bulgular *</label>
+        <textarea name="notes" id="modalNotes" class="form-control" rows="3" required>Saat mekanizması ve kronograf fonksiyonları laboratuvar testlerinde incelenmiş, orijinal fabrikasyon kondisyonunda bulunmuştur.</textarea>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
         <div class="form-group" style="margin:0;">
-          <label class="form-label" style="font-size:0.82rem; color:#f0f3f6;">Kondisyon</label>
-          <select name="kondisyon" class="form-control" style="border-radius:8px; background:#10131b;">
+          <label class="form-label">Kondisyon</label>
+          <select name="kondisyon" class="form-control">
             <option value="Mükemmel / Fabrikasyon Orijinal" selected>Mükemmel / Orijinal</option>
             <option value="Çok İyi">Çok İyi</option>
             <option value="İyi">İyi</option>
@@ -760,21 +736,21 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
           </select>
         </div>
         <div class="form-group" style="margin:0;">
-          <label class="form-label" style="font-size:0.82rem; color:#f0f3f6;">Özgünlük</label>
-          <select name="authenticity_note" class="form-control" style="border-radius:8px; background:#10131b;">
-            <option value="Orijinal - Ekspertiz Seçki Damgalı" selected>✓ Orijinal - Damgalı</option>
-            <option value="Şüpheli">? Şüpheli</option>
-            <option value="Taklit">✗ Taklit</option>
+          <label class="form-label">Özgünlük</label>
+          <select name="authenticity_note" class="form-control">
+            <option value="Orijinal - Ekspertiz Seçki Damgalı" selected>Orijinal - Damgalı</option>
+            <option value="Şüpheli">Şüpheli</option>
+            <option value="Taklit">Taklit</option>
           </select>
         </div>
       </div>
 
       <div class="form-group" style="margin-bottom:20px;">
-        <label class="form-label" style="font-size:0.82rem; color:#f0f3f6;">Tahmini Değer (TRY) *</label>
-        <input type="number" step="500" name="suggested_value" id="modalValue" class="form-control" value="65000" required style="border-radius:8px; background:#10131b; font-weight:700; color:#d4af37;">
+        <label class="form-label">Tahmini Değer (TRY) *</label>
+        <input type="number" step="500" name="suggested_value" id="modalValue" class="form-control" value="65000" required style="font-weight:700; color:#E2C992;">
       </div>
 
-      <button type="submit" class="btn-register-glow" style="width:100%; padding:12px; font-size:0.9rem; cursor:pointer;">
+      <button type="submit" class="btn-gold" style="width:100%; justify-content:center; padding:11px;">
         Raporu Mühürle ve Kaydet
       </button>
     </form>
@@ -782,65 +758,65 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
 </div>
 
 <!-- 2. Revize Talep Modalı -->
-<div id="revizeModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
-  <div style="background:#12161f; border:1px solid #c5a059; border-radius:12px; max-width:480px; width:90%; padding:24px; position:relative; box-shadow:0 12px 40px rgba(0,0,0,0.9);">
-    <button type="button" onclick="closeRevizeModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
-    <div style="color:var(--gold-primary); font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">EKSPERTİZ REVİZE TALEBİ</div>
-    <h3 style="color:#fff; font-size:1.25rem; margin-bottom:8px;">Satıcıdan Ek Belge / Fotoğraf İste</h3>
-    <p style="color:#8893a4; font-size:0.82rem; margin-bottom:14px;">Satıcıya ekspertiz için gereken ek görsel veya orijinallik belgesi talebini iletin.</p>
+<div id="revizeModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(6,5,4,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#141210; border:1px solid rgba(200,170,110,0.38); border-radius:14px; max-width:480px; width:90%; padding:24px; position:relative; box-shadow:0 20px 50px rgba(0,0,0,0.9);">
+    <button type="button" onclick="closeRevizeModal()" style="position:absolute; right:16px; top:14px; background:none; border:none; color:#A39B8F; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
+    <div style="color:#C8AA6E; font-size:0.72rem; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; margin-bottom:4px;">EKSPERTİZ REVİZE TALEBİ</div>
+    <h3 style="color:#F5F0E6; font-family:var(--font-serif); font-size:1.3rem; margin-bottom:8px;">Satıcıdan Ek Belge / Fotoğraf İste</h3>
+    <p style="color:#A39B8F; font-size:0.82rem; margin-bottom:14px;">Satıcıya ekspertiz için gereken ek görsel veya orijinallik belgesi talebini iletin.</p>
     <form method="POST">
       <input type="hidden" name="action" value="request_revision">
       <input type="hidden" name="expert_id" value="<?= $expertId ?>">
       <input type="hidden" id="revizeModalReqId" name="request_id" value="202">
       <div class="form-group" style="margin-bottom:16px;">
         <label class="form-label">Revize ve Ek Belge Gerekçesi</label>
-        <textarea name="reason" class="form-control" rows="3" required placeholder="Mekanizma seri numarasının ve bezel köşelerinin yüksek çözünürlüklü makro fotoğrafları gereklidir.">Mekanizma seri numarasının ve bezel köşelerinin yüksek çözünürlüklü makro fotoğrafları gereklidir.</textarea>
+        <textarea name="reason" class="form-control" rows="3" required>Mekanizma seri numarasının ve bezel köşelerinin yüksek çözünürlüklü makro fotoğrafları gereklidir.</textarea>
       </div>
-      <button type="submit" class="btn-gold" style="width:100%;">Talebi Satıcıya İlet</button>
+      <button type="submit" class="btn-gold" style="width:100%; justify-content:center;">Talebi Satıcıya İlet</button>
     </form>
   </div>
 </div>
 
 <!-- 3. Eskalasyon Modalı -->
-<div id="eskaleModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
-  <div style="background:#12161f; border:1px solid #ef4444; border-radius:12px; max-width:480px; width:90%; padding:24px; position:relative; box-shadow:0 12px 40px rgba(0,0,0,0.9);">
-    <button type="button" onclick="closeEskaleModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
-    <div style="color:#f87171; font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px;">HAKEM HEYETİ ESKALASYONU</div>
-    <h3 style="color:#fff; font-size:1.25rem; margin-bottom:8px;">Üst İhtisas Kuruluna Eskale Et</h3>
-    <p style="color:#8893a4; font-size:0.82rem; margin-bottom:14px;">Yüksek kıymetli veya ihtilaflı eseri baş eksper ve yönetim heyetine yönlendirin.</p>
+<div id="eskaleModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(6,5,4,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#141210; border:1px solid rgba(200,170,110,0.38); border-radius:14px; max-width:480px; width:90%; padding:24px; position:relative; box-shadow:0 20px 50px rgba(0,0,0,0.9);">
+    <button type="button" onclick="closeEskaleModal()" style="position:absolute; right:16px; top:14px; background:none; border:none; color:#A39B8F; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
+    <div style="color:#E2C992; font-size:0.72rem; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; margin-bottom:4px;">HAKEM HEYETİ ESKALASYONU</div>
+    <h3 style="color:#F5F0E6; font-family:var(--font-serif); font-size:1.3rem; margin-bottom:8px;">Üst İhtisas Kuruluna Eskale Et</h3>
+    <p style="color:#A39B8F; font-size:0.82rem; margin-bottom:14px;">Yüksek kıymetli veya ihtilaflı eseri baş eksper ve yönetim heyetine yönlendirin.</p>
     <form method="POST">
       <input type="hidden" name="action" value="escalate_appraisal">
       <input type="hidden" name="expert_id" value="<?= $expertId ?>">
       <input type="hidden" id="eskaleModalReqId" name="request_id" value="202">
       <div class="form-group" style="margin-bottom:16px;">
         <label class="form-label">Eskalasyon Gerekçesi</label>
-        <textarea name="reason" class="form-control" rows="3" required placeholder="Eser nadir müzeolojik nitelik taşımaktadır; rezerv fiyatın tespiti için üst kurul onayı gereklidir.">Eser nadir müzeolojik nitelik taşımaktadır; rezerv fiyatın tespiti için kurul onayı gereklidir.</textarea>
+        <textarea name="reason" class="form-control" rows="3" required>Eser nadir müzeolojik nitelik taşımaktadır; rezerv fiyatın tespiti için kurul onayı gereklidir.</textarea>
       </div>
-      <button type="submit" class="btn-gold" style="width:100%; background:#dc2626; border-color:#ef4444; color:#fff;">Üst Heyete Eskale Et</button>
+      <button type="submit" class="btn-gold" style="width:100%; justify-content:center;">Üst Heyete Eskale Et</button>
     </form>
   </div>
 </div>
 
-<!-- 4. Sertifika Görüntüleme Modalı -->
-<div id="viewCertificateModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
-  <div style="background:#141822; border:1px solid #c5a059; border-radius:12px; max-width:520px; width:92%; padding:28px; position:relative; box-shadow:0 12px 40px rgba(0,0,0,0.9);">
-    <button type="button" onclick="closeCertificateModal()" style="position:absolute; right:16px; top:16px; background:none; border:none; color:#888; font-size:1.6rem; cursor:pointer; line-height:1;">&times;</button>
+<!-- 4. Sertifika Görüntüleme Modalı (Yazdır / PDF İndir Destekli) -->
+<div id="viewCertificateModal" class="martello-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(6,5,4,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+  <div style="background:#141210; border:1px solid rgba(200,170,110,0.38); border-radius:14px; max-width:520px; width:92%; padding:26px; position:relative; box-shadow:0 20px 50px rgba(0,0,0,0.9);">
+    <button type="button" onclick="closeCertificateModal()" style="position:absolute; right:16px; top:14px; background:none; border:none; color:#A39B8F; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
     
     <div class="expert-white-card" style="margin:0; box-shadow:none;">
       <div class="expert-card-top">
-        <span class="expert-card-title">Resmi Ekspertiz Raporu & Sertifikası</span>
+        <span class="expert-card-title">Resmi Ekspertiz Raporu &amp; Sertifikası</span>
         <span class="expert-card-badge" id="certReportNo">REP-2026-112</span>
       </div>
       
       <div style="margin-bottom:12px;">
-        <div style="font-size:1.15rem; font-weight:700; color:#0c0f14;" id="certTitle">1968 İsviçre Vintage Saat</div>
-        <div style="font-size:0.8rem; color:#555;" id="certLot">Lot Kodu: AUC-1042</div>
+        <div style="font-size:1.15rem; font-weight:700; color:#F5F0E6;" id="certTitle">1968 İsviçre Vintage Saat</div>
+        <div style="font-size:0.8rem; color:#A39B8F;" id="certLot">Lot Kodu: AUC-1042</div>
       </div>
 
       <ul class="expert-card-list">
         <li>Mekanizma kalibresi, kadran ve kasa optik mikroskop altında incelenmiştir.</li>
         <li>Eser %100 dönem fabrikasyon orijinali olup revizyon görmemiştir.</li>
-        <li>Önerilen Piyasa Değeri: <strong id="certValue" style="color:#b45309;"><?= $formatPrice(65000) ?></strong></li>
+        <li>Önerilen Piyasa Değeri: <strong id="certValue" style="color:#E2C992;"><?= $formatPrice(65000) ?></strong></li>
         <li id="certNote">Orijinal - Ekspertiz Seçki Damgalı</li>
       </ul>
 
@@ -848,14 +824,19 @@ Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamış
         <div>
           <div class="expert-reviewer-title">Uzman İncelemesi:</div>
           <div class="expert-stars">★ ★ ★ ★ ★</div>
-          <div style="font-size:0.7rem; color:#666; margin-top:2px;">Eksper: Burak Şahin (EXP-2024-889)</div>
-          <div style="font-size:0.7rem; color:#888;" id="certDate">Onay: 12.10.2026</div>
+          <div style="font-size:0.72rem; color:#A39B8F; margin-top:2px;">Eksper: Burak Şahin (EXP-2024-889)</div>
+          <div style="font-size:0.72rem; color:#8C8478;" id="certDate">Onay: 12.10.2026</div>
         </div>
         
         <div class="expert-stamp-seal">
           EKSPERTİZ<br>SEÇKİ<br>★ ★ ★<br>DAMGALI
         </div>
       </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:10px;">
+      <button type="button" onclick="window.print()" class="btn-outline-gold btn-sm">Yazdır / PDF İndir</button>
+      <button type="button" onclick="closeCertificateModal()" class="btn-gold-pill" style="padding:7px 20px; font-size:0.8rem; cursor:pointer;">Kapat</button>
     </div>
   </div>
 </div>

@@ -70,17 +70,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         if (cfg.nextBadge) {
           cfg.nextBadge.textContent = "+30 sn";
-          cfg.nextBadge.style.color = "#3fb950";
+          cfg.nextBadge.style.color = "#E2C992";
         }
 
         if (cfg.warning) {
           cfg.warning.style.display = "flex";
-          cfg.warning.style.borderColor = "rgba(63, 185, 80, 0.4)";
-          cfg.warning.style.background = "rgba(63, 185, 80, 0.12)";
-          cfg.warning.style.color = "#3fb950";
+          cfg.warning.style.borderColor = "rgba(200, 170, 110, 0.36)";
+          cfg.warning.style.background = "rgba(200, 170, 110, 0.09)";
+          cfg.warning.style.color = "#EAE2D5";
           cfg.warning.innerHTML = `
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>İhale son 30 saniyede yeni pey gelmediği için başarıyla sonlandırılmıştır. Tutulan pey verme ve uzatma sayısı sıfırlanmıştır.</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C8AA6E" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>İhale son 30 saniyede yeni pey gelmediği için tamamlanmıştır. Uzatma sayacı sıfırlandı.</span>
           `;
         }
 
@@ -119,15 +119,15 @@ document.addEventListener("DOMContentLoaded", function () {
       // Son 30 saniye kuralı (Kademeli Anti-Sniping Eşiği)
       if (remaining <= 30) {
         if (box) box.classList.add("critical");
-        cfg.el.style.color = "#f87171";
+        cfg.el.style.color = "#E2C992";
         if (cfg.warning) {
           cfg.warning.style.display = "flex";
-          cfg.warning.style.borderColor = "rgba(239, 68, 68, 0.35)";
-          cfg.warning.style.background = "rgba(239, 68, 68, 0.12)";
-          cfg.warning.style.color = "#f87171";
+          cfg.warning.style.borderColor = "rgba(200, 170, 110, 0.38)";
+          cfg.warning.style.background = "rgba(200, 170, 110, 0.1)";
+          cfg.warning.style.color = "#EAE2D5";
           cfg.warning.innerHTML = `
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <span>Kritik Son 30 Saniye! Pey verilirse süre kademeli uzatılacaktır (İlk 2 basımda +30 sn, 3. ve sonrakilerde +10 sn). Pey gelmezse ihale sonlandırılacaktır.</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E2C992" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Son 30 Saniye: Pey verilirse süre kademeli uzatılır (+30 sn / +10 sn).</span>
           `;
         }
       } else {
@@ -217,4 +217,46 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.href = url.toString();
     });
   });
+
+  // Gerçek Zamanlı AJAX Pey & Lot Durumu Yoklama (Polling - Sayfa Yenilemesiz Güncelleme)
+  const stdLotInput = document.querySelector('#standardBidForm input[name="lot_id"]');
+  if (stdLotInput && document.getElementById("standardCountdown")) {
+    let lastKnownPrice = null;
+    const pollLotStatus = () => {
+      const lotId = stdLotInput.value;
+      const curParam = new URL(window.location.href).searchParams.get("currency") || "";
+      const pollUrl = "index.php?ajax=lot_status&lot_id=" + encodeURIComponent(lotId) + (curParam ? "&currency=" + encodeURIComponent(curParam) : "");
+      fetch(pollUrl, { headers: { "Accept": "application/json" } })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data || !data.ok) return;
+          pushBoundedEvent({ type: "AJAX_LOT_POLL", lotId: data.lotId, price: data.currentPriceRaw, ts: Date.now() });
+
+          const priceEl = document.querySelector("#buyerTab_canli .bid-price-large");
+          if (priceEl && data.currentPriceFormatted) {
+            priceEl.textContent = data.currentPriceFormatted;
+          }
+
+          if (lastKnownPrice !== null && data.currentPriceRaw > lastKnownPrice) {
+            const bidAmountEl = document.getElementById("bidAmountInput");
+            if (bidAmountEl && parseFloat(bidAmountEl.value || "0") < data.minNextBidRaw) {
+              bidAmountEl.value = data.minNextBidRaw;
+            }
+          }
+          lastKnownPrice = data.currentPriceRaw;
+
+          const extBadge = document.getElementById("standardExtCountBadge");
+          if (extBadge && typeof data.extCount !== "undefined") {
+            extBadge.textContent = String(data.extCount);
+          }
+          const nextExtBadge = document.getElementById("standardNextExtBadge");
+          if (nextExtBadge && typeof data.nextExtSec !== "undefined") {
+            nextExtBadge.textContent = "+" + String(data.nextExtSec) + " sn";
+          }
+        })
+        .catch(() => {});
+    };
+    const pollIntervalId = setInterval(pollLotStatus, 4000);
+    activeIntervalIds.push(pollIntervalId);
+  }
 });

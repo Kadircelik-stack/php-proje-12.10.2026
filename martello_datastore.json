@@ -1,968 +1,3123 @@
 {
-  "metadata": {
-    "storeName": "Martello_JSON_Data_Repository",
-    "stage": "2. Asama: JSON veri deposu, tasarim desenleri, is kurallari ve katmanli mimari",
-    "schemaVersion": "2.0.0",
-    "srsCompliance": "IEEE Std 830-1998 & ISO/IEC/IEEE 29148:2018",
-    "storageTier": "HOT_STORAGE_ACTIVE_1_YEAR",
-    "encryptionStandard": "AES-256-GCM",
-    "passwordHashAlgorithm": "Argon2id",
-    "lastSyncTimestamp": "2026-10-12T23:25:00+03:00"
-  },
-  "systemParameters": {
-    "paramId": "SYS-PRM-001",
-    "antiSniping": {
-      "thresholdSeconds": 30,
-      "uiWarningThresholdSeconds": 120,
-      "firstTwoExtensionsSeconds": 30,
-      "subsequentExtensionsSeconds": 10,
-      "maxTriggerLatencyMs": 50
+    "metadata": {
+        "storeName": "Martello_JSON_Data_Repository",
+        "stage": "2. Asama: JSON veri deposu, tasarim desenleri, is kurallari ve katmanli mimari",
+        "schemaVersion": "2.0.0",
+        "srsCompliance": "IEEE Std 830-1998 & ISO/IEC/IEEE 29148:2018",
+        "storageTier": "HOT_STORAGE_ACTIVE_1_YEAR",
+        "encryptionStandard": "AES-256-GCM",
+        "passwordHashAlgorithm": "Argon2id",
+        "lastSyncTimestamp": "2026-10-12T23:25:00+03:00"
     },
-    "concurrencyAndCapacity": {
-      "maxParticipantsPerAuction": 50000,
-      "lockTimeoutMs": 20,
-      "maxBidBroadcastLatencyMs": 300,
-      "maxTimerDriftMs": 150
-    },
-    "exchangeRates": {
-      "baseCurrency": "TRY",
-      "rates": {
-        "TRY": 1.0,
-        "USD": 34.5,
-        "EUR": 37.8
-      },
-      "lockInOriginalCurrencyRule": true,
-      "lastUpdated": "2026-10-12T20:00:00+03:00"
-    },
-    "paymentAndEscrow": {
-      "posApprovalTimeoutSeconds": 3,
-      "passwordResetMaxSeconds": 30,
-      "paymentReminderStagesHours": [
-        24,
+    "systemParameters": [
+        "SYS-PRM-001",
+        {
+            "thresholdSeconds": 30,
+            "uiWarningThresholdSeconds": 120,
+            "firstTwoExtensionsSeconds": 30,
+            "subsequentExtensionsSeconds": 10,
+            "maxTriggerLatencyMs": 50
+        },
+        {
+            "maxParticipantsPerAuction": 50000,
+            "lockTimeoutMs": 20,
+            "maxBidBroadcastLatencyMs": 300,
+            "maxTimerDriftMs": 150
+        },
+        {
+            "baseCurrency": "TRY",
+            "rates": {
+                "TRY": 1,
+                "USD": 34.5,
+                "EUR": 37.8
+            },
+            "lockInOriginalCurrencyRule": true,
+            "lastUpdated": "2026-10-12T20:00:00+03:00"
+        },
+        {
+            "posApprovalTimeoutSeconds": 3,
+            "passwordResetMaxSeconds": 30,
+            "paymentReminderStagesHours": [
+                24,
+                12,
+                6,
+                1
+            ],
+            "paymentDeadlineHours": 48,
+            "disputeWindowHoursAfterDelivery": 48
+        },
+        "v2026.4-KVKK-MESAFELI-SATIS",
+        1,
+        60,
+        1500,
+        8,
         12,
-        6,
-        1
-      ],
-      "paymentDeadlineHours": 48,
-      "disputeWindowHoursAfterDelivery": 48
-    },
-    "activeContractVersion": "v2026.4-KVKK-MESAFELI-SATIS",
-    "updatedByAdminId": 1
-  },
-  "users": [
-    {
-      "id": 1,
-      "rol": "ADMIN",
-      "ad": "Ahmet",
-      "soyad": "Yılmaz",
-      "email": "admin@muzayede.com",
-      "telefon": "+905551112233",
-      "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-      "durum": "AKTIF",
-      "anonimKod": "ADMIN-SYS",
-      "kycDogrulama": {
-        "dogrulandiMi": true,
-        "belgeSifreliRef": "AES256::KYC_ADM_001",
-        "onayTarihi": "2026-01-01T10:00:00+03:00"
-      },
-      "guvenlik": {
-        "donanimTabanliMfaAktif": true,
-        "fido2KeyId": "FIDO2-YUBIKEY-ADM-01"
-      },
-      "adminProfili": {
-        "yetkiDerecesi": 3,
-        "departman": "Platform Üst Yönetimi ve Denetim"
-      }
-    },
-    {
-      "id": 2,
-      "rol": "SATICI",
-      "ikincilRolYetkisi": "ALICI",
-      "ad": "Mehmet",
-      "soyad": "Kaya",
-      "email": "mehmet@antik.com",
-      "telefon": "+905322223344",
-      "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-      "durum": "AKTIF",
-      "anonimKod": "Anonim-S02",
-      "kycDogrulama": {
-        "dogrulandiMi": true,
-        "belgeSifreliRef": "AES256::KYC_DOC_USER_2_9981",
-        "onaylayanAdminId": 1,
-        "onayTarihi": "2026-09-15T14:20:00+03:00"
-      },
-      "sozlesmeOnaylari": [
+        "2026-11-18T16:17:50+00:00"
+    ],
+    "users": [
         {
-          "sozlesmeSurumu": "v2026.4-KVKK-MESAFELI-SATIS",
-          "onayZamani": "2026-09-15T14:00:12+03:00",
-          "ipAdresi": "176.88.42.19"
-        }
-      ],
-      "saticiProfili": {
-        "vergiNo": "1234567890",
-        "hesapNo": "TR100006200111223344556677",
-        "saticiPuan": 4.8,
-        "toplamSatisTutari": 142800.0,
-        "aktifIlanSayisi": 1,
-        "taslakSayisi": 0,
-        "toplamTeklifSayisi": 48
-      }
-    },
-    {
-      "id": 3,
-      "rol": "ALICI",
-      "ad": "Zeynep",
-      "soyad": "Demir",
-      "email": "zeynep@koleksiyon.com",
-      "telefon": "+905443334455",
-      "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-      "durum": "AKTIF",
-      "anonimKod": "yortunen...",
-      "kycDogrulama": {
-        "dogrulandiMi": true,
-        "belgeSifreliRef": "AES256::KYC_DOC_USER_3_4412",
-        "onaylayanAdminId": 1,
-        "onayTarihi": "2026-09-20T11:30:00+03:00"
-      },
-      "sozlesmeOnaylari": [
+            "id": 1,
+            "rol": "ADMIN",
+            "ad": "Ahmet",
+            "soyad": "Yılmaz",
+            "email": "admin@muzayede.com",
+            "telefon": "+905551112233",
+            "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            "durum": "AKTIF",
+            "anonimKod": "ADMIN-SYS",
+            "kycDogrulama": {
+                "dogrulandiMi": true,
+                "belgeSifreliRef": "AES256::KYC_ADM_001",
+                "onayTarihi": "2026-01-01T10:00:00+03:00"
+            },
+            "guvenlik": {
+                "donanimTabanliMfaAktif": true,
+                "fido2KeyId": "FIDO2-YUBIKEY-ADM-01"
+            },
+            "adminProfili": {
+                "yetkiDerecesi": 3,
+                "departman": "Platform Üst Yönetimi ve Denetim"
+            },
+            "yetkiSeviyesi": "GOLD",
+            "erisimIzinleri": [
+                "BID_LIVE",
+                "WALLET_ESCROW",
+                "ORDER_TRACK",
+                "VIP_SALON"
+            ],
+            "yetkiGuncellemeZamani": "2026-11-20T11:53:42+00:00",
+            "aliciProfili": {
+                "vipSeviyesi": "GOLD",
+                "dogrulandiMi": true
+            },
+            "kisitlamalar": {
+                "peyEngeli": true,
+                "vipEngeli": false,
+                "ilanEngeli": false,
+                "ekspertizEngeli": false,
+                "hesapAskisi": false
+            },
+            "avatar": "public/assets/images/avatar_ahmet.jpg"
+        },
         {
-          "sozlesmeSurumu": "v2026.4-KVKK-MESAFELI-SATIS",
-          "onayZamani": "2026-10-12T21:15:29+03:00",
-          "ipAdresi": "88.241.110.54"
+            "id": 2,
+            "rol": "SATICI",
+            "ikincilRolYetkisi": "ALICI",
+            "ad": "Mehmet",
+            "soyad": "Kaya",
+            "email": "mehmet@antik.com",
+            "telefon": "+905322223344",
+            "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            "durum": "AKTIF",
+            "anonimKod": "Anonim-S02",
+            "kycDogrulama": {
+                "dogrulandiMi": true,
+                "belgeSifreliRef": "AES256::KYC_DOC_USER_2_9981",
+                "onaylayanAdminId": 1,
+                "onayTarihi": "2026-09-15T14:20:00+03:00"
+            },
+            "sozlesmeOnaylari": [
+                {
+                    "sozlesmeSurumu": "v2026.4-KVKK-MESAFELI-SATIS",
+                    "onayZamani": "2026-09-15T14:00:12+03:00",
+                    "ipAdresi": "176.88.42.19"
+                }
+            ],
+            "saticiProfili": {
+                "vergiNo": "1234567890",
+                "hesapNo": "TR100006200111223344556677",
+                "saticiPuan": 4.8,
+                "toplamSatisTutari": 142800,
+                "aktifIlanSayisi": 1,
+                "taslakSayisi": 0,
+                "toplamTeklifSayisi": 48
+            },
+            "avatar": "public/assets/images/avatar_mehmet.jpg"
+        },
+        {
+            "id": 3,
+            "rol": "ALICI",
+            "ad": "Zeynep",
+            "soyad": "Demir",
+            "email": "zeynep@koleksiyon.com",
+            "telefon": "+90 532 100 20 30",
+            "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            "durum": "AKTIF",
+            "anonimKod": "yortunen...",
+            "kycDogrulama": {
+                "dogrulandiMi": true,
+                "belgeSifreliRef": "AES256::KYC_DOC_USER_3_4412",
+                "onaylayanAdminId": 1,
+                "onayTarihi": "2026-09-20T11:30:00+03:00"
+            },
+            "sozlesmeOnaylari": [
+                {
+                    "sozlesmeSurumu": "v2026.4-KVKK-MESAFELI-SATIS",
+                    "onayZamani": "2026-10-12T21:15:29+03:00",
+                    "ipAdresi": "88.241.110.54"
+                }
+            ],
+            "aliciProfili": {
+                "teklifLimiti": 10000000,
+                "dogrulandiMi": true,
+                "vipSeviyesi": "GOLD",
+                "toplamKazanilanLot": 3,
+                "kayitliKartTokenlari": [
+                    {
+                        "tokenId": "TOK_PCI_DSS_998271",
+                        "kartTipi": "KREDI_KARTI",
+                        "kartTipiEtiket": "Kredi Kartı",
+                        "kartAdi": "Garanti BBVA Miles&Smiles Platinum",
+                        "maskeliKartNo": "5400 **** **** 8821",
+                        "kartSahibi": "Emre Karahan",
+                        "sonKullanma": "09/28",
+                        "banka": "Garanti BBVA",
+                        "logo": "mastercard",
+                        "threeDSecureZorunlu": true,
+                        "varsayilan": true,
+                        "kayitTarihi": "2026-08-14"
+                    },
+                    {
+                        "tokenId": "TOK_PCI_DSS_331902",
+                        "kartTipi": "BANKA_KARTI",
+                        "kartTipiEtiket": "Banka Kartı (Debit)",
+                        "kartAdi": "İş Bankası Maximum Vadesiz Kart",
+                        "maskeliKartNo": "4543 **** **** 4490",
+                        "kartSahibi": "Emre Karahan",
+                        "sonKullanma": "11/27",
+                        "banka": "Türkiye İş Bankası",
+                        "logo": "visa",
+                        "threeDSecureZorunlu": true,
+                        "varsayilan": false,
+                        "kayitTarihi": "2026-09-20"
+                    },
+                    {
+                        "tokenId": "TOK_PCI_DSS_741038",
+                        "kartTipi": "BANKA_KARTI",
+                        "kartTipiEtiket": "Banka Kartı (Debit)",
+                        "kartAdi": "Türkiye İş Bankası Banka Kartı",
+                        "maskeliKartNo": "4543 **** **** 8888",
+                        "kartSahibi": "EMRE KARAHAN",
+                        "sonKullanma": "11/28",
+                        "banka": "Türkiye İş Bankası",
+                        "logo": "visa",
+                        "threeDSecureZorunlu": true,
+                        "varsayilan": false,
+                        "kayitTarihi": "2026-11-20"
+                    }
+                ]
+            },
+            "adres": "Levent Mah. Cömert Sok. No:12 Beşiktaş / İstanbul",
+            "faturaBilgisi": "Emre K. — Bireysel Fatura",
+            "avatar": "public/assets/images/avatar_zeynep.jpg"
+        },
+        {
+            "id": 4,
+            "rol": "EKSPERTIZ",
+            "ad": "Burak",
+            "soyad": "Şahin",
+            "email": "burak@ekspertiz.com",
+            "telefon": "+90 533 444 55 66",
+            "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            "durum": "AKTIF",
+            "anonimKod": "EXP-BURAK",
+            "ekspertizProfili": {
+                "kurumAdi": "Marmara Ekspertiz A.Ş.",
+                "uzmanlikAlani": "Klasik Halı, Saat ve Tablolar",
+                "akreditasyonNo": "EXP-2024-889",
+                "meslekOdasiSicilNo": "OD-IST-44910",
+                "yetkiDurumu": "ONAYLI",
+                "atanmisIsSayisi": 3,
+                "bekleyenIsSayisi": 3,
+                "tamamlananRaporSayisi": 1,
+                "itirazSayisi": 0
+            },
+            "kycDogrulama": {
+                "dogrulandiMi": true,
+                "onaylayan": "Sistem Yöneticisi",
+                "onayTarihi": "2026-11-18T13:49:44+00:00"
+            },
+            "adres": "İstanbul, Türkiye",
+            "faturaBilgisi": "Bireysel Fatura",
+            "avatar": "public/assets/images/avatar_burak.jpg"
+        },
+        {
+            "id": 5,
+            "rol": "CANLI_DESTEK",
+            "ad": "Elif",
+            "soyad": "Çelik",
+            "email": "elif@destek.com",
+            "telefon": "+905556667788",
+            "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            "durum": "AKTIF",
+            "anonimKod": "SUP-ELIF",
+            "canliDestekProfili": {
+                "departman": "Müzayede Operasyon",
+                "aktifOturumSayisi": 1,
+                "maksimumOturumKapasitesi": 5
+            },
+            "avatar": "public/assets/images/avatar_elif.jpg"
+        },
+        {
+            "id": 6,
+            "rol": "ALICI",
+            "ad": "Emre",
+            "soyad": "Karahan",
+            "email": "emre.k@koleksiyon.com",
+            "telefon": "+905327778899",
+            "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+            "durum": "AKTIF",
+            "anonimKod": "damror0ki",
+            "kycDogrulama": {
+                "dogrulandiMi": true,
+                "belgeSifreliRef": "AES256::KYC_DOC_USER_6_7731",
+                "onaylayanAdminId": 1,
+                "onayTarihi": "2026-09-25T16:10:00+03:00"
+            },
+            "aliciProfili": {
+                "teklifLimiti": 2500000,
+                "dogrulandiMi": true,
+                "vipSeviyesi": "PLATINUM",
+                "toplamKazanilanLot": 2,
+                "teklifEngeli": false
+            },
+            "yetkiSeviyesi": "PLATINUM",
+            "erisimIzinleri": [
+                "BID_LIVE",
+                "WALLET_ESCROW",
+                "ORDER_TRACK",
+                "VIP_SALON"
+            ],
+            "yetkiGuncellemeZamani": "2026-11-20T11:39:34+00:00",
+            "avatar": "public/assets/images/avatar_emre.jpg",
+            "kycOnayli": true
+        },
+        {
+            "ad": "Esra",
+            "soyad": "Yıldırım",
+            "email": "esrayildirim24680@gmail.com",
+            "telefon": "+905517116571",
+            "tcKimlikNo": "26363636325363636366",
+            "rol": "ALICI",
+            "durum": "AKTIF",
+            "sifreHash": "$2y$10$uVQ8x5Za.Nh07c9Ie.SQ1.C3wzd9LQZkEi4gTxuZQwk3/5KN6jsJm",
+            "anonimKod": "Anonim-AB9C",
+            "kycDogrulama": {
+                "dogrulandiMi": false,
+                "yuklenenBelge": "kimlik_belgesi_20261118.pdf",
+                "basvuruTarihi": "2026-11-18T13:44:02+00:00"
+            },
+            "aliciProfili": {
+                "vipSeviyesi": "GOLD",
+                "harcamaHacmi": 0,
+                "dogrulandiMi": true
+            },
+            "kayitTarihi": "2026-11-18T13:44:02+00:00",
+            "id": 7,
+            "yetkiSeviyesi": "GOLD",
+            "erisimIzinleri": [
+                "['BID_LIVE'",
+                "'VIP_SALON']"
+            ],
+            "yetkiGuncellemeZamani": "2026-11-20T11:30:44+00:00",
+            "avatar": "public/assets/images/avatar_esra.jpg",
+            "parolaHash": "$2y$10$bI0jFn0UtHjneRL3JO.N7.rb7svzyb13eif6o7/cRyGbfs0LxlZPm"
+        },
+        {
+            "ad": "Rümeysa Şevval",
+            "soyad": "Kandilci",
+            "email": "sewal.13kandilci@gmail.com",
+            "telefon": "+905517116571",
+            "tcKimlikNo": "414254251425",
+            "rol": "ALICI",
+            "durum": "AKTIF",
+            "sifreHash": "$2y$10$NPbMjqs1jC0EZy.z3CGrIOsJhicuCa2dHhrUQ9g5OlbEnCbDEDf2m",
+            "anonimKod": "Anonim-FF78",
+            "kycDogrulama": {
+                "dogrulandiMi": false,
+                "yuklenenBelge": "kimlik_belgesi_20261118.pdf",
+                "basvuruTarihi": "2026-11-18T13:45:55+00:00"
+            },
+            "aliciProfili": {
+                "vipSeviyesi": "STANDARD",
+                "harcamaHacmi": 0
+            },
+            "kayitTarihi": "2026-11-18T13:45:55+00:00",
+            "id": 8,
+            "avatar": "public/assets/images/avatar_sevval.jpg?v=4",
+            "parolaHash": "$2y$10$RuL/lHW2NgO0NPaffzfWju18tbfn2AhwfAMW/j5ruKOu1d2Nw8sce"
         }
-      ],
-      "aliciProfili": {
-        "teklifLimiti": 200000.0,
-        "dogrulandiMi": true,
-        "vipSeviyesi": "GOLD",
-        "toplamKazanilanLot": 3,
-        "kayitliKartTokenlari": [
-          {
-            "tokenId": "TOK_PCI_DSS_998271",
-            "maskeliKartNo": "5400 **** **** 8821",
-            "banka": "Garanti BBVA",
-            "threeDSecureZorunlu": true
-          }
+    ],
+    "wallets": [
+        {
+            "id": 101,
+            "kullaniciId": 1,
+            "paraBirimi": "TRY",
+            "bakiye": 0,
+            "blokeBakiye": 0,
+            "aktifBlokeler": [],
+            "sonGuncelleme": "2026-10-12T20:00:00+03:00"
+        },
+        {
+            "id": 102,
+            "kullaniciId": 2,
+            "paraBirimi": "TRY",
+            "bakiye": 154188,
+            "blokeBakiye": 0,
+            "aktifBlokeler": [],
+            "sonGuncelleme": "2026-11-20T19:52:11+00:00"
+        },
+        {
+            "id": 103,
+            "kullaniciId": 3,
+            "paraBirimi": "TRY",
+            "bakiye": 2760000,
+            "blokeBakiye": 16847400,
+            "aktifBlokeler": [
+                {
+                    "blokeId": "BLK-2026-9001",
+                    "lotId": 1001,
+                    "peyId": 9001,
+                    "tutar": 65000,
+                    "paraBirimi": "TRY",
+                    "durum": "EMANET_BLOKE_AKTIF",
+                    "olusturmaZamani": "2026-10-12T21:15:30+03:00"
+                }
+            ],
+            "sonGuncelleme": "2026-11-21T10:18:35+00:00"
+        },
+        {
+            "id": 104,
+            "kullaniciId": 4,
+            "paraBirimi": "TRY",
+            "bakiye": 12000,
+            "blokeBakiye": 0,
+            "aktifBlokeler": [],
+            "sonGuncelleme": "2026-10-12T18:00:00+03:00"
+        },
+        {
+            "id": 105,
+            "kullaniciId": 5,
+            "paraBirimi": "TRY",
+            "bakiye": 0,
+            "blokeBakiye": 0,
+            "aktifBlokeler": [],
+            "sonGuncelleme": "2026-10-12T18:00:00+03:00"
+        },
+        {
+            "id": 106,
+            "kullaniciId": 6,
+            "paraBirimi": "TRY",
+            "bakiye": 500000,
+            "blokeBakiye": 15000,
+            "aktifBlokeler": [],
+            "sonGuncelleme": "2026-11-20T20:32:20+00:00"
+        },
+        {
+            "kullaniciId": 7,
+            "paraBirimi": "TRY",
+            "bakiye": 0,
+            "blokeBakiye": 0,
+            "aktifBlokeler": [],
+            "sonGuncelleme": "2026-11-18T13:44:02+00:00",
+            "id": 107
+        },
+        {
+            "kullaniciId": 8,
+            "paraBirimi": "TRY",
+            "bakiye": 0,
+            "blokeBakiye": 0,
+            "aktifBlokeler": [],
+            "sonGuncelleme": "2026-11-18T13:45:55+00:00",
+            "id": 108
+        }
+    ],
+    "categories": [
+        {
+            "id": 11,
+            "ad": "Horoloji (Vintage Mekanik Saatler)",
+            "kod": "horoloji-saat",
+            "aciklama": "İsviçre ve Osmanlı dönemi mekanik kol ve cep saatleri",
+            "ustKategoriId": null,
+            "komisyonStratejisi": "ArtAntiqueCommission",
+            "komisyonOraniYuzde": 7.5,
+            "sabitEkspertizUcreti": 2000,
+            "zorunluNitelikSablonu": [
+                {
+                    "alanAdi": "markaModel",
+                    "etiket": "Marka ve Kalibre",
+                    "tip": "STRING",
+                    "zorunlu": true
+                },
+                {
+                    "alanAdi": "uretimYili",
+                    "etiket": "Üretim Yılı",
+                    "tip": "INTEGER",
+                    "zorunlu": true
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "ad": "Antika & Sanat",
+            "kod": "antika-sanat",
+            "aciklama": "Klasik tablolar, İznik seramikleri, vintage kameralar ve sanat eserleri",
+            "ustKategoriId": null,
+            "komisyonStratejisi": "ArtAntiqueCommission",
+            "komisyonOraniYuzde": 8,
+            "sabitEkspertizUcreti": 1500,
+            "zorunluNitelikSablonu": [
+                {
+                    "alanAdi": "donemYil",
+                    "etiket": "Dönem / Yıl",
+                    "tip": "STRING",
+                    "zorunlu": true
+                },
+                {
+                    "alanAdi": "olculer",
+                    "etiket": "Ebat / Ölçüler",
+                    "tip": "STRING",
+                    "zorunlu": true
+                },
+                {
+                    "alanAdi": "materyal",
+                    "etiket": "Materyal / Teknik",
+                    "tip": "STRING",
+                    "zorunlu": true
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "ad": "Osmanlı Dönemi Koleksiyonları",
+            "kod": "osmanli-koleksiyon",
+            "aciklama": "Osmanlı saray işi halılar, usturlaplar, nadir ciltli eserler ve fermanlar",
+            "ustKategoriId": null,
+            "komisyonStratejisi": "ArtAntiqueCommission",
+            "komisyonOraniYuzde": 8,
+            "sabitEkspertizUcreti": 1750,
+            "zorunluNitelikSablonu": [
+                {
+                    "alanAdi": "donemYil",
+                    "etiket": "Dönem / Yüzyıl",
+                    "tip": "STRING",
+                    "zorunlu": true
+                },
+                {
+                    "alanAdi": "provenans",
+                    "etiket": "Provenans",
+                    "tip": "STRING",
+                    "zorunlu": true
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "ad": "Filateli",
+            "kod": "filateli",
+            "aciklama": "Osmanlı Duloz ve Cumhuriyet dönemi nadir posta pulları ve ilk gün zarfları",
+            "ustKategoriId": null,
+            "komisyonStratejisi": "ArtAntiqueCommission",
+            "komisyonOraniYuzde": 6,
+            "sabitEkspertizUcreti": 750,
+            "zorunluNitelikSablonu": [
+                {
+                    "alanAdi": "baskiYili",
+                    "etiket": "Baskı Yılı",
+                    "tip": "STRING",
+                    "zorunlu": true
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "ad": "Nümismatik",
+            "kod": "numismatik",
+            "aciklama": "Osmanlı ve antik dönem altın/gümüş sikkeler ve madalyonlar",
+            "ustKategoriId": null,
+            "komisyonStratejisi": "ArtAntiqueCommission",
+            "komisyonOraniYuzde": 6.5,
+            "sabitEkspertizUcreti": 1000,
+            "zorunluNitelikSablonu": [
+                {
+                    "alanAdi": "darphane",
+                    "etiket": "Darphane ve Kondisyon",
+                    "tip": "STRING",
+                    "zorunlu": true
+                }
+            ]
+        }
+    ],
+    "products": [
+        {
+            "id": 501,
+            "saticiId": 2,
+            "kategoriId": 14,
+            "marka": "Hereke Saray Atölyesi",
+            "baslik": "1920'ler Osmanlı İpek Halı Levhası",
+            "aciklama": "El dokuma kök boya ipek ve yün karışımı, orijinal dönem yaldızlı çerçevesinde nadir Osmanlı saray işi halı levhası.",
+            "fizikselKondisyon": "Kusursuz / Orijinal Çerçeveli",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_ottoman_carpet.jpg"
+            ],
+            "dinamikNitelikler": {
+                "donemYil": "1920'ler",
+                "olculer": "95x140 cm",
+                "materyal": "Kök Boya İpek"
+            }
+        },
+        {
+            "id": 502,
+            "saticiId": 2,
+            "kategoriId": 11,
+            "marka": "Geneva Horology",
+            "baslik": "1968 İsviçre Vintage Mekanik Kronograf",
+            "aciklama": "1968 İsviçre üretimi 18 ayar altın kasalı mekanik kronograf kalibre, orijinal krem kadran ve timsah derisi kayışıyla.",
+            "fizikselKondisyon": "Çok İyi / Mekanizma Bakımlı",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_swiss_watch_1968.jpg"
+            ],
+            "dinamikNitelikler": {
+                "markaModel": "Swiss Chronograph Cal. 861",
+                "uretimYili": 1968
+            }
+        },
+        {
+            "id": 503,
+            "saticiId": 2,
+            "kategoriId": 10,
+            "marka": "İznik Atölyesi",
+            "baslik": "19. Yüzyıl İznik Kobalt Seramik Vazo",
+            "aciklama": "19. yüzyıl sonu el boyaması sır altı kobalt mavi lale ve rumi motifli koleksiyonluk seramik vazo.",
+            "fizikselKondisyon": "Kusursuz",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_ceramic_vase.jpg"
+            ],
+            "dinamikNitelikler": {
+                "donemYil": "1890",
+                "olculer": "42 cm",
+                "materyal": "Sır Altı Seramik"
+            }
+        },
+        {
+            "id": 504,
+            "saticiId": 2,
+            "kategoriId": 14,
+            "marka": "Matbaa-i Amire",
+            "baslik": "1885 Nadir Deri Ciltli Tarih & Atlas Seçkisi",
+            "aciklama": "İlk baskı altın varak sırt işlemeli, taşbaskı gravürlü 3 ciltlik tarih ve coğrafya atlası.",
+            "fizikselKondisyon": "Orijinal Deri Ciltli",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_rare_books.jpg"
+            ],
+            "dinamikNitelikler": {
+                "baskiYili": "1885",
+                "donemYil": "1885"
+            }
+        },
+        {
+            "id": 505,
+            "saticiId": 2,
+            "kategoriId": 10,
+            "marka": "Wetzlar Optik",
+            "baslik": "1958 Alman Telemetreli Koleksiyon Analog Kamera",
+            "aciklama": "Alman üretimi 35mm krom gövdeli mekanik telemetreli analog fotoğraf makinesi ve 50mm f/2 objektif.",
+            "fizikselKondisyon": "Koleksiyon Kondisyonu",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_vintage_camera.jpg"
+            ],
+            "dinamikNitelikler": {
+                "donemYil": "1958",
+                "olculer": "13x8 cm",
+                "materyal": "Krom / Siyah Deri"
+            }
+        },
+        {
+            "id": 506,
+            "saticiId": 2,
+            "kategoriId": 10,
+            "marka": "İstanbul Ekolü",
+            "baslik": "19. Yüzyıl Boğaziçi Günbatımı Yağlıboya Tablo",
+            "aciklama": "Orijinal altın varak ahşap çerçevesinde tuval üzerine yağlıboya klasik Boğaziçi ve yelkenli kompozisyonu.",
+            "fizikselKondisyon": "Müze Kondisyonu",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_oil_painting.jpg"
+            ],
+            "dinamikNitelikler": {
+                "donemYil": "1888",
+                "olculer": "70x95 cm",
+                "materyal": "Tuval Üzerine Yağlıboya"
+            }
+        },
+        {
+            "id": 507,
+            "saticiId": 2,
+            "kategoriId": 13,
+            "marka": "Darphane-i Amire",
+            "baslik": "1876 Sultan II. Abdülhamid 22 Ayar Altın Sikke",
+            "aciklama": "Hicri 1293 Kostantiniyye darp, tuğralı yüksek dereceli koleksiyonluk Osmanlı imparatorluk altın sikkesi.",
+            "fizikselKondisyon": "ÇİL (MS-64)",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_ottoman_gold_coin.jpg"
+            ],
+            "dinamikNitelikler": {
+                "darphane": "Kostantiniyye / 1293"
+            }
+        },
+        {
+            "id": 508,
+            "saticiId": 2,
+            "kategoriId": 12,
+            "marka": "Osmanlı Posta Nezareti",
+            "baslik": "1865 Osmanlı Duloz Nadir Pul Seçkisi (4 Parça)",
+            "aciklama": "Orijinal zamklı ve damgasız 19. yüzyıl Duloz serisi 4 adet gravür baskı Osmanlı posta pulu, arşiv albümünde.",
+            "fizikselKondisyon": "MNH / Arşiv Kondisyonu",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_ottoman_stamps.jpg"
+            ],
+            "dinamikNitelikler": {
+                "baskiYili": "1865"
+            }
+        },
+        {
+            "id": 509,
+            "saticiId": 2,
+            "kategoriId": 14,
+            "marka": "Saray Rasathanesi",
+            "baslik": "16. Yüzyıl Osmanlı Saray Ustası Pirinç Usturlap",
+            "aciklama": "Yaldızlı gravürlü pirinç gövdeli, 12 burç ve kubbe koordinatlı müze statüsünde saray usturlabı.",
+            "fizikselKondisyon": "Müze Kondisyonu",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/astrolabe_clean.jpg"
+            ],
+            "dinamikNitelikler": {
+                "donemYil": "16. Yüzyıl",
+                "provenans": "Özel Koleksiyon"
+            }
+        },
+        {
+            "id": 510,
+            "saticiId": 2,
+            "kategoriId": 11,
+            "marka": "Prior London / İstanbul",
+            "baslik": "1892 18 Ayar Altın Osmanlı Cep Saati",
+            "aciklama": "Mine porselen kadranlı, Romen rakamlı, gravürlü avcı kasa 18 ayar altın mekanik cep saati ve zinciri.",
+            "fizikselKondisyon": "Koleksiyon Kondisyonu",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_pocket_watch_gold.jpg"
+            ],
+            "gorselUrl": "public/assets/images/lot_pocket_watch_gold.jpg",
+            "dinamikNitelikler": {
+                "markaModel": "18k Hunter Case",
+                "uretimYili": 1892
+            }
+        },
+        {
+            "id": 511,
+            "saticiId": 2,
+            "kategoriId": 11,
+            "marka": "Geneva Dive Works",
+            "baslik": "1972 İsviçre Otomatik Çelik Dalgıç Saati",
+            "aciklama": "Orijinal trityum indisli, mat siyah bezelli, paslanmaz çelik bilezikli 1972 üretim mekanik dalgıç saati.",
+            "fizikselKondisyon": "Çok İyi / Patinalı",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_diver_watch_1972.jpg"
+            ],
+            "gorselUrl": "public/assets/images/lot_diver_watch_1972.jpg",
+            "dinamikNitelikler": {
+                "markaModel": "Cal. 1570 Automatic",
+                "uretimYili": 1972
+            }
+        },
+        {
+            "id": 512,
+            "saticiId": 2,
+            "kategoriId": 10,
+            "marka": "Paris Döküm Atölyesi",
+            "baslik": "19. Yüzyıl Fransız Bronz Şahlanan At Heykeli",
+            "aciklama": "Siyah Belçika mermeri kaide üzerinde koyu patinalı, imzalı 19. yüzyıl klasik dönem bronz heykel.",
+            "fizikselKondisyon": "Kusursuz",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_bronze_sculpture.jpg"
+            ],
+            "gorselUrl": "public/assets/images/lot_bronze_sculpture.jpg",
+            "dinamikNitelikler": {
+                "donemYil": "1875",
+                "olculer": "48x36 cm",
+                "materyal": "Bronz & Mermer"
+            }
+        },
+        {
+            "id": 513,
+            "saticiId": 2,
+            "kategoriId": 14,
+            "marka": "İstanbul Hattat Ekolü",
+            "baslik": "19. Yüzyıl Altın Tezhipli Osmanlı Hat Levhası",
+            "aciklama": "Lapis mavisi ve altın varak bitkisel tezhip bordürlü, dönem yaldızlı ahşap çerçevesinde nadir hat levhası.",
+            "fizikselKondisyon": "Müze Kondisyonu",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_ottoman_calligraphy.jpg"
+            ],
+            "gorselUrl": "public/assets/images/lot_ottoman_calligraphy.jpg",
+            "dinamikNitelikler": {
+                "donemYil": "1860",
+                "provenans": "Özel Koleksiyon"
+            }
+        },
+        {
+            "id": 514,
+            "saticiId": 2,
+            "kategoriId": 14,
+            "marka": "Saray Silahhane",
+            "baslik": "18. Yüzyıl Gümüş & Yakut İşlemeli Osmanlı Hançeri",
+            "aciklama": "Telkari gümüş kınlı, kaboşon yakut kakmalı ve altın savat işlemeli tören tipi Osmanlı saray hançeri.",
+            "fizikselKondisyon": "Kusursuz",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_ottoman_dagger.jpg"
+            ],
+            "gorselUrl": "public/assets/images/lot_ottoman_dagger.jpg",
+            "dinamikNitelikler": {
+                "donemYil": "1780",
+                "provenans": "Anadolu Koleksiyonu"
+            }
+        },
+        {
+            "id": 515,
+            "saticiId": 2,
+            "kategoriId": 12,
+            "marka": "Osmanlı Posta İdaresi",
+            "baslik": "1890 Osmanlı & Erken Dönem Filateli Seçkisi",
+            "aciklama": "Arşiv koruma kılıflarında 4 parçalık nadir 19. yüzyıl gravür baskı posta pulları ve koleksiyon sayfası.",
+            "fizikselKondisyon": "Arşiv Kondisyonu",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/lot_ottoman_stamps_alt.jpg"
+            ],
+            "gorselUrl": "public/assets/images/lot_ottoman_stamps_alt.jpg",
+            "dinamikNitelikler": {
+                "baskiYili": "1890"
+            }
+        },
+        {
+            "id": 516,
+            "saticiId": 2,
+            "kategoriId": 13,
+            "marka": "Anadolu Darphanesi",
+            "baslik": "Antik Dönem Altın & Gümüş Koleksiyon Sikke Seti",
+            "aciklama": "Yüksek kondisyonlu nadir antik ve klasik dönem altın/gümüş koleksiyon sikke lotu, sertifikalı.",
+            "fizikselKondisyon": "EF / AU",
+            "orijinallikDurumu": "Onaylı",
+            "gorseller": [
+                "public/assets/images/cat_numismatik.jpg"
+            ],
+            "gorselUrl": "public/assets/images/cat_numismatik.jpg",
+            "dinamikNitelikler": {
+                "darphane": "Klasik Darphane"
+            }
+        }
+    ],
+    "appraisalRequests": [
+        {
+            "id": 201,
+            "talepNo": "EXP-REQ-440",
+            "lotKodu": "AUC-1001",
+            "urunId": 501,
+            "atananEksperId": 4,
+            "durum": "ONAYLANDI",
+            "eskalasyon": false,
+            "not": "Heyet incelemesi tamamlandı: Eser özgün ve müze kondisyonundadır."
+        },
+        {
+            "id": 202,
+            "talepNo": "EXP-REQ-441",
+            "lotKodu": "AUC-1042",
+            "urunId": 502,
+            "atananEksperId": 4,
+            "durum": "REVIZE_ISTENDI",
+            "eskalasyon": false,
+            "not": "Saat kurma kolu ve çark dişlilerinin yüksek çözünürlüklü makro görseli talep edildi."
+        },
+        {
+            "id": 203,
+            "talepNo": "EXP-REQ-442",
+            "lotKodu": "AUC-1043",
+            "urunId": 505,
+            "atananEksperId": 4,
+            "durum": "REVIZE_ISTENDI",
+            "eskalasyon": false,
+            "not": "Uzman revize talep etti: Kamera deklanşör yayının detaylı makro fotoğrafı gereklidir.",
+            "revizeNedeni": "Kamera deklanşör yayının detaylı makro fotoğrafı gereklidir."
+        },
+        {
+            "id": 204,
+            "talepNo": "EXP-REQ-443",
+            "lotKodu": "AUC-1044",
+            "urunId": 506,
+            "atananEksperId": 4,
+            "durum": "ESKALE_EDILDI",
+            "eskalasyon": true,
+            "not": "Yüksek ihtisas heyetine eskale edildi: Nadir baskı niteliği dolayısıyla üst kurula yönlendirildi.",
+            "eskalasyonNedeni": "Nadir baskı niteliği dolayısıyla üst kurula yönlendirildi."
+        },
+        {
+            "talepNo": "EXP-REQ-661",
+            "lotKodu": "AUC-1575",
+            "urunId": 507,
+            "atananEksperId": 4,
+            "durum": "BEKLEYEN",
+            "eskalasyon": false,
+            "not": "Yeni ürün eklendi, ekspertiz incelemesi bekliyor.",
+            "id": 205
+        }
+    ],
+    "appraisalReports": [
+        {
+            "id": 301,
+            "raporNo": "REP-2026-112",
+            "talepId": 201,
+            "urunId": 501,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 80000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Saat ve dokuma mekanizması kusursuz kondisyonda çalışmaktadır.",
+                "Kadran, çerçeve ve kök boya pigmentleri %100 dönem orijinalidir.",
+                "Bağımsız akredite uzman heyet tarafından e-imzalı QR kod ile onaylanmıştır."
+            ],
+            "denetimDurumu": "KABUL_EDILDI",
+            "raporTarihi": "2026-10-09T15:30:00+03:00",
+            "adminOnayZamani": "2026-11-20T17:29:26+00:00",
+            "adminNotu": "Heyet incelemesi tamamlandı: Eser özgün ve müze kondisyonundadır.",
+            "heyetIncelemeZamani": "2026-11-20T17:29:26+00:00",
+            "heyetUyesi": "Admin & Uzman Heyet Kurulu",
+            "heyetKararNotu": "Heyet incelemesi tamamlandı: Eser özgün ve müze kondisyonundadır."
+        },
+        {
+            "raporNo": "REP-2026-412",
+            "talepId": 202,
+            "urunId": 502,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 65000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.",
+                "Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.",
+                "Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır."
+            ],
+            "denetimDurumu": "REVIZE_ISTENDI",
+            "raporTarihi": "2026-11-18T13:51:55+00:00",
+            "id": 302,
+            "adminOnayZamani": "2026-11-20T17:29:28+00:00",
+            "heyetIncelemeZamani": "2026-11-20T17:29:28+00:00",
+            "heyetUyesi": "Admin & Uzman Heyet Kurulu",
+            "adminNotu": "Saat kurma kolu ve çark dişlilerinin yüksek çözünürlüklü makro görseli talep edildi.",
+            "heyetKararNotu": "Saat kurma kolu ve çark dişlilerinin yüksek çözünürlüklü makro görseli talep edildi."
+        },
+        {
+            "raporNo": "REP-2026-480",
+            "talepId": 202,
+            "urunId": 502,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 65000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.",
+                "Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.",
+                "Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır."
+            ],
+            "denetimDurumu": "ONAYLANDI",
+            "raporTarihi": "2026-11-18T13:52:06+00:00",
+            "id": 303
+        },
+        {
+            "raporNo": "REP-2026-666",
+            "talepId": 202,
+            "urunId": 502,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 65000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.",
+                "Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.",
+                "Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır."
+            ],
+            "denetimDurumu": "ONAYLANDI",
+            "raporTarihi": "2026-11-18T13:52:10+00:00",
+            "id": 304
+        },
+        {
+            "raporNo": "REP-2026-763",
+            "talepId": 202,
+            "urunId": 502,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 65000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.",
+                "Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.",
+                "Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır."
+            ],
+            "denetimDurumu": "ONAYLANDI",
+            "raporTarihi": "2026-11-18T13:52:28+00:00",
+            "id": 305
+        },
+        {
+            "raporNo": "REP-2026-540",
+            "talepId": 203,
+            "urunId": 505,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 65000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.",
+                "Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.",
+                "Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır."
+            ],
+            "denetimDurumu": "ONAYLANDI",
+            "raporTarihi": "2026-11-18T13:52:30+00:00",
+            "id": 306
+        },
+        {
+            "raporNo": "REP-2026-386",
+            "talepId": 204,
+            "urunId": 506,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 65000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Kasa, kadran ve mekanik bileşenler orijinal fabrikasyon kondisyonundadır.",
+                "Mikroskop altında kök boya ve malzeme testleri doğrulanmıştır.",
+                "Eser üzerinde sonradan yapılan restorasyon veya müdahale izine rastlanmamıştır."
+            ],
+            "denetimDurumu": "ONAYLANDI",
+            "raporTarihi": "2026-11-18T13:52:34+00:00",
+            "id": 307
+        },
+        {
+            "raporNo": "REP-2026-690",
+            "talepId": 202,
+            "urunId": 502,
+            "eksperId": 4,
+            "onerilenPiyasaDegeri": 68000,
+            "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
+            "maddeler": [
+                "Optik testler ve mekanizma kalibrasyonu tamamlandı.",
+                "Parçalar orijinaldir."
+            ],
+            "denetimDurumu": "ONAYLANDI",
+            "raporTarihi": "2026-11-18T21:35:27+00:00",
+            "id": 308
+        }
+    ],
+    "listings": [
+        {
+            "id": 601,
+            "ilanKodu": "ILN-2026-99",
+            "urunId": 501,
+            "saticiId": 2,
+            "ekspertizRaporId": 301,
+            "durum": "EKSPERTIZ_ONAYLI"
+        },
+        {
+            "id": 602,
+            "ilanKodu": "ILN-2026-100",
+            "urunId": 502,
+            "saticiId": 2,
+            "ekspertizRaporId": 308,
+            "durum": "REVIZYON_BEKLIYOR"
+        },
+        {
+            "id": 603,
+            "ilanKodu": "ILN-2026-101",
+            "urunId": 505,
+            "saticiId": 2,
+            "ekspertizRaporId": 306,
+            "durum": "YAYINDA"
+        },
+        {
+            "ilanKodu": "ILN-2026-831",
+            "urunId": 507,
+            "saticiId": 2,
+            "ekspertizRaporId": null,
+            "durum": "IPTAL_EDILDI",
+            "id": 604,
+            "iptalSebebi": "Eser Hasarı / Nakliye Sırasında Kondisyon Bozulması",
+            "iptalZamani": "2026-11-20T17:00:28+00:00",
+            "iptalEdenAdminId": 1
+        }
+    ],
+    "auctions": [
+        {
+            "id": 801,
+            "baslik": "Güz Klasik Sanat ve Horoloji Müzayedesi",
+            "tur": "CANLI",
+            "durum": "CANLI",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-11-25T20:00:00+00:00",
+            "bitisZamani": "2026-11-28T23:00:00+03:00",
+            "katilimciSayisi": 1420,
+            "maksimumKatilimci": 50000,
+            "duraklatilmaZamani": "2026-11-20T12:56:26+00:00",
+            "manuelBaslatildiMi": true,
+            "gerceklesenBaslangic": "2026-11-20T12:56:32+00:00",
+            "lotSayisi": 12,
+            "tahminiHacim": 2450000,
+            "aciklama": "1968 İsviçre vintage kronografları, mekanik saatler ve nadir koleksiyon mobilyaları.",
+            "gorselUrl": "public/assets/images/lot_swiss_watch_1968.jpg",
+            "kategori": "Horoloji & Klasik Eserler"
+        },
+        {
+            "id": 802,
+            "baslik": "Özel Müşteriler VIP Nadir Eserler ve Başyapıtlar Salonu",
+            "tur": "VIP",
+            "durum": "AKTIF",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-10-15T21:00:00+03:00",
+            "bitisZamani": "2026-11-29T23:59:00+03:00",
+            "katilimciSayisi": 48,
+            "maksimumKatilimci": 100,
+            "girisKosulu": "GOLD, PLATINUM veya DIAMOND VIP Statüsü",
+            "lotSayisi": 8,
+            "tahminiHacim": 18500000,
+            "aciklama": "16. Yüzyıl Osmanlı pirinç usturlapları, Fabergé imparatorluk emaye saatleri ve Helenistik altın kolyeler.",
+            "gorselUrl": "public/assets/images/astrolabe_clean.jpg",
+            "kategori": "Özel Koleksiyon / Salon d’Honneur"
+        },
+        {
+            "id": 803,
+            "baslik": "Osmanlı Saray Sanatları ve Efemera Koleksiyonu",
+            "tur": "KLASIK",
+            "durum": "PLANLANDI",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-11-28T19:30:00+03:00",
+            "bitisZamani": "2026-11-28T22:30:00+03:00",
+            "katilimciSayisi": 312,
+            "maksimumKatilimci": 5000,
+            "lotSayisi": 42,
+            "tahminiHacim": 4800000,
+            "aciklama": "Saray hattatları beratları, tuğralı gümüş evraklar, fermanlar ve 19. yüzyıl Osmanlı mühürleri.",
+            "gorselUrl": "public/assets/images/lot_ottoman_carpet.jpg",
+            "kategori": "Osmanlı Eserleri & Efemera"
+        },
+        {
+            "id": 804,
+            "baslik": "Kış Nümismatik ve Antik Sikkeler Özel Müzayedesi",
+            "tur": "TEMATIK",
+            "durum": "PLANLANDI",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-12-05T20:00:00+03:00",
+            "bitisZamani": "2026-12-05T23:00:00+03:00",
+            "katilimciSayisi": 185,
+            "maksimumKatilimci": 3000,
+            "lotSayisi": 65,
+            "tahminiHacim": 3200000,
+            "aciklama": "Lidya elektrum staterlerinden Roma ve Bizans altın soliduslarına uzanan müze kalitesinde sikke seçkisi.",
+            "gorselUrl": "public/assets/images/lot_ottoman_gold_coin.jpg",
+            "kategori": "Nümismatik & Antik Sikkeler"
+        },
+        {
+            "id": 805,
+            "baslik": "Modern & Çağdaş Türk Sanatı Akşam Müzayedesi",
+            "tur": "CANLI",
+            "durum": "PLANLANDI",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-12-12T19:00:00+03:00",
+            "bitisZamani": "2026-12-12T22:00:00+03:00",
+            "katilimciSayisi": 540,
+            "maksimumKatilimci": 10000,
+            "lotSayisi": 38,
+            "tahminiHacim": 14500000,
+            "aciklama": "20. yüzyıl Türk resim sanatının usta fırçaları, tuval üzeri yağlıboyalar ve bronz heykeller.",
+            "gorselUrl": "public/assets/images/lot_oil_painting.jpg",
+            "kategori": "Çağdaş Sanat & Heykel"
+        },
+        {
+            "id": 798,
+            "baslik": "Bahar Nadir Eserler ve Hat Sanatı Müzayedesi",
+            "tur": "KLASIK",
+            "durum": "SONLANDI",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-05-18T19:00:00+03:00",
+            "bitisZamani": "2026-05-18T22:30:00+03:00",
+            "kapanisZamani": "2026-05-18T22:30:00+03:00",
+            "katilimciSayisi": 340,
+            "maksimumKatilimci": 2000,
+            "lotSayisi": 48,
+            "satilanLotSayisi": 46,
+            "basariOrani": 95.8,
+            "tahminiHacim": 18450000,
+            "toplamSatisTutari": 18450000,
+            "rekorLot": "18. Yüzyıl Hilye-i Şerif Hat Levhası",
+            "aciklama": "Saray hattatları beratları, tuğralı gümüş evraklar, fermanlar ve 19. yüzyıl Osmanlı mühürleri müzayedesi başarıyla tamamlandı.",
+            "gorselUrl": "public/assets/images/lot_ottoman_calligraphy.jpg",
+            "kategori": "Osmanlı Eserleri & Hat Sanatı",
+            "kod": "AUC-2026-798",
+            "tamamlanmaTarihi": "18 Mayıs 2026",
+            "toplamLotSayisi": 48
+        },
+        {
+            "id": 799,
+            "baslik": "Yaz Klasik Horoloji ve Lüks Saatler Müzayedesi",
+            "tur": "CANLI",
+            "durum": "SONLANDI",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-08-24T17:00:00+00:00",
+            "bitisZamani": "2026-08-24T23:15:00+03:00",
+            "kapanisZamani": "2026-11-21T09:52:04+00:00",
+            "katilimciSayisi": 415,
+            "maksimumKatilimci": 3000,
+            "lotSayisi": 40,
+            "satilanLotSayisi": 52,
+            "basariOrani": 94.5,
+            "tahminiHacim": 32600000,
+            "toplamSatisTutari": 24800000,
+            "rekorLot": "1971 Rolex Daytona Ref. 6263",
+            "aciklama": "Cenevre ve İsviçre bağımsız saat ustalarının şaheserleri, vintage kronograflar ve cep saatleri yüksek katılımla kapandı.",
+            "gorselUrl": "public/assets/images/lot_pocket_watch_gold.jpg",
+            "kategori": "Horoloji & Yüksek Saatçilik",
+            "otomatikBaslatildiMi": true,
+            "gerceklesenBaslangic": "2026-11-21T09:52:04+00:00",
+            "kod": "AUC-2026-799",
+            "tamamlanmaTarihi": "24 Ağustos 2026",
+            "toplamLotSayisi": 55
+        },
+        {
+            "id": 800,
+            "baslik": "Güz Başyapıtları ve Seçkin Antika Müzayedesi",
+            "tur": "CANLI",
+            "durum": "DURAKLATILDI",
+            "paraBirimi": "TRY",
+            "baslangicZamani": "2026-10-12T19:30:00+03:00",
+            "bitisZamani": "2026-10-12T22:45:00+03:00",
+            "kapanisZamani": "2026-10-12T22:45:00+03:00",
+            "katilimciSayisi": 980,
+            "maksimumKatilimci": 2500,
+            "lotSayisi": 30,
+            "satilanLotSayisi": 28,
+            "basariOrani": "%93.3",
+            "tahminiHacim": 8950000,
+            "toplamSatisTutari": 8950000,
+            "rekorLot": "1920ler Osmanlı Halı Levhası (₺ 122.500)",
+            "aciklama": "Hereke saray ipekleri, İznik sır altı seramikleri ve nadir litografi koleksiyonlarının açık artırması sonuçlandı.",
+            "gorselUrl": "public/assets/images/lot_ceramic_vase.jpg",
+            "kategori": "Antika & Görsel Sanatlar",
+            "duraklatilmaZamani": "2026-11-21T10:03:19+00:00"
+        },
+        {
+            "id": 797,
+            "kod": "AUC-2026-797",
+            "baslik": "Kış Saray Eserleri ve Nümismatik Müzayedesi",
+            "aciklama": "Osmanlı saray koleksiyonları, nadir altın sikkeler ve müze kondisyonunda dekoratif sanat eserleri oturumu.",
+            "tur": "CANLI",
+            "kategori": "Osmanlı & Nümismatik",
+            "durum": "SONLANDI",
+            "gorselUrl": "public/assets/images/lot_ottoman_gold_coin.jpg",
+            "baslangicZamani": "2026-02-14T19:00:00+03:00",
+            "bitisZamani": "2026-02-14T22:30:00+03:00",
+            "kapanisZamani": "2026-02-14T22:30:00+03:00",
+            "tamamlanmaTarihi": "14 Şubat 2026",
+            "katilimciSayisi": 295,
+            "satilanLotSayisi": 38,
+            "toplamLotSayisi": 40,
+            "basariOrani": 95,
+            "rekorLot": "Sultan II. Abdülhamid Tuğralı Takım",
+            "toplamSatisTutari": 16750000
+        }
+    ],
+    "lots": [
+        {
+            "id": 1002,
+            "lotKodu": "AUC-1642",
+            "lotNumarasi": 15,
+            "muzayedeId": 801,
+            "urunId": 502,
+            "ilanId": 602,
+            "ekspertizRaporId": 301,
+            "baslik": "1968 İsviçre Vintage Mekanik Kronograf",
+            "marka": "Geneva Horology",
+            "kategoriAdi": "Horoloji (Vintage Mekanik Saatler)",
+            "gorselUrl": "public/assets/images/lot_swiss_watch_1968.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 32000,
+            "rezervFiyat": 40000,
+            "mevcutEnYuksekTeklif": 43500,
+            "minimumArtisTutari": 1500,
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "5 saat 23 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-05T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1001,
+            "lotKodu": "AUC-1001",
+            "lotNumarasi": 14,
+            "muzayedeId": 801,
+            "urunId": 501,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "1920'ler Osmanlı İpek Halı Levhası",
+            "marka": "Hereke Saray Atölyesi",
+            "kategoriAdi": "Osmanlı Dönemi Koleksiyonları",
+            "gorselUrl": "public/assets/images/lot_ottoman_carpet.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 45000,
+            "rezervFiyat": 60000,
+            "mevcutEnYuksekTeklif": 68500,
+            "minimumArtisTutari": 2500,
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "3 saat 40 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-01T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1008,
+            "lotKodu": "AUC-1748",
+            "lotNumarasi": 16,
+            "muzayedeId": 801,
+            "urunId": 506,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "19. Yüzyıl Boğaziçi Günbatımı Yağlıboya Tablo",
+            "marka": "İstanbul Ekolü",
+            "kategoriAdi": "Antika & Sanat",
+            "gorselUrl": "public/assets/images/lot_oil_painting.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 75000,
+            "rezervFiyat": 95000,
+            "mevcutEnYuksekTeklif": 112000,
+            "minimumArtisTutari": 5000,
+            "liderAliciId": 6,
+            "liderAnonimKod": "damror0ki",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "1 gün 4 saat",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-09T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1006,
+            "lotKodu": "AUC-1720",
+            "lotNumarasi": 17,
+            "muzayedeId": 801,
+            "urunId": 507,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "1876 Sultan II. Abdülhamid 22 Ayar Altın Sikke",
+            "marka": "Darphane-i Amire",
+            "kategoriAdi": "Nümismatik",
+            "gorselUrl": "public/assets/images/lot_ottoman_gold_coin.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 28000,
+            "rezervFiyat": 35000,
+            "mevcutEnYuksekTeklif": 42000,
+            "minimumArtisTutari": 1500,
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "8 saat 15 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-05T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1007,
+            "lotKodu": "AUC-1735",
+            "lotNumarasi": 18,
+            "muzayedeId": 801,
+            "urunId": 508,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "1865 Osmanlı Duloz Nadir Pul Seçkisi",
+            "marka": "Osmanlı Posta Nezareti",
+            "kategoriAdi": "Filateli",
+            "gorselUrl": "public/assets/images/lot_ottoman_stamps.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 14000,
+            "rezervFiyat": 18000,
+            "mevcutEnYuksekTeklif": 21500,
+            "minimumArtisTutari": 1000,
+            "liderAliciId": 6,
+            "liderAnonimKod": "damror0ki",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "6 saat 50 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-01T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1010,
+            "lotKodu": "AUC-2633",
+            "lotNumarasi": 19,
+            "muzayedeId": 801,
+            "urunId": 505,
+            "ilanId": 603,
+            "ekspertizRaporId": 301,
+            "baslik": "1958 Alman Telemetreli Koleksiyon Analog Kamera",
+            "marka": "Wetzlar Optik",
+            "kategoriAdi": "Antika & Sanat",
+            "gorselUrl": "public/assets/images/lot_vintage_camera.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 24000,
+            "rezervFiyat": 30000,
+            "mevcutEnYuksekTeklif": 34500,
+            "minimumArtisTutari": 1500,
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "11 saat 20 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-09T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1003,
+            "lotKodu": "AUC-0991",
+            "lotNumarasi": 8,
+            "muzayedeId": 801,
+            "urunId": 503,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "19. Yüzyıl İznik Kobalt Seramik Vazo",
+            "marka": "İznik Atölyesi",
+            "kategoriAdi": "Antika & Sanat",
+            "gorselUrl": "public/assets/images/lot_ceramic_vase.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 12000,
+            "rezervFiyat": 16000,
+            "mevcutEnYuksekTeklif": 19500,
+            "minimumArtisTutari": 1000,
+            "liderAliciId": 6,
+            "liderAnonimKod": "damror0ki",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "4 saat 10 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-05T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1004,
+            "lotKodu": "AUC-0984",
+            "lotNumarasi": 4,
+            "muzayedeId": 801,
+            "urunId": 504,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "1885 Nadir Deri Ciltli Tarih & Atlas Seçkisi",
+            "marka": "Matbaa-i Amire",
+            "kategoriAdi": "Osmanlı Dönemi Koleksiyonları",
+            "gorselUrl": "public/assets/images/lot_rare_books.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 9500,
+            "rezervFiyat": 12000,
+            "mevcutEnYuksekTeklif": 14800,
+            "minimumArtisTutari": 500,
+            "liderAliciId": 6,
+            "liderAnonimKod": "damror0ki",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "9 saat 05 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-01T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1005,
+            "lotKodu": "VIP-001",
+            "lotNumarasi": 1,
+            "muzayedeId": 802,
+            "muzyedeTuru": "VIP",
+            "urunId": 509,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "16. Yüzyıl Osmanlı Saray Ustası Pirinç Usturlap",
+            "marka": "Saray Rasathanesi",
+            "kategoriAdi": "Osmanlı Dönemi Koleksiyonları",
+            "gorselUrl": "public/assets/images/astrolabe_clean.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 520000,
+            "rezervFiyat": 600000,
+            "mevcutEnYuksekTeklif": 620000,
+            "minimumArtisTutari": 10000,
+            "liderAliciId": 6,
+            "liderAnonimKod": "damror0ki",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "2 gün 04 saat",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-09T23:53:53+00:00"
+            }
+        },
+        {
+            "id": 1011,
+            "lotKodu": "AUC-1801",
+            "lotNumarasi": 20,
+            "muzayedeId": 801,
+            "urunId": 510,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "1892 18 Ayar Altın Osmanlı Cep Saati",
+            "marka": "Prior London / İstanbul",
+            "kategoriAdi": "Horoloji (Vintage Mekanik Saatler)",
+            "gorselUrl": "public/assets/images/lot_pocket_watch_gold.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 58000,
+            "rezervFiyat": 72000,
+            "mevcutEnYuksekTeklif": 79500,
+            "minimumArtisTutari": 2500,
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "7 saat 15 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-04T00:18:55+00:00"
+            }
+        },
+        {
+            "id": 1012,
+            "lotKodu": "AUC-1802",
+            "lotNumarasi": 21,
+            "muzayedeId": 801,
+            "urunId": 511,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "1972 İsviçre Otomatik Çelik Dalgıç Saati",
+            "marka": "Geneva Dive Works",
+            "kategoriAdi": "Horoloji (Vintage Mekanik Saatler)",
+            "gorselUrl": "public/assets/images/lot_diver_watch_1972.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 64000,
+            "rezervFiyat": 78000,
+            "mevcutEnYuksekTeklif": 86000,
+            "minimumArtisTutari": 2500,
+            "liderAliciId": 6,
+            "liderAnonimKod": "damror0ki",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "1 gün 2 saat",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-08T00:18:55+00:00"
+            }
+        },
+        {
+            "id": 1013,
+            "lotKodu": "AUC-1803",
+            "lotNumarasi": 22,
+            "muzayedeId": 801,
+            "urunId": 512,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "19. Yüzyıl Fransız Bronz Şahlanan At Heykeli",
+            "marka": "Paris Döküm Atölyesi",
+            "kategoriAdi": "Antika & Sanat",
+            "gorselUrl": "public/assets/images/lot_bronze_sculpture.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 42000,
+            "rezervFiyat": 55000,
+            "mevcutEnYuksekTeklif": 61500,
+            "minimumArtisTutari": 2000,
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "14 saat 30 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-12T00:18:55+00:00"
+            }
+        },
+        {
+            "id": 1014,
+            "lotKodu": "AUC-1804",
+            "lotNumarasi": 23,
+            "muzayedeId": 801,
+            "urunId": 513,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "19. Yüzyıl Altın Tezhipli Osmanlı Hat Levhası",
+            "marka": "İstanbul Hattat Ekolü",
+            "kategoriAdi": "Osmanlı Dönemi Koleksiyonları",
+            "gorselUrl": "public/assets/images/lot_ottoman_calligraphy.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 88000,
+            "rezervFiyat": 110000,
+            "mevcutEnYuksekTeklif": 128000,
+            "minimumArtisTutari": 5000,
+            "liderAliciId": 6,
+            "liderAnonimKod": "damror0ki",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "1 gün 9 saat",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-04T00:18:55+00:00"
+            }
+        },
+        {
+            "id": 1015,
+            "lotKodu": "VIP-002",
+            "lotNumarasi": 2,
+            "muzayedeId": 802,
+            "muzyedeTuru": "VIP",
+            "urunId": 514,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "18. Yüzyıl Gümüş & Yakut İşlemeli Osmanlı Hançeri",
+            "marka": "Saray Silahhane",
+            "kategoriAdi": "Osmanlı Dönemi Koleksiyonları",
+            "gorselUrl": "public/assets/images/lot_ottoman_dagger.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 240000,
+            "rezervFiyat": 310000,
+            "mevcutEnYuksekTeklif": 345000,
+            "minimumArtisTutari": 10000,
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "2 gün 11 saat",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-08T00:18:55+00:00"
+            }
+        },
+        {
+            "id": 1016,
+            "lotKodu": "AUC-1806",
+            "lotNumarasi": 24,
+            "muzayedeId": 801,
+            "urunId": 515,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "1890 Osmanlı & Erken Dönem Filateli Seçkisi",
+            "marka": "Osmanlı Posta İdaresi",
+            "kategoriAdi": "Filateli",
+            "gorselUrl": "public/assets/images/lot_ottoman_stamps_alt.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 11500,
+            "rezervFiyat": 15000,
+            "mevcutEnYuksekTeklif": 17500,
+            "minimumArtisTutari": 500,
+            "liderAliciId": 6,
+            "liderAnonimKod": "damror0ki",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "5 saat 10 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-12T00:18:55+00:00"
+            }
+        },
+        {
+            "id": 1017,
+            "lotKodu": "AUC-1807",
+            "lotNumarasi": 25,
+            "muzayedeId": 801,
+            "urunId": 516,
+            "ilanId": 601,
+            "ekspertizRaporId": 301,
+            "baslik": "Antik Dönem Altın & Gümüş Koleksiyon Sikke Seti",
+            "marka": "Anadolu Darphanesi",
+            "kategoriAdi": "Nümismatik",
+            "gorselUrl": "public/assets/images/lot_ottoman_gold_coin.jpg",
+            "paraBirimi": "TRY",
+            "baslangicFiyati": 31000,
+            "rezervFiyat": 38000,
+            "mevcutEnYuksekTeklif": 44000,
+            "minimumArtisTutari": 1500,
+            "liderAliciId": 3,
+            "liderAnonimKod": "yortunen...",
+            "durum": "ACIK_ARTIRMADA",
+            "kalanSureMetni": "10 saat 45 dakika",
+            "antiSnipingSayaci": {
+                "uzatmaSayisi": 0,
+                "sonBitisZamani": "2026-12-04T00:18:55+00:00"
+            }
+        }
+    ],
+    "bids": [
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 100000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T13:03:41+00:00",
+            "saatEtiketi": "13:03:41",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-CD1162140B2D",
+            "id": 9027
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 102500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T13:03:41+00:00",
+            "saatEtiketi": "13:03:41",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-1D62604803E4",
+            "id": 9028
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 105000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T13:03:42+00:00",
+            "saatEtiketi": "13:03:42",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-4267EAFEF127",
+            "id": 9029
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 107500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T13:03:43+00:00",
+            "saatEtiketi": "13:03:43",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-4060437D59C8",
+            "id": 9030
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 110000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T13:03:43+00:00",
+            "saatEtiketi": "13:03:43",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-DE5143CBC7E2",
+            "id": 9031
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 112500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T13:04:32+00:00",
+            "saatEtiketi": "13:04:32",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-363F9C40EDE7",
+            "id": 9032
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 115000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-18T13:04:35+00:00",
+            "saatEtiketi": "13:04:35",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-6A8106022760",
+            "id": 9033
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 117500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-19T09:10:01+00:00",
+            "saatEtiketi": "09:10:01",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-F6DEFAC391EC",
+            "id": 9119
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 120000,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-19T09:10:11+00:00",
+            "saatEtiketi": "09:10:11",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-3F1307243966",
+            "id": 9120
+        },
+        {
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "aliciId": 3,
+            "aliciAnonimKod": "yortunen...",
+            "teklifTutari": 122500,
+            "paraBirimi": "TRY",
+            "teklifTipi": "MANUEL",
+            "teklifZamani": "2026-11-19T09:10:19+00:00",
+            "saatEtiketi": "09:10:19",
+            "durum": "GECERLI",
+            "blokeIslemId": "TX-ESCROW-DF341A3B7C1C",
+            "id": 9121
+        }
+    ],
+    "proxyBids": [
+        {
+            "id": 3001,
+            "lotId": 1001,
+            "aliciId": 3,
+            "maksimumButceTutari": 75000,
+            "paraBirimi": "TRY",
+            "aktifMi": true,
+            "olusturmaZamani": "2026-10-12T21:00:00+03:00"
+        },
+        {
+            "lotId": 1002,
+            "aliciId": 3,
+            "maksimumButceTutari": 106500,
+            "paraBirimi": "TRY",
+            "aktifMi": false,
+            "olusturmaZamani": "2026-11-18T13:34:15+00:00",
+            "id": 3002,
+            "guncellemeZamani": "2026-11-18T20:17:15+00:00",
+            "kapanmaSebebi": "BUTCE_ASILDI"
+        }
+    ],
+    "watchlists": [
+        {
+            "id": 7001,
+            "kullaniciId": 3,
+            "lotId": 1001,
+            "muzayedeId": 801,
+            "sonGorulenFiyat": 65000
+        }
+    ],
+    "orders": [
+        {
+            "id": 5001,
+            "siparisNo": "ORD-2026-1001",
+            "lotId": 1001,
+            "lotKodu": "AUC-1001",
+            "urunBaslik": "1920'ler Osmanlı Halı Levhası",
+            "kategoriAdi": "Antika & Sanat",
+            "muzayedeId": 801,
+            "urunId": 501,
+            "aliciId": 3,
+            "saticiId": 2,
+            "kazananPeyId": 9001,
+            "sonTarih": "12-Ekim-2026",
+            "kapanisFiyati": 65000,
+            "komisyonTutari": 5200,
+            "genelToplamTutar": 70200,
+            "paraBirimi": "TRY",
+            "siparisDurumu": "Teslim Edildi & Satıcıya Aktarıldı",
+            "kargoTakipNo": "KRG-99887766",
+            "emanetDurumu": "SATICIYA_AKTARILDI",
+            "aliciAdi": "Zeynep Demir",
+            "saticiAdi": "Mehmet Kaya",
+            "urunGorsel": "public/assets/images/lot_ottoman_carpet.jpg"
+        },
+        {
+            "id": 5002,
+            "siparisNo": "ORD-2026-0991",
+            "lotId": 1003,
+            "lotKodu": "AUC-0991",
+            "urunBaslik": "Antika Seramik Vazo",
+            "kategoriAdi": "Sanat",
+            "muzayedeId": 801,
+            "urunId": 503,
+            "aliciId": 6,
+            "saticiId": 2,
+            "kazananPeyId": 8990,
+            "sonTarih": "12-Ekim-2026",
+            "kapanisFiyati": 12800,
+            "komisyonTutari": 1024,
+            "genelToplamTutar": 13824,
+            "paraBirimi": "TRY",
+            "siparisDurumu": "Ödendi",
+            "kargoTakipNo": "KRG-99887701",
+            "aliciAdi": "Emre Karahan",
+            "saticiAdi": "Mehmet Kaya",
+            "urunGorsel": "public/assets/images/lot_ceramic_vase.jpg"
+        },
+        {
+            "id": 5003,
+            "siparisNo": "ORD-2026-0984",
+            "lotId": 1004,
+            "lotKodu": "AUC-0984",
+            "urunBaslik": "Nadir Kitap Koleksiyonu",
+            "kategoriAdi": "Sanat",
+            "muzayedeId": 801,
+            "urunId": 504,
+            "aliciId": 6,
+            "saticiId": 2,
+            "kazananPeyId": 8980,
+            "sonTarih": "12-Ekim-2026",
+            "kapanisFiyati": 9200,
+            "komisyonTutari": 552,
+            "genelToplamTutar": 9752,
+            "paraBirimi": "TRY",
+            "siparisDurumu": "Ödendi",
+            "kargoTakipNo": "KRG-99887702",
+            "aliciAdi": "Emre Karahan",
+            "saticiAdi": "Mehmet Kaya",
+            "urunGorsel": "public/assets/images/lot_rare_books.jpg"
+        }
+    ],
+    "invoices": [
+        {
+            "id": 401,
+            "faturaNo": "FAT-2026-1088",
+            "siparisId": 5001,
+            "lotId": 1001,
+            "aliciId": 3,
+            "saticiId": 2,
+            "toplamTutar": 70200,
+            "komisyonTutari": 5200,
+            "durum": "ODENDI",
+            "olusturmaTarihi": "2026-10-12T23:20:00+03:00"
+        }
+    ],
+    "paymentReceipts": [
+        {
+            "id": 451,
+            "faturaId": 401,
+            "siparisId": 5001,
+            "odenenTutar": 70200,
+            "odemeYontemi": "3D Secure Sanal POS (<=3sn)",
+            "odemeTarihi": "2026-10-12T23:20:00+03:00"
+        },
+        {
+            "id": 2,
+            "makbuzNo": "MAKBUZ-3DS-2026-0002",
+            "kullaniciId": 3,
+            "islemKodu": "3DS-POS-02E831B62922",
+            "onayKodu": "AUTH-220913",
+            "tutar": 35000,
+            "paraBirimi": "TRY",
+            "odemeKanali": "3D Secure Sanal POS (Garanti BBVA)",
+            "kartTuru": "Kredi Kartı",
+            "maskeliKart": "5400 **** **** 8821",
+            "tarih": "2026-11-20T22:16:23+00:00",
+            "durum": "BASARILI",
+            "hedef": "WALLET",
+            "hedefId": 0
+        },
+        {
+            "id": 3,
+            "makbuzNo": "MAKBUZ-3DS-2026-0003",
+            "kullaniciId": 3,
+            "islemKodu": "3DS-POS-779DD694866D",
+            "onayKodu": "AUTH-568469",
+            "tutar": 15000,
+            "paraBirimi": "TRY",
+            "odemeKanali": "3D Secure Sanal POS (Garanti BBVA)",
+            "kartTuru": "Kredi Kartı",
+            "maskeliKart": "5400 **** **** 9999",
+            "tarih": "2026-11-20T22:16:23+00:00",
+            "durum": "BASARILI",
+            "hedef": "WALLET",
+            "hedefId": 0
+        }
+    ],
+    "shipments": [
+        {
+            "id": 701,
+            "siparisId": 5001,
+            "lotId": 1001,
+            "lotKodu": "AUC-1001",
+            "takipNo": "KRG-99887766",
+            "kargoFirmasi": "Martello VIP Sanat Lojistik",
+            "durum": "HAZIRLANIYOR",
+            "sonHareket": "Özel sigortalı ahşap sandıklama tamamlandı, kurye çıkışında."
+        },
+        {
+            "id": 702,
+            "siparisId": 5002,
+            "lotId": 1003,
+            "lotKodu": "AUC-0991",
+            "takipNo": "KRG-99887701",
+            "kargoFirmasi": "Martello VIP Sanat Lojistik",
+            "durum": "DAGITIMDA",
+            "sonHareket": "Alıcı adresine teslimat için transfer merkezinden çıktı."
+        }
+    ],
+    "disputes": [
+        {
+            "id": 8801,
+            "talepNo": "DISP-2026-01",
+            "kategori": "URUN_DURUMU",
+            "lotId": 1001,
+            "lotKodu": "AUC-1001",
+            "eserBaslik": "1920'ler Osmanlı Halı Levhası",
+            "siparisId": 5001,
+            "aliciId": 3,
+            "aliciAnonim": "Koleksiyoner #3 (Z. Demir)",
+            "saticiId": 2,
+            "saticiAnonim": "Koleksiyon Evi #2 (M. Kaya)",
+            "konuTipi": "Kondisyon & Çerçeve Mikro Çizik Uyuşmazlığı",
+            "aciklama": "Alıcı Beyanı: Eser çerçevesinin sağ alt pervazında katalog fotoğraflarında ve ekspertiz özetinde belirtilmemiş 1.2 cm kılcal çatlak ve patina kaybı tespit edilmiştir.",
+            "saticiBeyani": "Satıcı Beyanı: Eser 100 yılı aşkın dönem eseridir; çerçevedeki yaşlanma patinası tabiidir ve katalogda 'dönemine göre normal aşınma' olarak açıkça belirtilmiştir.",
+            "eksperGorus": "Ekspertiz Heyeti Mütalaası (Burak Şahin - Baş Eksper): Laboratuvar büyüteç incelemesinde bahsi geçen izin sonradan düşme/darbe kaynaklı değil, doğal yaşlanma çatlağı olduğu ancak raporda açıkça vurgulanmadığı tespit edilmiştir. Eser orijinalliğini zedelememektedir; %10 restorasyon/tazminat uzlaşması önerilir.",
+            "eksperId": 4,
+            "gorusTarihi": "2026-11-19T14:20:00+03:00",
+            "emanetTutari": 45000,
+            "durum": "COZULDU",
+            "oncelik": "YUKSEK",
+            "olusturmaTarihi": "2026-11-15T11:30:00+03:00",
+            "karar": "ALICI_HAKLI",
+            "kararTarihi": "2026-11-20T20:29:48+00:00",
+            "kararNotu": "Kondisyon tutarsızlığı nedeniyle alıcı lehine karar ve emanet iadesi",
+            "kararAciklama": "Hakem Heyeti Kararı: Alıcı haklı bulundu. Gerekçe: Kondisyon tutarsızlığı nedeniyle alıcı lehine karar ve emanet iadesi. ₺45.000,00 emanet bloke bedeli alıcı cüzdanına iade edildi.",
+            "kararVerenAdminId": 1,
+            "iadeTutari": 45000,
+            "saticiyaAktarilanTutar": 0
+        },
+        {
+            "id": 8802,
+            "talepNo": "DISP-2026-02",
+            "kategori": "TESLIMAT",
+            "lotId": 1002,
+            "lotKodu": "AUC-1642",
+            "eserBaslik": "1968 İsviçre Vintage Saat",
+            "siparisId": 5002,
+            "aliciId": 6,
+            "aliciAnonim": "Koleksiyoner #6 (E. Karahan)",
+            "saticiId": 2,
+            "saticiAnonim": "Galeri Antik #2 (M. Kaya)",
+            "konuTipi": "Sigortalı Zırhlı Kurye Teslimat Gecikmesi & İtiraz",
+            "aciklama": "Alıcı Beyanı: Müzayede kapanışından bu yana 14 iş günü geçmesine karşın zırhlı kurye teslimatı gerçekleşmemiştir. Kurye takip sisteminde kayıt takılı kalmıştır; teslimat gecikmesi sebebiyle satışın feshi ve teminatın iadesi talep edilmektedir.",
+            "saticiBeyani": "Satıcı Beyanı: Eser Loomis zırhlı kargo transfer merkezinde gümrük ve kıymetli evrak onayındadır, teslimat 48 saat içinde planlanmıştır.",
+            "eksperGorus": "Lojistik Denetim Mütalaası: Taşıyıcı firma GPS logları incelendi; transfer merkezinde güvenlik kilit mührü sağlamdır ancak taahhüt edilen teslimat süresi 5 gün aşılmıştır. Kurye teslim randevusu verilmesi veya fesih opsiyonu admin yetkisindedir.",
+            "eksperId": 4,
+            "gorusTarihi": "2026-11-20T09:15:00+03:00",
+            "emanetTutari": 28500,
+            "durum": "COZULDU",
+            "oncelik": "KRITIK",
+            "olusturmaTarihi": "2026-11-16T16:45:00+03:00",
+            "karar": "ALICI_HAKLI",
+            "kararTarihi": "2026-11-20T20:32:20+00:00",
+            "kararNotu": "",
+            "kararAciklama": "Hakem Heyeti Kararı: Alıcı haklı bulundu. ₺28.500,00 emanet bloke bedeli alıcı cüzdanına iade edildi.",
+            "kararVerenAdminId": 1,
+            "iadeTutari": 28500,
+            "saticiyaAktarilanTutar": 0
+        },
+        {
+            "id": 8803,
+            "talepNo": "DISP-2026-03",
+            "kategori": "ODEME",
+            "lotId": 1003,
+            "lotKodu": "AUC-0991",
+            "eserBaslik": "Antika Seramik Vazo",
+            "siparisId": 5003,
+            "aliciId": 1,
+            "aliciAnonim": "Koleksiyoner #1 (A. Yılmaz)",
+            "saticiId": 2,
+            "saticiAnonim": "Saray Koleksiyon #2 (M. Kaya)",
+            "konuTipi": "Emanet Bloke Çözüm & İade Uyuşmazlığı",
+            "aciklama": "Alıcı Beyanı: Müzayede sonrası emanet hesabına aktarılan ₺18.500 bloke bedelinin, ürün kargo kutusu hasarlı ulaştığı ve teslim alınmadan hasar tutanağı ile kargo şubesinde geri çevrildiği için alıcı cüzdanına derhal iadesi talep edilmektedir.",
+            "saticiBeyani": "Satıcı Beyanı: Paketleme uluslararası sigorta standartlarında yapılmıştır; hasar tutanağında kargo firmasının sorumluluğu açıkça belirtilmiştir, tazminatın kargo sigortasından rücu edilmesi gerekir.",
+            "eksperGorus": "Emanet & Finans Denetim Raporu: Kargo hasar tutanağı ve fotoğraflar incelenmiştir; ürün alıcıya teslim edilmeden kargo şubesinde geri çevrilmiştir. Platform Escrow kuralları gereği teslim alınmayan ve hasar tutanağı tanzim edilen ürünlerde emanet bloke alıcıya iadeye tabidir.",
+            "eksperId": 4,
+            "gorusTarihi": "2026-11-19T18:00:00+03:00",
+            "emanetTutari": 18500,
+            "durum": "EKSPER_MUTALAASI_ALINDI",
+            "oncelik": "ACIL",
+            "olusturmaTarihi": "2026-11-17T10:10:00+03:00"
+        },
+        {
+            "id": 8804,
+            "talepNo": "DISP-2026-04",
+            "kategori": "URUN_DURUMU",
+            "lotId": 1004,
+            "lotKodu": "AUC-0984",
+            "eserBaslik": "Nadir Kitap Koleksiyonu",
+            "siparisId": 5004,
+            "aliciId": 3,
+            "aliciAnonim": "Koleksiyoner #3 (Z. Demir)",
+            "saticiId": 2,
+            "saticiAnonim": "Nadir Sahaf #2 (M. Kaya)",
+            "konuTipi": "Provenans ve Sayfa Noksanlığı İddiası",
+            "aciklama": "Alıcı Beyanı: Cilt 2'de 3 sayfa gravürün eksik olduğu ve tıpkıbasım ile tamamlandığı ileri sürülerek satışın iptali istenmiştir.",
+            "saticiBeyani": "Satıcı Beyanı: Eser orijinal 1888 baskıdır, tüm sayfaları müzayede öncesi uzman heyetçe incelenip onaylanmıştır.",
+            "eksperGorus": "Uzman Heyet Mütalaası: Eser heyetimizce incelenmiş, iddia edilen sayfaların orijinal kağıt hamurunda ve filigranlı olduğu, eksiklik veya tıpkıbasım bulunmadığı belgelenmiştir.",
+            "eksperId": 4,
+            "gorusTarihi": "2026-11-18T12:00:00+03:00",
+            "emanetTutari": 32000,
+            "durum": "COZULDU",
+            "karar": "SATICI_HAKLI",
+            "kararTarihi": "2026-11-18T16:30:00+03:00",
+            "kararNotu": "Gravür sayfalarının orijinal filigranlı kağıt olduğu heyetçe tescillendi.",
+            "kararAciklama": "Admin Heyet Kararı: Uzman heyet mütalaası doğrultusunda gravürlerin orijinal olduğu kanıtlanmıştır. Satıcı haklı bulunmuş, ₺32.000 emanet bloke satıcıya aktarılmıştır.",
+            "oncelik": "NORMAL",
+            "olusturmaTarihi": "2026-11-14T09:00:00+03:00"
+        },
+        {
+            "id": 8805,
+            "talepNo": "DISP-2026-05",
+            "kategori": "ODEME",
+            "lotId": 1005,
+            "lotKodu": "VIP-001",
+            "eserBaslik": "16. Yüzyıl Osmanlı Saray Ustası İmzalı Pirinç Usturlap",
+            "siparisId": 5005,
+            "aliciId": 6,
+            "aliciAnonim": "Koleksiyoner #6 (damror0ki - GOLD)",
+            "saticiId": 2,
+            "saticiAnonim": "Saray Müzayedecilik #2 (M. Kaya)",
+            "konuTipi": "VIP Alıcı Prim & Emanet Mahsup İtirazı",
+            "aciklama": "Alıcı Beyanı: VIP Gold üyelik kapsamında %12 indirimli komisyon uygulanması gerekirken standart %18 komisyon blokesi konulmuştur; aradaki ₺42.000 farkın iadesi talep edilmektedir.",
+            "saticiBeyani": "Satıcı Beyanı: Satıcı payı kesintisi tamdır, aradaki prim uyuşmazlığı platform sözleşmesi kapsamındadır.",
+            "eksperGorus": "Finans & Hukuk Mütalaası: Kullanıcının VIP Gold statüsü aktif olup komisyon indirim hakkı mevcuttur. Fazla bloke edilen ₺42.000 tutarın alıcı cüzdanına iadesi uygundur.",
+            "eksperId": 4,
+            "gorusTarihi": "2026-11-19T10:00:00+03:00",
+            "emanetTutari": 700000,
+            "durum": "COZULDU",
+            "karar": "KISMI_UZLASMA",
+            "kararTarihi": "2026-11-19T15:45:00+03:00",
+            "kararNotu": "VIP Gold komisyon indirimi hak edilmiş olup ₺42.000 iade edildi.",
+            "kararAciklama": "Admin Heyet Kararı: VIP Gold statüsü teyit edilmiş, ₺42.000 komisyon farkı alıcı cüzdanına iade edilmiş, kalan ₺658.000 satıcıya serbest bırakılmıştır.",
+            "oncelik": "VIP",
+            "olusturmaTarihi": "2026-11-15T15:00:00+03:00"
+        }
+    ],
+    "liveChatSessions": [
+        {
+            "id": 951,
+            "oturumId": "CHAT-550044",
+            "kullaniciId": 3,
+            "kullaniciAd": "Zeynep Demir",
+            "temsilciId": 5,
+            "temsilciAd": "Elif Çelik",
+            "baslamaZamani": "2026-10-12T22:05:00+03:00",
+            "durum": "DEVAM_EDIYOR",
+            "mesajlar": [
+                {
+                    "gonderenId": 3,
+                    "gonderenAd": "Zeynep D. (Alıcı)",
+                    "icerik": "Lot 14 için teslimat süresi nedir?",
+                    "zaman": "2026-10-12 22:06:10"
+                },
+                {
+                    "gonderenId": 5,
+                    "gonderenAd": "Elif Ç. (Canlı Destek)",
+                    "icerik": "Merhaba Zeynep Hanım, Lot 14 (1920'ler Osmanlı Halı Levhası) sigortalı özel sanat kargosu ile 48 saat içinde teslim edilmektedir.",
+                    "zaman": "2026-10-12 22:06:45"
+                }
+            ],
+            "oturumLoglari": [
+                {
+                    "logId": "LOG-77-A",
+                    "kayitTarihi": "2026-10-12 22:10:00"
+                }
+            ]
+        }
+    ],
+    "notifications": [
+        {
+            "id": 6001,
+            "kullaniciId": 3,
+            "ilgiliLotId": 1002,
+            "olayTipi": "LIDERLIK_BILDIRIMI",
+            "kanallar": [
+                "PUSH",
+                "EMAIL"
+            ],
+            "baslik": "AUC-1642 Lotunda En Yüksek Teklif Sizde!",
+            "icerik": "1968 İsviçre Vintage Saat için 43.500 TL teklifiniz lider konumda.",
+            "okunduMu": false,
+            "gonderimZamani": "2026-10-12T22:34:01+03:00"
+        },
+        {
+            "kullaniciId": 3,
+            "baslik": "VIP Telefonla Pey Talebi Alındı",
+            "icerik": "Lot #1005 için özel temsilciniz (Leyla Alptekin) müzayede günü +90 532 100 20 30 numarasından sizi canlı bağlayacaktır.",
+            "okundu": false,
+            "tarih": "2026-11-18T20:36:48+00:00",
+            "oncelik": "VIP",
+            "id": 6002
+        }
+    ],
+    "auditLogs": [
+        {
+            "kategori": "ADMIN",
+            "islemTuru": "HASAR_IHTILAF_ILAN_IPTALI",
+            "kullaniciId": 1,
+            "hedefTur": "LOT",
+            "hedefId": 1005,
+            "aciklama": "Admin #1 tarafından '16. Yüzyıl Osmanlı Pirinç Usturlap' (Lot: AUC-1005) ilanı hasar/ihtilaf tespiti nedeniyle yayından kaldırıldı ve iptal edildi. 1 adet aktif pey feshedildi, teminatlar eksiksiz iade edildi.",
+            "oncekiDeger": "ACIK_ARTIRMADA",
+            "yeniDeger": "IPTAL_EDILDI",
+            "tarih": "2026-10-12T20:10:00+03:00",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "CRITICAL",
+            "id": 8,
+            "logKodu": "LOG-2026-0008",
+            "kullaniciAd": "Ahmet Yılmaz",
+            "rol": "ADMIN",
+            "guvenlikOzeti": "E15F6BA7AFC72197",
+            "saatEtiketi": "12.10.2026 20:10:00"
+        },
+        {
+            "kategori": "TEKLIF",
+            "islemTuru": "CANLI_PEY_SURULDU",
+            "kullaniciId": 3,
+            "hedefTur": "BID",
+            "hedefId": 9001,
+            "aciklama": "Alıcı #3 (Zeynep Demir) '1920'ler Osmanlı Halı Levhası' (Lot #1001) için ₺65.000 pey sürdü. Cüzdandan pey teminatı bloke edildi.",
+            "oncekiDeger": "55000",
+            "yeniDeger": "65000",
+            "tarih": "2026-10-12T20:15:00+03:00",
+            "ipAdresi": "88.230.15.4",
+            "seviye": "INFO",
+            "id": 9,
+            "logKodu": "LOG-2026-0009",
+            "kullaniciAd": "Zeynep Demir",
+            "rol": "ALICI",
+            "guvenlikOzeti": "ACDDFD022B417919",
+            "saatEtiketi": "12.10.2026 20:15:00"
+        },
+        {
+            "kategori": "TEKLIF",
+            "islemTuru": "VIP_PEY_SURULDU",
+            "kullaniciId": 6,
+            "hedefTur": "BID",
+            "hedefId": 9015,
+            "aciklama": "VIP Koleksiyoner #6 (damror0ki - GOLD) Salon d'Honneur kapsamında ₺714.000 resmi VIP pey verdi.",
+            "oncekiDeger": "680000",
+            "yeniDeger": "714000",
+            "tarih": "2026-10-12T21:40:00+03:00",
+            "ipAdresi": "195.175.40.11",
+            "seviye": "INFO",
+            "id": 10,
+            "logKodu": "LOG-2026-0010",
+            "kullaniciAd": "Emre Karahan",
+            "rol": "ALICI",
+            "guvenlikOzeti": "4F712E31E6707226",
+            "saatEtiketi": "12.10.2026 21:40:00"
+        },
+        {
+            "kategori": "TEKLIF",
+            "islemTuru": "KURAL_DISI_PEY_IPTALI",
+            "kullaniciId": 1,
+            "hedefTur": "BID",
+            "hedefId": 9001,
+            "aciklama": "Admin #1 tarafından #9001 nolu kural dışı/hatalı pey iptal edildi. Tutar: ₺65.000 | Gerekçe: Sehven girilen hatalı artış. Bloke iadesi tamamlandı. Lot liderliği önceki geçerli peye döndürüldü.",
+            "oncekiDeger": "65000",
+            "yeniDeger": "IPTAL_EDILDI",
+            "tarih": "2026-10-12T21:55:00+03:00",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "WARNING",
+            "id": 11,
+            "logKodu": "LOG-2026-0011",
+            "kullaniciAd": "Ahmet Yılmaz",
+            "rol": "ADMIN",
+            "guvenlikOzeti": "E138F00FDD4302CA",
+            "saatEtiketi": "12.10.2026 21:55:00"
+        },
+        {
+            "kategori": "EKSPERTIZ",
+            "islemTuru": "BAGIMSIZ_EKSPER_ATAMA",
+            "kullaniciId": 1,
+            "hedefTur": "APPRAISAL_REQUEST",
+            "hedefId": 201,
+            "aciklama": "Admin #1 tarafından '1968 İsviçre Vintage Saat' ekspertiz talebi (#201) Kıdemli Horoloji Uzmanı Burak Şahin'e zimmetlendi.",
+            "oncekiDeger": "ATAMA_BEKLIYOR",
+            "yeniDeger": "EKSPER_ATANDI",
+            "tarih": "2026-10-07T10:00:00+03:00",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "INFO",
+            "id": 12,
+            "logKodu": "LOG-2026-0012",
+            "kullaniciAd": "Ahmet Yılmaz",
+            "rol": "ADMIN",
+            "guvenlikOzeti": "9A9ED7D9529A6D47",
+            "saatEtiketi": "07.10.2026 10:00:00"
+        },
+        {
+            "kategori": "EKSPERTIZ",
+            "islemTuru": "HEYET_EKSPERTIZ_INCELEME",
+            "kullaniciId": 1,
+            "hedefTur": "APPRAISAL_REPORT",
+            "hedefId": 401,
+            "aciklama": "Admin #1 ve Bilim Kurulu Heyeti tarafından Ekspertiz Raporu #401 (1920'ler Osmanlı Halı Levhası), Orijinallik Sertifikası (#CERT-99812) ve %96 kondisyon notu oybirliğiyle onaylandı.",
+            "oncekiDeger": "HEYET_INCELEMESINDE",
+            "yeniDeger": "HEYET_ONAYLADI",
+            "tarih": "2026-10-09T15:20:00+03:00",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "INFO",
+            "id": 13,
+            "logKodu": "LOG-2026-0013",
+            "kullaniciAd": "Ahmet Yılmaz",
+            "rol": "ADMIN",
+            "guvenlikOzeti": "5D1929854EF5BC84",
+            "saatEtiketi": "09.10.2026 15:20:00"
+        },
+        {
+            "kategori": "EKSPERTIZ",
+            "islemTuru": "EKSPER_AKREDITASYON_KARARI",
+            "kullaniciId": 1,
+            "hedefTur": "EXPERT_ACCREDITATION",
+            "hedefId": 3001,
+            "aciklama": "Admin #1 tarafından 'Burak Şahin' (Horoloji & Saat Bilimi) mesleki yeterlilik belgeleri, Kültür Bakanlığı lisansı ve ISO 17020 sertifikasyonu incelenerek 'A Seviyesi Kıdemli Eksper' statüsünde resmi akreditasyonu onaylandı.",
+            "oncekiDeger": "INCELEMEDE",
+            "yeniDeger": "AKREDITE_EDILDI",
+            "tarih": "2026-10-10T16:30:00+03:00",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "CRITICAL",
+            "id": 14,
+            "logKodu": "LOG-2026-0014",
+            "kullaniciAd": "Ahmet Yılmaz",
+            "rol": "ADMIN",
+            "guvenlikOzeti": "453FE906DD16E783",
+            "saatEtiketi": "10.10.2026 16:30:00"
+        },
+        {
+            "kategori": "FINANSAL",
+            "islemTuru": "PEY_TEMINATI_BLOKAJI",
+            "kullaniciId": 3,
+            "hedefTur": "ESCROW_TRANSACTION",
+            "hedefId": 7002,
+            "aciklama": "Alıcı #3 cüzdanından Lot #1002 için ₺71.400 pey teminatı Martello emanet havuzunda bloke edildi.",
+            "oncekiDeger": "SERBEST",
+            "yeniDeger": "EMANETTE_BLOKE",
+            "tarih": "2026-10-12T21:40:00+03:00",
+            "ipAdresi": "88.230.15.4",
+            "seviye": "INFO",
+            "id": 15,
+            "logKodu": "LOG-2026-0015",
+            "kullaniciAd": "Zeynep Demir",
+            "rol": "ALICI",
+            "guvenlikOzeti": "6DFC6DB922C0DAA1",
+            "saatEtiketi": "12.10.2026 21:40:00"
+        },
+        {
+            "kategori": "FINANSAL",
+            "islemTuru": "ESCROW_SATICIYA_HAKEDIS_AKTARIMI",
+            "kullaniciId": 1,
+            "hedefTur": "ESCROW_TRANSACTION",
+            "hedefId": 7003,
+            "aciklama": "İşlem başarıyla tamamlandı: #ESC-2026-003 nolu emanet hesaptaki ₺13.824 bloke serbest bırakıldı. Platform komisyonu kesilerek net ₺12.300 satıcı Mehmet Kaya cüzdanına aktarıldı.",
+            "oncekiDeger": "EMANETTE_BLOKE",
+            "yeniDeger": "SATICIYA_AKTARILDI",
+            "tarih": "2026-10-12T22:00:00+03:00",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "CRITICAL",
+            "id": 16,
+            "logKodu": "LOG-2026-0016",
+            "kullaniciAd": "Ahmet Yılmaz",
+            "rol": "ADMIN",
+            "guvenlikOzeti": "D29C12B52AF67292",
+            "saatEtiketi": "12.10.2026 22:00:00"
+        },
+        {
+            "kategori": "FINANSAL",
+            "islemTuru": "IHTILAF_TAHKIM_KARARI",
+            "kullaniciId": 1,
+            "hedefTur": "DISPUTE",
+            "hedefId": 8801,
+            "aciklama": "İhtilaf Dosyası #DISP-2026-01 (Lot #1001) - Karar: ALICI_HAKLI. Hakem Heyeti Kararı: Alıcı haklı bulundu. ₺45.000 emanet bloke bedeli alıcı cüzdanına iade edildi.",
+            "oncekiDeger": "UYUSMAZLIK_BLOKE",
+            "yeniDeger": "ALICIYA_IADE_EDILDI",
+            "tarih": "2026-10-13T10:15:00+03:00",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "CRITICAL",
+            "id": 17,
+            "logKodu": "LOG-2026-0017",
+            "kullaniciAd": "Ahmet Yılmaz",
+            "rol": "ADMIN",
+            "guvenlikOzeti": "E02563715678FDF6",
+            "saatEtiketi": "13.10.2026 10:15:00"
+        },
+        {
+            "kategori": "FINANSAL",
+            "islemTuru": "ESCROW_BLOKE_IADESI",
+            "kullaniciId": 1,
+            "hedefTur": "ESCROW_TRANSACTION",
+            "hedefId": 7004,
+            "aciklama": "Emanet bloke iadesi: #ESC-2026-004 nolu ₺12.000 tutarındaki bloke çözülerek alıcı #6 (Emre Karahan) hesabına iade edildi. Gerekçe: Karşı pey verilmesi nedeniyle teminat iadesi.",
+            "oncekiDeger": "EMANETTE_BLOKE",
+            "yeniDeger": "BLOKE_IADE_EDILDI",
+            "tarih": "2026-10-13T11:45:00+03:00",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "WARNING",
+            "id": 18,
+            "logKodu": "LOG-2026-0018",
+            "kullaniciAd": "Ahmet Yılmaz",
+            "rol": "ADMIN",
+            "guvenlikOzeti": "9CAB1E402F896BAD",
+            "saatEtiketi": "13.10.2026 11:45:00"
+        },
+        {
+            "id": 19,
+            "logKodu": "LOG-2026-0019",
+            "kategori": "ADMIN",
+            "islemTuru": "LOT_SUREC_VE_TEKLIF_ADIMI_GUNCELLEME",
+            "kullaniciId": 1,
+            "kullaniciAd": "Sistem Yöneticisi",
+            "rol": "ADMIN",
+            "hedefTur": "LOT",
+            "hedefId": 1001,
+            "aciklama": "Lot #AUC-1001 ('1920'ler Osmanlı Halı Levhası') için açık artırma süreci güncellendi: Başlangıç: 25.11.2026 14:00, Bitiş: 30.11.2026 21:00, Teklif Adımı Büyüklüğü: ₺3.500,00 (SABIT).",
+            "tarih": "2026-11-21T09:59:46+00:00",
+            "saatEtiketi": "21.11.2026 09:59:46",
+            "ipAdresi": "127.0.0.1",
+            "seviye": "INFO",
+            "guvenlikOzeti": "55B9BB68285A037B"
+        }
+    ],
+    "pastSales": [
+        {
+            "id": 7001,
+            "lotKodu": "AUC-1642",
+            "lotNumarasi": 15,
+            "urunBaslik": "1968 İsviçre Vintage Saat (Cal. 861)",
+            "marka": "Omega & Swiss Chronograph",
+            "kategoriAdi": "Horoloji & Yüksek Saatçilik",
+            "muzayedeId": 800,
+            "muzayedeBaslik": "Güz Başyapıtları ve Seçkin Antika Müzayedesi",
+            "satisTarihi": "12 Ekim 2026",
+            "acilisFiyati": 32000,
+            "cekiçFiyati": 49000,
+            "artisOrani": "%53.1 Artış",
+            "kazananAliciAnonim": "yortunen... (TR)",
+            "ekspertizNotu": "Laboratuvar Onaylı & Orijinal Fabrikasyon Kadran Damgalı",
+            "gorselUrl": "public/assets/images/lot_swiss_watch_1968.jpg",
+            "durum": "SATILDI"
+        },
+        {
+            "id": 7002,
+            "lotKodu": "AUC-1001",
+            "lotNumarasi": 22,
+            "urunBaslik": "1920'ler Osmanlı Saray İpek Halı Levhası",
+            "marka": "Hereke Saray Dokuma",
+            "kategoriAdi": "Antika & Görsel Sanatlar",
+            "muzayedeId": 800,
+            "muzayedeBaslik": "Güz Başyapıtları ve Seçkin Antika Müzayedesi",
+            "satisTarihi": "12 Ekim 2026",
+            "acilisFiyati": 75000,
+            "cekiçFiyati": 122500,
+            "artisOrani": "%63.3 Artış",
+            "kazananAliciAnonim": "yortunen... (TR)",
+            "ekspertizNotu": "Kök Boya & Dönem Çerçeve Orijinallik Sertifikalı",
+            "gorselUrl": "public/assets/images/lot_ottoman_carpet.jpg",
+            "durum": "SATILDI"
+        },
+        {
+            "id": 7003,
+            "lotKodu": "AUC-0991",
+            "lotNumarasi": 8,
+            "urunBaslik": "Antika Sır Altı Çini ve Seramik Vazo",
+            "marka": "İznik & Kütahya Atölyesi",
+            "kategoriAdi": "Antika & Görsel Sanatlar",
+            "muzayedeId": 800,
+            "muzayedeBaslik": "Güz Başyapıtları ve Seçkin Antika Müzayedesi",
+            "satisTarihi": "12 Ekim 2026",
+            "acilisFiyati": 25000,
+            "cekiçFiyati": 43500,
+            "artisOrani": "%74.0 Artış",
+            "kazananAliciAnonim": "damror0ki... (GOLD VIP)",
+            "ekspertizNotu": "1890 Dönem Damgalı ve Kusursuz Kondisyonlu",
+            "gorselUrl": "public/assets/images/lot_ceramic_vase.jpg",
+            "durum": "SATILDI"
+        },
+        {
+            "id": 7004,
+            "lotKodu": "AUC-0984",
+            "lotNumarasi": 11,
+            "urunBaslik": "1885 Matbaa-i Âmire Nadir Kitap Koleksiyonu",
+            "marka": "Matbaa-i Âmire",
+            "kategoriAdi": "Efemera & Tarihi Belgeler",
+            "muzayedeId": 800,
+            "muzayedeBaslik": "Güz Başyapıtları ve Seçkin Antika Müzayedesi",
+            "satisTarihi": "12 Ekim 2026",
+            "acilisFiyati": 5000,
+            "cekiçFiyati": 9200,
+            "artisOrani": "%84.0 Artış",
+            "kazananAliciAnonim": "koleksiyoner88... (TR)",
+            "ekspertizNotu": "Cilt ve Varak Orijinalliği Onaylı",
+            "gorselUrl": "public/assets/images/lot_rare_books.jpg",
+            "durum": "SATILDI"
+        },
+        {
+            "id": 7005,
+            "lotKodu": "AUC-0512",
+            "lotNumarasi": 3,
+            "urunBaslik": "1971 Rolex Daytona Paul Newman Dial Ref. 6263",
+            "marka": "Rolex Geneva",
+            "kategoriAdi": "Horoloji & Yüksek Saatçilik",
+            "muzayedeId": 799,
+            "muzayedeBaslik": "Yaz Klasik Horoloji ve Lüks Saatler Müzayedesi",
+            "satisTarihi": "24 Ağustos 2026",
+            "acilisFiyati": 5500000,
+            "cekiçFiyati": 8400000,
+            "artisOrani": "%52.7 Artış",
+            "kazananAliciAnonim": "alp_koleksiyon... (PLATINUM VIP)",
+            "ekspertizNotu": "Uluslararası Horoloji Konsorsiyumu E-İmzalı Rapor",
+            "gorselUrl": "public/assets/images/lot_diver_watch_1972.jpg",
+            "durum": "SATILDI"
+        },
+        {
+            "id": 7006,
+            "lotKodu": "AUC-0488",
+            "lotNumarasi": 19,
+            "urunBaslik": "18. Yüzyıl Hilye-i Şerif Hat Levhası",
+            "marka": "Kazasker Mustafa İzzet Ekolü",
+            "kategoriAdi": "Osmanlı Eserleri & Hat Sanatı",
+            "muzayedeId": 798,
+            "muzayedeBaslik": "Bahar Nadir Eserler ve Hat Sanatı Müzayedesi",
+            "satisTarihi": "18 Mayıs 2026",
+            "acilisFiyati": 2000000,
+            "cekiçFiyati": 3200000,
+            "artisOrani": "%60.0 Artış",
+            "kazananAliciAnonim": "istanbul_art... (DIAMOND VIP)",
+            "ekspertizNotu": "Vakıflar ve Müze Uzman Heyeti Tescilli",
+            "gorselUrl": "public/assets/images/lot_ottoman_calligraphy.jpg",
+            "durum": "SATILDI"
+        },
+        {
+            "id": 7007,
+            "lotKodu": "AUC-0730",
+            "lotNumarasi": 34,
+            "urunBaslik": "1958 Leica M3 Çift Menzilli Rangefinder Kamera",
+            "marka": "Leica Wetzlar",
+            "kategoriAdi": "Antika & Görsel Sanatlar",
+            "muzayedeId": 799,
+            "muzayedeBaslik": "Yaz Klasik Horoloji ve Lüks Saatler Müzayedesi",
+            "satisTarihi": "24 Ağustos 2026",
+            "acilisFiyati": 55000,
+            "cekiçFiyati": 88000,
+            "artisOrani": "%60.0 Artış",
+            "kazananAliciAnonim": "retro_lens... (TR)",
+            "ekspertizNotu": "Mekanik ve Optik Laboratuvar Testi Geçerli",
+            "gorselUrl": "public/assets/images/lot_vintage_camera.jpg",
+            "durum": "SATILDI"
+        },
+        {
+            "id": 7008,
+            "lotKodu": "AUC-0420",
+            "lotNumarasi": 5,
+            "urunBaslik": "Sultan II. Abdülhamid Tuğralı Gümüş Saray Kahve Takımı",
+            "marka": "Osmanlı Saray Darphanesi",
+            "kategoriAdi": "Osmanlı Eserleri & Hat Sanatı",
+            "muzayedeId": 798,
+            "muzayedeBaslik": "Bahar Nadir Eserler ve Hat Sanatı Müzayedesi",
+            "satisTarihi": "18 Mayıs 2026",
+            "acilisFiyati": 280000,
+            "cekiçFiyati": 450000,
+            "artisOrani": "%60.7 Artış",
+            "kazananAliciAnonim": "ottoman_vault... (GOLD VIP)",
+            "ekspertizNotu": "Sah Damgası ve Tuğra Doğrulama Sertifikalı",
+            "gorselUrl": "public/assets/images/lot_ottoman_dagger.jpg",
+            "durum": "SATILDI"
+        }
+    ],
+    "expertAccreditations": [
+        {
+            "id": 101,
+            "tur": "BIREYSEL",
+            "kullaniciId": 4,
+            "adSoyadUnvan": "Mehmet Demir",
+            "unvan": "Horoloji & Yüksek Saatçilik Başeksperi",
+            "uzmanlikAlanlari": [
+                "Lüks Saatler & Kronograflar",
+                "Mekanik Saat Kalibreleri",
+                "Vintage Koleksiyon"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "MYK Seviye 6 Kıymet Takdiri & Ekspertiz Belgesi",
+                "belgeNo": "MYK-HOR-2024-8841",
+                "kurum": "T.C. Mesleki Yeterlilik Kurumu & İsviçre Saatçilik Federasyonu (FH)",
+                "gecerlilikYili": "2024 - 2029"
+            },
+            "lisanslar": {
+                "lisansAdi": "T.C. Kültür ve Turizm Bakanlığı Taşınır Sanat Varlığı Bilirkişi Lisansı",
+                "lisansNo": "KULTUR-LISANS-TR-9941",
+                "sicilOdasi": "İstanbul Ticaret Odası Horoloji Komitesi (Sicil: 44910)",
+                "vizeDurumu": "GÜNCEL (2027'ye Kadar Geçerli)"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "WOSTEP (Watchmakers of Switzerland Training Program) Master Diploma",
+                    "kod": "WOSTEP-CH-552",
+                    "dogrulama": "Doğrulandı"
+                },
+                {
+                    "ad": "Nitelikli Elektronik İmza (NES) & E-Damga Sertifikası",
+                    "kod": "E-IMZA-TR-88194",
+                    "dogrulama": "Aktif"
+                }
+            ],
+            "durum": "AKREDITE_EDILDI",
+            "yetkiSeviyesi": "A_SEVIYESI_BAS_EKSPER",
+            "incelemeTarihi": "2026-10-01T10:00:00+03:00",
+            "vizeBitisTarihi": "2027-10-01",
+            "adminNotu": "Tüm mesleki yeterlilik belgeleri, WOSTEP diploması ve bakanlık lisansı aslı gibidir onaylandı."
+        },
+        {
+            "id": 102,
+            "tur": "BIREYSEL",
+            "kullaniciId": null,
+            "adSoyadUnvan": "Prof. Dr. Selim Arkan",
+            "unvan": "Osmanlı Sanatları & Hat/Tezhip Kıdemli Eksperi",
+            "uzmanlikAlanlari": [
+                "Klasik Hat Levhaları",
+                "Nadir El Yazmaları",
+                "Tuğralı Gümüşler",
+                "Saray Kumaşları"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "Sanat Tarihi Doktora & Adli Yargı Bilirkişilik Belgesi",
+                "belgeNo": "ADLI-BILIR-2025-3310",
+                "kurum": "İstanbul Üniversitesi Edebiyat Fakültesi & Adalet Bakanlığı Bilirkişilik Kurulu",
+                "gecerlilikYili": "2023 - 2028"
+            },
+            "lisanslar": {
+                "lisansAdi": "Vakıflar Genel Müdürlüğü Kültür Eseri Tespit & Ekspertiz Ruhsatı",
+                "lisansNo": "VGM-EKSPER-088",
+                "sicilOdasi": "Türk Arşivciler & Sanat Tarihçileri Derneği (Sicil: 1104)",
+                "vizeDurumu": "GÜNCEL"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "Topkapı Sarayı Müzesi Restorasyon & Konservasyon Onur Sertifikası",
+                    "kod": "TSM-CERT-441",
+                    "dogrulama": "Doğrulandı"
+                },
+                {
+                    "ad": "Kök Boya & Kağıt Lif Spektrometre Yetkinliği",
+                    "kod": "LAB-PIGMENT-990",
+                    "dogrulama": "Doğrulandı"
+                }
+            ],
+            "durum": "AKREDITE_EDILDI",
+            "yetkiSeviyesi": "A_SEVIYESI_BAS_EKSPER",
+            "incelemeTarihi": "2026-09-15T14:30:00+03:00",
+            "vizeBitisTarihi": "2028-09-15",
+            "adminNotu": "Akademik kürsü başkanlığı ve 25 yıllık adli bilirkişilik sicili incelendi, tam akreditasyon verildi."
+        },
+        {
+            "id": 103,
+            "tur": "KURUMSAL",
+            "kullaniciId": null,
+            "adSoyadUnvan": "Marmara Akredite Sanat Ekspertiz ve Değerleme A.Ş.",
+            "unvan": "Akredite Bağımsız Ekspertiz Kuruluşu & Muayene Merkezi",
+            "uzmanlikAlanlari": [
+                "Tablo & Çağdaş Sanat",
+                "Heykel & Bronz",
+                "Tarihi Mobilya & Porselen"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "TÜRKAK TS EN ISO/IEC 17020 Uygunluk Değerlendirme Akreditasyonu",
+                "belgeNo": "TURKAK-AB-0488-M",
+                "kurum": "Türk Akreditasyon Kurumu (TÜRKAK)",
+                "gecerlilikYili": "2024 - 2028"
+            },
+            "lisanslar": {
+                "lisansAdi": "Kültür Varlıkları ve Müzeler Genel Müdürlüğü Yetki Belgesi",
+                "lisansNo": "KV-YETKI-2024-19",
+                "sicilOdasi": "İstanbul Ticaret Odası 79. Komite (Tic. Sicil: 998412)",
+                "vizeDurumu": "GÜNCEL"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "ISO 9001:2015 Sanat Eseri Güvenli Ekspertiz Kalite Yönetimi",
+                    "kod": "ISO-9001-SANAT-102",
+                    "dogrulama": "Aktif"
+                },
+                {
+                    "ad": "Mesleki Sorumluluk Sigortası (Allianz €5.000.000 Teminatlı Poliçe)",
+                    "kod": "POLICE-MSS-2026-99",
+                    "dogrulama": "Yürürlükte"
+                }
+            ],
+            "durum": "AKREDITE_EDILDI",
+            "yetkiSeviyesi": "KURUMSAL_AKREDITE_HEYET",
+            "incelemeTarihi": "2026-10-10T16:00:00+03:00",
+            "vizeBitisTarihi": "2027-10-10",
+            "adminNotu": "TÜRKAK 17020 akreditasyonu ve €5M mesleki sorumluluk poliçesi teyit edildi."
+        },
+        {
+            "id": 104,
+            "tur": "KURUMSAL",
+            "kullaniciId": null,
+            "adSoyadUnvan": "İsviçre Gemoloji & Kronometri Laboratuvarı Ltd.",
+            "unvan": "Akredite Spektrometre, Radyokarbon & Değerli Taş Test Merkezi",
+            "uzmanlikAlanlari": [
+                "Gemoloji & Elmas Derecelendirme",
+                "Radyokarbon (C-14) Tarihlendirme",
+                "Raman Spektroskopisi",
+                "Metallerin XRF Analizi"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "ISO/IEC 17025 Deney ve Kalibrasyon Laboratuvarları Akreditasyonu",
+                "belgeNo": "SAS-TEST-CH-0194",
+                "kurum": "Swiss Accreditation Service (SAS) & CIBJO",
+                "gecerlilikYili": "2025 - 2030"
+            },
+            "lisanslar": {
+                "lisansAdi": "CIBJO (Dünya Mücevher Konfederasyonu) Onaylı Laboratuvar Lisansı",
+                "lisansNo": "CIBJO-LAB-2025-08",
+                "sicilOdasi": "İsviçre Federal Gemoloji Birliği",
+                "vizeDurumu": "GÜNCEL"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "GIA (Gemological Institute of America) Metodoloji Onayı",
+                    "kod": "GIA-COLLAB-77",
+                    "dogrulama": "Doğrulandı"
+                },
+                {
+                    "ad": "XRF Spektrometre Yıllık Metroloji Kalibrasyon Sertifikası",
+                    "kod": "CALIB-XRF-2026",
+                    "dogrulama": "Geçerli"
+                }
+            ],
+            "durum": "ASKIYA_ALINDI",
+            "yetkiSeviyesi": "AKREDITE_TEST_LABORATUVARI",
+            "incelemeTarihi": "2026-11-20T17:41:43+00:00",
+            "vizeBitisTarihi": "2029-10-18",
+            "adminNotu": "Periyodik metroloji ve kalibrasyon denetimi tamamlanana kadar geçici askı kararı verildi."
+        },
+        {
+            "id": 105,
+            "tur": "BIREYSEL",
+            "kullaniciId": null,
+            "adSoyadUnvan": "Zehra Bilgin",
+            "unvan": "Antika Dokuma & Doğu Halıları Uzmanı",
+            "uzmanlikAlanlari": [
+                "Hereke İpek Halıları",
+                "Gördes & Uşak Dokumaları",
+                "Kafkas & İran Antikaları"
+            ],
+            "meslekiYeterlilik": {
+                "belgeAdi": "Mimar Sinan GSF Geleneksel Türk Sanatları Yüksek Lisans & Bilirkişi Adayı",
+                "belgeNo": "MSGSF-TEZ-2024-411",
+                "kurum": "Mimar Sinan Güzel Sanatlar Üniversitesi",
+                "gecerlilikYili": "2024 - Devam"
+            },
+            "lisanslar": {
+                "lisansAdi": "İstanbul Halıcılar ve Dokumacılar Odası Ekspertiz Başvuru Dosyası",
+                "lisansNo": "BASVURU-2026-092",
+                "sicilOdasi": "İstanbul Esnaf ve Sanatkarlar Odaları Birliği",
+                "vizeDurumu": "İNCELEMEDE"
+            },
+            "sertifikasyonlar": [
+                {
+                    "ad": "Doğal Kök Boya Ayrıştırma & Lif Mikroskopisi Eğitimi",
+                    "kod": "CERT-LIF-2025",
+                    "dogrulama": "İnceleniyor"
+                }
+            ],
+            "durum": "AKREDITE_EDILDI",
+            "yetkiSeviyesi": "B_SEVIYESI_UZMAN",
+            "incelemeTarihi": "2026-11-20T17:41:41+00:00",
+            "vizeBitisTarihi": "2027-11-19",
+            "adminNotu": "Mesleki yeterlilik ve oda belgeleri onaylandı, B Seviyesi Uzman lisansı verildi."
+        }
+    ],
+    "commissionDefinitions": {
+        "version": "2026.4",
+        "guncellemeTarihi": "2026-11-20T18:26:50+00:00",
+        "guncelleyenAdminId": 1,
+        "muzayede": {
+            "aliciPrimiYuzde": 12.5,
+            "vipAliciPrimiYuzde": 8.5,
+            "katalogSabitBedeli": 2600,
+            "canliYayinHizmetBedeli": 1300
+        },
+        "basariliSatis": {
+            "saticiKomisyonYuzde": 8.5,
+            "yuksekHacimKomisyonYuzde": 4.5,
+            "yuksekHacimEsigi": 600000,
+            "emanetTakasSabitBedeli": 800,
+            "odemeIslemPayiYuzde": 1.8
+        },
+        "ekspertiz": {
+            "standartEkspertizSabitBedeli": 1600,
+            "ileriLaboratuvarSabitBedeli": 4800,
+            "orijinallikSertifikaBedeli": 1100,
+            "eksperHakedisOraniYuzde": 80,
+            "platformEkspertizPayiYuzde": 20
+        },
+        "kategoriOzel": [
+            {
+                "kategoriId": 1,
+                "kategoriAdi": "Antika & Sanat Eserleri",
+                "saticiKomisyonYuzde": 8,
+                "aliciPrimiYuzde": 12,
+                "sabitEkspertizBedeli": 1500
+            },
+            {
+                "kategoriId": 2,
+                "kategoriAdi": "Nadir Saat & Mücevher",
+                "saticiKomisyonYuzde": 7,
+                "aliciPrimiYuzde": 10,
+                "sabitEkspertizBedeli": 2000
+            },
+            {
+                "kategoriId": 3,
+                "kategoriAdi": "Klasik Otomobil & Taşıt",
+                "saticiKomisyonYuzde": 4,
+                "aliciPrimiYuzde": 6,
+                "sabitEkspertizBedeli": 5000
+            },
+            {
+                "kategoriId": 4,
+                "kategoriAdi": "Nadir Kitap & Efemera",
+                "saticiKomisyonYuzde": 9,
+                "aliciPrimiYuzde": 12,
+                "sabitEkspertizBedeli": 1200
+            }
         ]
-      }
     },
-    {
-      "id": 4,
-      "rol": "EKSPERTIZ",
-      "ad": "Burak",
-      "soyad": "Şahin",
-      "email": "burak@ekspertiz.com",
-      "telefon": "+905334445566",
-      "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-      "durum": "AKTIF",
-      "anonimKod": "EXP-BURAK",
-      "ekspertizProfili": {
-        "kurumAdi": "Marmara Ekspertiz A.Ş.",
-        "uzmanlikAlani": "Klasik Halı, Saat ve Tablolar",
-        "akreditasyonNo": "EXP-2024-889",
-        "meslekOdasiSicilNo": "OD-IST-44910",
-        "yetkiDurumu": "ONAYLI",
-        "atanmisIsSayisi": 3,
-        "bekleyenIsSayisi": 3,
-        "tamamlananRaporSayisi": 1,
-        "itirazSayisi": 0
-      }
-    },
-    {
-      "id": 5,
-      "rol": "CANLI_DESTEK",
-      "ad": "Elif",
-      "soyad": "Çelik",
-      "email": "elif@destek.com",
-      "telefon": "+905556667788",
-      "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-      "durum": "AKTIF",
-      "anonimKod": "SUP-ELIF",
-      "canliDestekProfili": {
-        "departman": "Müzayede Operasyon",
-        "aktifOturumSayisi": 1,
-        "maksimumOturumKapasitesi": 5
-      }
-    },
-    {
-      "id": 6,
-      "rol": "ALICI",
-      "ad": "Emre",
-      "soyad": "Karahan",
-      "email": "emre.k@koleksiyon.com",
-      "telefon": "+905327778899",
-      "parolaHash": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
-      "durum": "AKTIF",
-      "anonimKod": "damror0ki",
-      "kycDogrulama": {
-        "dogrulandiMi": true,
-        "belgeSifreliRef": "AES256::KYC_DOC_USER_6_7731",
-        "onaylayanAdminId": 1,
-        "onayTarihi": "2026-09-25T16:10:00+03:00"
-      },
-      "aliciProfili": {
-        "teklifLimiti": 150000.0,
-        "dogrulandiMi": true,
-        "vipSeviyesi": "GOLD",
-        "toplamKazanilanLot": 2
-      }
-    }
-  ],
-  "wallets": [
-    {
-      "id": 101,
-      "kullaniciId": 1,
-      "paraBirimi": "TRY",
-      "bakiye": 0.0,
-      "blokeBakiye": 0.0,
-      "aktifBlokeler": [],
-      "sonGuncelleme": "2026-10-12T20:00:00+03:00"
-    },
-    {
-      "id": 102,
-      "kullaniciId": 2,
-      "paraBirimi": "TRY",
-      "bakiye": 25000.0,
-      "blokeBakiye": 0.0,
-      "aktifBlokeler": [],
-      "sonGuncelleme": "2026-10-12T23:20:00+03:00"
-    },
-    {
-      "id": 103,
-      "kullaniciId": 3,
-      "paraBirimi": "TRY",
-      "bakiye": 120000.0,
-      "blokeBakiye": 65000.0,
-      "aktifBlokeler": [
+    "escrowTransactions": [
         {
-          "blokeId": "BLK-2026-9001",
-          "lotId": 1001,
-          "peyId": 9001,
-          "tutar": 65000.0,
-          "paraBirimi": "TRY",
-          "durum": "EMANET_BLOKE_AKTIF",
-          "olusturmaZamani": "2026-10-12T21:15:30+03:00"
-        }
-      ],
-      "sonGuncelleme": "2026-10-12T21:15:30+03:00"
-    },
-    {
-      "id": 104,
-      "kullaniciId": 4,
-      "paraBirimi": "TRY",
-      "bakiye": 12000.0,
-      "blokeBakiye": 0.0,
-      "aktifBlokeler": [],
-      "sonGuncelleme": "2026-10-12T18:00:00+03:00"
-    },
-    {
-      "id": 105,
-      "kullaniciId": 5,
-      "paraBirimi": "TRY",
-      "bakiye": 0.0,
-      "blokeBakiye": 0.0,
-      "aktifBlokeler": [],
-      "sonGuncelleme": "2026-10-12T18:00:00+03:00"
-    },
-    {
-      "id": 106,
-      "kullaniciId": 6,
-      "paraBirimi": "TRY",
-      "bakiye": 110000.0,
-      "blokeBakiye": 43500.0,
-      "aktifBlokeler": [],
-      "sonGuncelleme": "2026-10-12T21:15:30+03:00"
-    }
-  ],
-  "categories": [
-    {
-      "id": 10,
-      "ad": "Antika & Sanat",
-      "kod": "osmanli-sanat",
-      "aciklama": "Osmanlı Eserleri, Klasik Halı, Seramik ve Tablolar",
-      "ustKategoriId": null,
-      "komisyonStratejisi": "ArtAntiqueCommission",
-      "komisyonOraniYuzde": 8.0,
-      "sabitEkspertizUcreti": 1500.0,
-      "zorunluNitelikSablonu": [
-        {
-          "alanAdi": "donemYil",
-          "etiket": "Dönem / Yıl",
-          "tip": "STRING",
-          "zorunlu": true
+            "id": 7001,
+            "emanetNo": "ESC-2026-001",
+            "tur": "SATIS_TUTARI",
+            "siparisNo": "ORD-2026-1001",
+            "lotId": 1001,
+            "lotKodu": "AUC-1001",
+            "urunBaslik": "1920'ler Osmanlı Halı Levhası",
+            "aliciId": 3,
+            "aliciAd": "Zeynep Demir",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 70200,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 5200,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 64250,
+            "durum": "ISLEM_BASARILI_SATICIYA_AKTARILDI",
+            "blokeZamani": "2026-10-12T20:15:00+03:00",
+            "aktarimZamani": "2026-11-20T19:47:02+00:00",
+            "islemKaniti": "TX-ESCROW-89C4F1A2",
+            "islemGerekcesi": "Satış anında genel toplam satış tutarı emanet hesapta bloke edildi. Kargo teslimatı ve alıcı onayı bekleniyor.",
+            "aktaranKullaniciId": 1,
+            "aktaranRol": "ADMIN",
+            "aktarimNotu": "Test onay: İşlem başarıyla tamamlandı, satıcıya aktarıldı."
         },
         {
-          "alanAdi": "olculer",
-          "etiket": "Ebat / Ölçüler",
-          "tip": "STRING",
-          "zorunlu": true
+            "id": 7002,
+            "emanetNo": "ESC-2026-002",
+            "tur": "PEY_TEMINATI",
+            "lotId": 1002,
+            "lotKodu": "AUC-1002",
+            "urunBaslik": "1968 İsviçre Vintage Saat",
+            "aliciId": 3,
+            "aliciAd": "Zeynep Demir",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 71400,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 5712,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 64938,
+            "durum": "ISLEM_BASARILI_SATICIYA_AKTARILDI",
+            "blokeZamani": "2026-10-12T21:40:00+03:00",
+            "aktarimZamani": "2026-11-20T19:52:11+00:00",
+            "islemKaniti": "TX-ESCROW-2B9D43E7",
+            "islemGerekcesi": "Teklif verme anında pey teminatı alıcı cüzdanından emanet havuzunda bloke edildi.",
+            "aktaranKullaniciId": 1,
+            "aktaranRol": "ADMIN",
+            "aktarimNotu": "İşlem başarıyla tamamlandı. Emanet bloke çözüldü ve satıcıya aktarıldı."
         },
         {
-          "alanAdi": "materyal",
-          "etiket": "Materyal / Teknik",
-          "tip": "STRING",
-          "zorunlu": true
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "ad": "Horoloji & Klasik Saatler",
-      "kod": "horoloji-saat",
-      "aciklama": "İsviçre ve Osmanlı Dönemi Cep ve Kol Saatleri",
-      "ustKategoriId": 10,
-      "komisyonStratejisi": "ArtAntiqueCommission",
-      "komisyonOraniYuzde": 7.5,
-      "sabitEkspertizUcreti": 2000.0,
-      "zorunluNitelikSablonu": [
-        {
-          "alanAdi": "markaModel",
-          "etiket": "Marka ve Kalibre",
-          "tip": "STRING",
-          "zorunlu": true
+            "id": 7003,
+            "emanetNo": "ESC-2026-003",
+            "tur": "SATIS_TUTARI",
+            "siparisNo": "ORD-2026-0991",
+            "lotId": 1003,
+            "lotKodu": "AUC-0991",
+            "urunBaslik": "Antika Seramik Vazo",
+            "aliciId": 6,
+            "aliciAd": "Emre Karahan",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 13824,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 1024,
+            "sabitHarc": 500,
+            "netSaticiHakedis": 12300,
+            "durum": "ISLEM_BASARILI_SATICIYA_AKTARILDI",
+            "blokeZamani": "2026-10-10T14:20:00+03:00",
+            "aktarimZamani": "2026-10-12T16:00:00+03:00",
+            "aktaranRol": "ADMIN",
+            "islemKaniti": "TX-ESCROW-71A094EE",
+            "islemGerekcesi": "Kargo teslimatı ve orijinallik kontrolü tamamlandı. Emanet bloke çözüldü, net hakediş satıcıya aktarıldı."
         },
         {
-          "alanAdi": "uretimYili",
-          "etiket": "Üretim Yılı",
-          "tip": "INTEGER",
-          "zorunlu": true
-        }
-      ]
-    },
-    {
-      "id": 12,
-      "ad": "Efemera & Filateli",
-      "kod": "efemera-filateli",
-      "aciklama": "Tarihi Belgeler, Haritalar, Nadir Pullar ve Kitaplar",
-      "ustKategoriId": null,
-      "komisyonStratejisi": "ArtAntiqueCommission",
-      "komisyonOraniYuzde": 6.0,
-      "sabitEkspertizUcreti": 750.0,
-      "zorunluNitelikSablonu": [
-        {
-          "alanAdi": "baskiYili",
-          "etiket": "Baskı Yılı",
-          "tip": "STRING",
-          "zorunlu": true
-        }
-      ]
-    },
-    {
-      "id": 13,
-      "ad": "Nümismatik",
-      "kod": "numismatik",
-      "aciklama": "Altın/Gümüş Sikkeler ve Madalyonlar",
-      "ustKategoriId": null,
-      "komisyonStratejisi": "ArtAntiqueCommission",
-      "komisyonOraniYuzde": 6.5,
-      "sabitEkspertizUcreti": 1000.0,
-      "zorunluNitelikSablonu": [
-        {
-          "alanAdi": "darphane",
-          "etiket": "Darphane ve Kondisyon",
-          "tip": "STRING",
-          "zorunlu": true
-        }
-      ]
-    }
-  ],
-  "products": [
-    {
-      "id": 501,
-      "saticiId": 2,
-      "kategoriId": 10,
-      "baslik": "1920'ler Osmanlı Halı Levhası",
-      "aciklama": "El dokuma kök boya ipek ve yün karışımı, orijinal dönem çerçevesinde nadir Osmanlı saray işi halı levhası.",
-      "fizikselKondisyon": "Kusursuz / Orijinal Çerçeveli",
-      "orijinallikDurumu": "Onaylı",
-      "gorseller": [
-        "hali_on.jpg",
-        "hali_detay.jpg"
-      ],
-      "dinamikNitelikler": {
-        "donemYil": "1920'ler",
-        "olculer": "95x140 cm",
-        "materyal": "Kök Boya İpek"
-      }
-    },
-    {
-      "id": 502,
-      "saticiId": 2,
-      "kategoriId": 11,
-      "baslik": "1968 İsviçre Vintage Saat",
-      "aciklama": "1968 İsviçre üretimi mekanik kronograf kalibre, orijinal kadran, tepe ve tokasıyla koleksiyon kondisyonunda.",
-      "fizikselKondisyon": "Çok İyi / Mekanizma Bakımlı",
-      "orijinallikDurumu": "Onaylı",
-      "gorseller": [
-        "vintage_saat_1968_on.jpg",
-        "vintage_saat_1968_mekanizma.jpg"
-      ],
-      "dinamikNitelikler": {
-        "markaModel": "Swiss Chronograph Cal. 861",
-        "uretimYili": 1968
-      }
-    },
-    {
-      "id": 503,
-      "saticiId": 2,
-      "kategoriId": 10,
-      "baslik": "Antika Seramik Vazo",
-      "aciklama": "19. yüzyıl sonu el boyaması sır altı kobalt mavi motifli koleksiyonluk seramik vazo.",
-      "fizikselKondisyon": "Kusursuz",
-      "orijinallikDurumu": "Onaylı",
-      "gorseller": [
-        "seramik_vazo.jpg"
-      ],
-      "dinamikNitelikler": {
-        "donemYil": "1890",
-        "olculer": "42 cm",
-        "materyal": "Sır Altı Seramik"
-      }
-    },
-    {
-      "id": 504,
-      "saticiId": 2,
-      "kategoriId": 12,
-      "baslik": "Nadir Kitap Koleksiyonu",
-      "aciklama": "İlk baskı taşbaskı gravürlü tarih ve coğrafya ciltleri.",
-      "fizikselKondisyon": "Orijinal Deri Ciltli",
-      "orijinallikDurumu": "Onaylı",
-      "gorseller": [
-        "nadir_kitap.jpg"
-      ],
-      "dinamikNitelikler": {
-        "baskiYili": "1885"
-      }
-    },
-    {
-      "id": 505,
-      "saticiId": 2,
-      "kategoriId": 10,
-      "baslik": "Koleksiyon Analog Kamera",
-      "aciklama": "Alman üretimi 35mm mekanik telemetreli analog fotoğraf makinesi ve 50mm f/2 lens.",
-      "fizikselKondisyon": "İnceleme Bekliyor",
-      "orijinallikDurumu": "Ekspertizde",
-      "gorseller": [
-        "analog_kamera.jpg"
-      ],
-      "dinamikNitelikler": {
-        "donemYil": "1958",
-        "olculer": "13x8 cm",
-        "materyal": "Krom / Deri"
-      }
-    },
-    {
-      "id": 506,
-      "saticiId": 2,
-      "kategoriId": 10,
-      "baslik": "Çağdaş Sanat Baskısı",
-      "aciklama": "Sanatçı ıslak imzalı, 50 adetlik sınırlı edisyon serigrafi baskı.",
-      "fizikselKondisyon": "İnceleme Bekliyor",
-      "orijinallikDurumu": "Ekspertizde",
-      "gorseller": [
-        "cagdas_baski.jpg"
-      ],
-      "dinamikNitelikler": {
-        "donemYil": "1984",
-        "olculer": "70x100 cm",
-        "materyal": "Serigrafi"
-      }
-    }
-  ],
-  "appraisalRequests": [
-    {
-      "id": 201,
-      "talepNo": "EXP-REQ-440",
-      "lotKodu": "AUC-1001",
-      "urunId": 501,
-      "atananEksperId": 4,
-      "durum": "TAMAMLANDI",
-      "eskalasyon": false,
-      "not": "Orijinallik ve kök boya analizi tamamlandı."
-    },
-    {
-      "id": 202,
-      "talepNo": "EXP-REQ-441",
-      "lotKodu": "AUC-1042",
-      "urunId": 502,
-      "atananEksperId": 4,
-      "durum": "BEKLEYEN",
-      "eskalasyon": false,
-      "not": "Kondisyon ve özgünlük incelemesi bekliyor."
-    },
-    {
-      "id": 203,
-      "talepNo": "EXP-REQ-442",
-      "lotKodu": "AUC-1043",
-      "urunId": 505,
-      "atananEksperId": 4,
-      "durum": "BEKLEYEN",
-      "eskalasyon": false,
-      "not": "Kondisyon ve özgünlük incelemesi bekliyor."
-    },
-    {
-      "id": 204,
-      "talepNo": "EXP-REQ-443",
-      "lotKodu": "AUC-1044",
-      "urunId": 506,
-      "atananEksperId": 4,
-      "durum": "BEKLEYEN",
-      "eskalasyon": false,
-      "not": "Kondisyon ve özgünlük incelemesi bekliyor."
-    }
-  ],
-  "appraisalReports": [
-    {
-      "id": 301,
-      "raporNo": "REP-2026-112",
-      "talepId": 201,
-      "urunId": 501,
-      "eksperId": 4,
-      "onerilenPiyasaDegeri": 80000.0,
-      "orijinallikNotu": "Orijinal - Ekspertiz Seçki Damgalı",
-      "maddeler": [
-        "Saat ve dokuma mekanizması kusursuz kondisyonda çalışmaktadır.",
-        "Kadran, çerçeve ve kök boya pigmentleri %100 dönem orijinalidir.",
-        "Bağımsız akredite uzman heyet tarafından e-imzalı QR kod ile onaylanmıştır."
-      ],
-      "denetimDurumu": "ONAYLANDI",
-      "raporTarihi": "2026-10-09T15:30:00+03:00"
-    }
-  ],
-  "listings": [
-    {
-      "id": 601,
-      "ilanKodu": "ILN-2026-99",
-      "urunId": 501,
-      "saticiId": 2,
-      "ekspertizRaporId": 301,
-      "durum": "ONAYLANDI"
-    },
-    {
-      "id": 602,
-      "ilanKodu": "ILN-2026-100",
-      "urunId": 502,
-      "saticiId": 2,
-      "ekspertizRaporId": 301,
-      "durum": "ONAYLANDI"
-    },
-    {
-      "id": 603,
-      "ilanKodu": "ILN-2026-101",
-      "urunId": 505,
-      "saticiId": 2,
-      "ekspertizRaporId": null,
-      "durum": "EKSPERTIZ_BEKLIYOR"
-    }
-  ],
-  "auctions": [
-    {
-      "id": 801,
-      "baslik": "Güz Klasik Sanat ve Horoloji Müzayedesi",
-      "tur": "CANLI",
-      "durum": "AKTIF",
-      "paraBirimi": "TRY",
-      "baslangicZamani": "2026-10-12T20:00:00+03:00",
-      "bitisZamani": "2026-11-15T23:00:00+03:00",
-      "katilimciSayisi": 1420,
-      "maksimumKatilimci": 50000
-    }
-  ],
-  "lots": [
-    {
-      "id": 1002,
-      "lotKodu": "AUC-1642",
-      "lotNumarasi": 15,
-      "muzayedeId": 801,
-      "urunId": 502,
-      "ilanId": 602,
-      "ekspertizRaporId": 301,
-      "baslik": "1968 İsviçre Vintage Saat",
-      "kategoriAdi": "Horoloji & Klasik Saatler",
-      "paraBirimi": "TRY",
-      "baslangicFiyati": 32000.0,
-      "rezervFiyat": 40000.0,
-      "mevcutEnYuksekTeklif": 43500.0,
-      "minimumArtisTutari": 1500.0,
-      "liderAliciId": 3,
-      "liderAnonimKod": "yortunen...",
-      "durum": "ACIK_ARTIRMADA",
-      "kalanSureMetni": "5 saat 23 dakika",
-      "antiSnipingSayaci": {
-        "uzatmaSayisi": 0,
-        "sonBitisZamani": "2026-11-12T08:30:00+03:00"
-      }
-    },
-    {
-      "id": 1001,
-      "lotKodu": "AUC-1001",
-      "lotNumarasi": 14,
-      "muzayedeId": 801,
-      "urunId": 501,
-      "ilanId": 601,
-      "ekspertizRaporId": 301,
-      "baslik": "1920'ler Osmanlı Halı Levhası",
-      "kategoriAdi": "Antika & Sanat",
-      "paraBirimi": "TRY",
-      "baslangicFiyati": 45000.0,
-      "rezervFiyat": 60000.0,
-      "mevcutEnYuksekTeklif": 65000.0,
-      "minimumArtisTutari": 2500.0,
-      "liderAliciId": 3,
-      "liderAnonimKod": "yortunen...",
-      "durum": "ACIK_ARTIRMADA",
-      "kalanSureMetni": "1 saat 15 dakika",
-      "antiSnipingSayaci": {
-        "uzatmaSayisi": 0,
-        "sonBitisZamani": "2026-11-12T05:00:00+03:00"
-      }
-    },
-    {
-      "id": 1003,
-      "lotKodu": "AUC-0991",
-      "lotNumarasi": 8,
-      "muzayedeId": 801,
-      "urunId": 503,
-      "ilanId": 601,
-      "ekspertizRaporId": 301,
-      "baslik": "Antika Seramik Vazo",
-      "kategoriAdi": "Sanat",
-      "paraBirimi": "TRY",
-      "baslangicFiyati": 8000.0,
-      "rezervFiyat": 10000.0,
-      "mevcutEnYuksekTeklif": 12800.0,
-      "minimumArtisTutari": 500.0,
-      "liderAliciId": 6,
-      "liderAnonimKod": "damror0ki",
-      "durum": "SATILDI",
-      "kalanSureMetni": "Tamamlandı",
-      "antiSnipingSayaci": {
-        "uzatmaSayisi": 1,
-        "sonBitisZamani": "2026-10-12T22:00:30+03:00"
-      }
-    },
-    {
-      "id": 1004,
-      "lotKodu": "AUC-0984",
-      "lotNumarasi": 4,
-      "muzayedeId": 801,
-      "urunId": 504,
-      "ilanId": 601,
-      "ekspertizRaporId": 301,
-      "baslik": "Nadir Kitap Koleksiyonu",
-      "kategoriAdi": "Sanat",
-      "paraBirimi": "TRY",
-      "baslangicFiyati": 6000.0,
-      "rezervFiyat": 8000.0,
-      "mevcutEnYuksekTeklif": 9200.0,
-      "minimumArtisTutari": 400.0,
-      "liderAliciId": 6,
-      "liderAnonimKod": "damror0ki",
-      "durum": "SATILDI",
-      "kalanSureMetni": "Tamamlandı",
-      "antiSnipingSayaci": {
-        "uzatmaSayisi": 0,
-        "sonBitisZamani": "2026-10-12T21:00:00+03:00"
-      }
-    }
-  ],
-  "bids": [
-    {
-      "id": 8997,
-      "lotId": 1002,
-      "muzayedeId": 801,
-      "aliciId": 6,
-      "aliciAnonimKod": "oumklany",
-      "teklifTutari": 39000.0,
-      "paraBirimi": "TRY",
-      "teklifTipi": "MANUEL",
-      "teklifZamani": "2026-10-12T22:32:00+03:00",
-      "saatEtiketi": "5 saat 22:32",
-      "durum": "GECILDI_BLOKESI_COZULDU",
-      "blokeIslemId": "BLK-2026-8997"
-    },
-    {
-      "id": 8998,
-      "lotId": 1002,
-      "muzayedeId": 801,
-      "aliciId": 3,
-      "aliciAnonimKod": "saraf1024",
-      "teklifTutari": 40500.0,
-      "paraBirimi": "TRY",
-      "teklifTipi": "MANUEL",
-      "teklifZamani": "2026-10-12T22:33:00+03:00",
-      "saatEtiketi": "5 saat 22:33",
-      "durum": "GECILDI_BLOKESI_COZULDU",
-      "blokeIslemId": "BLK-2026-8998"
-    },
-    {
-      "id": 8999,
-      "lotId": 1002,
-      "muzayedeId": 801,
-      "aliciId": 6,
-      "aliciAnonimKod": "damror0ki",
-      "teklifTutari": 42000.0,
-      "paraBirimi": "TRY",
-      "teklifTipi": "MANUEL",
-      "teklifZamani": "2026-10-12T22:33:30+03:00",
-      "saatEtiketi": "5 saat 22:33",
-      "durum": "GECILDI_BLOKESI_COZULDU",
-      "blokeIslemId": "BLK-2026-8999"
-    },
-    {
-      "id": 9000,
-      "lotId": 1002,
-      "muzayedeId": 801,
-      "aliciId": 3,
-      "aliciAnonimKod": "yortunen...",
-      "teklifTutari": 43500.0,
-      "paraBirimi": "TRY",
-      "teklifTipi": "MANUEL",
-      "teklifZamani": "2026-10-12T22:34:00+03:00",
-      "saatEtiketi": "5 saat 22:34",
-      "durum": "GECERLI",
-      "blokeIslemId": "BLK-2026-9000"
-    },
-    {
-      "id": 9001,
-      "lotId": 1001,
-      "muzayedeId": 801,
-      "aliciId": 3,
-      "aliciAnonimKod": "yortunen...",
-      "teklifTutari": 65000.0,
-      "paraBirimi": "TRY",
-      "teklifTipi": "MANUEL",
-      "teklifZamani": "2026-10-12T21:15:30+03:00",
-      "saatEtiketi": "21:15:30",
-      "durum": "GECERLI",
-      "blokeIslemId": "BLK-2026-9001"
-    }
-  ],
-  "proxyBids": [
-    {
-      "id": 3001,
-      "lotId": 1001,
-      "aliciId": 3,
-      "maksimumButceTutari": 75000.0,
-      "paraBirimi": "TRY",
-      "aktifMi": true,
-      "olusturmaZamani": "2026-10-12T21:00:00+03:00"
-    }
-  ],
-  "watchlists": [
-    {
-      "id": 7001,
-      "kullaniciId": 3,
-      "lotId": 1001,
-      "muzayedeId": 801,
-      "sonGorulenFiyat": 65000.0
-    },
-    {
-      "id": 7002,
-      "kullaniciId": 3,
-      "lotId": 1002,
-      "muzayedeId": 801,
-      "sonGorulenFiyat": 43500.0
-    }
-  ],
-  "orders": [
-    {
-      "id": 5001,
-      "siparisNo": "ORD-2026-1001",
-      "lotId": 1001,
-      "lotKodu": "AUC-1001",
-      "urunBaslik": "1920'ler Osmanlı Halı Levhası",
-      "kategoriAdi": "Antika & Sanat",
-      "muzayedeId": 801,
-      "urunId": 501,
-      "aliciId": 3,
-      "saticiId": 2,
-      "kazananPeyId": 9001,
-      "sonTarih": "12-Ekim-2026",
-      "kapanisFiyati": 65000.0,
-      "komisyonTutari": 5200.0,
-      "genelToplamTutar": 70200.0,
-      "paraBirimi": "TRY",
-      "siparisDurumu": "Ödendi",
-      "kargoTakipNo": "KRG-99887766"
-    },
-    {
-      "id": 5002,
-      "siparisNo": "ORD-2026-0991",
-      "lotId": 1003,
-      "lotKodu": "AUC-0991",
-      "urunBaslik": "Antika Seramik Vazo",
-      "kategoriAdi": "Sanat",
-      "muzayedeId": 801,
-      "urunId": 503,
-      "aliciId": 6,
-      "saticiId": 2,
-      "kazananPeyId": 8990,
-      "sonTarih": "12-Ekim-2026",
-      "kapanisFiyati": 12800.0,
-      "komisyonTutari": 1024.0,
-      "genelToplamTutar": 13824.0,
-      "paraBirimi": "TRY",
-      "siparisDurumu": "Ödendi",
-      "kargoTakipNo": "KRG-99887701"
-    },
-    {
-      "id": 5003,
-      "siparisNo": "ORD-2026-0984",
-      "lotId": 1004,
-      "lotKodu": "AUC-0984",
-      "urunBaslik": "Nadir Kitap Koleksiyonu",
-      "kategoriAdi": "Sanat",
-      "muzayedeId": 801,
-      "urunId": 504,
-      "aliciId": 6,
-      "saticiId": 2,
-      "kazananPeyId": 8980,
-      "sonTarih": "12-Ekim-2026",
-      "kapanisFiyati": 9200.0,
-      "komisyonTutari": 552.0,
-      "genelToplamTutar": 9752.0,
-      "paraBirimi": "TRY",
-      "siparisDurumu": "Ödendi",
-      "kargoTakipNo": "KRG-99887702"
-    }
-  ],
-  "invoices": [
-    {
-      "id": 401,
-      "faturaNo": "FAT-2026-1088",
-      "siparisId": 5001,
-      "lotId": 1001,
-      "aliciId": 3,
-      "saticiId": 2,
-      "toplamTutar": 70200.0,
-      "komisyonTutari": 5200.0,
-      "durum": "ODENDI",
-      "olusturmaTarihi": "2026-10-12T23:20:00+03:00"
-    }
-  ],
-  "paymentReceipts": [
-    {
-      "id": 451,
-      "faturaId": 401,
-      "siparisId": 5001,
-      "odenenTutar": 70200.0,
-      "odemeYontemi": "3D Secure Sanal POS (<=3sn)",
-      "odemeTarihi": "2026-10-12T23:20:00+03:00"
-    }
-  ],
-  "shipments": [
-    {
-      "id": 701,
-      "siparisId": 5001,
-      "lotId": 1001,
-      "lotKodu": "AUC-1001",
-      "takipNo": "KRG-99887766",
-      "kargoFirmasi": "Martello VIP Sanat Lojistik",
-      "durum": "HAZIRLANIYOR",
-      "sonHareket": "Özel sigortalı ahşap sandıklama tamamlandı, kurye çıkışında."
-    },
-    {
-      "id": 702,
-      "siparisId": 5002,
-      "lotId": 1003,
-      "lotKodu": "AUC-0991",
-      "takipNo": "KRG-99887701",
-      "kargoFirmasi": "Martello VIP Sanat Lojistik",
-      "durum": "DAGITIMDA",
-      "sonHareket": "Alıcı adresine teslimat için transfer merkezinden çıktı."
-    }
-  ],
-  "disputes": [
-    {
-      "id": 8801,
-      "talepNo": "DISP-2026-07",
-      "lotId": 1001,
-      "lotKodu": "AUC-1001",
-      "siparisId": 5001,
-      "olusturanKullaniciId": 3,
-      "konuTipi": "KONDİSYON_UYUŞMAZLIĞI",
-      "aciklama": "Çerçeve sağ alt köşede katalogda görünmeyen mikro iz teyidi.",
-      "durum": "INCELENIYOR",
-      "olusturmaTarihi": "2026-10-12T23:24:00+03:00"
-    }
-  ],
-  "liveChatSessions": [
-    {
-      "id": 951,
-      "oturumId": "CHAT-550044",
-      "kullaniciId": 3,
-      "kullaniciAd": "Zeynep Demir",
-      "temsilciId": 5,
-      "temsilciAd": "Elif Çelik",
-      "baslamaZamani": "2026-10-12T22:05:00+03:00",
-      "durum": "DEVAM_EDIYOR",
-      "mesajlar": [
-        {
-          "gonderenId": 3,
-          "gonderenAd": "Zeynep D. (Alıcı)",
-          "icerik": "Lot 14 için teslimat süresi nedir?",
-          "zaman": "2026-10-12 22:06:10"
+            "id": 7004,
+            "emanetNo": "ESC-2026-004",
+            "tur": "PEY_TEMINATI",
+            "lotId": 1001,
+            "lotKodu": "AUC-1001",
+            "urunBaslik": "1920'ler Osmanlı Halı Levhası",
+            "aliciId": 6,
+            "aliciAd": "Emre Karahan",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 12000,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 960,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 10290,
+            "durum": "BLOKE_IADE_EDILDI",
+            "blokeZamani": "2026-10-12T18:10:00+03:00",
+            "iadeZamani": "2026-10-12T18:45:00+03:00",
+            "islemKaniti": "TX-ESCROW-F53381B9",
+            "islemGerekcesi": "Daha yüksek karşı pey (outbid) verilmesi sebebiyle teminat blokesi çözülerek alıcı cüzdanına iade edildi.",
+            "iadeTuru": "TEKLIF_IPTALI"
         },
         {
-          "gonderenId": 5,
-          "gonderenAd": "Elif Ç. (Canlı Destek)",
-          "icerik": "Merhaba Zeynep Hanım, Lot 14 (1920'ler Osmanlı Halı Levhası) sigortalı özel sanat kargosu ile 48 saat içinde teslim edilmektedir.",
-          "zaman": "2026-10-12 22:06:45"
-        }
-      ],
-      "oturumLoglari": [
+            "id": 7005,
+            "emanetNo": "ESC-2026-005",
+            "tur": "SATIS_TUTARI",
+            "siparisNo": "ORD-2026-0984",
+            "lotId": 1004,
+            "lotKodu": "AUC-0984",
+            "urunBaslik": "Nadir Kitap Koleksiyonu",
+            "aliciId": 6,
+            "aliciAd": "Emre Karahan",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 9752,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 6,
+            "kesintiTutari": 552,
+            "sabitHarc": 500,
+            "netSaticiHakedis": 8700,
+            "durum": "ISLEM_BASARILI_SATICIYA_AKTARILDI",
+            "blokeZamani": "2026-10-10T12:00:00+03:00",
+            "aktarimZamani": "2026-10-12T15:30:00+03:00",
+            "aktaranRol": "ALICI",
+            "islemKaniti": "TX-ESCROW-33D810BC",
+            "islemGerekcesi": "Alıcı eseri teslim aldığını doğruladı. Satış bedeli emanet blokesinden satıcı hesabına aktarıldı."
+        },
         {
-          "logId": "LOG-77-A",
-          "kayitTarihi": "2026-10-12 22:10:00"
+            "id": 7006,
+            "emanetNo": "ESC-2026-006",
+            "tur": "PEY_TEMINATI",
+            "lotId": 1005,
+            "lotKodu": "AUC-1005",
+            "urunBaslik": "16. Yüzyıl Osmanlı Pirinç Usturlap",
+            "aliciId": 3,
+            "aliciAd": "Zeynep Demir",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 62000,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 4960,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 56290,
+            "durum": "BLOKE_IADE_EDILDI",
+            "iadeTuru": "MUZAYEDE_GECERSIZ",
+            "blokeZamani": "2026-10-11T11:00:00+03:00",
+            "iadeZamani": "2026-10-11T12:30:00+03:00",
+            "islemKaniti": "TX-ESCROW-V0ID9901",
+            "islemGerekcesi": "Müzayedenin geçersiz kalması (rezerv fiyata ulaşılamaması ve kondisyon ihtilafı) nedeniyle bloke edilen ₺62.000 pey teminatı kullanıcı cüzdanına eksiksiz iade edildi."
+        },
+        {
+            "id": 7007,
+            "emanetNo": "ESC-2026-007",
+            "tur": "SATIS_TUTARI",
+            "siparisNo": "ORD-2026-1002",
+            "lotId": 1003,
+            "lotKodu": "AUC-0991",
+            "urunBaslik": "Antika Seramik Vazo (İhtilaflı Gönderi)",
+            "aliciId": 3,
+            "aliciAd": "Zeynep Demir",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 12800,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 1024,
+            "sabitHarc": 500,
+            "netSaticiHakedis": 11276,
+            "durum": "BLOKE_IADE_EDILDI",
+            "iadeTuru": "IHTILAF_ALICI_LEHINE",
+            "blokeZamani": "2026-10-09T15:20:00+03:00",
+            "iadeZamani": "2026-10-10T11:15:00+03:00",
+            "islemKaniti": "TX-ESCROW-DISP-001",
+            "islemGerekcesi": "İhtilaf Dosyası #DISP-001 hakem heyeti kararı: Kondisyon farkı nedeniyle alıcı haklı bulundu; emanet bloke tutarı (₺12.800) alıcı cüzdanına %100 iade edildi."
+        },
+        {
+            "emanetNo": "ESC-PEY-1002-1795256315",
+            "tur": "PEY_TEMINATI",
+            "lotId": 1002,
+            "lotKodu": "AUC-1002",
+            "urunBaslik": "1968 İsviçre Vintage Saat",
+            "aliciId": 3,
+            "aliciAd": "Zeynep Demir",
+            "saticiId": 2,
+            "saticiAd": "Mehmet Kaya",
+            "blokeTutari": 715500,
+            "paraBirimi": "TRY",
+            "kesintiOrani": 8,
+            "kesintiTutari": 57240,
+            "sabitHarc": 750,
+            "netSaticiHakedis": 657510,
+            "durum": "EMANETTE_BLOKE",
+            "blokeZamani": "2026-11-21T10:18:35+00:00",
+            "aktarimZamani": null,
+            "islemKaniti": "TX-ESCROW-081BFE85835F",
+            "islemGerekcesi": "Teklif verme anında pey teminatı emanet hesapta bloke edildi.",
+            "id": 7008
         }
-      ]
-    }
-  ],
-  "notifications": [
-    {
-      "id": 6001,
-      "kullaniciId": 3,
-      "ilgiliLotId": 1002,
-      "olayTipi": "LIDERLIK_BILDIRIMI",
-      "kanallar": [
-        "PUSH",
-        "EMAIL"
-      ],
-      "baslik": "AUC-1642 Lotunda En Yüksek Teklif Sizde!",
-      "icerik": "1968 İsviçre Vintage Saat için 43.500 TL teklifiniz lider konumda.",
-      "okunduMu": false,
-      "gonderimZamani": "2026-10-12T22:34:01+03:00"
-    }
-  ],
-  "auditLogs": [
-    {
-      "logId": "WORM-AUDIT-0001",
-      "zamanDamgasi": "2026-10-12T21:15:30+03:00",
-      "kullaniciId": 3,
-      "kullaniciRol": "ALICI",
-      "ipAdresi": "88.241.110.54",
-      "cihazParmakIzi": "FP-CHROME129-MACOS",
-      "islemTipi": "BID_PLACED",
-      "hedefVarlik": "Lot:1001 / Pey:9001",
-      "shillBiddingAnomaliSkoru": 0.01,
-      "shillBiddingDurumu": "TEMIZ",
-      "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
-      "currentHash": "a4f9c2e81b7d6034e5a12f9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d"
-    },
-    {
-      "logId": "WORM-AUDIT-0002",
-      "zamanDamgasi": "2026-10-12T23:20:00+03:00",
-      "kullaniciId": 3,
-      "kullaniciRol": "ALICI",
-      "ipAdresi": "88.241.110.54",
-      "cihazParmakIzi": "FP-CHROME129-MACOS",
-      "islemTipi": "3D_SECURE_PAYMENT_COMPLETED",
-      "hedefVarlik": "Siparis:5001 / Fatura:401 / Makbuz:451",
-      "shillBiddingAnomaliSkoru": 0.0,
-      "shillBiddingDurumu": "TEMIZ",
-      "prevHash": "a4f9c2e81b7d6034e5a12f9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d",
-      "currentHash": "f1e2d3c4b5a6978869504132e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2"
-    }
-  ]
+    ],
+    "supportTickets": [
+        {
+            "id": 1,
+            "biletNo": "TKT-2026-8801",
+            "kullaniciId": 3,
+            "kullaniciAd": "Emre K.",
+            "kullaniciEmail": "alici@martello.com",
+            "kategori": "Ödeme & Emanet Bloke",
+            "oncelik": "YUKSEK",
+            "konu": "Emanet hesaptaki pey teminatı blokesi hakkında",
+            "mesaj": "Lot #1002 için verdiğim teklif sonrasında bloke edilen ₺10.000 pey teminatımın durumu nedir? Başka bir alıcı teklifimi geçerse iade anında yansır mı?",
+            "durum": "YANITLANDI",
+            "lotId": 1002,
+            "olusturmaTarihi": "2026-11-19T14:22:00+03:00",
+            "guncellemeTarihi": "2026-11-19T14:35:10+03:00",
+            "cevaplar": [
+                {
+                    "cevapId": "ANS-101",
+                    "yazanId": 5,
+                    "yazanAd": "Elif Çelik",
+                    "yazanRol": "DESTEK_UZMANI",
+                    "mesaj": "Sayın Emre Bey, sistemimiz Escrow / Emanet Teminat Protokolü ile çalışmaktadır. Rakip bir teklif geldiğinde veya müzayede sona erip kazanamamanız durumunda blokeniz anında ve kesintisiz olarak cüzdan bakiyenize iade edilir. İhtilaf durumunda dahi tutar emanet havuzunda güvendedir.",
+                    "tarih": "2026-11-19 14:35:10"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "biletNo": "TKT-2026-8802",
+            "kullaniciId": 3,
+            "kullaniciAd": "Emre K.",
+            "kullaniciEmail": "alici@martello.com",
+            "kategori": "Ekspertiz & Orijinallik",
+            "oncelik": "NORMAL",
+            "konu": "Lot #1002 Patek Philippe Ekspertiz Raporu ve Orijinallik Sertifikası",
+            "mesaj": "Eserin çift heyet onaylı fiziki ekspertiz raporu ve orijinallik sertifikası kargo ile birlikte mi teslim edilecek?",
+            "durum": "COZULDU",
+            "lotId": 1002,
+            "olusturmaTarihi": "2026-11-18T10:15:00+03:00",
+            "guncellemeTarihi": "2026-11-18T11:02:40+03:00",
+            "cevaplar": [
+                {
+                    "cevapId": "ANS-102",
+                    "yazanId": 5,
+                    "yazanAd": "Elif Çelik",
+                    "yazanRol": "DESTEK_UZMANI",
+                    "mesaj": "Merhaba Emre Bey, evet. Lisanslı ekspertiz heyetimizin (Burak Şahin ve Doç. Dr. Selim Aydemir) ıslak imzalı ve mühürlü orijinallik belgesi, eserle birlikte özel sigortalı ahşap sandık içerisinde tarafınıza ulaştırılacaktır.",
+                    "tarih": "2026-11-18 11:02:40"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "biletNo": "TKT-2026-8803",
+            "kullaniciId": 2,
+            "kullaniciAd": "Mehmet Kaya",
+            "kullaniciEmail": "satici@martello.com",
+            "kategori": "Kargo & Sigortalı Teslimat",
+            "oncelik": "YUKSEK",
+            "konu": "Kargo Kurye Ataması ve Sigorta Bedeli",
+            "mesaj": "Satışı tamamlanan eserin kurye teslim alma randevusu için saat aralığı belirleyebilir miyiz?",
+            "durum": "ISLENIYOR",
+            "lotId": 1001,
+            "olusturmaTarihi": "2026-11-20T09:40:00+03:00",
+            "guncellemeTarihi": "2026-11-20T10:05:00+03:00",
+            "cevaplar": [
+                {
+                    "cevapId": "ANS-103",
+                    "yazanId": 5,
+                    "yazanAd": "Elif Çelik",
+                    "yazanRol": "DESTEK_UZMANI",
+                    "mesaj": "Mehmet Bey merhaba, talebiniz lojistik birimimize iletildi. Kurye görevlisi randevu teyidi için bugün saat 14:00'e kadar sizi arayacaktır.",
+                    "tarih": "2026-11-20 10:05:00"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "biletNo": "TKT-2026-8804",
+            "kullaniciId": 3,
+            "kullaniciAd": "Emre K.",
+            "kullaniciEmail": "alici@martello.com",
+            "kategori": "Sistem Kuralları & Pey",
+            "oncelik": "NORMAL",
+            "konu": "Otomatik Pey (Proxy Bid) tavan tutarı aşımı hakkında",
+            "mesaj": "Otomatik teklif verdiğimde diğer bir kullanıcı tavanımı geçerse anında SMS veya E-posta bildirimi alabilir miyim?",
+            "durum": "ACIK",
+            "lotId": 1005,
+            "olusturmaTarihi": "2026-11-20T21:10:00+03:00",
+            "guncellemeTarihi": "2026-11-20T21:10:00+03:00",
+            "cevaplar": []
+        },
+        {
+            "id": 5,
+            "biletNo": "TKT-2026-8805",
+            "kullaniciId": 3,
+            "kullaniciAd": "Emre K.",
+            "kullaniciEmail": "alici@martello.com",
+            "kategori": "Sistem Kuralları & Pey",
+            "oncelik": "NORMAL",
+            "konu": "Anti-Sniping Süresi Hakkında Bilgi Talebi",
+            "mesaj": "Son 60 saniyede verilen peyin sayacı kaç saniye uzattığını teyit etmek istiyorum.",
+            "durum": "ACIK",
+            "lotId": 1002,
+            "olusturmaTarihi": "2026-11-20T21:44:17+00:00",
+            "guncellemeTarihi": "2026-11-20T21:44:17+00:00",
+            "cevaplar": []
+        }
+    ]
 }

@@ -4,7 +4,16 @@ declare(strict_types=1);
 /** @var callable $formatPrice */
 /** @var array $db */
 
-$sellerId = 2; // Mehmet Kaya (Satıcı)
+$sellerId = (!empty($_SESSION['auth_user']['id']) && strtoupper((string)($_SESSION['auth_user']['rol'] ?? '')) === 'SATICI')
+    ? (int)$_SESSION['auth_user']['id']
+    : 2; // Mehmet Kaya (Satıcı)
+$sellerRecord = null;
+foreach ($db['users'] ?? [] as $u) {
+    if ((int)($u['id'] ?? 0) === $sellerId) {
+        $sellerRecord = $u;
+        break;
+    }
+}
 $products = array_filter($db['products'] ?? [], static fn($p) => (int)($p['saticiId'] ?? 0) === $sellerId);
 $listings = array_filter($db['listings'] ?? [], static fn($l) => (int)($l['saticiId'] ?? 0) === $sellerId);
 $categories = $db['categories'] ?? [];
@@ -66,13 +75,7 @@ $activeTab = $_GET['tab'] ?? 'genel';
             </span> Bakiye ve komisyon
           </button>
         </li>
-        <li class="nav-menu-item <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">                <li class="nav-menu-item <?= $activeTab === 'profil' ? 'active' : '' ?>">
-          <button type="button" data-tab="profil" onclick="switchSellerTab('profil', this)">
-            <span class="menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-            Profil & Mağaza
-          </button>
-        </li>
-
+        <li class="nav-menu-item <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
           <button type="button" data-tab="itirazlar" onclick="switchSellerTab('itirazlar', this)">
             <span class="menu-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -80,6 +83,12 @@ $activeTab = $_GET['tab'] ?? 'genel';
                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
               </svg>
             </span> İtirazlar
+          </button>
+        </li>
+        <li class="nav-menu-item <?= $activeTab === 'profil' ? 'active' : '' ?>">
+          <button type="button" data-tab="profil" onclick="switchSellerTab('profil', this)">
+            <span class="menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            Profil &amp; Mağaza
           </button>
         </li>
       </ul>
@@ -98,74 +107,51 @@ $activeTab = $_GET['tab'] ?? 'genel';
             </a>
           </li>
           <li class="nav-menu-item">
-            <a href="?role=buyer&tab=vip">
-              <span class="menu-icon" style="color:#d4af37;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg></span>
-              <span style="color:#dfbe7e; font-weight:600;">VIP Müzayede Salonu</span>
+            <a href="?role=buyer&tab=kesfet">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></span>
+              Müzayede Keşfet
             </a>
           </li>
           <li class="nav-menu-item">
             <a href="?role=buyer&tab=canli">
               <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-              Canlı Müzayedeler
+              Canlı Müzayede Salonları
             </a>
           </li>
           <li class="nav-menu-item">
-            <button type="button" onclick="openInfoModal('categories')">
+            <button type="button" onclick="return openInfoModal('categories', event)">
               <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
               Ürün Kategorileri
             </button>
           </li>
           <li class="nav-menu-item">
-            <button type="button" onclick="openInfoModal('about')">
+            <button type="button" onclick="return openInfoModal('about', event)">
               <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
               Hakkımızda
             </button>
           </li>
-        </ul>
-      </div>
-
-      <!-- 3. BÖLÜM: MÜZAYEDE ŞARTLARI & GİZLİLİK SEÇENEKLERİ -->
-      <div style="margin-top:16px;">
-        <div class="sidebar-section-title">Şartlar & Gizlilik</div>
-        <ul class="nav-menu">
           <li class="nav-menu-item">
-            <button type="button" onclick="openInfoModal('terms')">
-              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+            <button type="button" onclick="return openInfoModal('terms', event)">
+              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
               Müzayede Şartları
             </button>
           </li>
           <li class="nav-menu-item">
-            <button type="button" onclick="openInfoModal('privacy')">
-              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
-              Gizlilik Politikası & KVK
-            </button>
-          </li>
-          <li class="nav-menu-item">
-            <button type="button" onclick="openInfoModal('help')">
+            <a href="?role=yardim">
               <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-              Yardım Merkezi & SSS
-            </button>
-          </li>
-          <li class="nav-menu-item">
-            <a href="?role=support">
-              <span class="menu-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
-              Canlı Destek Masası
+              Yardım Merkezi
             </a>
           </li>
         </ul>
       </div>
 
-      <!-- 4. BÖLÜM: HIZLI ROL ERİŞİMİ -->
-      <div style="margin-top:16px;">
-        <div class="sidebar-section-title">Hızlı Panel Erişimi</div>
-        <ul class="nav-menu" style="font-size:0.8rem;">
-          <li class="nav-menu-item"><a href="?role=buyer" style="padding:7px 12px; font-size:0.8rem;">Alıcı Paneli</a></li>
-          <li class="nav-menu-item"><a href="?role=seller" style="padding:7px 12px; font-size:0.8rem;">Satıcı Paneli</a></li>
-          <li class="nav-menu-item"><a href="?role=appraiser" style="padding:7px 12px; font-size:0.8rem;">Ekspertiz Paneli</a></li>
-          <li class="nav-menu-item"><a href="?role=support" style="padding:7px 12px; font-size:0.8rem;">Canlı Destek & Kargo</a></li>
-          <li class="nav-menu-item"><a href="?role=admin" style="padding:7px 12px; font-size:0.8rem;">Admin Konsolu</a></li>
-        </ul>
-      </div>
+    <form method="POST" action="index.php" style="margin:12px 0 8px 0;">
+      <input type="hidden" name="action" value="logout">
+      <button type="submit" class="btn-logout-luxury" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; font-size:0.82rem; cursor:pointer;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Çıkış Yap</span>
+      </button>
+    </form>
 
     <div class="sidebar-demo-badge">
       <div style="font-weight:700; font-size:0.75rem; color:#d4af37; letter-spacing:0.5px;">MARTELLO / DEMO</div>
@@ -183,22 +169,31 @@ $activeTab = $_GET['tab'] ?? 'genel';
       <p class="page-subheading" style="margin-bottom:24px;">Seçkin müzayede deneyiminizi yönetin</p>
 
       <!-- 4 KPI Kartı -->
+      <?php
+        $activeSellerListingsCount = count(array_filter($listings, static fn($l) => ($l['durum'] ?? '') !== 'IPTAL_EDILDI'));
+        $allLotsMap = [];
+        foreach (($db['lots'] ?? []) as $ltItem) {
+            $allLotsMap[(int)($ltItem['id'] ?? 0)] = $ltItem;
+        }
+        $allBidsList = $db['bids'] ?? [];
+        usort($allBidsList, static fn($a, $b) => ((int)($b['id'] ?? 0)) <=> ((int)($a['id'] ?? 0)));
+      ?>
       <div class="kpi-grid">
         <div class="kpi-card highlight">
           <div class="kpi-label">AKTİF İLANLAR</div>
-          <div class="kpi-value">1</div>
+          <div class="kpi-value"><?= max(1, $activeSellerListingsCount) ?></div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">TOPLAM SATIŞ</div>
           <div class="kpi-value"><?= $formatPrice(142800) ?></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">TASLAKLAR</div>
-          <div class="kpi-value">0</div>
+          <div class="kpi-label">KAYITLI ESERLER</div>
+          <div class="kpi-value"><?= count($products) ?></div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">TEKLİFLER</div>
-          <div class="kpi-value">48</div>
+          <div class="kpi-value"><?= max(2, count($allBidsList)) ?></div>
         </div>
       </div>
 
@@ -222,35 +217,35 @@ $activeTab = $_GET['tab'] ?? 'genel';
 
         <!-- Sağ: Satıcı Hızlı İpuçları & Seçenekler -->
         <div class="panel-card" style="margin-bottom:0;">
-          <h3 class="panel-title" style="margin-bottom:12px;">Hakediş & Ekspertiz Durumu</h3>
-          <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
-            <div style="padding:10px 12px; background:#0e1218; border-radius:6px; border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-              <span>Net Çekilebilir Bakiye</span>
-              <strong style="color:var(--gold-bright);"><?= $formatPrice(142800) ?></strong>
+          <h3 class="panel-title" style="margin-bottom:12px;">Hakediş &amp; Ekspertiz Durumu</h3>
+          <div style="display:flex; flex-direction:column; gap:10px; font-size:0.84rem;">
+            <div style="padding:10px 14px; background:#0D0B0A; border-radius:8px; border:1px solid rgba(200,170,110,0.16); display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#A39B8F;">Net Çekilebilir Bakiye</span>
+              <strong style="color:#E2C992; font-family:var(--font-serif); font-size:1.05rem;"><?= $formatPrice(142800) ?></strong>
             </div>
-            <button type="button" onclick="switchSellerTab('bakiye', this)" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center; padding:8px;">
+            <button type="button" onclick="switchSellerTab('bakiye', this)" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center; padding:9px;">
               Banka Hesabına Para Çek &rarr;
             </button>
-            <button type="button" onclick="switchSellerTab('profil', this)" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center; padding:8px;">
-              Mağaza & IBAN Bilgilerini Güncelle
+            <button type="button" onclick="switchSellerTab('profil', this)" class="btn-outline-gold btn-sm" style="width:100%; justify-content:center; padding:9px;">
+              Mağaza &amp; IBAN Bilgilerini Güncelle
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 2. TAB: YENİ ÜRÜN EKLE -->
+    <!-- 2. TAB: YENİ ÜRÜN EKLE (Görsel Yükleme Destekli) -->
     <div id="sellerTab_yeni" class="tab-content <?= $activeTab === 'yeni' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">SATICI / ÇALIŞMA ALANI</div>
+      <div class="page-breadcrumb">SATICI / YENİ ÜRÜN</div>
       <h1 class="page-heading">Yeni Ürün Ekle</h1>
-      <p class="page-subheading">Eserinizi açık artırmaya sunmak üzere ekspertiz incelemesine gönderin</p>
+      <p class="page-subheading">Eser bilgilerini ve fotoğrafını ekleyerek ekspertiz incelemesine gönderin.</p>
 
       <div class="panel-card">
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
           <input type="hidden" name="action" value="create_listing">
           <input type="hidden" name="seller_id" value="<?= $sellerId ?>">
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
             <div class="form-group">
               <label class="form-label">Eser / Ürün Başlığı</label>
               <input type="text" name="baslik" class="form-control" placeholder="Örn: 1968 İsviçre Vintage Saat" required>
@@ -259,18 +254,34 @@ $activeTab = $_GET['tab'] ?? 'genel';
               <label class="form-label">Kategori</label>
               <select name="kategoriId" class="form-control">
                 <?php foreach ($categories as $cat): ?>
-                  <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['ad'] ?? $cat['kategoriAdi'] ?? 'Kategori') ?> (Komisyon: %<?= $cat['komisyonOraniYuzde'] ?? 7.0 ?>)</option>
+                  <option value="<?= (int)$cat['id'] ?>"><?= htmlspecialchars((string)($cat['ad'] ?? $cat['kategoriAdi'] ?? 'Kategori')) ?> (%<?= $cat['komisyonOraniYuzde'] ?? 7.0 ?>)</option>
                 <?php endforeach; ?>
               </select>
             </div>
           </div>
 
+          <!-- Ürün Görseli Yükleme Alanı -->
           <div class="form-group">
-            <label class="form-label">Detaylı Açıklama</label>
-            <textarea name="aciklama" class="form-control" rows="3" placeholder="Eserin tarihi, kökeni ve kondisyonu..."></textarea>
+            <label class="form-label">Eser Fotoğrafı (JPG, PNG, WEBP — Maks. 5 MB)</label>
+            <div style="display:flex; align-items:center; gap:16px; padding:14px 16px; background:#0D0B0A; border:1px dashed rgba(200,170,110,0.34); border-radius:10px; flex-wrap:wrap;">
+              <div id="sellerImgPreviewBox" style="width:82px; height:82px; border-radius:8px; background:#141210; border:1px solid rgba(200,170,110,0.18); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; color:#8C8478; font-size:0.72rem; text-align:center;">
+                Önizleme
+              </div>
+              <div style="flex:1; min-width:220px;">
+                <input type="file" name="product_image" id="sellerProductImage" accept="image/jpeg,image/png,image/webp" onchange="previewSellerImage(this)" class="form-control" style="padding:7px 10px; cursor:pointer;">
+                <div style="font-size:0.73rem; color:#8C8478; margin-top:6px;">
+                  Yüksek çözünürlüklü ve net bir eser fotoğrafı seçiniz. Yüklenen görsel ilanınızda ve vitrinde gösterilir.
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Açıklama</label>
+            <textarea name="aciklama" class="form-control" rows="3" placeholder="Eserin dönemi, kökeni ve kondisyonu..."></textarea>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
             <div class="form-group">
               <label class="form-label">Başlangıç Fiyatı (TRY)</label>
               <input type="number" step="500" name="baslangicFiyati" class="form-control" value="32000" required>
@@ -285,52 +296,84 @@ $activeTab = $_GET['tab'] ?? 'genel';
             </div>
           </div>
 
-          <button type="submit" class="btn-gold" style="padding:12px 28px;">
+          <button type="submit" class="btn-gold" style="padding:10px 24px;">
             Ekspertiz Onayına Gönder
           </button>
         </form>
       </div>
     </div>
 
+    <script>
+      function previewSellerImage(input) {
+        const box = document.getElementById('sellerImgPreviewBox');
+        if (!box || !input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          box.innerHTML = '<img src="' + e.target.result + '" alt="Önizleme" style="width:100%; height:100%; object-fit:cover; display:block;">';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    </script>
+
     <!-- 3. TAB: İLANLARIM -->
     <div id="sellerTab_ilanlar" class="tab-content <?= $activeTab === 'ilanlar' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">SATICI / ÇALIŞMA ALANI</div>
+      <div class="page-breadcrumb">SATICI / İLANLARIM</div>
       <h1 class="page-heading">İlanlarım</h1>
-      <p class="page-subheading">Açık artırma ve onay sürecindeki tüm ilanlarınız</p>
+      <p class="page-subheading">Açık artırma ve onay sürecindeki tüm ilanlarınız.</p>
 
-      <div class="panel-card">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>İlan Kodu</th>
-              <th>Ürün Adı</th>
-              <th>Ekspertiz Durumu</th>
-              <th>Statü</th>
-              <th>İşlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($listings as $l): ?>
+      <?php
+        $sellerProdMap = [];
+        foreach (($db['products'] ?? []) as $sp) {
+            $sellerProdMap[(int)($sp['id'] ?? 0)] = $sp;
+        }
+      ?>
+      <div class="panel-card" style="padding:0; overflow:hidden;">
+        <div class="table-scroll-x">
+          <table class="data-table" style="min-width:680px;">
+            <thead>
               <tr>
-                <td><span class="badge badge-gold"><?= htmlspecialchars($l['ilanKodu']) ?></span></td>
-                <td style="font-weight:600; color:#fff;">1968 İsviçre Vintage Saat</td>
-                <td><span style="color:#3fb950;">✓ Ekspertiz Seçki Damgalı</span></td>
-                <td><span class="badge badge-success"><?= htmlspecialchars($l['durum']) ?></span></td>
-                <td>
-                  <a href="?role=buyer&lot_id=1002" class="btn-outline-gold btn-sm">Müzayedeyi Gör</a>
-                  <?php if (($l['durum'] ?? '') !== 'IPTAL_EDILDI'): ?>
-                    <form method="POST" style="display:inline; margin-left:6px;" onsubmit="return confirm('Bu ilanı iptal etmek ve yayından çekmek istediğinize emin misiniz?');">
-                      <input type="hidden" name="action" value="cancel_listing">
-                      <input type="hidden" name="listing_id" value="<?= $l['id'] ?>">
-                      <input type="hidden" name="seller_id" value="<?= $sellerId ?>">
-                      <button type="submit" class="btn-outline-gold btn-sm" style="color:#f87171; border-color:rgba(239,68,68,0.35); padding:4px 8px; font-size:0.75rem;">İptal Et</button>
-                    </form>
-                  <?php endif; ?>
-                </td>
+                <th style="padding-left:18px;">İlan Kodu</th>
+                <th>Eser</th>
+                <th>Ekspertiz</th>
+                <th>Durum</th>
+                <th style="padding-right:18px;">İşlem</th>
               </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <?php foreach ($listings as $l):
+                $pRec = $sellerProdMap[(int)($l['urunId'] ?? 0)] ?? null;
+                $pTitle = (string)($pRec['baslik'] ?? 'Müzayede Eseri');
+                $pImg = (string)($pRec['gorselUrl'] ?? ($pRec['gorseller'][0] ?? 'public/assets/images/lot_ceramic_vase.jpg'));
+                if (!str_contains($pImg, '/')) {
+                    $pImg = 'public/assets/images/' . $pImg;
+                }
+              ?>
+                <tr>
+                  <td style="padding-left:18px;"><span class="badge badge-gold"><?= htmlspecialchars((string)$l['ilanKodu']) ?></span></td>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <img src="<?= htmlspecialchars($pImg) ?>" alt="Eser" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(200,170,110,0.2);" onerror="this.src='public/assets/images/lot_ceramic_vase.jpg'">
+                      <span style="font-weight:500; color:#F5F0E6;"><?= htmlspecialchars($pTitle) ?></span>
+                    </div>
+                  </td>
+                  <td><span style="color:#A39B8F; font-size:0.78rem;"><?= !empty($l['ekspertizRaporId']) ? 'Onaylı' : 'İncelemede' ?></span></td>
+                  <td><span class="badge <?= ($l['durum'] ?? '') === 'ONAYLANDI' || ($l['durum'] ?? '') === 'YAYINDA' ? 'badge-success' : 'badge-warning' ?>"><?= htmlspecialchars((string)$l['durum']) ?></span></td>
+                  <td style="padding-right:18px; white-space:nowrap;">
+                    <a href="?role=vitrin#katalog" class="btn-outline-gold btn-sm">Vitrin</a>
+                    <?php if (($l['durum'] ?? '') !== 'IPTAL_EDILDI'): ?>
+                      <form method="POST" style="display:inline; margin-left:6px;" onsubmit="return confirm('Bu ilanı iptal etmek istediğinize emin misiniz?');">
+                        <input type="hidden" name="action" value="cancel_listing">
+                        <input type="hidden" name="listing_id" value="<?= (int)$l['id'] ?>">
+                        <input type="hidden" name="seller_id" value="<?= $sellerId ?>">
+                        <button type="submit" class="btn-outline-gold btn-sm" style="color:#DDA3A3 !important; border-color:rgba(195,108,108,0.35);">İptal</button>
+                      </form>
+                    <?php endif; ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -340,26 +383,48 @@ $activeTab = $_GET['tab'] ?? 'genel';
       <h1 class="page-heading">Teklif Geçmişi</h1>
       <p class="page-subheading">Eserlerinize gelen tüm tekliflerin şeffaf kayıtları</p>
       
-      <div class="panel-card">
-        <table class="data-table">
+      <div class="panel-card" style="padding:0; overflow:hidden;">
+        <table class="data-table" style="margin:0;">
           <thead>
-            <tr><th>Lot No</th><th>Anonim Alıcı</th><th>Teklif Tutarı</th><th>Saat</th><th>Durum</th></tr>
+            <tr>
+              <th style="padding-left:20px;">Eser &amp; Lot No</th>
+              <th>Anonim Alıcı</th>
+              <th>Teklif Tutarı</th>
+              <th>Zaman</th>
+              <th style="padding-right:20px; text-align:right;">Durum</th>
+            </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>AUC-1642</td>
-              <td>yortiunann_</td>
-              <td style="font-weight:700; color:var(--gold-bright);"><?= $formatPrice(43500) ?></td>
-              <td>5 saat 23:34</td>
-              <td><span class="badge badge-gold">LİDER</span></td>
-            </tr>
-            <tr>
-              <td>AUC-1642</td>
-              <td>itamrorOki</td>
-              <td><?= $formatPrice(42000) ?></td>
-              <td>5 saat 23:33</td>
-              <td><span class="badge badge-info">GEÇİLDİ</span></td>
-            </tr>
+            <?php
+              $highestSeenByLot = [];
+              foreach ($allBidsList as $bRow):
+                $bLotId = (int)($bRow['lotId'] ?? 1002);
+                $bLot   = $allLotsMap[$bLotId] ?? null;
+                $bCode  = (string)($bLot['lotKodu'] ?? 'AUC-1642');
+                $bTitle = (string)($bLot['baslik'] ?? '1968 İsviçre Vintage Saat');
+                $bImg   = (string)($bLot['gorselUrl'] ?? 'public/assets/images/lot_swiss_watch_1968.jpg');
+                $bAmt   = (float)($bRow['tutar'] ?? $bRow['teklifTutari'] ?? 43500);
+                $isLeader = empty($highestSeenByLot[$bLotId]);
+                $highestSeenByLot[$bLotId] = true;
+            ?>
+              <tr>
+                <td style="padding-left:20px;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="<?= htmlspecialchars($bImg) ?>" alt="Lot" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid rgba(200,170,110,0.2);" onerror="this.src='public/assets/images/lot_swiss_watch_1968.jpg'">
+                    <div>
+                      <span class="badge badge-gold"><?= htmlspecialchars($bCode) ?></span>
+                      <div style="font-size:0.83rem; color:#F5F0E6; font-weight:500; margin-top:2px;"><?= htmlspecialchars($bTitle) ?></div>
+                    </div>
+                  </div>
+                </td>
+                <td style="font-family:monospace; color:#EAE2D5;"><?= htmlspecialchars((string)($bRow['anonimKod'] ?? ('Bidder #' . ($bRow['aliciId'] ?? '101')))) ?></td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#E2C992;"><?= $formatPrice($bAmt) ?></td>
+                <td style="color:#A39B8F; font-size:0.8rem;"><?= !empty($bRow['zamanDamgasi']) ? date('d.m.Y H:i:s', strtotime((string)$bRow['zamanDamgasi'])) : 'Bugün' ?></td>
+                <td style="padding-right:20px; text-align:right;">
+                  <span class="badge <?= $isLeader ? 'badge-gold' : 'badge-info' ?>"><?= $isLeader ? 'LİDER' : 'GEÇİLDİ' ?></span>
+                </td>
+              </tr>
+            <?php endforeach; ?>
           </tbody>
         </table>
       </div>
@@ -371,39 +436,34 @@ $activeTab = $_GET['tab'] ?? 'genel';
       <h1 class="page-heading">Bakiye ve Komisyon</h1>
       <p class="page-subheading">Kategori bazlı komisyon kesintileri, emanet blokajları ve hakedişleriniz</p>
 
-      <!-- SRS Escrow & Hakediş Güvence Protokolü -->
-      <div style="background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.25); border-radius:8px; padding:12px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:1.4rem;">🛡️</span>
-          <div>
-            <strong style="color:#34d399; font-size:0.85rem;">SRS Emanet (Escrow) & Güvenli Tahsilat Mekanizması:</strong>
-            <span style="color:#94a3b8; font-size:0.8rem; display:block;">
-              ⚡ Teklif verme anında pey teminatının veya satış tutarının emanet hesapta bloke edilmesi, işlem başarıyla tamamlandığında satıcıya aktarılmasıdır.
-            </span>
-          </div>
+      <!-- Emanet Güvence Özeti -->
+      <div style="background:rgba(200,170,110,0.06); border:1px solid rgba(200,170,110,0.22); border-radius:8px; padding:12px 16px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <div>
+          <strong style="color:#E2C992; font-size:0.82rem;">Emanet (Escrow) Koruması</strong>
+          <span style="color:#A39B8F; font-size:0.77rem; display:block;">Satış tutarları alıcı teslimat onayına kadar emanet havuzunda korunur.</span>
         </div>
-        <span class="badge" style="background:#064e3b; color:#6ee7b7; border:1px solid #059669; font-size:0.75rem; padding:4px 10px;">%100 Tahsilat Koruması</span>
+        <span class="badge badge-gold">Güvenli Tahsilat</span>
       </div>
 
       <!-- Yan Yana 2 Sütunlu Yerleşim: Bakiye Özeti ve Hakediş Transfer Formu -->
       <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:24px; align-items:start;">
         <div class="panel-card" style="margin-bottom:0;">
-          <div style="font-size:0.8rem; color:var(--text-muted);">TOPLAM HAKEDİŞ BAKİYESİ</div>
-          <div style="font-family:var(--font-serif); font-size:2rem; font-weight:700; color:var(--gold-bright); margin:6px 0;">
+          <div style="font-size:0.74rem; color:#A39B8F; text-transform:uppercase; letter-spacing:0.8px;">TOPLAM HAKEDİŞ BAKİYESİ</div>
+          <div style="font-family:var(--font-serif); font-size:2rem; font-weight:700; color:#E2C992; margin:6px 0;">
             <?= $formatPrice(142800) ?>
           </div>
-          <div style="color:var(--text-muted); font-size:0.85rem; margin-top:8px;">
-            Antika & Sanat kategorisi komisyon oranı: <strong>%8</strong> • Sabit Ekspertiz Bedeli: <strong><?= $formatPrice(1500) ?></strong>
+          <div style="color:#A39B8F; font-size:0.82rem; margin-top:8px;">
+            Antika &amp; Sanat kategorisi komisyon oranı: <strong style="color:#F5F0E6;">%8</strong> · Sabit Ekspertiz Bedeli: <strong style="color:#F5F0E6;"><?= $formatPrice(1500) ?></strong>
           </div>
-          <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border-color); font-size:0.82rem; color:#8b949e;">
-            Emanette Bloke Bekleyen Satış: <strong style="color:#facc15;"><?= $formatPrice(64250) ?></strong><br>
-            Net Çekilebilir Bakiye: <strong style="color:#3fb950;"><?= $formatPrice(141300) ?></strong>
+          <div style="margin-top:16px; padding-top:12px; border-top:1px solid rgba(200,170,110,0.14); font-size:0.81rem; color:#A39B8F; line-height:1.7;">
+            Emanette Bloke Bekleyen Satış: <strong style="color:#E2C992;"><?= $formatPrice(64250) ?></strong><br>
+            Net Çekilebilir Bakiye: <strong style="color:#F5F0E6;"><?= $formatPrice(141300) ?></strong>
           </div>
         </div>
 
         <!-- Banka Hesabına Para Çekme Formu (Payout) -->
         <div class="panel-card" style="margin-bottom:0;">
-          <h3 style="font-size:1.05rem; color:#fff; margin-bottom:12px;">Banka Hesabına Transfer (Hakediş Çekimi)</h3>
+          <h3 class="panel-title" style="margin-bottom:12px;">Banka Hesabına Transfer (Hakediş Çekimi)</h3>
           <form method="POST">
             <input type="hidden" name="action" value="request_payout">
             <input type="hidden" name="seller_id" value="<?= $sellerId ?>">
@@ -424,119 +484,122 @@ $activeTab = $_GET['tab'] ?? 'genel';
 
       <!-- Emanetteki Satışlarım ve Hakediş Durumu Tablosu -->
       <div class="panel-card" style="margin-top:24px; padding:0; overflow:hidden;">
-        <div style="padding:14px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-weight:600; color:#fff; font-size:0.95rem;">Emanetteki Satışlarım & Hakediş Durumu</div>
-          <span class="badge badge-gold" style="font-size:0.72rem;">Emanet Takip Kütüğü</span>
+        <div style="padding:14px 20px; border-bottom:1px solid rgba(200,170,110,0.14); display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-family:var(--font-serif); font-weight:600; color:#F5F0E6; font-size:1.05rem;">Emanetteki Satışlarım &amp; Hakediş Durumu</div>
+          <span class="badge badge-gold">Emanet Takip Kütüğü</span>
         </div>
-        <table class="data-table" style="margin:0;">
-          <thead>
-            <tr>
-              <th style="padding-left:20px;">Eser / Lot</th>
-              <th>Alıcı</th>
-              <th>Brüt Satış</th>
-              <th>Komisyon & Harç</th>
-              <th>Net Hakedişiniz</th>
-              <th>Emanet Durumu</th>
-              <th style="padding-right:20px;">İşlem Durumu</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding-left:20px; font-weight:600; color:#fff;">
-                1920'ler Osmanlı Halı Levhası <span style="color:#d4af37; font-size:0.75rem;">(AUC-1001)</span>
-              </td>
-              <td>Emre Kaya (#3)</td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:#facc15;"><?= $formatPrice(70200) ?></td>
-              <td style="color:#94a3b8; font-size:0.8rem;">-%8 (<?= $formatPrice(5200) ?>) + <?= $formatPrice(750) ?></td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:#34d399;"><?= $formatPrice(64250) ?></td>
-              <td>
-                <span class="badge" style="background:#854d0e; color:#fef08a; border:1px solid #ca8a04; font-size:0.72rem; padding:3px 8px;">
-                  🔒 Emanette Bloke
-                </span>
-              </td>
-              <td style="padding-right:20px; color:#94a3b8; font-size:0.8rem;">
-                Kargo Dağıtımda (Alıcı onayı bekleniyor)
-              </td>
-            </tr>
-            <tr>
-              <td style="padding-left:20px; font-weight:600; color:#fff;">
-                Antika Seramik Vazo <span style="color:#d4af37; font-size:0.75rem;">(AUC-0991)</span>
-              </td>
-              <td>Emre Karahan (#6)</td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:#facc15;"><?= $formatPrice(13824) ?></td>
-              <td style="color:#94a3b8; font-size:0.8rem;">-%8 (<?= $formatPrice(1024) ?>) + <?= $formatPrice(500) ?></td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:#34d399;"><?= $formatPrice(12300) ?></td>
-              <td>
-                <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
-                  ✓ Satıcıya Aktarıldı
-                </span>
-              </td>
-              <td style="padding-right:20px; color:#34d399; font-size:0.8rem; font-weight:600;">
-                ✓ Hesaba Aktarıldı
-              </td>
-            </tr>
-            <tr>
-              <td style="padding-left:20px; font-weight:600; color:#fff;">
-                Nadir Kitap Koleksiyonu <span style="color:#d4af37; font-size:0.75rem;">(AUC-0984)</span>
-              </td>
-              <td>Emre Karahan (#6)</td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:#facc15;"><?= $formatPrice(9752) ?></td>
-              <td style="color:#94a3b8; font-size:0.8rem;">-%6 (<?= $formatPrice(552) ?>) + <?= $formatPrice(500) ?></td>
-              <td style="font-family:var(--font-serif); font-weight:700; color:#34d399;"><?= $formatPrice(8700) ?></td>
-              <td>
-                <span class="badge" style="background:#14532d; color:#86efac; border:1px solid #16a34a; font-size:0.72rem; padding:3px 8px;">
-                  ✓ Satıcıya Aktarıldı
-                </span>
-              </td>
-              <td style="padding-right:20px; color:#34d399; font-size:0.8rem; font-weight:600;">
-                ✓ Hesaba Aktarıldı
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-scroll-x">
+          <table class="data-table" style="margin:0; min-width:680px;">
+            <thead>
+              <tr>
+                <th style="padding-left:20px;">Eser / Lot</th>
+                <th>Alıcı</th>
+                <th>Brüt Satış</th>
+                <th>Komisyon &amp; Harç</th>
+                <th>Net Hakedişiniz</th>
+                <th>Emanet Durumu</th>
+                <th style="padding-right:20px;">İşlem Durumu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding-left:20px; font-weight:500; color:#F5F0E6;">
+                  1920'ler Osmanlı İpek Halı Levhası <span style="color:#C8AA6E; font-size:0.75rem;">(AUC-1001)</span>
+                </td>
+                <td>Zeynep Demir (#3)</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#E2C992;"><?= $formatPrice(70200) ?></td>
+                <td style="color:#A39B8F; font-size:0.78rem;">-%8 (<?= $formatPrice(5200) ?>) + <?= $formatPrice(750) ?></td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#F5F0E6;"><?= $formatPrice(64250) ?></td>
+                <td>
+                  <span class="badge badge-warning">Emanette Bloke</span>
+                </td>
+                <td style="padding-right:20px; color:#A39B8F; font-size:0.78rem;">
+                  Kargo Dağıtımda (Alıcı onayı bekleniyor)
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left:20px; font-weight:500; color:#F5F0E6;">
+                  Antika Sır Altı Çini ve Seramik Vazo <span style="color:#C8AA6E; font-size:0.75rem;">(AUC-0991)</span>
+                </td>
+                <td>Emre Karahan (#6)</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#E2C992;"><?= $formatPrice(13824) ?></td>
+                <td style="color:#A39B8F; font-size:0.78rem;">-%8 (<?= $formatPrice(1024) ?>) + <?= $formatPrice(500) ?></td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#F5F0E6;"><?= $formatPrice(12300) ?></td>
+                <td>
+                  <span class="badge badge-success">Satıcıya Aktarıldı</span>
+                </td>
+                <td style="padding-right:20px; color:#C8AA6E; font-size:0.78rem; font-weight:500;">
+                  Hesaba Aktarıldı
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-left:20px; font-weight:500; color:#F5F0E6;">
+                  1885 Matbaa-i Âmire Nadir Kitap Koleksiyonu <span style="color:#C8AA6E; font-size:0.75rem;">(AUC-0984)</span>
+                </td>
+                <td>Emre Karahan (#6)</td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#E2C992;"><?= $formatPrice(9752) ?></td>
+                <td style="color:#A39B8F; font-size:0.78rem;">-%6 (<?= $formatPrice(552) ?>) + <?= $formatPrice(500) ?></td>
+                <td style="font-family:var(--font-serif); font-weight:700; color:#F5F0E6;"><?= $formatPrice(8700) ?></td>
+                <td>
+                  <span class="badge badge-success">Satıcıya Aktarıldı</span>
+                </td>
+                <td style="padding-right:20px; color:#C8AA6E; font-size:0.78rem; font-weight:500;">
+                  Hesaba Aktarıldı
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <!-- 6. TAB: İTİRAZLAR -->
     <div id="sellerTab_itirazlar" class="tab-content <?= $activeTab === 'itirazlar' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">SATICI / ÇALIŞMA ALANI</div>
+      <div class="page-breadcrumb">SATICI / İTİRAZ VE İHTİLAFLAR</div>
       <h1 class="page-heading">İtiraz ve İhtilaflar</h1>
-      <p class="page-subheading">Alıcılardan gelen uyuşmazlıklar ve tahkim durumu</p>
+      <p class="page-subheading">Alıcılardan gelen uyuşmazlıklar ve tahkim kurulu durumu.</p>
 
       <div class="panel-card">
-        <p style="color:var(--text-muted);">Şu anda adınıza açılmış aktif bir uyuşmazlık veya itiraz bulunmamaktadır.</p>
+        <p style="color:#A39B8F; margin:0;">Şu anda adınıza açılmış aktif bir uyuşmazlık veya itiraz dosyası bulunmamaktadır.</p>
       </div>
-    <!-- 7. TAB: PROFİL & MAĞAZA (Use Case 2: Profil Güncelleme) -->
-    <div id="sellerTab_profil" class="tab-content <?= $activeTab === 'profil' ? 'active' : '' ?>">
-      <div class="page-breadcrumb">SATICI / ÇALIŞMA ALANI</div>
-      <h1 class="page-heading">Satıcı Profili & Doğrulama</h1>
-      <p class="page-subheading">Koleksiyoner / Galeri bilgilerinizi ve hakediş transfer IBAN adresinizi güncelleyin</p>
+    </div>
 
-      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px;">
-        <div class="panel-card">
+    <!-- 7. TAB: PROFİL & MAĞAZA -->
+    <?php
+      $sellerFullName = trim((string)($sellerRecord['ad'] ?? 'Mehmet') . ' ' . (string)($sellerRecord['soyad'] ?? 'Kaya'));
+      $sellerEmail    = (string)($sellerRecord['email'] ?? 'mehmet@antik.com');
+      $sellerPhone    = (string)($sellerRecord['telefon'] ?? '+90 532 222 33 44');
+    ?>
+    <div id="sellerTab_profil" class="tab-content <?= $activeTab === 'profil' ? 'active' : '' ?>">
+      <div class="page-breadcrumb">SATICI / PROFİL &amp; MAĞAZA</div>
+      <h1 class="page-heading">Satıcı Profili &amp; Doğrulama</h1>
+      <p class="page-subheading">Koleksiyoner / Galeri bilgilerinizi ve hakediş transfer IBAN adresinizi güncelleyin.</p>
+
+      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:20px;">
+        <div class="panel-card" style="margin-bottom:0;">
           <div class="panel-header">
             <h3 class="panel-title">Satıcı Bilgilerini Güncelle</h3>
-            <span class="badge badge-success">✓ Onaylı Satıcı</span>
+            <span class="badge badge-success">Onaylı Satıcı</span>
           </div>
           <form method="POST">
             <input type="hidden" name="action" value="update_profile">
             <input type="hidden" name="user_id" value="<?= $sellerId ?>">
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
               <div class="form-group">
                 <label class="form-label">Mağaza / Temsilci Adı</label>
-                <input type="text" name="adSoyad" class="form-control" value="Mehmet Kaya (Antika Galeri)" required>
+                <input type="text" name="adSoyad" class="form-control" value="<?= htmlspecialchars($sellerFullName) ?>" required>
               </div>
               <div class="form-group">
                 <label class="form-label">E-posta</label>
-                <input type="email" name="eposta" class="form-control" value="mehmet.kaya@antika.example" required>
+                <input type="email" name="eposta" class="form-control" value="<?= htmlspecialchars($sellerEmail) ?>" required>
               </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
               <div class="form-group">
                 <label class="form-label">Telefon Numarası</label>
-                <input type="text" name="telefon" class="form-control" value="+90 532 100 20 30" required>
+                <input type="text" name="telefon" class="form-control" value="<?= htmlspecialchars($sellerPhone) ?>" required>
               </div>
               <div class="form-group">
                 <label class="form-label">Kayıtlı IBAN (Hakediş Hesabı)</label>
@@ -555,26 +618,24 @@ $activeTab = $_GET['tab'] ?? 'genel';
           </form>
         </div>
 
-        <div class="panel-card">
+        <div class="panel-card" style="margin-bottom:0;">
           <div class="panel-header"><h3 class="panel-title">Doğrulama ve Rozetler</h3></div>
-          <div style="display:flex; flex-direction:column; gap:14px;">
-            <div style="padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
-              <div style="font-weight:600; color:var(--gold-bright); font-size:0.9rem;">★ Kıdemli Koleksiyoner</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Platformda 50+ başarılı satış tamamlandı</div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="padding:12px 14px; background:#0D0B0A; border:1px solid rgba(200,170,110,0.14); border-radius:8px;">
+              <div style="font-weight:600; color:#E2C992; font-size:0.86rem;">Kıdemli Koleksiyoner</div>
+              <div style="font-size:0.75rem; color:#A39B8F; margin-top:2px;">Platformda 50+ başarılı satış tamamlandı</div>
             </div>
-            <div style="padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
-              <div style="font-weight:600; color:#3fb950; font-size:0.9rem;">✓ T.C. Kimlik & Vergi Levhası Onaylı</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Tüm kurumsal evraklar eksiksiz denetlendi</div>
+            <div style="padding:12px 14px; background:#0D0B0A; border:1px solid rgba(200,170,110,0.14); border-radius:8px;">
+              <div style="font-weight:600; color:#F5F0E6; font-size:0.86rem;">T.C. Kimlik &amp; Vergi Levhası Onaylı</div>
+              <div style="font-size:0.75rem; color:#A39B8F; margin-top:2px;">Tüm kurumsal evraklar eksiksiz denetlendi</div>
             </div>
-            <div style="padding:12px; background:#0e1218; border:1px solid var(--border-color); border-radius:8px;">
-              <div style="font-weight:600; color:#58a6ff; font-size:0.9rem;">Güvenilir Kargo Partneri</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Özel zırhlı ve sigortalı teslimat anlaşması</div>
+            <div style="padding:12px 14px; background:#0D0B0A; border:1px solid rgba(200,170,110,0.14); border-radius:8px;">
+              <div style="font-weight:600; color:#C8AA6E; font-size:0.86rem;">Güvenilir Kargo Partneri</div>
+              <div style="font-size:0.75rem; color:#A39B8F; margin-top:2px;">Özel zırhlı ve sigortalı teslimat anlaşması</div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
     </div>
 
   </main>

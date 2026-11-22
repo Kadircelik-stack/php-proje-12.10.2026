@@ -28,190 +28,177 @@ $hasActiveFilters = (
 
 $lots = $controller->searchCatalog($filterParams);
 $categories = $filterOptions['categories'] ?? ($db['categories'] ?? []);
+
+$vitrinCategoryCards = [
+    [
+        'title'    => 'Horoloji',
+        'subtitle' => 'Vintage Mekanik Saatler',
+        'filter'   => 'Horoloji',
+        'image'    => 'public/assets/images/lot_swiss_watch_1968.jpg',
+    ],
+    [
+        'title'    => 'Antika & Sanat',
+        'subtitle' => 'Tablo, Seramik & Optik',
+        'filter'   => 'Antika',
+        'image'    => 'public/assets/images/lot_oil_painting.jpg',
+    ],
+    [
+        'title'    => 'Osmanlı Dönemi',
+        'subtitle' => 'Halı, Usturlap & Nadir Ciltler',
+        'filter'   => 'Osmanlı',
+        'image'    => 'public/assets/images/lot_ottoman_carpet.jpg',
+    ],
+    [
+        'title'    => 'Filateli',
+        'subtitle' => 'Nadir Posta Pulları',
+        'filter'   => 'Filateli',
+        'image'    => 'public/assets/images/lot_ottoman_stamps.jpg',
+    ],
+    [
+        'title'    => 'Nümismatik',
+        'subtitle' => 'Altın & Gümüş Sikkeler',
+        'filter'   => 'Nümismatik',
+        'image'    => 'public/assets/images/lot_ottoman_gold_coin.jpg',
+    ],
+];
 ?>
 
-<!-- 1. VITRIN HERO BANNER (media_1795017299898_aa5174be.jpg ile Birebir) -->
-<div style="max-width:1260px; margin:20px auto 0 auto; padding:0 32px; width:100%;">
-  <div class="vitrin-hero-banner-exact" style="position:relative; border-radius:18px; overflow:hidden; background:#070a0f; min-height:360px; display:flex; align-items:center; padding:50px 60px; border:1px solid rgba(197, 160, 89, 0.35); box-shadow:0 12px 40px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.7);">
+<!-- 1. VİTRİN HERO BANNER -->
+<div style="max-width:1240px; margin:20px auto 0 auto; padding:0 28px; width:100%;">
+  <div style="position:relative; border-radius:16px; overflow:hidden; background:#0A0908; min-height:310px; display:flex; align-items:center; padding:42px 52px; border:1px solid rgba(200,170,110,0.28); box-shadow:0 16px 44px rgba(0,0,0,0.72);">
     
-    <!-- Astrolabe Saat Mekanizması Görsel Katmanı (Sağ Tarafta Yumuşak Geçişli) -->
-    <div style="position:absolute; top:0; right:0; width:64%; height:100%; background:url('public/assets/images/astrolabe_clean.jpg') no-repeat right center / cover; mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 22%, rgba(0,0,0,1) 55%); -webkit-mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 22%, rgba(0,0,0,1) 55%); pointer-events:none; z-index:1;"></div>
+    <div style="position:absolute; top:0; right:0; width:62%; height:100%; background:url('public/assets/images/astrolabe_clean.jpg') no-repeat right center / cover; mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 26%, rgba(0,0,0,0.92) 60%); -webkit-mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 26%, rgba(0,0,0,0.92) 60%); pointer-events:none; z-index:1;"></div>
 
-    <!-- Zarif Çift Hatlı Altın Guilloche Çerçeve (Görseldeki Ornate Frame) -->
-    <svg style="position:absolute; top:8px; left:8px; width:calc(100% - 16px); height:calc(100% - 16px); pointer-events:none; z-index:2;" preserveAspectRatio="none" viewBox="0 0 1000 360">
+    <svg style="position:absolute; top:8px; left:8px; width:calc(100% - 16px); height:calc(100% - 16px); pointer-events:none; z-index:2;" preserveAspectRatio="none" viewBox="0 0 1000 320">
       <defs>
         <linearGradient id="goldFrameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#b89355" stop-opacity="0.85"/>
-          <stop offset="50%" stop-color="#dfbe7e" stop-opacity="0.95"/>
-          <stop offset="100%" stop-color="#936d31" stop-opacity="0.8"/>
+          <stop offset="0%" stop-color="#C8AA6E" stop-opacity="0.55"/>
+          <stop offset="50%" stop-color="#E2C992" stop-opacity="0.72"/>
+          <stop offset="100%" stop-color="#967740" stop-opacity="0.45"/>
         </linearGradient>
       </defs>
-      <!-- Dış Çerçeve -->
-      <rect x="6" y="6" width="988" height="348" rx="22" fill="none" stroke="url(#goldFrameGrad)" stroke-width="1.6"/>
-      <!-- İç Çerçeve -->
-      <rect x="12" y="12" width="976" height="336" rx="16" fill="none" stroke="url(#goldFrameGrad)" stroke-width="0.9" stroke-opacity="0.55"/>
-      <!-- Köşe Kıvrımları (Ornate Loops) -->
-      <!-- Sol Üst -->
-      <path d="M 6 32 C 6 18, 18 6, 32 6 C 20 10, 10 20, 6 32 Z" fill="url(#goldFrameGrad)" opacity="0.4"/>
-      <path d="M 6 32 Q 20 20 32 6" fill="none" stroke="url(#goldFrameGrad)" stroke-width="1.2"/>
-      <!-- Sağ Üst -->
-      <path d="M 994 32 C 994 18, 982 6, 968 6 C 980 10, 990 20, 994 32 Z" fill="url(#goldFrameGrad)" opacity="0.4"/>
-      <path d="M 994 32 Q 980 20 968 6" fill="none" stroke="url(#goldFrameGrad)" stroke-width="1.2"/>
-      <!-- Sol Alt -->
-      <path d="M 6 328 C 6 342, 18 354, 32 354 C 20 350, 10 340, 6 328 Z" fill="url(#goldFrameGrad)" opacity="0.4"/>
-      <path d="M 6 328 Q 20 340 32 354" fill="none" stroke="url(#goldFrameGrad)" stroke-width="1.2"/>
-      <!-- Sağ Alt -->
-      <path d="M 994 328 C 994 342, 982 354, 968 354 C 980 350, 990 340, 994 328 Z" fill="url(#goldFrameGrad)" opacity="0.4"/>
-      <path d="M 994 328 Q 980 340 968 354" fill="none" stroke="url(#goldFrameGrad)" stroke-width="1.2"/>
+      <rect x="6" y="6" width="988" height="308" rx="18" fill="none" stroke="url(#goldFrameGrad)" stroke-width="1.2"/>
+      <rect x="12" y="12" width="976" height="296" rx="14" fill="none" stroke="url(#goldFrameGrad)" stroke-width="0.7" stroke-opacity="0.45"/>
     </svg>
 
-    <!-- Sol Metin ve Buton Kutusu -->
-    <div style="position:relative; z-index:3; max-width:520px;">
-      <div style="font-family:var(--font-brand); font-size:0.82rem; letter-spacing:2.5px; color:#c5a059; text-transform:uppercase; margin-bottom:18px;">
-        MARTELLO - SEÇKİN KOLEKSİYONLAR
+    <div style="position:relative; z-index:3; max-width:500px;">
+      <div style="font-family:var(--font-brand); font-size:0.72rem; letter-spacing:2.4px; color:#C8AA6E; text-transform:uppercase; margin-bottom:14px;">
+        MARTELLO • SEÇKİN KOLEKSİYONLAR
       </div>
-      <h1 style="font-family:var(--font-serif); font-size:3.4rem; font-weight:500; line-height:1.15; color:#f0e9dc; margin-bottom:18px; text-shadow:0 3px 12px rgba(0,0,0,0.85);">
+      <h1 style="font-family:var(--font-serif); font-size:2.75rem; font-weight:500; line-height:1.14; color:#F5F0E6; margin-bottom:14px;">
         Saatler vardır, anıları<br>hatırlatır.
       </h1>
-      <p style="font-size:1.02rem; color:#9d9588; line-height:1.6; margin-bottom:28px; max-width:460px;">
-        Seçkin koleksiyonları keşfedin, değerli parçalar için güvenle teklif verin.
+      <p style="font-size:0.9rem; color:#A39B8F; line-height:1.58; margin-bottom:24px; max-width:420px;">
+        Ekspertiz onaylı nadir eserleri keşfedin, güvenle teklif verin.
       </p>
-      <a href="?role=buyer" style="display:inline-flex; align-items:center; gap:8px; padding:12px 28px; font-size:0.92rem; font-weight:600; color:#0c0f14; background:linear-gradient(135deg, #d8b168 0%, #aa8037 100%); border:1px solid #e0be7d; border-radius:24px; text-decoration:none; box-shadow:0 4px 18px rgba(184, 147, 85, 0.35); transition:all 0.25s ease;" onmouseover="this.style.filter='brightness(1.1)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.filter='none'; this.style.transform='none';">
-        Müzayedeleri Keşfet ↗
-      </a>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <a href="#katalog" class="btn-gold-pill" style="display:inline-flex; align-items:center; gap:7px; padding:10px 24px; font-size:0.84rem; text-decoration:none;">
+          Seçkiyi İncele &rarr;
+        </a>
+        <a href="?role=buyer&tab=canli" class="btn-dark-pill" style="display:inline-flex; align-items:center; gap:7px; padding:10px 20px; font-size:0.82rem; text-decoration:none;">
+          Canlı Salon
+        </a>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 2. KOLEKSİYONLARI KEŞFEDİN BÖLÜMÜ (media_1795017299898_aa5174be.jpg ile Birebir) -->
-<section style="max-width:1260px; margin:36px auto 48px auto; padding:0 32px; width:100%;">
-  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+<!-- 2. KATEGORİLER BÖLÜMÜ (5 ANA KATEGORİ) -->
+<section style="max-width:1240px; margin:34px auto 38px auto; padding:0 28px; width:100%;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
     <div>
-      <div style="font-family:var(--font-brand); font-size:0.8rem; letter-spacing:2px; color:#c5a059; text-transform:uppercase; margin-bottom:6px;">
-        KOLEKSİYONLARI KEŞFEDİN
+      <div style="font-family:var(--font-brand); font-size:0.7rem; letter-spacing:2px; color:#C8AA6E; text-transform:uppercase; margin-bottom:4px;">
+        KATEGORİLER
       </div>
-      <h2 style="font-family:var(--font-serif); font-size:1.85rem; color:#f0e9dc; font-weight:500; margin:0;">
-        Her parça bir hikâye.
+      <h2 style="font-family:var(--font-serif); font-size:1.65rem; color:#F5F0E6; font-weight:500; margin:0;">
+        Koleksiyonları keşfedin
       </h2>
     </div>
-    <div style="display:flex; gap:8px;">
-      <button type="button" style="width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; background:transparent; border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#8b949e; cursor:pointer; font-size:1rem; transition:all 0.2s;" onmouseover="this.style.borderColor='#d4af37'; this.style.color='#fff';" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#8b949e';">←</button>
-      <button type="button" style="width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; background:transparent; border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#8b949e; cursor:pointer; font-size:1rem; transition:all 0.2s;" onmouseover="this.style.borderColor='#d4af37'; this.style.color='#fff';" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#8b949e';">→</button>
-    </div>
+    <?php if ($filterParams['cat'] !== ''): ?>
+      <a href="?role=vitrin#katalog" class="btn-outline-gold btn-sm">Tüm Kategoriler</a>
+    <?php endif; ?>
   </div>
 
-  <!-- 4 Adet Koleksiyon Kartı Grid (Birebir Tasarım) -->
-  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;">
-    <!-- 1. Efemera -->
-    <div onclick="window.location.href='?role=buyer'" style="border-radius:14px; overflow:hidden; border:1px solid rgba(197, 160, 89, 0.25); background:#0c0f15; cursor:pointer; transition:all 0.25s ease; box-shadow:0 4px 16px rgba(0,0,0,0.5);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#d4af37'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.7)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(197, 160, 89, 0.25)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.5)';">
-      <img src="public/assets/images/cat_efemera.jpg" alt="Efemera" style="width:100%; height:156px; object-fit:cover; display:block;">
-    </div>
-
-    <!-- 2. Filateli -->
-    <div onclick="window.location.href='?role=buyer'" style="border-radius:14px; overflow:hidden; border:1px solid rgba(197, 160, 89, 0.25); background:#0c0f15; cursor:pointer; transition:all 0.25s ease; box-shadow:0 4px 16px rgba(0,0,0,0.5);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#d4af37'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.7)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(197, 160, 89, 0.25)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.5)';">
-      <img src="public/assets/images/cat_filateli.jpg" alt="Filateli" style="width:100%; height:156px; object-fit:cover; display:block;">
-    </div>
-
-    <!-- 3. Osmanlı Eserleri -->
-    <div onclick="window.location.href='?role=buyer'" style="border-radius:14px; overflow:hidden; border:1px solid rgba(197, 160, 89, 0.25); background:#0c0f15; cursor:pointer; transition:all 0.25s ease; box-shadow:0 4px 16px rgba(0,0,0,0.5);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#d4af37'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.7)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(197, 160, 89, 0.25)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.5)';">
-      <img src="public/assets/images/cat_osmanli.jpg" alt="Osmanlı Eserleri" style="width:100%; height:156px; object-fit:cover; display:block;">
-    </div>
-
-    <!-- 4. Nümismatik -->
-    <div onclick="window.location.href='?role=buyer'" style="border-radius:14px; overflow:hidden; border:1px solid rgba(197, 160, 89, 0.25); background:#0c0f15; cursor:pointer; transition:all 0.25s ease; box-shadow:0 4px 16px rgba(0,0,0,0.5);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#d4af37'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.7)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(197, 160, 89, 0.25)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.5)';">
-      <img src="public/assets/images/cat_numismatik.jpg" alt="Nümismatik" style="width:100%; height:156px; object-fit:cover; display:block;">
-    </div>
-  </div>
-</section>
-
-<!-- VIP MÜZAYEDE SALONU VITRIN BANNER -->
-<section style="max-width:1260px; margin:0 auto 40px auto; padding:0 32px; width:100%;">
-  <div style="background:linear-gradient(135deg, #090c12 0%, #161c28 50%, #0c0f16 100%); border:1px solid rgba(212,175,55,0.4); border-radius:16px; padding:32px 40px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:24px; box-shadow:0 12px 40px rgba(0,0,0,0.8), inset 0 0 50px rgba(212,175,55,0.06); position:relative; overflow:hidden;">
-    <div style="position:absolute; right:0; top:0; width:50%; height:100%; background:radial-gradient(circle at 80% 50%, rgba(212,175,55,0.12) 0%, transparent 70%); pointer-events:none;"></div>
-    
-    <div style="max-width:680px; position:relative; z-index:2;">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span style="color:#d4af37;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
-        </span>
-        <span style="font-family:var(--font-brand); font-size:0.75rem; letter-spacing:2px; color:#d4af37; text-transform:uppercase; font-weight:700;">
-          MARTELLO PRIVATE CLIENTS • SALON D'HONNEUR
-        </span>
-      </div>
-      <h3 style="font-family:var(--font-serif); font-size:2.1rem; color:#f5f0e6; margin:0 0 10px 0; font-weight:500;">
-        Özel Müşteriler VIP Müzayede Salonu
-      </h3>
-      <p style="font-size:0.92rem; color:#a0aab8; line-height:1.6; margin:0 0 18px 0;">
-        Nadir astronomik aletler, imparatorluk saatleri ve başyapıt niteliğindeki saray koleksiyonları. Yalnızca akredite VIP koleksiyonerlerin katılımına açık özel müzayede salonu.
-      </p>
-      <div style="display:flex; gap:20px; font-size:0.82rem; color:#d4af37; flex-wrap:wrap;">
-        <span>★ <strong>Gold, Platinum & Diamond</strong> Giriş</span>
-        <span>•</span>
-        <span><strong>Lloyds of London</strong> %100 Sigorta</span>
-        <span>•</span>
-        <span><strong>Zırhlı Kurye</strong> Noter Teslimatı</span>
-      </div>
-    </div>
-
-    <div style="position:relative; z-index:2;">
-      <a href="?role=buyer&tab=vip" class="btn-register-glow" style="padding:14px 32px; font-size:0.95rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
-        VIP Salona Giriş Yap &rarr;
+  <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:14px;">
+    <?php foreach ($vitrinCategoryCards as $cc):
+      $isSelectedCat = ($filterParams['cat'] !== '' && mb_stripos($filterParams['cat'], $cc['filter']) !== false);
+    ?>
+      <a href="?role=vitrin&cat=<?= urlencode($cc['filter']) ?>#katalog"
+         style="position:relative; display:block; border-radius:12px; overflow:hidden; height:168px; border:1px solid <?= $isSelectedCat ? '#E2C992' : 'rgba(200,170,110,0.22)' ?>; background:#110F0D; text-decoration:none; transition:all 0.25s ease; box-shadow:0 6px 20px rgba(0,0,0,0.45);"
+         onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#E2C992';"
+         onmouseout="this.style.transform='none'; this.style.borderColor='<?= $isSelectedCat ? '#E2C992' : 'rgba(200,170,110,0.22)' ?>';">
+        <img src="<?= htmlspecialchars($cc['image']) ?>" alt="<?= htmlspecialchars($cc['title']) ?>" style="width:100%; height:100%; object-fit:cover; display:block; opacity:0.86; transition:transform 0.35s ease;">
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(10,9,8,0.08) 25%, rgba(10,9,8,0.88) 100%);"></div>
+        <div style="position:absolute; left:14px; right:14px; bottom:13px;">
+          <div style="font-family:var(--font-serif); font-size:1.08rem; font-weight:600; color:#F5F0E6; line-height:1.2;">
+            <?= htmlspecialchars($cc['title']) ?>
+          </div>
+          <div style="font-size:0.71rem; color:#C8AA6E; margin-top:2px;">
+            <?= htmlspecialchars($cc['subtitle']) ?>
+          </div>
+        </div>
       </a>
-    </div>
+    <?php endforeach; ?>
   </div>
 </section>
 
-<!-- 3. CANLI MÜZAYEDELER & ARAMA ALTYAPISI (Aşağı Kaydırıldığında Erişilebilir) -->
-<main style="max-width:1260px; margin:20px auto 60px auto; padding:0 32px; width:100%;">
-  <!-- Arama ve Filtreleme Bölümü (SRS: Kategori, Fiyat Aralığı, Ekspertiz Durumu, Marka ve Anahtar Kelimeler) -->
-  <div class="panel-card" style="margin-bottom:28px; background:rgba(18,22,31,0.92); border:1px solid #334155; box-shadow:0 12px 30px rgba(0,0,0,0.6);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-      <div style="font-size:0.85rem; color:var(--gold-primary); font-weight:700; text-transform:uppercase; letter-spacing:1.2px; display:flex; align-items:center; gap:8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span>Gelişmiş Eser Arama & Çok Kriterli Filtreleme</span>
+<!-- 3. VIP SALONU BANNER -->
+<section style="max-width:1240px; margin:0 auto 36px auto; padding:0 28px; width:100%;">
+  <div style="background:linear-gradient(135deg, #13110F 0%, #191612 60%, #100E0C 100%); border:1px solid rgba(200,170,110,0.28); border-radius:14px; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:18px;">
+    <div style="max-width:660px;">
+      <div style="font-family:var(--font-brand); font-size:0.68rem; letter-spacing:2px; color:#C8AA6E; text-transform:uppercase; margin-bottom:5px;">
+        SALON D'HONNEUR • VIP MÜZAYEDE
       </div>
-      <div style="font-size:0.8rem; color:#94a3b8;">
-        SRS: Kategori • Fiyat Aralığı • Ekspertiz Durumu • Marka • Anahtar Kelime
-      </div>
+      <h3 style="font-family:var(--font-serif); font-size:1.65rem; color:#F5F0E6; margin:0 0 6px 0; font-weight:500;">
+        Özel Müşteriler VIP Salonu
+      </h3>
+      <p style="font-size:0.83rem; color:#A39B8F; line-height:1.55; margin:0;">
+        Müze niteliğindeki nadir başyapıtlar, tam kıymet sigortası ve zırhlı teslimat güvencesiyle akredite koleksiyonerlere sunulur.
+      </p>
     </div>
+    <a href="?role=buyer&tab=vip" class="btn-outline-gold" style="padding:10px 22px; font-size:0.82rem; text-decoration:none; white-space:nowrap;">
+      VIP Salona Geç &rarr;
+    </a>
+  </div>
+</section>
 
-    <form method="GET" style="display:grid; grid-template-columns:2fr 1.3fr 1.6fr 1.2fr 1.2fr auto; gap:12px; align-items:flex-end;">
+<!-- 4. AÇIK ARTIRMADAKİ SEÇKİN ESERLER & FİLTRELEME -->
+<main id="katalog" style="max-width:1240px; margin:0 auto 54px auto; padding:0 28px; width:100%;">
+  <!-- Sade Filtre Barı -->
+  <div class="panel-card" style="margin-bottom:24px; padding:18px 20px;">
+    <form method="GET" action="index.php#katalog" style="display:grid; grid-template-columns:1.8fr 1.3fr 1.4fr 1.1fr 1.1fr auto; gap:10px; align-items:flex-end;">
       <input type="hidden" name="role" value="vitrin">
-      
-      <!-- 1. Anahtar Kelime -->
+
       <div>
-        <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Anahtar Kelime</label>
-        <input type="text" name="q" class="form-control" placeholder="Eser adı, lot no, dönem..." value="<?= htmlspecialchars($filterParams['q']) ?>" style="background:#0b0e14; border-color:#2a3649;">
+        <label class="form-label">Arama</label>
+        <input type="text" name="q" class="form-control" placeholder="Eser adı, lot no, dönem..." value="<?= htmlspecialchars($filterParams['q']) ?>">
       </div>
 
-      <!-- 2. Kategori -->
       <div>
-        <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Kategori</label>
-        <select name="cat" class="form-control" style="background:#0b0e14; border-color:#2a3649;">
+        <label class="form-label">Kategori</label>
+        <select name="cat" class="form-control">
           <option value="">Tüm Kategoriler</option>
           <?php foreach ($categories as $cat): ?>
-            <?php $catVal = (string)($cat['id'] ?? $cat['ad']); ?>
-            <option value="<?= htmlspecialchars((string)($cat['ad'] ?? $catVal)) ?>" <?= ($filterParams['cat'] === (string)($cat['ad'] ?? '') || $filterParams['cat'] === (string)($cat['id'] ?? '')) ? 'selected' : '' ?>>
-              <?= htmlspecialchars((string)($cat['ad'] ?? '')) ?>
+            <?php $catName = (string)($cat['ad'] ?? ''); ?>
+            <option value="<?= htmlspecialchars($catName) ?>" <?= ($filterParams['cat'] !== '' && (mb_stripos($catName, $filterParams['cat']) !== false || $filterParams['cat'] === (string)($cat['id'] ?? ''))) ? 'selected' : '' ?>>
+              <?= htmlspecialchars($catName) ?>
             </option>
           <?php endforeach; ?>
         </select>
       </div>
 
-      <!-- 3. Fiyat Aralığı -->
       <div>
-        <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Fiyat Aralığı (<?= $currencyStrategy->getSymbol() ?> Min - Max)</label>
+        <label class="form-label">Fiyat Aralığı (<?= $currencyStrategy->getSymbol() ?>)</label>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-          <input type="number" name="min_price" class="form-control" placeholder="Min <?= $currencyStrategy->getSymbol() ?>" value="<?= htmlspecialchars($filterParams['min_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
-          <input type="number" name="max_price" class="form-control" placeholder="Max <?= $currencyStrategy->getSymbol() ?>" value="<?= htmlspecialchars($filterParams['max_price']) ?>" style="background:#0b0e14; border-color:#2a3649; padding:6px 8px; font-size:0.82rem;">
+          <input type="number" name="min_price" class="form-control" placeholder="Min" value="<?= htmlspecialchars($filterParams['min_price']) ?>">
+          <input type="number" name="max_price" class="form-control" placeholder="Max" value="<?= htmlspecialchars($filterParams['max_price']) ?>">
         </div>
       </div>
 
-      <!-- 4. Marka / Atölye -->
       <div>
-        <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Marka / Atölye</label>
-        <select name="brand" class="form-control" style="background:#0b0e14; border-color:#2a3649;">
-          <option value="">Tüm Markalar</option>
+        <label class="form-label">Atölye / Marka</label>
+        <select name="brand" class="form-control">
+          <option value="">Tümü</option>
           <?php foreach ($filterOptions['brands'] ?? [] as $br): ?>
             <option value="<?= htmlspecialchars($br) ?>" <?= ($filterParams['brand'] === $br) ? 'selected' : '' ?>>
               <?= htmlspecialchars($br) ?>
@@ -220,128 +207,102 @@ $categories = $filterOptions['categories'] ?? ($db['categories'] ?? []);
         </select>
       </div>
 
-      <!-- 5. Ekspertiz Durumu -->
       <div>
-        <label class="form-label" style="font-size:0.75rem; color:#cbd5e1;">Ekspertiz Durumu</label>
-        <select name="exp_status" class="form-control" style="background:#0b0e14; border-color:#2a3649;">
+        <label class="form-label">Ekspertiz</label>
+        <select name="exp_status" class="form-control">
           <option value="">Tümü</option>
-          <option value="ONAYLI" <?= ($filterParams['exp_status'] === 'ONAYLI') ? 'selected' : '' ?>>✓ Onaylı & Damgalı</option>
-          <option value="BEKLEMEDE" <?= ($filterParams['exp_status'] === 'BEKLEMEDE') ? 'selected' : '' ?>>İncelemede / Heyet</option>
+          <option value="ONAYLI" <?= ($filterParams['exp_status'] === 'ONAYLI') ? 'selected' : '' ?>>Onaylı</option>
+          <option value="BEKLEMEDE" <?= ($filterParams['exp_status'] === 'BEKLEMEDE') ? 'selected' : '' ?>>İncelemede</option>
         </select>
       </div>
 
-      <!-- Aksiyon Butonları -->
       <div style="display:flex; gap:6px;">
-        <button type="submit" class="btn-register-glow" style="padding:9px 18px; font-size:0.85rem; font-weight:600; white-space:nowrap;">
-          Filtrele
-        </button>
+        <button type="submit" class="btn-gold" style="padding:8px 16px; white-space:nowrap;">Filtrele</button>
         <?php if ($hasActiveFilters): ?>
-          <a href="?role=vitrin" class="btn-outline-gold" style="padding:9px 14px; font-size:0.82rem; text-decoration:none; display:inline-flex; align-items:center; white-space:nowrap;" title="Filtreleri Sıfırla">
-            ✕ Temizle
-          </a>
+          <a href="?role=vitrin#katalog" class="btn-outline-gold" style="padding:8px 12px; white-space:nowrap;">Sıfırla</a>
         <?php endif; ?>
       </div>
     </form>
 
     <?php if ($hasActiveFilters): ?>
-      <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:0.8rem;">
-          <span style="color:#d4af37; font-weight:600;">Aktif Filtreler:</span>
-          <?php if (!empty($filterParams['q'])): ?>
-            <span class="badge badge-gold">Kelime: "<?= htmlspecialchars($filterParams['q']) ?>"</span>
-          <?php endif; ?>
-          <?php if (!empty($filterParams['cat'])): ?>
-            <span class="badge badge-gold">Kategori: <?= htmlspecialchars($filterParams['cat']) ?></span>
-          <?php endif; ?>
-          <?php if (!empty($filterParams['min_price']) || !empty($filterParams['max_price'])): ?>
-            <span class="badge badge-gold">
-              Fiyat: <?= !empty($filterParams['min_price']) ? $currencyStrategy->getSymbol() . number_format((float)$filterParams['min_price']) : '0' ?> - <?= !empty($filterParams['max_price']) ? $currencyStrategy->getSymbol() . number_format((float)$filterParams['max_price']) : '∞' ?>
-            </span>
-          <?php endif; ?>
-          <?php if (!empty($filterParams['brand'])): ?>
-            <span class="badge badge-gold">Marka: <?= htmlspecialchars($filterParams['brand']) ?></span>
-          <?php endif; ?>
-          <?php if (!empty($filterParams['exp_status'])): ?>
-            <span class="badge badge-gold">Ekspertiz: <?= $filterParams['exp_status'] === 'ONAYLI' ? '✓ Onaylı' : 'İncelemede' ?></span>
-          <?php endif; ?>
+      <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; font-size:0.76rem;">
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="color:#A39B8F;">Filtre:</span>
+          <?php if ($filterParams['q'] !== ''): ?><span class="badge badge-gold">"<?= htmlspecialchars($filterParams['q']) ?>"</span><?php endif; ?>
+          <?php if ($filterParams['cat'] !== ''): ?><span class="badge badge-gold"><?= htmlspecialchars($filterParams['cat']) ?></span><?php endif; ?>
+          <?php if ($filterParams['brand'] !== ''): ?><span class="badge badge-gold"><?= htmlspecialchars($filterParams['brand']) ?></span><?php endif; ?>
+          <?php if ($filterParams['exp_status'] !== ''): ?><span class="badge badge-gold"><?= htmlspecialchars($filterParams['exp_status']) ?></span><?php endif; ?>
         </div>
-        <div style="font-size:0.82rem; color:#38ef7d; font-weight:600;">
-          <?= count($lots) ?> adet eşleşen eser bulundu
-        </div>
+        <span style="color:#C8AA6E;"><?= count($lots) ?> eser listeleniyor</span>
       </div>
     <?php endif; ?>
   </div>
 
-  <div class="panel-header">
+  <div class="panel-header" style="margin-bottom:20px;">
     <div>
-      <div class="category-section-title">CANLI MÜZAYEDELER</div>
-      <h3 class="panel-title" style="margin-top:4px;">
+      <div style="font-family:var(--font-brand); font-size:0.68rem; letter-spacing:2px; color:#C8AA6E; text-transform:uppercase;">
+        CANLI MÜZAYEDELER
+      </div>
+      <h3 style="font-family:var(--font-serif); font-size:1.55rem; font-weight:500; color:#F5F0E6; margin-top:2px;">
         <?= $hasActiveFilters ? 'Filtrelenmiş Eser Kataloğu' : 'Açık Artırmadaki Seçkin Eserler' ?>
       </h3>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
-      <span style="font-size:0.82rem; color:#848d9a;">Toplam <?= count($lots) ?> eser</span>
-      <a href="?role=buyer" class="btn-outline-gold btn-sm">Tüm Lotları Gör →</a>
+      <span style="font-size:0.78rem; color:#A39B8F;"><?= count($lots) ?> eser</span>
+      <a href="?role=buyer&tab=kesfet" class="btn-outline-gold btn-sm">Tüm Müzayedeler &rarr;</a>
     </div>
   </div>
 
   <?php if (empty($lots)): ?>
-    <div class="panel-card" style="text-align:center; padding:50px 20px; background:#0e1218; border:1px dashed #334155;">
-      <div style="font-size:2.5rem; color:#d4af37; margin-bottom:12px;">🔍</div>
-      <h4 style="color:#f0f3f6; font-size:1.2rem; margin-bottom:8px;">Aradığınız Kriterlere Uygun Eser Bulunamadı</h4>
-      <p style="color:#848d9a; font-size:0.88rem; max-width:500px; margin:0 auto 20px auto;">
-        Belirttiğiniz kategori, fiyat aralığı, marka veya anahtar kelimelere uyan açık lot bulunmamaktadır. Kriterlerinizi genişleterek tekrar deneyebilirsiniz.
-      </p>
-      <a href="?role=vitrin" class="btn-gold" style="display:inline-flex; align-items:center; gap:6px;">
-        Tüm Kataloğu Göster
-      </a>
+    <div class="panel-card" style="text-align:center; padding:42px 20px;">
+      <h4 style="font-family:var(--font-serif); color:#F5F0E6; font-size:1.25rem; margin-bottom:8px;">Eşleşen eser bulunamadı</h4>
+      <p style="color:#A39B8F; font-size:0.82rem; margin-bottom:18px;">Filtre kriterlerini temizleyerek tüm kataloğu görüntüleyebilirsiniz.</p>
+      <a href="?role=vitrin#katalog" class="btn-gold">Tüm Kataloğu Göster</a>
     </div>
   <?php else: ?>
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
-      <?php foreach ($lots as $lot): ?>
-        <div class="panel-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; transition:all 0.25s ease;" onmouseover="this.style.borderColor='rgba(212,175,55,0.4)';" onmouseout="this.style.borderColor='var(--border-color)';">
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;">
+      <?php foreach ($lots as $lot):
+        $imgUrl = !empty($lot['gorselUrl']) ? (string)$lot['gorselUrl'] : 'public/assets/images/lot_ceramic_vase.jpg';
+        $isLive = (($lot['durum'] ?? '') === 'ACIK_ARTIRMADA');
+      ?>
+        <div class="panel-card" style="margin-bottom:0; padding:16px; display:flex; flex-direction:column; justify-content:space-between; transition:all 0.25s ease;"
+             onmouseover="this.style.borderColor='rgba(200,170,110,0.42)'; this.style.transform='translateY(-2px)';"
+             onmouseout="this.style.borderColor='var(--border-card)'; this.style.transform='none';">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <span class="badge badge-gold"><?= htmlspecialchars((string)($lot['lotKodu'] ?? '')) ?></span>
-              <div style="display:flex; gap:6px;">
-                <?php if (!empty($lot['ekspertizOnayli'])): ?>
-                  <span class="badge badge-success" style="font-size:0.68rem; padding:2px 8px;">✓ Ekspertiz Onaylı</span>
-                <?php endif; ?>
-                <span class="badge <?= ($lot['durum'] ?? '') === 'ACIK_ARTIRMADA' ? 'badge-success' : 'badge-warning' ?>" style="font-size:0.68rem; padding:2px 8px;">
-                  <?= htmlspecialchars((string)($lot['durum'] ?? '')) ?>
-                </span>
-              </div>
+              <span class="badge <?= $isLive ? 'badge-success' : 'badge-warning' ?>">
+                <?= $isLive ? 'Açık Artırmada' : htmlspecialchars((string)($lot['durum'] ?? '')) ?>
+              </span>
             </div>
 
-            <!-- Eser Görseli -->
-            <?php $imgUrl = !empty($lot['gorselUrl']) ? $lot['gorselUrl'] : 'public/assets/images/watch.jpg'; ?>
-            <div style="height:170px; background:#070a0f; border-radius:8px; overflow:hidden; margin-bottom:14px; display:flex; align-items:center; justify-content:center; border:1px solid #1a2230;">
-              <img src="<?= htmlspecialchars($imgUrl) ?>" alt="<?= htmlspecialchars((string)($lot['baslik'] ?? '')) ?>" style="max-height:100%; max-width:100%; object-fit:contain;">
+            <div style="height:196px; background:#0A0908; border-radius:8px; overflow:hidden; margin-bottom:12px; border:1px solid rgba(200,170,110,0.14);">
+              <img src="<?= htmlspecialchars($imgUrl) ?>" alt="<?= htmlspecialchars((string)($lot['baslik'] ?? '')) ?>" style="width:100%; height:100%; object-fit:cover; display:block;">
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-              <span style="font-size:0.75rem; color:#d4af37; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="font-size:0.7rem; color:#C8AA6E; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
                 <?= htmlspecialchars((string)($lot['markaGosterim'] ?? ($lot['marka'] ?? 'Özel Koleksiyon'))) ?>
               </span>
-              <span style="font-size:0.75rem; color:#848d9a;">
-                <?= htmlspecialchars((string)($lot['kategoriAdi'] ?? 'Antika')) ?>
+              <span style="font-size:0.7rem; color:#8C8478; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <?= htmlspecialchars((string)($lot['kategoriAdi'] ?? 'Antika & Sanat')) ?>
               </span>
             </div>
 
-            <h4 style="font-family:var(--font-serif); font-size:1.18rem; color:#fff; margin-bottom:10px; line-height:1.35;">
+            <h4 style="font-family:var(--font-serif); font-size:1.12rem; font-weight:500; color:#F5F0E6; margin-bottom:12px; line-height:1.32;">
               <?= htmlspecialchars((string)($lot['baslik'] ?? '')) ?>
             </h4>
           </div>
 
-          <div style="border-top:1px solid var(--border-color); padding-top:14px; display:flex; justify-content:space-between; align-items:center;">
+          <div style="border-top:1px solid var(--border-color); padding-top:12px; display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Güncel Teklif</div>
-              <div style="font-family:var(--font-serif); font-size:1.35rem; font-weight:700; color:var(--gold-bright);">
+              <div style="font-size:0.67rem; color:#8C8478; text-transform:uppercase; letter-spacing:0.6px;">Güncel Teklif</div>
+              <div style="font-family:var(--font-serif); font-size:1.22rem; font-weight:600; color:#E2C992;">
                 <?= $formatPrice((float)($lot['mevcutEnYuksekTeklif'] ?: ($lot['baslangicFiyati'] ?? 0))) ?>
               </div>
             </div>
-            <a href="?role=buyer&tab=canli&lot_id=<?= (int)$lot['id'] ?>" class="btn-gold btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
-              Pey Ver &rarr;
+            <a href="?role=buyer&tab=canli&lot_id=<?= (int)$lot['id'] ?>" class="btn-outline-gold btn-sm">
+              İncele &rarr;
             </a>
           </div>
         </div>

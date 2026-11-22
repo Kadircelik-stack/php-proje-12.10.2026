@@ -35,11 +35,144 @@ class WebAndApiController
     }
 
     /**
+     * WAF Girdi Temizleme Katmanı (OWASP A03:2021 Injection / MITRE T1059.007 & T1190)
+     * Tüm POST verilerini Null-Byte, CRLF Log Injection, Script/Event-Handler XSS ve
+     * JSON/NoSQL operatör enjeksiyonlarına karşı temizler.
+     */
+    private function sanitizePostPayload(array $payload): array
+    {
+        $clean = [];
+        $blockedKeys = ['__proto__', 'constructor', 'prototype', '$ne', '$gt', '$lt', '$where', '$regex'];
+
+        foreach ($payload as $key => $val) {
+            $strKey = (string)$key;
+            if (in_array(strtolower($strKey), $blockedKeys, true) || str_starts_with($strKey, '$')) {
+                continue;
+            }
+            if (is_array($val)) {
+                $clean[$key] = $this->sanitizePostPayload($val);
+            } elseif (is_string($val)) {
+                // Null-byte ve tehlikeli kontrol karakterlerini temizle
+                $v = str_replace("\0", '', $val);
+                // Tek satırlık kimlik/kod alanlarında CRLF Log Injection engelle
+                if (!in_array($strKey, ['notes', 'description', 'aciklama', 'message', 'reply_text', 'expert_opinion', 'adres'], true)) {
+                    $v = str_replace(["\r", "\n"], ' ', $v);
+                }
+                // Tehlikeli çalıştırılabilir HTML/JS vektörlerini etkisizleştir
+                $v = preg_replace('/<\s*\/?\s*(script|iframe|object|embed|svg|meta|link)\b[^>]*>/i', '', $v) ?? $v;
+                $v = preg_replace('/\b(javascript|vbscript|data)\s*:/i', 'blocked:', $v) ?? $v;
+                $v = preg_replace('/\bon[a-z]+\s*=/i', 'data-blocked-event=', $v) ?? $v;
+                $clean[$key] = $v;
+            } else {
+                $clean[$key] = $val;
+            }
+        }
+
+        return $clean;
+    }
+
+    /**
+     * Sunucu Taraflı POST Eylem Yetki Matrisi (Action-Level RBAC Guard — MITRE T1548 / OWASP A01:2021)
+     */
+    private function enforceActionRbac(string $action): ?array
+    {
+        if (PHP_SAPI === 'cli' && empty($_SESSION['auth_user'])) {
+            return null;
+        }
+
+        $authUser = $_SESSION['auth_user'] ?? null;
+        $role = is_array($authUser) ? strtoupper((string)($authUser['rol'] ?? '')) : 'MISAFIR';
+
+        $adminOnlyActions = [
+            'approve_listing', 'edit_lot', 'configure_lot_schedule', 'toggle_ban',
+            'verify_kyc', 'update_user_role_and_permissions', 'restrict_user_access',
+            'review_appraisal_dossier', 'review_appraisal_report', 'control_auction_state',
+            'finalize_expired_auctions', 'assign_expert', 'manage_expert_accreditation',
+            'accredit_expert', 'resolve_dispute', 'admin_cancel_bid', 'admin_cancel_lot',
+            'admin_cancel_listing', 'cancel_bid', 'update_commission_definitions',
+            'add_category', 'delete_category', 'refund_escrow_hold',
+            'process_collateral_refund', 'update_system_params', 'create_staff',
+        ];
+
+        $appraiserActions = [
+            'submit_appraisal', 'submit_dispute_opinion', 'request_revision', 'escalate_appraisal',
+        ];
+
+        $sellerActions = [
+            'create_listing', 'cancel_listing', 'edit_listing', 'request_payout',
+        ];
+
+        $forbidden = false;
+        if (in_array($action, $adminOnlyActions, true) && $role !== 'ADMIN') {
+            $forbidden = true;
+        } elseif (in_array($action, $appraiserActions, true) && !in_array($role, ['EKSPERTIZ', 'ADMIN'], true)) {
+            $forbidden = true;
+        } elseif (in_array($action, $sellerActions, true) && !in_array($role, ['SATICI', 'ADMIN'], true)) {
+            $forbidden = true;
+        }
+
+        if ($forbidden) {
+            $actorId = is_array($authUser) ? (int)($authUser['id'] ?? 0) : 0;
+            $this->dataStore->insertItem('auditLogs', [
+                'kullaniciId' => $actorId,
+                'islemTuru'   => 'RBAC_YETKISIZ_POST_ENGELLENDI',
+                'aciklama'    => "Yetkisiz POST eylemi engellendi: Rol={$role}, Eylem={$action}",
+                'ipAdresi'    => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+                'tarih'       => date('c'),
+            ]);
+            return [
+                'type' => 'danger',
+                'text' => 'Yetkisiz İşlem Engellendi (RBAC): Bu işlemi gerçekleştirme yetkiniz bulunmamaktadır.',
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * IDOR Koruması (OWASP A01:2021 IDOR / MITRE T1565.002):
+     * Oturumdaki kullanıcı ADMIN değilse, kullanıcıya özel işlemlerde istemciden gelen
+     * user_id / seller_id / expert_id değerlerini oturumdaki gerçek kimliğe zorunlu bağlar.
+     */
+    private function bindSessionIdentity(array $post): array
+    {
+        $authUser = $_SESSION['auth_user'] ?? null;
+        if (!is_array($authUser) || empty($authUser['id'])) {
+            return $post;
+        }
+
+        $role = strtoupper((string)($authUser['rol'] ?? 'ALICI'));
+        $sessionUid = (int)$authUser['id'];
+
+        if ($role !== 'ADMIN') {
+            $post['user_id']   = $sessionUid;
+            $post['actor_id']  = $sessionUid;
+            $post['sender_id'] = $sessionUid;
+            if ($role === 'SATICI') {
+                $post['seller_id'] = $sessionUid;
+            }
+            if ($role === 'EKSPERTIZ') {
+                $post['expert_id'] = $sessionUid;
+            }
+        }
+
+        return $post;
+    }
+
+    /**
      * Web arayüzünden gelen POST işlemlerini işler ve flash mesajı üretir.
      */
     public function handlePostAction(array $post): array
     {
-        $action = $post['action'] ?? '';
+        $post = $this->sanitizePostPayload($post);
+        $action = (string)($post['action'] ?? '');
+
+        $rbacViolation = $this->enforceActionRbac($action);
+        if ($rbacViolation !== null) {
+            return $rbacViolation;
+        }
+
+        $post = $this->bindSessionIdentity($post);
 
         switch ($action) {
             case 'place_bid':
@@ -80,7 +213,7 @@ class WebAndApiController
                 if ($res['success']) {
                     return [
                         'type' => 'info',
-                        'text' => "👑 VIP Salonu: Akredite diğer VIP Koleksiyoner (damror0ki - GOLD) ₺" . number_format($competitorBid, 2, ',', '.') . " tutarında resmi VIP pey sürdü.",
+                        'text' => "VIP Salonu: Akredite diğer VIP Koleksiyoner (damror0ki - GOLD) ₺" . number_format($competitorBid, 2, ',', '.') . " tutarında resmi VIP pey sürdü.",
                     ];
                 }
                 return ['type' => 'warning', 'text' => $res['message']];
@@ -101,14 +234,28 @@ class WebAndApiController
                 ]);
                 return [
                     'type' => 'success',
-                    'text' => "✓ VIP Telefonla Katılım Rezervasyonunuz onaylandı. Özel Temsilciniz (Leyla Alptekin) müzayededen 15 dakika önce {$phone} numarasından doğrudan şifreli hat kuracaktır.",
+                    'text' => "VIP Telefonla Katılım Rezervasyonunuz onaylandı. Özel Temsilciniz (Leyla Alptekin) müzayededen 15 dakika önce {$phone} numarasından doğrudan şifreli hat kuracaktır.",
                 ];
 
             case 'vip_request_limit':
                 $userId = (int)($post['user_id'] ?? 3);
                 $targetLimit = (float)($post['target_limit'] ?? 2000000);
+                $allowedVipTiers = [2000000.0, 3500000.0, 5000000.0, 10000000.0];
+                if (!in_array($targetLimit, $allowedVipTiers, true)) {
+                    return [
+                        'type' => 'danger',
+                        'text' => 'Geçersiz VIP teklif limiti kademesi talep edildi.',
+                    ];
+                }
                 $user = $this->dataStore->getItem('users', 'id', $userId);
                 if ($user) {
+                    $vipTier = strtoupper((string)($user['aliciProfili']['vipSeviyesi'] ?? 'STANDARD'));
+                    if (!in_array($vipTier, ['GOLD', 'PLATINUM', 'DIAMOND'], true) && (($user['rol'] ?? '') !== 'ADMIN')) {
+                        return [
+                            'type' => 'danger',
+                            'text' => 'VIP Limit Artırımı yalnızca Gold, Platinum veya Diamond akreditasyonuna sahip koleksiyonerler için geçerlidir.',
+                        ];
+                    }
                     $prof = $user['aliciProfili'] ?? [];
                     $prof['teklifLimiti'] = $targetLimit;
                     $user['aliciProfili'] = $prof;
@@ -116,7 +263,7 @@ class WebAndApiController
                 }
                 return [
                     'type' => 'success',
-                    'text' => "✓ VIP Konsiyerj: Özel Müşteri teklif limitiniz anında ₺" . number_format($targetLimit, 2, ',', '.') . " seviyesine yükseltildi.",
+                    'text' => "VIP Konsiyerj: Özel Müşteri teklif limitiniz ₺" . number_format($targetLimit, 2, ',', '.') . " seviyesine yükseltildi.",
                 ];
 
             case 'simulate_competitor_bid':
@@ -130,7 +277,7 @@ class WebAndApiController
                 if ($res['success']) {
                     return [
                         'type' => 'info',
-                        'text' => "⚡ Rakip alıcı (damror0ki) ₺" . number_format($competitorBid, 2, ',', '.') . " tutarında pey verdi. Otomatik Teklif sisteminiz hemen devreye girerek adınıza otomatik karşı pey sürdü ve liderliği korudu!",
+                        'text' => "Rakip alıcı (damror0ki) ₺" . number_format($competitorBid, 2, ',', '.') . " tutarında pey verdi. Otomatik Teklif sisteminiz hemen devreye girerek adınıza otomatik karşı pey sürdü ve liderliği korudu.",
                     ];
                 }
                 return ['type' => 'warning', 'text' => $res['message']];
@@ -195,6 +342,43 @@ class WebAndApiController
 
             case 'create_listing':
                 $sellerId = (int)($post['seller_id'] ?? 2);
+                if (!empty($_FILES['product_image']) && (int)($_FILES['product_image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                    $tmpPath  = (string)$_FILES['product_image']['tmp_name'];
+                    $origName = (string)($_FILES['product_image']['name'] ?? 'eser.jpg');
+                    $fileSize = (int)($_FILES['product_image']['size'] ?? 0);
+                    $ext      = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+                    $allowed  = ['jpg', 'jpeg', 'png', 'webp'];
+
+                    if (!in_array($ext, $allowed, true)) {
+                        return ['type' => 'danger', 'text' => 'Yalnızca JPG, PNG veya WEBP görsel dosyaları yüklenebilir.'];
+                    }
+                    if ($fileSize > 5 * 1024 * 1024) {
+                        return ['type' => 'danger', 'text' => 'Görsel dosya boyutu en fazla 5 MB olabilir.'];
+                    }
+
+                    // 2. Katman: Gerçek Binary Başlık (Magic Bytes / Image Header) Doğrulaması
+                    $imgInfo = @getimagesize($tmpPath);
+                    $validImgTypes = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP];
+                    if ($imgInfo === false || (int)($imgInfo[0] ?? 0) <= 0 || (int)($imgInfo[1] ?? 0) <= 0 || !in_array((int)($imgInfo[2] ?? 0), $validImgTypes, true)) {
+                        return ['type' => 'danger', 'text' => 'Güvenlik İhlali: Yüklenen dosya geçerli bir görüntü başlığına (Magic Bytes) sahip değil.'];
+                    }
+
+                    // 3. Katman: Polyglot / Gömülü Betik (Web Shell / Script) Taraması
+                    $headBytes = (string)@file_get_contents($tmpPath, false, null, 0, 4096);
+                    if (preg_match('/(<\?php|<\?=|<\s*script\b)/i', $headBytes)) {
+                        return ['type' => 'danger', 'text' => 'Güvenlik İhlali: Görsel dosyası içinde çalıştırılabilir betik imzası tespit edildi ve engellendi.'];
+                    }
+
+                    $uploadDir = dirname(__DIR__, 2) . '/public/assets/images/uploads';
+                    if (!is_dir($uploadDir)) {
+                        @mkdir($uploadDir, 0775, true);
+                    }
+                    $safeName = 'urun_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+                    $destPath = $uploadDir . '/' . $safeName;
+                    if (@move_uploaded_file($tmpPath, $destPath) || @copy($tmpPath, $destPath)) {
+                        $post['uploaded_image'] = 'public/assets/images/uploads/' . $safeName;
+                    }
+                }
                 $res = $this->workflowService->createProductAndListing($sellerId, $post);
                 return [
                     'type' => $res['success'] ? 'success' : 'danger',

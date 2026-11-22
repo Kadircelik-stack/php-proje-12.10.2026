@@ -1,0 +1,122 @@
+{
+    "metadata": {
+        "storeName": "Martello_Virtual_User_Auth_Store",
+        "description": "Ayrı sanal kullanıcı kimlik ve rol doğrulama deposu (Argon2id/bcrypt hash)",
+        "schemaVersion": "1.0.0",
+        "updatedAt": "2026-11-21T23:16:01+00:00"
+    },
+    "accounts": [
+        {
+            "id": 1,
+            "ad": "Ahmet",
+            "soyad": "Yılmaz",
+            "email": "admin@muzayede.com",
+            "telefon": "+905551112233",
+            "rol": "ADMIN",
+            "durum": "AKTIF",
+            "parolaHash": "$argon2id$v=19$m=16384,t=2,p=1$a1EwMHNpY1p5TDhhZ3ZQQg$DnpORVJAmQdmWXOvzNKZS++Ju7Qd8XZzWO/ob9MgqMk",
+            "olusturma": "2026-01-01T10:00:00+03:00",
+            "sonGiris": null,
+            "yetkiKaynagi": "SISTEM_KURUCU",
+            "avatar": "public/assets/images/avatar_ahmet.jpg"
+        },
+        {
+            "id": 2,
+            "ad": "Mehmet",
+            "soyad": "Kaya",
+            "email": "mehmet@antik.com",
+            "telefon": "+905322223344",
+            "rol": "SATICI",
+            "durum": "AKTIF",
+            "parolaHash": "$argon2id$v=19$m=16384,t=2,p=1$cVRQN3BxRnJ0Y1lZS2VxaQ$WBYqRAEySrSwc9qo2j6GOh9XCCv314l0naG9NYVSME0",
+            "olusturma": "2026-09-15T14:20:00+03:00",
+            "sonGiris": null,
+            "yetkiKaynagi": "KULLANICI_KAYDI",
+            "avatar": "public/assets/images/avatar_mehmet.jpg"
+        },
+        {
+            "id": 3,
+            "ad": "Zeynep",
+            "soyad": "Demir",
+            "email": "zeynep@koleksiyon.com",
+            "telefon": "+905443334455",
+            "rol": "ALICI",
+            "durum": "AKTIF",
+            "parolaHash": "$argon2id$v=19$m=16384,t=2,p=1$RmwwL3FHdWpjYmNwNEVlMg$t43hYayP8y5huY8cGzV0RiXKzaTXY7tS3DUyHlGF3xc",
+            "olusturma": "2026-09-20T11:30:00+03:00",
+            "sonGiris": null,
+            "yetkiKaynagi": "KULLANICI_KAYDI",
+            "avatar": "public/assets/images/avatar_zeynep.jpg"
+        },
+        {
+            "id": 4,
+            "ad": "Burak",
+            "soyad": "Şahin",
+            "email": "burak@ekspertiz.com",
+            "telefon": "+905334445566",
+            "rol": "EKSPERTIZ",
+            "durum": "AKTIF",
+            "parolaHash": "$argon2id$v=19$m=16384,t=2,p=1$WWMuWkxhRTJjeDZvRVJRag$oZd7mDZfM/Kf40/co5IIyPwfhJYTnShUlJDL00oPbuI",
+            "olusturma": "2026-09-10T09:00:00+03:00",
+            "sonGiris": null,
+            "yetkiKaynagi": "ADMIN_ATAMASI",
+            "avatar": "public/assets/images/avatar_burak.jpg"
+        },
+        {
+            "id": 5,
+            "ad": "Elif",
+            "soyad": "Çelik",
+            "email": "elif@destek.com",
+            "telefon": "+905556667788",
+            "rol": "CANLI_DESTEK",
+            "durum": "AKTIF",
+            "parolaHash": "$argon2id$v=19$m=16384,t=2,p=1$MjV0cnhRbDZEUEpJL1dDeQ$dLKo0Kg8lATGbUphmp550ruDiSdrEoZ7qZ+s65zLdVE",
+            "olusturma": "2026-09-10T09:15:00+03:00",
+            "sonGiris": null,
+            "yetkiKaynagi": "ADMIN_ATAMASI",
+            "avatar": "public/assets/images/avatar_elif.jpg"
+        },
+        {
+            "id": 6,
+            "ad": "Emre",
+            "soyad": "Karahan",
+            "email": "emre.k@koleksiyon.com",
+            "telefon": "+905327778899",
+            "rol": "ALICI",
+            "durum": "AKTIF",
+            "parolaHash": "$argon2id$v=19$m=16384,t=2,p=1$ZmouYnhIbGk2MU5CS1ZrMQ$9KQVY0wYRz1OT1OKfVtAQdUDhWCxUyd29PJmagn8fI0",
+            "olusturma": "2026-09-25T16:10:00+03:00",
+            "sonGiris": null,
+            "yetkiKaynagi": "KULLANICI_KAYDI",
+            "avatar": "public/assets/images/avatar_emre.jpg"
+        },
+        {
+            "id": 7,
+            "ad": "Esra",
+            "soyad": "Yıldırım",
+            "email": "esrayildirim24680@gmail.com",
+            "telefon": "+90532000007",
+            "rol": "ALICI",
+            "durum": "AKTIF",
+            "avatar": "public/assets/images/avatar_esra.jpg",
+            "parolaHash": "$2y$10$bI0jFn0UtHjneRL3JO.N7.rb7svzyb13eif6o7/cRyGbfs0LxlZPm",
+            "olusturma": "2026-11-22T00:58:54+00:00",
+            "sonGiris": null,
+            "yetkiKaynagi": "KULLANICI_KAYDI"
+        },
+        {
+            "id": 8,
+            "ad": "Rümeysa Şevval",
+            "soyad": "Kandilci",
+            "email": "sewal.13kandilci@gmail.com",
+            "telefon": "+90532000008",
+            "rol": "ALICI",
+            "durum": "AKTIF",
+            "avatar": "public/assets/images/avatar_sevval.jpg?v=4",
+            "parolaHash": "$2y$10$RuL/lHW2NgO0NPaffzfWju18tbfn2AhwfAMW/j5ruKOu1d2Nw8sce",
+            "olusturma": "2026-11-22T00:58:54+00:00",
+            "sonGiris": null,
+            "yetkiKaynagi": "KULLANICI_KAYDI"
+        }
+    ]
+}
